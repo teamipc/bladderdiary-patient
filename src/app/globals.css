@@ -1,26 +1,114 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ── IPC Brand Palette (shared with clinician app) ── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ipc-50: #fdf8ef;
+  --color-ipc-100: #f9edda;
+  --color-ipc-200: #f2d8b4;
+  --color-ipc-300: #e9be84;
+  --color-ipc-400: #dea153;
+  --color-ipc-500: #c4984a;
+  --color-ipc-600: #c47d2a;
+  --color-ipc-700: #a36224;
+  --color-ipc-800: #854e23;
+  --color-ipc-900: #6c4120;
+  --color-ipc-950: #3d210f;
+
+  --color-surface: #fefdfb;
+  --color-surface-alt: #fdf8ef;
+
+  --color-success: #4a8c6a;
+  --color-success-light: #e8f4ee;
+  --color-warning: #d4943a;
+  --color-warning-light: #fef3e2;
+  --color-danger: #c45a4a;
+  --color-danger-light: #fde8e5;
+  --color-info: #5a8ab4;
+  --color-info-light: #e8f0f8;
+
+  --color-void: #c4984a;
+  --color-drink: #5a8ab4;
+  --color-bedtime: #8a6aac;
+
+  --font-sans: "Inter", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base styles ── */
+html {
+  background: var(--color-surface);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-ipc-950);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent iOS zoom on input focus */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Safe area padding for notch devices */
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+}
+
+/* ── Animations ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-slide-up {
+  animation: fadeSlideUp 0.35s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s ease-out both;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out both;
+}
+
+/* Stagger delays */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+/* Bottom sheet backdrop */
+.backdrop-dim {
+  background: rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.2s ease-out both;
 }
