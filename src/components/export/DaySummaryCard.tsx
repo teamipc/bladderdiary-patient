@@ -1,7 +1,7 @@
 'use client';
 
 import { useDiaryStore } from '@/lib/store';
-import { getDayDate, formatDate, formatTime } from '@/lib/utils';
+import { getDayDate, formatDate, formatTime, mlToDisplayVolume } from '@/lib/utils';
 import { Droplets, Coffee, Moon, Sun } from 'lucide-react';
 
 interface DaySummaryCardProps {
@@ -9,7 +9,7 @@ interface DaySummaryCardProps {
 }
 
 export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
-  const { startDate, getVoidsForDay, getDrinksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
+  const { startDate, volumeUnit, getVoidsForDay, getDrinksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
 
   const voids = getVoidsForDay(dayNumber);
   const drinks = getDrinksForDay(dayNumber);
@@ -46,8 +46,8 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
               </div>
               <div>
                 <p className="text-xl font-bold text-ipc-950">
-                  {totalFluids.toLocaleString()}
-                  <span className="text-sm font-medium text-ipc-400 ml-0.5">mL</span>
+                  {mlToDisplayVolume(totalFluids, volumeUnit).toLocaleString()}
+                  <span className="text-sm font-medium text-ipc-400 ml-0.5">{volumeUnit}</span>
                 </p>
                 <p className="text-xs text-ipc-500">{drinks.length} drinks</p>
               </div>
@@ -60,8 +60,8 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
               </div>
               <div>
                 <p className="text-xl font-bold text-ipc-950">
-                  {totalVoids.toLocaleString()}
-                  <span className="text-sm font-medium text-ipc-400 ml-0.5">mL</span>
+                  {mlToDisplayVolume(totalVoids, volumeUnit).toLocaleString()}
+                  <span className="text-sm font-medium text-ipc-400 ml-0.5">{volumeUnit}</span>
                 </p>
                 <p className="text-xs text-ipc-500">{voids.length} voids</p>
               </div>

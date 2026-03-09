@@ -1,8 +1,9 @@
 'use client';
 
 import { Droplets, Moon, Trash2, Pencil, Sun } from 'lucide-react';
-import { formatTime } from '@/lib/utils';
+import { formatTime, mlToDisplayVolume } from '@/lib/utils';
 import { getDrinkLabel, getDrinkIconName, SENSATION_LABELS } from '@/lib/constants';
+import { useDiaryStore } from '@/lib/store';
 import DrinkIcon from '@/components/ui/DrinkIcon';
 import type { VoidEntry, DrinkEntry, BedtimeEntry, WakeTimeEntry } from '@/lib/types';
 
@@ -14,6 +15,8 @@ type TimelineEventProps =
 
 export default function TimelineEvent(props: TimelineEventProps) {
   const { type } = props;
+  const { volumeUnit } = useDiaryStore();
+  const fmt = (ml: number) => mlToDisplayVolume(ml, volumeUnit);
 
   if (type === 'void') {
     const { entry, onDelete, onEdit, onMarkMorning } = props;
@@ -59,8 +62,8 @@ export default function TimelineEvent(props: TimelineEventProps) {
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-sm font-medium text-ipc-950 shrink-0">
               {entry.doubleVoidMl
-                ? `${entry.volumeMl} + ${entry.doubleVoidMl} mL`
-                : `${entry.volumeMl} mL`}
+                ? `${fmt(entry.volumeMl)} + ${fmt(entry.doubleVoidMl)} ${volumeUnit}`
+                : `${fmt(entry.volumeMl)} ${volumeUnit}`}
             </span>
             <span className="text-sm text-ipc-400 shrink-0">
               {SENSATION_LABELS[entry.sensation].short}
@@ -120,7 +123,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
             </span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-sm font-medium text-drink">{entry.volumeMl} mL</span>
+            <span className="text-sm font-medium text-drink">{fmt(entry.volumeMl)} {volumeUnit}</span>
           </div>
           {entry.note && (
             <p className="text-xs text-ipc-500 mt-0.5 truncate">{entry.note}</p>

@@ -6,32 +6,32 @@ import { ChevronRight, Calendar } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
 interface OnboardingFlowProps {
-  onComplete: (age: number, startDate: string) => void;
+  onComplete: (age: number, startDate: string, volumeUnit: 'mL' | 'oz') => void;
 }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [direction, setDirection] = useState<'left' | 'right'>('left');
   const [age, setAge] = useState('');
+  const [volumeUnit, setVolumeUnit] = useState<'mL' | 'oz'>('mL');
   const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   const ageNum = parseInt(age, 10);
   const isAgeValid = !isNaN(ageNum) && ageNum >= 18 && ageNum <= 120;
 
-  const goToStep2 = () => {
-    if (!isAgeValid) return;
+  const goForward = (target: 2 | 3) => {
     setDirection('left');
-    setStep(2);
+    setStep(target);
   };
 
-  const goBackToStep1 = () => {
+  const goBack = (target: 1 | 2) => {
     setDirection('right');
-    setStep(1);
+    setStep(target);
   };
 
   const handleConfirm = () => {
     if (!isAgeValid) return;
-    onComplete(ageNum, startDate);
+    onComplete(ageNum, startDate, volumeUnit);
   };
 
   // Compute the 3 tracking days
@@ -49,6 +49,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         <div className="flex items-center gap-2 mb-8">
           <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 1 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
           <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 2 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
+          <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 3 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
         </div>
 
         {/* Step 1: Age */}
@@ -81,7 +82,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
             <div className="max-w-xs mx-auto">
               <Button
-                onClick={goToStep2}
+                onClick={() => { if (isAgeValid) goForward(2); }}
                 fullWidth
                 size="lg"
                 disabled={!isAgeValid}
@@ -93,9 +94,67 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           </div>
         )}
 
-        {/* Step 2: Date confirmation */}
+        {/* Step 2: Unit selection */}
         {step === 2 && (
           <div key="step2" className={`w-full text-center ${animClass}`}>
+            <h2 className="text-2xl font-bold text-ipc-950 mb-2">
+              How do you measure?
+            </h2>
+            <p className="text-sm text-ipc-500 mb-8">
+              Choose the unit you&apos;re most comfortable with. This will be used throughout the app.
+            </p>
+
+            <div className="flex gap-3 justify-center mb-8">
+              <button
+                type="button"
+                onClick={() => setVolumeUnit('mL')}
+                className={`flex-1 max-w-[160px] py-6 rounded-2xl border-2 transition-all active:scale-[0.97] ${
+                  volumeUnit === 'mL'
+                    ? 'border-ipc-500 bg-ipc-50 ring-2 ring-ipc-200/50'
+                    : 'border-ipc-200/50 bg-white/60 hover:border-ipc-300'
+                }`}
+              >
+                <span className="block text-3xl font-bold text-ipc-950 mb-1">mL</span>
+                <span className="block text-sm text-ipc-500">Millilitres</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setVolumeUnit('oz')}
+                className={`flex-1 max-w-[160px] py-6 rounded-2xl border-2 transition-all active:scale-[0.97] ${
+                  volumeUnit === 'oz'
+                    ? 'border-ipc-500 bg-ipc-50 ring-2 ring-ipc-200/50'
+                    : 'border-ipc-200/50 bg-white/60 hover:border-ipc-300'
+                }`}
+              >
+                <span className="block text-3xl font-bold text-ipc-950 mb-1">oz</span>
+                <span className="block text-sm text-ipc-500">Fluid ounces</span>
+              </button>
+            </div>
+
+            <div className="space-y-3 max-w-xs mx-auto">
+              <Button
+                onClick={() => goForward(3)}
+                fullWidth
+                size="lg"
+              >
+                Next
+                <ChevronRight size={18} className="ml-1 inline" />
+              </Button>
+              <button
+                type="button"
+                onClick={() => goBack(1)}
+                className="text-sm text-ipc-400 hover:text-ipc-600 transition-colors"
+              >
+                Back
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Date confirmation */}
+        {step === 3 && (
+          <div key="step3" className={`w-full text-center ${animClass}`}>
             <h2 className="text-2xl font-bold text-ipc-950 mb-2">
               When do you want to start?
             </h2>
@@ -148,7 +207,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               </Button>
               <button
                 type="button"
-                onClick={goBackToStep1}
+                onClick={() => goBack(2)}
                 className="text-sm text-ipc-400 hover:text-ipc-600 transition-colors"
               >
                 Back

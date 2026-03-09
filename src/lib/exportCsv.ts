@@ -11,8 +11,9 @@
  * both are combined (except MVV which uses individual volumes).
  */
 
-import { getDayNumber } from './utils';
+import { getDayNumber, mlToDisplayVolume } from './utils';
 import { computeMetrics } from './calculations';
+import { PREMIUM_FEATURES_ENABLED } from './constants';
 import type { DiaryState } from './types';
 
 /* ------------------------------------------------------------------ */
@@ -58,6 +59,8 @@ export function generateCsv(state: DiaryState): string {
     lines.push(row('wake', w.timestampIso, w.dayNumber, '', '', '', '', '', '', ''));
   }
 
+  const dv = (ml: number) => mlToDisplayVolume(ml, state.volumeUnit);
+
   // Voids
   for (const v of state.voids) {
     const day = getDayNumber(v.timestampIso, state.startDate, state.bedtimes);
@@ -65,8 +68,8 @@ export function generateCsv(state: DiaryState): string {
       'void',
       v.timestampIso,
       day,
-      v.volumeMl,
-      v.doubleVoidMl ?? '',
+      dv(v.volumeMl),
+      v.doubleVoidMl ? dv(v.doubleVoidMl) : '',
       '',
       v.sensation,
       v.isFirstMorningVoid,
@@ -82,7 +85,7 @@ export function generateCsv(state: DiaryState): string {
       'drink',
       d.timestampIso,
       day,
-      d.volumeMl,
+      dv(d.volumeMl),
       '',
       d.drinkType,
       '',
@@ -99,42 +102,44 @@ export function generateCsv(state: DiaryState): string {
 
   lines.push('');
 
-  // ── Section 3: Calculated Metrics ──
-  lines.push('## CALCULATED_METRICS');
-  lines.push('metric,period,value');
-  lines.push(row('mvv_ml', 'overall', metrics.mvv));
-  lines.push(row('total_intake_ml', 'overall', metrics.totalFluidIntakeMl));
-  lines.push(row('total_output_ml', 'overall', metrics.totalVoidVolumeMl));
-  lines.push(row('total_voids', 'overall', metrics.totalVoidCount));
-  lines.push(row('total_leaks', 'overall', metrics.totalLeaks));
-  lines.push(row('continent', 'overall', metrics.isContinent));
+  // ── Section 3: Calculated Metrics (premium only) ──
+  if (PREMIUM_FEATURES_ENABLED) {
+    lines.push('## CALCULATED_METRICS');
+    lines.push('metric,period,value');
+    lines.push(row('mvv_ml', 'overall', metrics.mvv));
+    lines.push(row('total_intake_ml', 'overall', metrics.totalFluidIntakeMl));
+    lines.push(row('total_output_ml', 'overall', metrics.totalVoidVolumeMl));
+    lines.push(row('total_voids', 'overall', metrics.totalVoidCount));
+    lines.push(row('total_leaks', 'overall', metrics.totalLeaks));
+    lines.push(row('continent', 'overall', metrics.isContinent));
 
-  // Period 1 (Night 1 / Day 2)
-  const p1 = metrics.periods[0];
-  if (p1) {
-    lines.push(row('24hv_ml', 'night1_day2', p1.twentyFourHV));
-    lines.push(row('npi_pct', 'night1_day2', p1.nPi));
-    lines.push(row('avv_ml', 'night1_day2', p1.avv));
-    lines.push(row('nocturnal_vol_ml', 'night1', metrics.nights[0]?.nocturnalVolumeMl));
-    lines.push(row('void_count', 'night1_day2', p1.voidCount));
-  }
+    // Period 1 (Night 1 / Day 2)
+    const p1 = metrics.periods[0];
+    if (p1) {
+      lines.push(row('24hv_ml', 'night1_day2', p1.twentyFourHV));
+      lines.push(row('npi_pct', 'night1_day2', p1.nPi));
+      lines.push(row('avv_ml', 'night1_day2', p1.avv));
+      lines.push(row('nocturnal_vol_ml', 'night1', metrics.nights[0]?.nocturnalVolumeMl));
+      lines.push(row('void_count', 'night1_day2', p1.voidCount));
+    }
 
-  // Period 2 (Night 2 / Day 3)
-  const p2 = metrics.periods[1];
-  if (p2) {
-    lines.push(row('24hv_ml', 'night2_day3', p2.twentyFourHV));
-    lines.push(row('npi_pct', 'night2_day3', p2.nPi));
-    lines.push(row('avv_ml', 'night2_day3', p2.avv));
-    lines.push(row('nocturnal_vol_ml', 'night2', metrics.nights[1]?.nocturnalVolumeMl));
-    lines.push(row('void_count', 'night2_day3', p2.voidCount));
-  }
+    // Period 2 (Night 2 / Day 3)
+    const p2 = metrics.periods[1];
+    if (p2) {
+      lines.push(row('24hv_ml', 'night2_day3', p2.twentyFourHV));
+      lines.push(row('npi_pct', 'night2_day3', p2.nPi));
+      lines.push(row('avv_ml', 'night2_day3', p2.avv));
+      lines.push(row('nocturnal_vol_ml', 'night2', metrics.nights[1]?.nocturnalVolumeMl));
+      lines.push(row('void_count', 'night2_day3', p2.voidCount));
+    }
 
-  // Per-day metrics
-  for (const dm of metrics.dayMetrics) {
-    lines.push(row('day_intake_ml', `day${dm.dayNumber}`, dm.totalFluidIntakeMl));
-    lines.push(row('day_output_ml', `day${dm.dayNumber}`, dm.totalVoidVolumeMl));
-    lines.push(row('day_voids', `day${dm.dayNumber}`, dm.voidCount));
-    lines.push(row('day_leaks', `day${dm.dayNumber}`, dm.leakCount));
+    // Per-day metrics
+    for (const dm of metrics.dayMetrics) {
+      lines.push(row('day_intake_ml', `day${dm.dayNumber}`, dm.totalFluidIntakeMl));
+      lines.push(row('day_output_ml', `day${dm.dayNumber}`, dm.totalVoidVolumeMl));
+      lines.push(row('day_voids', `day${dm.dayNumber}`, dm.voidCount));
+      lines.push(row('day_leaks', `day${dm.dayNumber}`, dm.leakCount));
+    }
   }
 
   return lines.join('\n');

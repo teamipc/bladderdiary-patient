@@ -21,7 +21,7 @@ import {
 function LandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { diaryStarted, startDate, startDiary, setStartDate, setAge, setClinicCode, resetDiary } = useDiaryStore();
+  const { diaryStarted, startDate, startDiary, setStartDate, setAge, setVolumeUnit, setClinicCode, resetDiary } = useDiaryStore();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const { canPrompt, isIos, isInstalled, promptInstall } = usePwaInstall();
@@ -34,9 +34,10 @@ function LandingContent() {
     }
   }, [searchParams, setClinicCode]);
 
-  const handleOnboardingComplete = async (age: number, selectedDate: string) => {
+  const handleOnboardingComplete = async (age: number, selectedDate: string, volumeUnit: 'mL' | 'oz') => {
     setAge(age);
     setStartDate(selectedDate);
+    setVolumeUnit(volumeUnit);
     startDiary();
 
     // Request notification permission and schedule reminders
