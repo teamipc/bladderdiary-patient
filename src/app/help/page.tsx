@@ -1,67 +1,71 @@
-'use client';
-
-import { ChevronLeft } from 'lucide-react';
+import type { Metadata } from 'next';
+import { ChevronLeft, Mail } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Help & FAQ',
+  description:
+    'Frequently asked questions about My Flow Check. Learn how to track drinks, bathroom visits, and understand your 3-day bladder diary.',
+  alternates: {
+    canonical: '/help',
+  },
+};
 
 const FAQ_ITEMS = [
   {
-    q: 'What is a bladder diary?',
-    a: 'A bladder diary is a 3-day record of your fluid intake (what and how much you drink), your voids (when and how much you urinate), and when you go to bed. This helps your clinician understand your bladder habits and recommend the best treatment.',
+    q: 'What is this tracker?',
+    a: 'It\'s a simple 3-day tool to track when you drink, when you pee, and when you go to bed. This helps your health professional spot patterns and recommend the best next steps for you.',
   },
   {
-    q: 'How do I log a void?',
-    a: 'Tap the + button at the bottom of the screen, then tap "Void". Enter the volume (you can use a measuring jug), select how urgently you needed to go (0 = no sensation, 4 = urgent/leak), and tap Save.',
+    q: 'How do I add a pee?',
+    a: 'Tap the + button at the bottom of the screen, then tap "Pee". Use the slider to enter how much, rate how strong the urge was, and tap Save.',
   },
   {
-    q: 'How do I measure the volume?',
-    a: 'Your clinician may provide a measuring jug. Void into the jug, read the volume in millilitres, then enter it in the app. Common volumes: a small glass is about 150 mL, a standard glass is 250 mL.',
+    q: 'How do I measure how much?',
+    a: 'Your health professional may provide a measuring jug. Pee into the jug, read the volume in millilitres, then enter it in the app. For reference: a small glass is about 150 mL, a standard glass is 250 mL.',
   },
   {
-    q: 'What do the sensation numbers mean?',
-    a: '0 = No sensation (you went just in case), 1 = First awareness (slight feeling), 2 = Normal desire (comfortable need), 3 = Strong desire (hard to hold), 4 = Urgent with possible leak.',
+    q: 'What do the urge levels mean?',
+    a: 'Not at all = you went just in case. A little = slight feeling. Normal = comfortable need. Quite a bit = hard to hold. Couldn\'t wait = urgent, may have leaked.',
   },
   {
-    q: 'Why should I log bedtime?',
-    a: 'Logging your bedtime helps your clinician distinguish between daytime and nighttime voids. Night-time voids (nocturia) may need different treatment.',
+    q: 'Why should I add my bedtime?',
+    a: 'Adding your bedtime helps your health professional tell the difference between daytime and nighttime pees. Waking up at night to pee may need a different approach.',
   },
   {
     q: 'What happens after 3 days?',
-    a: 'Go to the Summary tab to review your diary. You can download a PDF or CSV file to share with your clinician at your next appointment.',
+    a: 'Go to the Summary tab to review your data. You can download a PDF or CSV file to share with your health professional at your next appointment.',
   },
   {
     q: 'Is my data private?',
-    a: 'Yes. All your data is stored only on your phone and is never sent to any server. When you export your diary, only you decide who to share it with.',
+    a: 'Yes. All your data is stored only on your phone and is never sent to any server. When you export your data, only you decide who to share it with.',
   },
   {
     q: 'Can I edit or delete an entry?',
     a: 'Yes. On the day timeline, tap the trash icon next to any entry to delete it. You can then re-add it with the correct information.',
   },
   {
-    q: 'What if I forget to log something?',
+    q: 'What if I forget to add something?',
     a: "No worries! You can add entries at any time and adjust the time to when it actually happened. Just tap the + button and change the time before saving.",
   },
 ];
 
 export default function HelpPage() {
   return (
-    <div className="min-h-dvh bg-surface">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-surface/80 backdrop-blur-md border-b border-ipc-100">
-        <div className="max-w-lg mx-auto flex items-center px-4 h-14">
+    <div className="bg-surface">
+      <div className="max-w-lg mx-auto px-4 py-6">
+        <div className="mb-6">
           <Link
-            href="/diary/day/1"
-            className="flex items-center gap-1 text-ipc-600 hover:text-ipc-800 transition-colors"
+            href="/summary"
+            className="inline-flex items-center gap-1 text-ipc-600 hover:text-ipc-800 transition-colors mb-3"
           >
             <ChevronLeft size={20} />
             <span className="text-base font-medium">Back</span>
           </Link>
-          <h1 className="flex-1 text-center text-lg font-bold text-ipc-900 pr-12">
+          <h1 className="text-xl font-bold text-ipc-900">
             Help & FAQ
           </h1>
         </div>
-      </header>
-
-      <main className="max-w-lg mx-auto px-4 py-6 pb-12">
         <div className="space-y-4">
           {FAQ_ITEMS.map((item, i) => (
             <details
@@ -85,12 +89,30 @@ export default function HelpPage() {
           ))}
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 space-y-4 text-center">
           <p className="text-sm text-ipc-400">
-            Still have questions? Ask your clinician.
+            Still have questions? Ask your health professional.
           </p>
+          <div className="rounded-2xl bg-white border border-ipc-100 p-4">
+            <div className="flex items-center justify-center gap-2 mb-1.5">
+              <Mail size={16} className="text-ipc-400" />
+              <p className="text-sm font-semibold text-ipc-700">
+                Have a suggestion?
+              </p>
+            </div>
+            <p className="text-sm text-ipc-500 leading-relaxed">
+              We&apos;d love to hear your ideas for improving the app.
+              Send us an email at{' '}
+              <a
+                href="mailto:info@ipc.health"
+                className="text-ipc-600 font-semibold underline underline-offset-2"
+              >
+                info@ipc.health
+              </a>
+            </p>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

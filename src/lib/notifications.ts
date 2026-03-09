@@ -1,14 +1,18 @@
 /**
- * Local notification reminders for the 3-day bladder diary.
+ * Local notification reminders for the 3-day flow tracker.
  *
- * Uses the Notification API + setTimeout/setInterval for scheduling.
- * In a PWA with a service worker, these would use the
- * ServiceWorkerRegistration.showNotification() API.
+ * Uses the Notification API + setTimeout for scheduling.
+ * When a service worker is active, notifications fire via
+ * ServiceWorkerRegistration.showNotification() so they work
+ * even when the app is in the background.
  *
- * Reminder schedule:
- * - 8:00 AM: "Have you logged your morning void?"
- * - 2:00 PM: "Don't forget to log your drinks and voids"
- * - 9:00 PM: "Mark your bedtime before you sleep"
+ * Language: simple, friendly, non-clinical — aimed at general
+ * users (not health professionals).
+ *
+ * Reminder schedule (local time):
+ * - 8:00 AM: Morning — first pee reminder
+ * - 2:00 PM: Afternoon — general check-in
+ * - 9:00 PM: Evening — bedtime reminder
  */
 
 export type PermissionStatus = 'granted' | 'denied' | 'default' | 'unsupported';
@@ -39,20 +43,20 @@ const DAILY_REMINDERS: ReminderSchedule[] = [
   {
     hour: 8,
     minute: 0,
-    title: 'Morning Void Reminder',
-    body: "Have you logged your morning void? Don't forget to measure and record it.",
+    title: 'Good morning! ☀️',
+    body: 'Don\'t forget to add your wake-up time and first pee of the day.',
   },
   {
     hour: 14,
     minute: 0,
-    title: 'Diary Reminder',
-    body: "Don't forget to log your drinks and voids throughout the day.",
+    title: 'Quick check-in 💧',
+    body: 'Have you been adding your drinks and pees? It only takes a second.',
   },
   {
     hour: 21,
     minute: 0,
-    title: 'Bedtime Reminder',
-    body: 'Mark your bedtime before you sleep, and log any remaining voids.',
+    title: 'Almost done for the day 🌙',
+    body: 'When you\'re ready to sleep, tap "Go to bed" to wrap up your day.',
   },
 ];
 
@@ -135,8 +139,8 @@ export function scheduleDiaryCompleteReminder(startDate: string): void {
 
   const timer = setTimeout(() => {
     showNotification(
-      'Diary Complete! 🎉',
-      'Your 3-day bladder diary is done. Export it now for your clinician.',
+      'You did it! 🎉',
+      'Your 3-day flow check is complete. Open the app to see your summary.',
     );
   }, delay);
 

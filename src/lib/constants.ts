@@ -1,22 +1,32 @@
 import type { DrinkType, BladderSensation } from './types';
 
-export const DRINK_TYPES: readonly { value: DrinkType; label: string; emoji: string }[] = [
-  { value: 'water', label: 'Water', emoji: '💧' },
-  { value: 'coffee', label: 'Coffee', emoji: '☕' },
-  { value: 'tea', label: 'Tea', emoji: '🍵' },
-  { value: 'juice', label: 'Juice', emoji: '🧃' },
-  { value: 'carbonated', label: 'Soda', emoji: '🥤' },
-  { value: 'alcohol', label: 'Alcohol', emoji: '🍷' },
-  { value: 'milk', label: 'Milk', emoji: '🥛' },
-  { value: 'other', label: 'Other', emoji: '🫗' },
+export type DrinkIconName =
+  | 'GlassWater'
+  | 'Coffee'
+  | 'Leaf'
+  | 'Citrus'
+  | 'CupSoda'
+  | 'Wine'
+  | 'Milk'
+  | 'Droplets';
+
+export const DRINK_TYPES: readonly { value: DrinkType; label: string; icon: DrinkIconName }[] = [
+  { value: 'water', label: 'Water', icon: 'GlassWater' },
+  { value: 'coffee', label: 'Coffee', icon: 'Coffee' },
+  { value: 'tea', label: 'Tea', icon: 'Leaf' },
+  { value: 'juice', label: 'Juice', icon: 'Citrus' },
+  { value: 'carbonated', label: 'Soda', icon: 'CupSoda' },
+  { value: 'alcohol', label: 'Alcohol', icon: 'Wine' },
+  { value: 'milk', label: 'Milk', icon: 'Milk' },
+  { value: 'other', label: 'Other', icon: 'Droplets' },
 ] as const;
 
 export const SENSATION_LABELS: Record<BladderSensation, { short: string; description: string }> = {
-  0: { short: 'None', description: 'No sensation' },
-  1: { short: 'First', description: 'First awareness' },
-  2: { short: 'Normal', description: 'Normal desire' },
-  3: { short: 'Strong', description: 'Strong desire' },
-  4: { short: 'Urgent', description: 'Urgency / leak' },
+  0: { short: 'Not at all', description: 'Went just in case' },
+  1: { short: 'A little', description: 'Slight feeling, nothing urgent' },
+  2: { short: 'Normal', description: 'Needed to go, no rush' },
+  3: { short: 'Quite a bit', description: 'Hard to hold much longer' },
+  4: { short: "Couldn't wait", description: 'Almost didn\'t make it' },
 };
 
 export const VOLUME_PRESETS = [150, 250, 350, 500] as const;
@@ -25,6 +35,6 @@ export function getDrinkLabel(type: DrinkType): string {
   return DRINK_TYPES.find((d) => d.value === type)?.label ?? 'Other';
 }
 
-export function getDrinkEmoji(type: DrinkType): string {
-  return DRINK_TYPES.find((d) => d.value === type)?.emoji ?? '🫗';
+export function getDrinkIconName(type: DrinkType): DrinkIconName {
+  return DRINK_TYPES.find((d) => d.value === type)?.icon ?? 'Droplets';
 }

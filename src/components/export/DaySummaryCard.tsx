@@ -1,23 +1,24 @@
 'use client';
 
 import { useDiaryStore } from '@/lib/store';
-import { getDayDate, formatDate } from '@/lib/utils';
-import { Droplets, Coffee, Moon } from 'lucide-react';
+import { getDayDate, formatDate, formatTime } from '@/lib/utils';
+import { Droplets, Coffee, Moon, Sun } from 'lucide-react';
 
 interface DaySummaryCardProps {
   dayNumber: 1 | 2 | 3;
 }
 
 export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
-  const { startDate, getVoidsForDay, getDrinksForDay, getBedtimeForDay } = useDiaryStore();
+  const { startDate, getVoidsForDay, getDrinksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
 
   const voids = getVoidsForDay(dayNumber);
   const drinks = getDrinksForDay(dayNumber);
   const bedtime = getBedtimeForDay(dayNumber);
+  const wakeTime = getWakeTimeForDay(dayNumber);
 
   const totalFluids = drinks.reduce((sum, d) => sum + d.volumeMl, 0);
   const totalVoids = voids.reduce((sum, v) => sum + v.volumeMl, 0);
-  const leaks = voids.filter((v) => v.sensation === 4).length;
+  const leaks = voids.filter((v) => v.leak).length;
 
   const dayDateStr = getDayDate(startDate, dayNumber);
   const dayLabel = formatDate(dayDateStr + 'T12:00:00');
@@ -67,12 +68,18 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
             </div>
           </div>
 
-          {/* Additional info */}
-          <div className="flex items-center gap-4 text-sm">
+          {/* Wake-up / Bedtime / Leaks */}
+          <div className="flex items-center gap-4 text-sm flex-wrap">
+            {wakeTime && (
+              <div className="flex items-center gap-1.5 text-warning">
+                <Sun size={14} />
+                <span className="font-medium">Wake {formatTime(wakeTime.timestampIso)}</span>
+              </div>
+            )}
             {bedtime && (
               <div className="flex items-center gap-1.5 text-bedtime">
                 <Moon size={14} />
-                <span className="font-medium">Bedtime set</span>
+                <span className="font-medium">Bed {formatTime(bedtime.timestampIso)}</span>
               </div>
             )}
             {leaks > 0 && (

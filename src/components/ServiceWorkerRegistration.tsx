@@ -2,6 +2,11 @@
 
 import { useEffect } from 'react';
 
+/**
+ * Registers the service worker for offline PWA support.
+ * Silently succeeds/fails — no console noise in production.
+ * The SW enables offline caching and notification handling.
+ */
 export default function ServiceWorkerRegistration() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -9,11 +14,8 @@ export default function ServiceWorkerRegistration() {
 
     navigator.serviceWorker
       .register('/sw.js')
-      .then((registration) => {
-        console.log('SW registered:', registration.scope);
-      })
-      .catch((error) => {
-        console.log('SW registration failed:', error);
+      .catch(() => {
+        // SW registration failed — non-critical, app still works without it
       });
   }, []);
 

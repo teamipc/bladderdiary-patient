@@ -14,28 +14,26 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
   return (
     <div className="space-y-2">
       <label className="block text-base font-medium text-ipc-800">
-        Bladder sensation
+        How strong was the urge?
       </label>
-      <div className="flex gap-2">
+
+      {/* Pill buttons */}
+      <div className="flex gap-1.5">
         {sensations.map((s) => {
           const selected = value === s;
-          const isUrgent = s === 4;
           return (
             <button
               key={s}
               type="button"
               onClick={() => onChange(s)}
-              className={`flex-1 flex flex-col items-center gap-1 py-3 rounded-xl
-                transition-all active:scale-[0.95] min-h-[72px] ${
+              className={`flex-1 py-2.5 rounded-xl text-center transition-all
+                active:scale-[0.95] min-h-[44px] ${
                   selected
-                    ? isUrgent
-                      ? 'bg-danger text-white ring-2 ring-danger/30'
-                      : 'bg-ipc-500 text-white ring-2 ring-ipc-300'
-                    : 'bg-ipc-50 text-ipc-700 hover:bg-ipc-100 border border-ipc-100'
+                    ? 'bg-ipc-500/90 text-white font-bold'
+                    : 'bg-white/40 text-ipc-600 font-medium border border-ipc-100/50'
                 }`}
             >
-              <span className="text-xl font-bold">{s}</span>
-              <span className="text-[11px] font-medium leading-tight text-center">
+              <span className="text-xs leading-tight block">
                 {SENSATION_LABELS[s].short}
               </span>
             </button>
