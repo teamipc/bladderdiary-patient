@@ -52,7 +52,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
             )}
             {entry.doubleVoidMl && (
               <span className="text-xs bg-ipc-100 text-ipc-600 px-2 py-0.5 rounded-full font-medium">
-                Went twice
+                Double void
               </span>
             )}
           </div>
