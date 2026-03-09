@@ -38,7 +38,7 @@ const C = {
   outputCell: [254, 243, 199] as [number, number, number],  // light amber
   wakeRow:    [237, 233, 254] as [number, number, number],  // light indigo
   bedRow:     [237, 233, 254] as [number, number, number],
-  leakRed:    [220, 38,  38]  as [number, number, number],
+  leakNote:   [180, 130, 90]  as [number, number, number],  // soft warm brown (not alarming)
   white:      [255, 255, 255] as [number, number, number],
 
   // Chart palette
@@ -215,7 +215,7 @@ interface HourSlot {
   isBed: boolean;
 }
 
-function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): HourSlot[] {
+function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot[]; startHour: number } {
   const dayVoids = state.voids
     .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
@@ -230,10 +230,12 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): HourSlot[] {
   const bedHour = bedtime ? parseISO(bedtime.timestampIso).getHours() : -1;
   const wakeHour = wakeTime ? parseISO(wakeTime.timestampIso).getHours() : -1;
 
-  // 24 hourly slots from 06:00 to 05:00
+  // Start the 24-hour grid from the actual wake hour (default 6 AM)
+  const startHour = wakeHour >= 0 ? wakeHour : 6;
+
   const slots: HourSlot[] = [];
   for (let i = 0; i < 24; i++) {
-    const hour = (6 + i) % 24;
+    const hour = (startHour + i) % 24;
     const hourStr = hour.toString().padStart(2, '0') + ':00';
     const ampm = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
 
@@ -253,7 +255,7 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): HourSlot[] {
       .join('\n');
 
     const urgText = hourVoids.map((v) => `${v.sensation}`).join('\n');
-    const leakText = hourVoids.some((v) => v.leak) ? 'YES' : '';
+    const leakText = hourVoids.some((v) => v.leak) ? 'Yes' : '';
 
     slots.push({
       label: `${hourStr}\n${ampm}`,
@@ -268,7 +270,7 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): HourSlot[] {
     });
   }
 
-  return slots;
+  return { slots, startHour };
 }
 
 function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: DayMetrics) {
@@ -301,8 +303,8 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
   }
   subY += 1;
 
-  // Build hourly grid — always 24 rows from 6am to 5am
-  const slots = buildHourSlots(state, dayNum);
+  // Build hourly grid — 24 rows starting from the actual wake hour
+  const { slots, startHour } = buildHourSlots(state, dayNum);
 
   // Determine sleep hours for shading
   const bedtime = state.bedtimes.find((b) => b.dayNumber === dayNum);
@@ -338,18 +340,19 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
       if (data.section !== 'body') return;
       const slot = slots[data.row.index];
       if (!slot) return;
-      const hour = (6 + data.row.index) % 24;
+      const hour = (startHour + data.row.index) % 24;
 
       // Sleep hours: shade with light indigo
+      // Works for both normal schedules and night-shift workers
       const isSleepHour = (() => {
         if (bedHour < 0) return false;
-        // After bedtime = sleep (for this day)
-        if (bedHour >= 6) {
-          // bedtime in evening: sleep hours = bedHour onwards
-          return hour >= bedHour || hour < (wakeHour >= 0 ? wakeHour : 6);
+        const wk = wakeHour >= 0 ? wakeHour : startHour;
+        if (bedHour > wk) {
+          // Normal schedule: sleep is bedHour..23, 0..wakeHour
+          return hour >= bedHour || hour < wk;
         }
-        // bedtime before 6am (late night)
-        return hour >= bedHour && hour < (wakeHour >= 0 ? wakeHour : 6);
+        // Night-shift or wrapping: sleep is bedHour..wakeHour
+        return hour >= bedHour && hour < wk;
       })();
 
       if (isSleepHour && !slot.hasDrink && !slot.hasVoid) {
@@ -369,8 +372,7 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
         data.cell.styles.textColor = [140, 100, 20]; // darker amber for contrast
       }
       if (data.column.index === 4 && slot.leak) {
-        data.cell.styles.textColor = C.leakRed;
-        data.cell.styles.fontStyle = 'bold';
+        data.cell.styles.textColor = C.leakNote;
       }
 
       // Empty cells: lighter text color for the dash
@@ -622,7 +624,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
 
       // Mark leaks with red ring
       if (v.leak) {
-        doc.setDrawColor(...C.leakRed);
+        doc.setDrawColor(...C.leakNote);
         doc.setLineWidth(0.6);
         doc.circle(dotX, dotY, 3, 'S');
         doc.setLineWidth(0.2);
@@ -633,13 +635,13 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   // MVV dashed line
   if (metrics.mvv > 0) {
     const mvvY = chart2Top + chart2H - (metrics.mvv / roundedMaxVoid) * chart2H;
-    doc.setDrawColor(...C.leakRed);
+    doc.setDrawColor(...C.leakNote);
     doc.setLineWidth(0.3);
     doc.setLineDashPattern([2, 1], 0);
     doc.line(chartX, mvvY, chartX + chartW, mvvY);
     doc.setLineDashPattern([], 0);
     doc.setFontSize(5.5);
-    doc.setTextColor(...C.leakRed);
+    doc.setTextColor(...C.leakNote);
     doc.text(`MVV ${metrics.mvv} mL`, chartX + chartW - 1, mvvY - 1.5, { align: 'right' });
   }
 
@@ -655,7 +657,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     doc.text(`Day ${i + 1}`, lx + 4, leg2Y + 2);
   }
   // Leak indicator in legend
-  doc.setDrawColor(...C.leakRed);
+  doc.setDrawColor(...C.leakNote);
   doc.setLineWidth(0.6);
   doc.circle(chartX + 78, leg2Y + 1, 2, 'S');
   doc.setFontSize(5.5);
