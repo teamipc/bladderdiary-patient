@@ -23,7 +23,7 @@ export default function SummaryPage() {
       const voids = getVoidsForDay(d);
       const drinks = getDrinksForDay(d);
       if (voids.length === 0) dataWarnings.push(`Day ${d} has no pee entries`);
-      if (drinks.length === 0) dataWarnings.push(`Day ${d} has no drink entries — your report will still work but fluid intake data will be missing`);
+      if (drinks.length === 0) dataWarnings.push(`Day ${d} has no drink entries - your report will still work but fluid intake data will be missing`);
     }
   }
 
