@@ -145,7 +145,7 @@ describe('globals.css (viewport/responsive)', () => {
 
   it('prevents iOS zoom on input focus (font-size: 16px)', () => {
     // iOS zooms inputs with font-size < 16px
-    expect(css).toMatch(/input.*font-size:\s*16px/s);
+    expect(css).toMatch(new RegExp('input.*font-size:\\s*16px', 's'));
   });
 
   it('has safe area bottom padding for notch devices', () => {
