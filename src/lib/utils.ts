@@ -1,6 +1,24 @@
 import { format, parseISO, differenceInCalendarDays, addDays } from 'date-fns';
 import type { BedtimeEntry } from './types';
 
+/* ------------------------------------------------------------------ */
+/*  Volume unit conversion                                             */
+/* ------------------------------------------------------------------ */
+
+const ML_PER_OZ = 29.5735;
+
+/** Convert internal mL value to the user's display unit. */
+export function mlToDisplayVolume(ml: number, unit: 'mL' | 'oz'): number {
+  if (unit === 'oz') return Math.round(ml / ML_PER_OZ);
+  return ml;
+}
+
+/** Convert a value in the user's display unit back to mL for storage. */
+export function displayVolumeToMl(value: number, unit: 'mL' | 'oz'): number {
+  if (unit === 'oz') return Math.round(value * ML_PER_OZ);
+  return value;
+}
+
 /** Generate a unique ID. */
 export function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {

@@ -5,9 +5,9 @@ import { CopyPlus, ChevronLeft, ChevronRight, Droplets, MessageSquarePlus, Check
 import VolumeInput from '@/components/ui/VolumeInput';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
-import { SENSATION_LABELS } from '@/lib/constants';
+import { SENSATION_LABELS, VOLUME_CONFIG } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { BladderSensation, VoidEntry } from '@/lib/types';
 
 interface LogVoidFormProps {
@@ -19,7 +19,8 @@ interface LogVoidFormProps {
 }
 
 export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMorningVoid, initialTime }: LogVoidFormProps) {
-  const { addVoid, updateVoid, getVoidsForDay, getWakeTimeForDay, getBedtimeForDay, startDate } = useDiaryStore();
+  const { addVoid, updateVoid, getVoidsForDay, getWakeTimeForDay, getBedtimeForDay, startDate, volumeUnit } = useDiaryStore();
+  const vc = VOLUME_CONFIG[volumeUnit];
   const isEditing = !!editEntry;
 
   // Previous day's bedtime — events on this day must be after it
@@ -34,8 +35,8 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
     return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after);
   };
 
-  // Form state — initialize from editEntry if editing, or initialTime if inserting between events
-  const [volume, setVolume] = useState(editEntry?.volumeMl ?? 250);
+  // Form state — volumes in display unit; converted to mL on save
+  const [volume, setVolume] = useState(editEntry ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit) : vc.default);
   const [sensation, setSensation] = useState<BladderSensation>(editEntry?.sensation ?? 2);
   const [time, setTime] = useState(smartDefault);
   const [note, setNote] = useState(editEntry?.note ?? '');
@@ -53,7 +54,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
     : (markAsMorningVoid ?? shouldAutoTagMorning ?? existingVoids.length === 0);
   const [firstMorning] = useState(isFirstVoid);
   const [doubleVoid, setDoubleVoid] = useState(!!editEntry?.doubleVoidMl);
-  const [doubleVoidVolume, setDoubleVoidVolume] = useState(editEntry?.doubleVoidMl ?? 75);
+  const [doubleVoidVolume, setDoubleVoidVolume] = useState(
+    editEntry?.doubleVoidMl ? mlToDisplayVolume(editEntry.doubleVoidMl, volumeUnit) : (volumeUnit === 'oz' ? 3 : 75),
+  );
 
   // Wizard state
   const [step, setStep] = useState(1);
@@ -79,8 +82,8 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
       if (d.volume <= 0) return;
       updateVoid(editEntry.id, {
         timestampIso: d.time,
-        volumeMl: d.volume,
-        doubleVoidMl: d.doubleVoid ? d.doubleVoidVolume : undefined,
+        volumeMl: displayVolumeToMl(d.volume, volumeUnit),
+        doubleVoidMl: d.doubleVoid ? displayVolumeToMl(d.doubleVoidVolume, volumeUnit) : undefined,
         sensation: d.sensation,
         leak: d.leak,
         note: d.note,
@@ -173,8 +176,8 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
     savedRef.current = true;
     const data = {
       timestampIso: time,
-      volumeMl: volume,
-      doubleVoidMl: doubleVoid ? doubleVoidVolume : undefined,
+      volumeMl: displayVolumeToMl(volume, volumeUnit),
+      doubleVoidMl: doubleVoid ? displayVolumeToMl(doubleVoidVolume, volumeUnit) : undefined,
       sensation,
       leak,
       note,
@@ -186,7 +189,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
       addVoid(data);
     }
     onSave();
-  }, [volume, sensation, leak, time, note, firstMorning, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber]);
+  }, [volume, sensation, leak, time, note, firstMorning, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit]);
 
   // Animation class based on slide direction
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
@@ -258,6 +261,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
                 <VolumeInput
                   value={volume}
                   onChange={handleVolumeChange}
+                  unit={volumeUnit}
+                  max={vc.max}
+                  step={vc.step}
                 />
               </div>
 
@@ -305,8 +311,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
                   <VolumeInput
                     value={doubleVoidVolume}
                     onChange={setDoubleVoidVolume}
-                    max={500}
-                    step={25}
+                    unit={volumeUnit}
+                    max={volumeUnit === 'oz' ? 17 : 500}
+                    step={vc.step}
                   />
                 </div>
               )}

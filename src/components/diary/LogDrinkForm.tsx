@@ -6,8 +6,9 @@ import VolumeInput from '@/components/ui/VolumeInput';
 import TimePicker from '@/components/ui/TimePicker';
 import DrinkTypePicker from '@/components/diary/DrinkTypePicker';
 import Button from '@/components/ui/Button';
+import { VOLUME_CONFIG } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { DrinkType, DrinkEntry } from '@/lib/types';
 
 interface LogDrinkFormProps {
@@ -20,7 +21,8 @@ interface LogDrinkFormProps {
 const TOTAL_STEPS = 2;
 
 export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime }: LogDrinkFormProps) {
-  const { addDrink, updateDrink, getBedtimeForDay, getWakeTimeForDay, startDate } = useDiaryStore();
+  const { addDrink, updateDrink, getBedtimeForDay, getWakeTimeForDay, startDate, volumeUnit } = useDiaryStore();
+  const vc = VOLUME_CONFIG[volumeUnit];
   const isEditing = !!editEntry;
 
   // Previous day's bedtime — events on this day must be after it
@@ -37,7 +39,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
 
   // Form state
   const [drinkType, setDrinkType] = useState<DrinkType>(editEntry?.drinkType ?? 'water');
-  const [volume, setVolume] = useState(editEntry?.volumeMl ?? 250);
+  const [volume, setVolume] = useState(editEntry ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit) : vc.default);
   const [time, setTime] = useState(smartDefault);
   const [note, setNote] = useState(editEntry?.note ?? '');
 
@@ -65,7 +67,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       if (d.volume <= 0) return;
       updateDrink(editEntry.id, {
         timestampIso: d.time,
-        volumeMl: d.volume,
+        volumeMl: displayVolumeToMl(d.volume, volumeUnit),
         drinkType: d.drinkType,
         note: d.note,
       });
@@ -156,7 +158,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     savedRef.current = true;
     const data = {
       timestampIso: time,
-      volumeMl: volume,
+      volumeMl: displayVolumeToMl(volume, volumeUnit),
       drinkType,
       note,
     };
@@ -166,7 +168,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       addDrink(data);
     }
     onSave();
-  }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber]);
+  }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit]);
 
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
@@ -291,6 +293,9 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                 <VolumeInput
                   value={volume}
                   onChange={handleVolumeChange}
+                  unit={volumeUnit}
+                  max={vc.max}
+                  step={vc.step}
                   variant="drink"
                 />
               </div>

@@ -16,7 +16,7 @@ export default function BottomNav() {
 
   const isHomeActive = pathname === '/';
   const isTrackActive = pathname?.startsWith('/diary/day/');
-  const isResultsActive = pathname === '/summary';
+  const isDiaryActive = pathname === '/summary';
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md
@@ -72,24 +72,24 @@ export default function BottomNav() {
           </div>
         )}
 
-        {/* Results tab — locked until Day 3 bedtime recorded */}
+        {/* Diary tab — locked until Day 3 bedtime recorded */}
         {isTrackingComplete ? (
           <Link
             href="/summary"
             className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 min-h-[56px]
               transition-colors ${
-                isResultsActive ? 'text-ipc-600' : 'text-ipc-200 hover:text-ipc-400'
+                isDiaryActive ? 'text-ipc-600' : 'text-ipc-200 hover:text-ipc-400'
               }`}
           >
             <div className={`w-8 h-8 flex items-center justify-center ${
-              isResultsActive ? 'text-ipc-600' : 'text-ipc-200'
+              isDiaryActive ? 'text-ipc-600' : 'text-ipc-200'
             }`}>
               <BarChart3 size={22} />
             </div>
             <span className={`text-xs font-medium ${
-              isResultsActive ? 'text-ipc-700' : 'text-ipc-200'
+              isDiaryActive ? 'text-ipc-700' : 'text-ipc-200'
             }`}>
-              Results
+              Diary
             </span>
           </Link>
         ) : (
@@ -102,7 +102,7 @@ export default function BottomNav() {
                 <Lock size={9} className="text-ipc-400" />
               </div>
             </div>
-            <span className="text-xs font-medium">Results</span>
+            <span className="text-xs font-medium">Diary</span>
           </div>
         )}
       </div>

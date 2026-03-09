@@ -40,9 +40,9 @@ export default function SummaryPage() {
         <div className="w-16 h-16 rounded-full bg-ipc-100 flex items-center justify-center mx-auto mb-4">
           <Lock size={28} className="text-ipc-400" />
         </div>
-        <h2 className="text-xl font-bold text-ipc-950 mb-2">Results Locked</h2>
+        <h2 className="text-xl font-bold text-ipc-950 mb-2">Diary Locked</h2>
         <p className="text-base text-ipc-500 leading-relaxed">
-          Complete your 3-day tracking period to unlock your results and export your data.
+          Complete your 3-day tracking period to unlock your diary and export your data.
         </p>
       </div>
     );
@@ -59,7 +59,7 @@ export default function SummaryPage() {
           <ChevronLeft size={20} />
           <span className="text-sm font-medium">Back to tracking</span>
         </Link>
-        <h2 className="text-xl font-bold text-ipc-950">Results</h2>
+        <h2 className="text-xl font-bold text-ipc-950">Your Diary</h2>
         <p className="text-base text-ipc-500 mt-1">
           Your 3-day tracking overview
         </p>

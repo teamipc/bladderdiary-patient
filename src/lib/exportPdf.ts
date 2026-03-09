@@ -13,8 +13,8 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format, parseISO } from 'date-fns';
-import { getDayNumber, getDayDate, formatTime } from './utils';
-import { getDrinkLabel, SENSATION_LABELS } from './constants';
+import { getDayNumber, getDayDate, formatTime, mlToDisplayVolume } from './utils';
+import { getDrinkLabel, SENSATION_LABELS, PREMIUM_FEATURES_ENABLED } from './constants';
 import { computeMetrics, type DiaryMetrics, type DayMetrics } from './calculations';
 import { IPC_LOGO_BASE64, IPC_LOGO_ASPECT } from './ipcLogoBase64';
 import type { DiaryState } from './types';
@@ -112,6 +112,10 @@ function sectionTitle(doc: jsPDF, text: string, y: number): number {
 /*  Page 1: Results Overview                                           */
 /* ================================================================== */
 
+function dv(ml: number, state: DiaryState): number {
+  return mlToDisplayVolume(ml, state.volumeUnit);
+}
+
 function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   addLogo(doc);
 
@@ -144,38 +148,42 @@ function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetric
   }
   y += 4;
 
-  // ── Clinical Metrics table ──
-  y = sectionTitle(doc, 'Clinical Metrics', y);
-
-  const p1 = metrics.periods[0];
-  const p2 = metrics.periods[1];
-
+  const u = state.volumeUnit;
   const fmtV = (v: number | null) => (v !== null && v !== undefined ? `${v.toLocaleString()}` : '\u2014');
-  const fmtPct = (v: number | null) => (v !== null && v !== undefined ? `${v.toFixed(1)}%` : '\u2014');
+  const fmtVol = (ml: number | null) => (ml !== null && ml !== undefined ? `${dv(ml, state).toLocaleString()}` : '\u2014');
 
-  autoTable(doc, {
-    startY: y,
-    head: [['Metric', 'Night 1 / Day 2', 'Night 2 / Day 3', 'Overall']],
-    body: [
-      ['24HV (mL)', fmtV(p1?.twentyFourHV), fmtV(p2?.twentyFourHV), '\u2014'],
-      ['NPi (%)', fmtPct(p1?.nPi), fmtPct(p2?.nPi), '\u2014'],
-      ['AVV (mL)', fmtV(p1?.avv), fmtV(p2?.avv), '\u2014'],
-      ['Nocturnal Vol (mL)', fmtV(metrics.nights[0]?.nocturnalVolumeMl), fmtV(metrics.nights[1]?.nocturnalVolumeMl), '\u2014'],
-      ['MVV (mL)', '\u2014', '\u2014', fmtV(metrics.mvv)],
-      ['Total Intake (mL)', '\u2014', '\u2014', fmtV(metrics.totalFluidIntakeMl)],
-      ['Total Output (mL)', '\u2014', '\u2014', fmtV(metrics.totalVoidVolumeMl)],
-      ['Void Count', '\u2014', '\u2014', fmtV(metrics.totalVoidCount)],
-      ['Leak Count', '\u2014', '\u2014', fmtV(metrics.totalLeaks)],
-      ['Continence', '\u2014', '\u2014', metrics.isContinent ? 'Continent' : 'Incontinent'],
-    ],
-    margin: { left: MARGIN, right: MARGIN },
-    styles: { fontSize: 8, cellPadding: 2.5, textColor: C.dark },
-    headStyles: { fillColor: C.gold, textColor: C.white, fontStyle: 'bold' },
-    alternateRowStyles: { fillColor: C.goldLight },
-  });
+  // ── Clinical Metrics table (premium only) ──
+  if (PREMIUM_FEATURES_ENABLED) {
+    y = sectionTitle(doc, 'Clinical Metrics', y);
 
-  // @ts-expect-error jspdf-autotable adds lastAutoTable
-  y = doc.lastAutoTable.finalY + 6;
+    const p1 = metrics.periods[0];
+    const p2 = metrics.periods[1];
+    const fmtPct = (v: number | null) => (v !== null && v !== undefined ? `${v.toFixed(1)}%` : '\u2014');
+
+    autoTable(doc, {
+      startY: y,
+      head: [['Metric', 'Night 1 / Day 2', 'Night 2 / Day 3', 'Overall']],
+      body: [
+        [`24HV (${u})`, fmtVol(p1?.twentyFourHV), fmtVol(p2?.twentyFourHV), '\u2014'],
+        ['NPi (%)', fmtPct(p1?.nPi), fmtPct(p2?.nPi), '\u2014'],
+        [`AVV (${u})`, fmtVol(p1?.avv), fmtVol(p2?.avv), '\u2014'],
+        [`Nocturnal Vol (${u})`, fmtVol(metrics.nights[0]?.nocturnalVolumeMl), fmtVol(metrics.nights[1]?.nocturnalVolumeMl), '\u2014'],
+        [`MVV (${u})`, '\u2014', '\u2014', fmtVol(metrics.mvv)],
+        [`Total Intake (${u})`, '\u2014', '\u2014', fmtVol(metrics.totalFluidIntakeMl)],
+        [`Total Output (${u})`, '\u2014', '\u2014', fmtVol(metrics.totalVoidVolumeMl)],
+        ['Void Count', '\u2014', '\u2014', fmtV(metrics.totalVoidCount)],
+        ['Leak Count', '\u2014', '\u2014', fmtV(metrics.totalLeaks)],
+        ['Continence', '\u2014', '\u2014', metrics.isContinent ? 'Continent' : 'Incontinent'],
+      ],
+      margin: { left: MARGIN, right: MARGIN },
+      styles: { fontSize: 8, cellPadding: 2.5, textColor: C.dark },
+      headStyles: { fillColor: C.gold, textColor: C.white, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: C.goldLight },
+    });
+
+    // @ts-expect-error jspdf-autotable adds lastAutoTable
+    y = doc.lastAutoTable.finalY + 6;
+  }
 
   // ── Per-Day Summary ──
   y = sectionTitle(doc, 'Daily Summary', y);
@@ -184,8 +192,8 @@ function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetric
     startY: y,
     head: [['', 'Day 1', 'Day 2', 'Day 3']],
     body: [
-      ['Fluid Intake (mL)', ...metrics.dayMetrics.map((d) => fmtV(d.totalFluidIntakeMl))],
-      ['Void Volume (mL)',  ...metrics.dayMetrics.map((d) => fmtV(d.totalVoidVolumeMl))],
+      [`Fluid Intake (${u})`, ...metrics.dayMetrics.map((d) => fmtVol(d.totalFluidIntakeMl))],
+      [`Void Volume (${u})`,  ...metrics.dayMetrics.map((d) => fmtVol(d.totalVoidVolumeMl))],
       ['Void Count',        ...metrics.dayMetrics.map((d) => fmtV(d.voidCount))],
       ['Drink Count',       ...metrics.dayMetrics.map((d) => fmtV(d.drinkCount))],
       ['Leaks',             ...metrics.dayMetrics.map((d) => fmtV(d.leakCount))],
@@ -241,14 +249,15 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot
 
     // Drinks in this hour
     const hourDrinks = dayDrinks.filter((d) => parseISO(d.timestampIso).getHours() === hour);
-    const drinksText = hourDrinks.map((d) => `${d.volumeMl} mL ${getDrinkLabel(d.drinkType)}`).join('\n');
+    const u = state.volumeUnit;
+    const drinksText = hourDrinks.map((d) => `${dv(d.volumeMl, state)} ${u} ${getDrinkLabel(d.drinkType)}`).join('\n');
 
     // Voids in this hour
     const hourVoids = dayVoids.filter((v) => parseISO(v.timestampIso).getHours() === hour);
     const voidsText = hourVoids
       .map((v) => {
-        let txt = `${v.volumeMl} mL`;
-        if (v.doubleVoidMl) txt += ` (+${v.doubleVoidMl})`;
+        let txt = `${dv(v.volumeMl, state)} ${u}`;
+        if (v.doubleVoidMl) txt += ` (+${dv(v.doubleVoidMl, state)})`;
         if (v.isFirstMorningVoid) txt += ' *FMV';
         return txt;
       })
@@ -316,7 +325,7 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
 
   autoTable(doc, {
     startY: subY,
-    head: [['Hour', 'Fluid In (mL)', 'Voided (mL)', 'Sensation', 'Leak']],
+    head: [['Hour', `Fluid In (${state.volumeUnit})`, `Voided (${state.volumeUnit})`, 'Sensation', 'Leak']],
     body,
     margin: { left: MARGIN, right: MARGIN },
     styles: {
@@ -407,7 +416,7 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...C.dark);
-  const totText = `Intake: ${dm.totalFluidIntakeMl.toLocaleString()} mL    Output: ${dm.totalVoidVolumeMl.toLocaleString()} mL (${dm.voidCount} voids)    Leaks: ${dm.leakCount}`;
+  const totText = `Intake: ${dv(dm.totalFluidIntakeMl, state).toLocaleString()} ${state.volumeUnit}    Output: ${dv(dm.totalVoidVolumeMl, state).toLocaleString()} ${state.volumeUnit} (${dm.voidCount} voids)    Leaks: ${dm.leakCount}`;
   doc.text(totText, PAGE_W / 2, totY + 5, { align: 'center' });
   doc.setFont('helvetica', 'normal');
 }
@@ -508,16 +517,17 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   doc.text('Daily Fluid Balance', MARGIN, chart1Y);
   doc.setFont('helvetica', 'normal');
 
-  const maxBalance = Math.max(
-    ...metrics.dayMetrics.map((d) => Math.max(d.totalFluidIntakeMl, d.totalVoidVolumeMl)),
-    200,
+  const u = state.volumeUnit;
+  const maxBalanceDisplay = Math.max(
+    ...metrics.dayMetrics.map((d) => Math.max(dv(d.totalFluidIntakeMl, state), dv(d.totalVoidVolumeMl, state))),
+    u === 'oz' ? 7 : 200,
   );
   // Round up to nice number with 20% headroom
-  const headroom = maxBalance * 1.15;
+  const headroom = maxBalanceDisplay * 1.15;
   const balanceStep = niceStep(headroom, 4);
-  const roundedMax = Math.max(Math.ceil(headroom / balanceStep) * balanceStep, 100);
+  const roundedMax = Math.max(Math.ceil(headroom / balanceStep) * balanceStep, u === 'oz' ? 5 : 100);
 
-  drawAxis(doc, chartX, chart1Y + 4, chartW, chartH, 'mL', roundedMax, {
+  drawAxis(doc, chartX, chart1Y + 4, chartW, chartH, u, roundedMax, {
     xLabels: ['Day 1', 'Day 2', 'Day 3'],
   });
 
@@ -530,16 +540,17 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     const gCenter = chartX + (i + 0.5) * groupW;
 
     // Intake bar (left)
-    const intakeH = Math.max((dm.totalFluidIntakeMl / roundedMax) * chartH, 0.5);
+    const intakeDisplay = dv(dm.totalFluidIntakeMl, state);
+    const intakeH = Math.max((intakeDisplay / roundedMax) * chartH, 0.5);
     doc.setFillColor(...C.chartBlue);
     doc.rect(gCenter - barW - barGap / 2, chart1Y + 4 + chartH - intakeH, barW, intakeH, 'F');
 
     // Value label on top of intake bar
-    if (dm.totalFluidIntakeMl > 0) {
+    if (intakeDisplay > 0) {
       doc.setFontSize(5);
       doc.setTextColor(...C.chartBlue);
       doc.text(
-        dm.totalFluidIntakeMl.toLocaleString(),
+        intakeDisplay.toLocaleString(),
         gCenter - barGap / 2 - barW / 2,
         chart1Y + 4 + chartH - intakeH - 1.5,
         { align: 'center' },
@@ -547,16 +558,17 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     }
 
     // Output bar (right)
-    const outputH = Math.max((dm.totalVoidVolumeMl / roundedMax) * chartH, 0.5);
+    const outputDisplay = dv(dm.totalVoidVolumeMl, state);
+    const outputH = Math.max((outputDisplay / roundedMax) * chartH, 0.5);
     doc.setFillColor(...C.chartAmber);
     doc.rect(gCenter + barGap / 2, chart1Y + 4 + chartH - outputH, barW, outputH, 'F');
 
     // Value label on top of output bar
-    if (dm.totalVoidVolumeMl > 0) {
+    if (outputDisplay > 0) {
       doc.setFontSize(5);
       doc.setTextColor(...C.chartAmber);
       doc.text(
-        dm.totalVoidVolumeMl.toLocaleString(),
+        outputDisplay.toLocaleString(),
         gCenter + barGap / 2 + barW / 2,
         chart1Y + 4 + chartH - outputH - 1.5,
         { align: 'center' },
@@ -590,15 +602,15 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   const chart2H = 50;
 
   const allVoids = [...state.voids].sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
-  const maxVoid = Math.max(...allVoids.map((v) => v.volumeMl), 100);
+  const maxVoid = Math.max(...allVoids.map((v) => dv(v.volumeMl, state)), u === 'oz' ? 4 : 100);
   const voidHeadroom = maxVoid * 1.15;
   const voidStep = niceStep(voidHeadroom, 4);
-  const roundedMaxVoid = Math.max(Math.ceil(voidHeadroom / voidStep) * voidStep, 100);
+  const roundedMaxVoid = Math.max(Math.ceil(voidHeadroom / voidStep) * voidStep, u === 'oz' ? 4 : 100);
 
   // X-axis: 24h time from 6am to 5am (clinical convention)
   const timeLabels = ['6am', '8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm', '10pm', '12am', '2am', '4am'];
   // Show every label but use 12 slots for 24 hours (every 2 hours)
-  drawAxis(doc, chartX, chart2Top, chartW, chart2H, 'mL', roundedMaxVoid, {
+  drawAxis(doc, chartX, chart2Top, chartW, chart2H, u, roundedMaxVoid, {
     gridlines: true,
     xLabels: timeLabels,
     xLabelEvery: 1,
@@ -616,7 +628,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
       // Shift so 6am = 0, 5am = 23
       const shifted = hourOfDay >= 6 ? hourOfDay - 6 : hourOfDay + 18;
       const dotX = chartX + (shifted / 24) * chartW;
-      const dotH = (v.volumeMl / roundedMaxVoid) * chart2H;
+      const dotH = (dv(v.volumeMl, state) / roundedMaxVoid) * chart2H;
       const dotY = chart2Top + chart2H - dotH;
 
       doc.setFillColor(...color);
@@ -634,7 +646,8 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
 
   // MVV dashed line
   if (metrics.mvv > 0) {
-    const mvvY = chart2Top + chart2H - (metrics.mvv / roundedMaxVoid) * chart2H;
+    const mvvDisplay = dv(metrics.mvv, state);
+    const mvvY = chart2Top + chart2H - (mvvDisplay / roundedMaxVoid) * chart2H;
     doc.setDrawColor(...C.leakNote);
     doc.setLineWidth(0.3);
     doc.setLineDashPattern([2, 1], 0);
@@ -642,7 +655,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     doc.setLineDashPattern([], 0);
     doc.setFontSize(5.5);
     doc.setTextColor(...C.leakNote);
-    doc.text(`MVV ${metrics.mvv} mL`, chartX + chartW - 1, mvvY - 1.5, { align: 'right' });
+    doc.text(`MVV ${mvvDisplay} ${u}`, chartX + chartW - 1, mvvY - 1.5, { align: 'right' });
   }
 
   // Legend
@@ -730,14 +743,15 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
 
   // ── Metadata table ──
   let y = 30;
-  autoTable(doc, {
-    startY: y,
-    head: [['Field', 'Value']],
-    body: [
-      ['patient_age', state.age?.toString() ?? ''],
-      ['start_date', state.startDate],
-      ['clinic_code', state.clinicCode ?? ''],
-      ['volume_unit', state.volumeUnit],
+  const metadataRows: string[][] = [
+    ['patient_age', state.age?.toString() ?? ''],
+    ['start_date', state.startDate],
+    ['clinic_code', state.clinicCode ?? ''],
+    ['volume_unit', state.volumeUnit],
+  ];
+
+  if (PREMIUM_FEATURES_ENABLED) {
+    metadataRows.push(
       ['mvv_ml', metrics.mvv.toString()],
       ['total_intake_ml', metrics.totalFluidIntakeMl.toString()],
       ['total_output_ml', metrics.totalVoidVolumeMl.toString()],
@@ -752,7 +766,13 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
       ['npi_period2_pct', metrics.periods[1]?.nPi?.toFixed(1) ?? ''],
       ['avv_period2_ml', metrics.periods[1]?.avv?.toString() ?? ''],
       ['nocturnal_vol_night2_ml', metrics.nights[1]?.nocturnalVolumeMl.toString() ?? ''],
-    ],
+    );
+  }
+
+  autoTable(doc, {
+    startY: y,
+    head: [['Field', 'Value']],
+    body: metadataRows,
     margin: { left: MARGIN, right: MARGIN },
     styles: { fontSize: 7, cellPadding: 1.5, textColor: C.dark, font: 'courier' },
     headStyles: { fillColor: [80, 80, 80], textColor: C.white, fontStyle: 'bold' },
@@ -783,8 +803,8 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
       'void',
       v.timestampIso,
       day.toString(),
-      v.volumeMl.toString(),
-      (v.doubleVoidMl ?? '').toString(),
+      dv(v.volumeMl, state).toString(),
+      v.doubleVoidMl ? dv(v.doubleVoidMl, state).toString() : '',
       v.sensation.toString(),
       v.isFirstMorningVoid ? 'Y' : '',
       v.leak ? 'Y' : '',
@@ -796,7 +816,7 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
       'drink',
       d.timestampIso,
       day.toString(),
-      d.volumeMl.toString(),
+      dv(d.volumeMl, state).toString(),
       '',
       '',
       '',
