@@ -1,0 +1,34 @@
+## METADATA
+key,value
+patient_age,55
+start_date,2026-01-20
+clinic_code,
+volume_unit,mL
+
+## EVENTS
+type,timestamp,dayNumber,volumeMl,doubleVoidMl,drinkType,sensation,isFirstMorningVoid,leak,note
+wake,2026-01-20T08:00:00,1,,,,,,,,
+void,2026-01-20T08:10:00,1,300,,,,2,true,false,
+drink,2026-01-20T08:30:00,1,250,,,coffee,,,,
+void,2026-01-20T12:00:00,1,250,,,,1,false,false,
+drink,2026-01-20T12:30:00,1,300,,,water,,,,
+void,2026-01-20T17:00:00,1,280,,,,2,false,false,
+drink,2026-01-20T18:00:00,1,200,,,water,,,,
+void,2026-01-20T21:00:00,1,200,,,,1,false,false,
+bedtime,2026-01-20T22:00:00,1,,,,,,,,
+wake,2026-01-21T07:30:00,2,,,,,,,,
+void,2026-01-21T07:40:00,2,320,,,,2,true,false,
+drink,2026-01-21T08:00:00,2,250,,,tea,,,,
+void,2026-01-21T11:30:00,2,230,,,,1,false,false,
+drink,2026-01-21T13:00:00,2,350,,,water,,,,
+void,2026-01-21T16:00:00,2,260,,,,2,false,false,
+void,2026-01-21T20:00:00,2,190,,,,1,false,false,
+bedtime,2026-01-21T21:30:00,2,,,,,,,,
+wake,2026-01-22T08:15:00,3,,,,,,,,
+void,2026-01-22T08:20:00,3,280,,,,2,true,false,
+drink,2026-01-22T09:00:00,3,200,,,coffee,,,,
+void,2026-01-22T12:30:00,3,240,,,,1,false,false,
+drink,2026-01-22T13:00:00,3,300,,,water,,,,
+void,2026-01-22T17:30:00,3,250,,,,2,false,false,
+void,2026-01-22T21:00:00,3,180,,,,1,false,false,
+bedtime,2026-01-22T22:00:00,3,,,,,,,,

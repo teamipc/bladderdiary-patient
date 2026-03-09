@@ -1,0 +1,53 @@
+## METADATA
+key,value
+patient_age,42
+start_date,2026-03-06
+clinic_code,
+volume_unit,mL
+
+## EVENTS
+type,timestamp,dayNumber,volumeMl,doubleVoidMl,drinkType,sensation,isFirstMorningVoid,leak,note
+wake,2026-03-06T06:45:00,1,,,,,,,,
+void,2026-03-06T06:50:00,1,280,,,,2,true,false,
+drink,2026-03-06T07:15:00,1,350,,,water,,,,With breakfast
+drink,2026-03-06T07:15:00,1,200,,,coffee,,,,
+void,2026-03-06T09:30:00,1,200,,,,1,false,false,
+drink,2026-03-06T10:00:00,1,250,,,tea,,,,
+void,2026-03-06T12:15:00,1,320,,,,2,false,false,
+drink,2026-03-06T12:30:00,1,400,,,water,,,,
+drink,2026-03-06T15:00:00,1,350,,,water,,,,
+void,2026-03-06T15:45:00,1,250,,,,1,false,false,
+drink,2026-03-06T18:00:00,1,300,,,juice,,,,
+void,2026-03-06T19:00:00,1,280,,,,2,false,false,
+void,2026-03-06T21:30:00,1,180,,,,1,false,false,
+bedtime,2026-03-06T22:30:00,1,,,,,,,,
+wake,2026-03-07T07:00:00,2,,,,,,,,
+void,2026-03-07T03:15:00,2,200,,,,3,false,false,Woke up needing to go
+void,2026-03-07T07:05:00,2,350,,,,2,true,false,
+drink,2026-03-07T07:30:00,2,300,,,coffee,,,,
+drink,2026-03-07T07:30:00,2,250,,,water,,,,
+void,2026-03-07T10:00:00,2,220,,,,1,false,false,
+drink,2026-03-07T10:30:00,2,350,,,water,,,,
+void,2026-03-07T12:45:00,2,300,,,,2,false,false,
+drink,2026-03-07T13:00:00,2,500,,,water,,,,With lunch
+drink,2026-03-07T16:00:00,2,250,,,tea,,,,
+void,2026-03-07T16:30:00,2,280,,,,2,false,false,
+void,2026-03-07T19:15:00,2,240,,,,1,false,false,
+drink,2026-03-07T19:00:00,2,200,,,water,,,,
+void,2026-03-07T21:45:00,2,170,,,,1,false,false,
+bedtime,2026-03-07T22:15:00,2,,,,,,,,
+wake,2026-03-08T06:30:00,3,,,,,,,,
+void,2026-03-08T06:35:00,3,310,,,,2,true,false,
+drink,2026-03-08T07:00:00,3,200,,,coffee,,,,
+drink,2026-03-08T07:00:00,3,300,,,water,,,,
+void,2026-03-08T09:15:00,3,190,,,,1,false,false,
+drink,2026-03-08T11:00:00,3,400,,,water,,,,
+void,2026-03-08T12:00:00,3,350,,,,2,false,false,
+drink,2026-03-08T12:30:00,3,350,,,water,,,,
+void,2026-03-08T14:30:00,3,220,,,,1,false,false,
+drink,2026-03-08T15:30:00,3,250,,,carbonated,,,,
+void,2026-03-08T17:00:00,3,260,,,,2,false,false,
+drink,2026-03-08T18:30:00,3,200,,,water,,,,
+void,2026-03-08T20:00:00,3,200,,,,1,false,false,
+void,2026-03-08T22:00:00,3,150,,,,1,false,false,
+bedtime,2026-03-08T22:45:00,3,,,,,,,,

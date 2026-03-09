@@ -1,0 +1,58 @@
+## METADATA
+key,value
+patient_age,35
+start_date,2026-02-18
+clinic_code,NW-CLINIC-204
+volume_unit,mL
+
+## EVENTS
+type,timestamp,dayNumber,volumeMl,doubleVoidMl,drinkType,sensation,isFirstMorningVoid,leak,note
+wake,2026-02-18T15:00:00,1,,,,,,,,
+void,2026-02-18T15:10:00,1,380,,,,3,true,false,Big morning void
+drink,2026-02-18T15:30:00,1,500,,,coffee,,,,Double shot before shift
+drink,2026-02-18T16:00:00,1,400,,,water,,,,
+void,2026-02-18T17:45:00,1,250,,,,2,false,false,
+drink,2026-02-18T18:30:00,1,300,,,water,,,,At work
+void,2026-02-18T20:00:00,1,220,,,,1,false,false,
+drink,2026-02-18T21:00:00,1,500,,,water,,,,
+drink,2026-02-18T21:00:00,1,350,,,carbonated,,,,Energy drink
+void,2026-02-18T23:00:00,1,340,,,,2,false,false,
+drink,2026-02-19T00:30:00,1,400,,,coffee,,,,Midnight coffee
+void,2026-02-19T01:45:00,1,300,,,,2,false,false,
+drink,2026-02-19T03:00:00,1,350,,,water,,,,
+void,2026-02-19T04:30:00,1,280,,,,2,false,false,
+void,2026-02-19T06:15:00,1,200,,,,1,false,false,End of shift
+bedtime,2026-02-19T07:30:00,1,,,,,,,,
+wake,2026-02-19T15:30:00,2,,,,,,,,
+void,2026-02-19T10:00:00,2,150,,,,3,false,false,Woke mid-sleep
+void,2026-02-19T15:35:00,2,420,,,,3,true,false,
+drink,2026-02-19T16:00:00,2,450,,,coffee,,,,
+drink,2026-02-19T16:00:00,2,300,,,water,,,,
+void,2026-02-19T18:00:00,2,260,,,,2,false,false,
+drink,2026-02-19T19:00:00,2,500,,,water,,,,
+drink,2026-02-19T20:30:00,2,350,,,carbonated,,,,
+void,2026-02-19T21:00:00,2,310,,,,2,false,false,
+void,2026-02-19T23:30:00,2,250,,,,1,false,false,
+drink,2026-02-20T00:00:00,2,400,,,water,,,,
+drink,2026-02-20T02:00:00,2,300,,,tea,,,,
+void,2026-02-20T02:30:00,2,280,,,,2,false,false,
+void,2026-02-20T05:00:00,2,220,,,,1,false,false,
+drink,2026-02-20T05:00:00,2,200,,,water,,,,
+void,2026-02-20T06:45:00,2,190,,,,1,false,false,
+bedtime,2026-02-20T07:15:00,2,,,,,,,,
+wake,2026-02-20T14:45:00,3,,,,,,,,
+void,2026-02-20T14:50:00,3,400,,,,3,true,false,
+drink,2026-02-20T15:15:00,3,400,,,coffee,,,,
+drink,2026-02-20T15:15:00,3,350,,,water,,,,
+void,2026-02-20T17:30:00,3,230,,,,2,false,false,
+drink,2026-02-20T18:00:00,3,500,,,water,,,,
+void,2026-02-20T20:15:00,3,290,,,,2,false,false,
+drink,2026-02-20T21:00:00,3,400,,,carbonated,,,,
+drink,2026-02-20T23:00:00,3,300,,,water,,,,
+void,2026-02-20T23:30:00,3,320,,,,2,false,false,
+drink,2026-02-21T01:30:00,3,350,,,coffee,,,,
+void,2026-02-21T02:00:00,3,250,,,,2,false,false,
+drink,2026-02-21T04:00:00,3,250,,,water,,,,
+void,2026-02-21T05:15:00,3,270,,,,1,false,false,
+void,2026-02-21T06:30:00,3,180,,,,1,false,false,
+bedtime,2026-02-21T07:00:00,3,,,,,,,,
