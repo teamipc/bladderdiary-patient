@@ -250,14 +250,20 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot
     // Drinks in this hour
     const hourDrinks = dayDrinks.filter((d) => parseISO(d.timestampIso).getHours() === hour);
     const u = state.volumeUnit;
-    const drinksText = hourDrinks.map((d) => `${dv(d.volumeMl, state)} ${u} ${getDrinkLabel(d.drinkType)}`).join('\n');
+    const multiDrink = hourDrinks.length > 1;
+    const drinksText = hourDrinks.map((d) => {
+      const prefix = multiDrink ? `${formatTime(d.timestampIso)} ` : '';
+      return `${prefix}${dv(d.volumeMl, state)} ${u} ${getDrinkLabel(d.drinkType)}`;
+    }).join('\n');
 
     // Voids in this hour
     const hourVoids = dayVoids.filter((v) => parseISO(v.timestampIso).getHours() === hour);
+    const multiVoid = hourVoids.length > 1;
     const voidsText = hourVoids
       .map((v) => {
-        let txt = `${dv(v.volumeMl, state)} ${u}`;
-        if (v.doubleVoidMl) txt += ` (+${dv(v.doubleVoidMl, state)})`;
+        const prefix = multiVoid ? `${formatTime(v.timestampIso)} ` : '';
+        let txt = `${prefix}${dv(v.volumeMl, state)} ${u}`;
+        if (v.doubleVoidMl) txt += `\n  DV: +${dv(v.doubleVoidMl, state)} ${u}`;
         if (v.isFirstMorningVoid) txt += ' *FMV';
         return txt;
       })
