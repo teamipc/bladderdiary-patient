@@ -7,10 +7,12 @@ interface BottomSheetProps {
   open: boolean;
   onClose: () => void;
   title?: string;
+  noScroll?: boolean;
+  variant?: 'default' | 'drink' | 'bedtime';
   children: React.ReactNode;
 }
 
-export default function BottomSheet({ open, onClose, title, children }: BottomSheetProps) {
+export default function BottomSheet({ open, onClose, title, noScroll, variant = 'default', children }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
 
   // Close on escape
@@ -45,12 +47,15 @@ export default function BottomSheet({ open, onClose, title, children }: BottomSh
       {/* Sheet */}
       <div
         ref={sheetRef}
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl
-          animate-slide-up safe-bottom max-h-[90vh] overflow-y-auto"
+        className={`absolute bottom-0 left-0 right-0 bg-white/70 backdrop-blur-xl
+          rounded-t-3xl shadow-2xl border-t border-white/30
+          animate-slide-up safe-bottom max-h-[90vh] ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'}`}
       >
         {/* Handle bar */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-ipc-200" />
+          <div className={`w-10 h-1 rounded-full ${
+            variant === 'drink' ? 'bg-drink/40' : variant === 'bedtime' ? 'bg-bedtime/40' : 'bg-ipc-300/40'
+          }`} />
         </div>
 
         {/* Header */}

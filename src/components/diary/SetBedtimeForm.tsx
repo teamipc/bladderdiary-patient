@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { Moon } from 'lucide-react';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
-import { nowRounded } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay } from '@/lib/utils';
 
 interface SetBedtimeFormProps {
   dayNumber: 1 | 2 | 3;
@@ -12,32 +13,86 @@ interface SetBedtimeFormProps {
 }
 
 export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProps) {
-  const { setBedtime, getBedtimeForDay } = useDiaryStore();
+  const { setBedtime, getBedtimeForDay, getWakeTimeForDay, getVoidsForDay, getDrinksForDay, startDate } = useDiaryStore();
   const existing = getBedtimeForDay(dayNumber);
-  const [time, setTime] = useState(existing?.timestampIso ?? nowRounded());
+  const wakeTime = getWakeTimeForDay(dayNumber);
+  const voids = getVoidsForDay(dayNumber);
+  const drinks = getDrinksForDay(dayNumber);
+
+  // Smart default: right after last event, or anchored to the day's date
+  const smartDefault = () => {
+    if (existing) return existing.timestampIso;
+    const allTimes = [
+      ...voids.map((v) => v.timestampIso),
+      ...drinks.map((d) => d.timestampIso),
+    ].sort();
+    const lastEvent = allTimes.at(-1);
+    if (lastEvent) {
+      // 15 minutes after the last event
+      return new Date(new Date(lastEvent).getTime() + 15 * 60 * 1000).toISOString();
+    }
+    return getDefaultTimeForDay(startDate, dayNumber, wakeTime?.timestampIso);
+  };
+
+  const [time, setTime] = useState(smartDefault);
+
+  // Bedtime must be after wake-up time (if one exists for this day)
+  const isBeforeWakeUp = useMemo(() => {
+    if (!wakeTime) return false;
+    return time <= wakeTime.timestampIso;
+  }, [time, wakeTime]);
+
+  // Bedtime must be after all logged events (voids + drinks) for the day
+  const lastEventTime = useMemo(() => {
+    const allTimes = [
+      ...voids.map((v) => v.timestampIso),
+      ...drinks.map((d) => d.timestampIso),
+    ];
+    if (allTimes.length === 0) return null;
+    return allTimes.sort().at(-1)!;
+  }, [voids, drinks]);
+
+  const isBeforeLastEvent = useMemo(() => {
+    if (!lastEventTime) return false;
+    return time <= lastEventTime;
+  }, [time, lastEventTime]);
+
+  const isInvalid = isBeforeWakeUp || isBeforeLastEvent;
 
   const handleSave = useCallback(() => {
+    if (isInvalid) return;
     setBedtime(dayNumber, time);
     onSave();
-  }, [dayNumber, time, setBedtime, onSave]);
+  }, [dayNumber, time, isInvalid, setBedtime, onSave]);
 
   return (
     <div className="space-y-5">
-      <div className="text-center py-4">
-        <span className="text-5xl">🌙</span>
-        <p className="text-lg font-semibold text-ipc-950 mt-3">
+      <div className="text-center py-3">
+        <Moon size={44} className="text-bedtime mx-auto" />
+        <p className="text-lg font-semibold text-bedtime mt-3">
           {existing ? 'Update bedtime' : 'When did you go to bed?'}
-        </p>
-        <p className="text-base text-ipc-600 mt-1">
-          This helps your clinician understand your sleep pattern
         </p>
       </div>
 
-      <TimePicker value={time} onChange={setTime} label="Bedtime" />
+      <TimePicker value={time} onChange={setTime} variant="bedtime" />
 
-      <Button onClick={handleSave} fullWidth>
-        {existing ? 'Update Bedtime' : 'Save Bedtime'}
-      </Button>
+      {isBeforeWakeUp && (
+        <p className="text-sm text-danger text-center font-medium">
+          Bedtime must be after your wake-up at {formatTime(wakeTime!.timestampIso)}
+        </p>
+      )}
+
+      {!isBeforeWakeUp && isBeforeLastEvent && (
+        <p className="text-sm text-danger text-center font-medium">
+          Bedtime must be after your last event at {formatTime(lastEventTime!)}. Overnight events go on the next day.
+        </p>
+      )}
+
+      <div className="flex justify-center">
+        <Button onClick={handleSave} size="md" variant="bedtime" disabled={isInvalid}>
+          {existing ? 'Update Bedtime' : 'Save Bedtime'}
+        </Button>
+      </div>
     </div>
   );
 }

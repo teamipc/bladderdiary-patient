@@ -15,6 +15,9 @@ export default function ExportActions() {
     setExporting('csv');
     try {
       downloadCsv(store);
+    } catch (err) {
+      console.error('CSV generation failed:', err);
+      alert('Something went wrong generating the CSV. Please try again.');
     } finally {
       setTimeout(() => setExporting(null), 1000);
     }
@@ -24,6 +27,10 @@ export default function ExportActions() {
     setExporting('pdf');
     try {
       generatePdf(store);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      alert(`PDF error: ${msg}`);
     } finally {
       setTimeout(() => setExporting(null), 1000);
     }
@@ -97,7 +104,7 @@ export default function ExportActions() {
 
       {!hasData && (
         <p className="text-center text-sm text-ipc-400 mt-2">
-          Start logging entries to enable export
+          Start adding entries to enable export
         </p>
       )}
     </div>

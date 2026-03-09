@@ -1,7 +1,7 @@
 {
-  "name": "Bladder Diary",
-  "short_name": "Bladder Diary",
-  "description": "Track your 3-day bladder diary for your clinician",
+  "name": "My Flow Check",
+  "short_name": "My Flow Check",
+  "description": "Track when you drink, when you pee, and the patterns behind it in 3 days.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fefdfb",

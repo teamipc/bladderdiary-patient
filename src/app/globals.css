@@ -112,3 +112,260 @@ input, select, textarea {
   background: rgba(0, 0, 0, 0.4);
   animation: fadeIn 0.2s ease-out both;
 }
+
+/* ── Nighttime Mode ── */
+.nighttime-tint {
+  background: linear-gradient(
+    180deg,
+    #1e1b3a 0%,
+    #252040 40%,
+    #1e1b3a 100%
+  );
+  box-shadow: 0 0 40px rgba(30, 27, 58, 0.15);
+}
+
+/* Override card colors inside nighttime */
+.nighttime-tint .bg-white {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.nighttime-tint .border-ipc-100 {
+  border-color: rgba(99, 90, 160, 0.25) !important;
+}
+
+.nighttime-tint .text-ipc-950 {
+  color: #e8e6f0 !important;
+}
+
+.nighttime-tint .text-ipc-600 {
+  color: #b0a8d4 !important;
+}
+
+.nighttime-tint .text-ipc-500 {
+  color: #9a90c4 !important;
+}
+
+.nighttime-tint .text-ipc-400 {
+  color: #7a72a8 !important;
+}
+
+.nighttime-tint .text-ipc-300 {
+  color: #5c5488 !important;
+}
+
+/* ── Step Wizard Transitions ── */
+@keyframes stepInLeft {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes stepInRight {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-step-in-left {
+  animation: stepInLeft 0.25s ease-out both;
+}
+
+.animate-step-in-right {
+  animation: stepInRight 0.25s ease-out both;
+}
+
+/* Arrow pulse / flash animation — nudges right to hint "tap me" */
+@keyframes arrowPulse {
+  0% { opacity: 0.5; transform: translateX(0) scale(1); }
+  30% { opacity: 1; transform: translateX(4px) scale(1.15); }
+  50% { opacity: 1; transform: translateX(0) scale(1.1); }
+  80% { opacity: 1; transform: translateX(4px) scale(1.15); }
+  100% { opacity: 0.5; transform: translateX(0) scale(1); }
+}
+
+.arrow-pulse {
+  animation: arrowPulse 1s ease-in-out 3;
+  background-color: color-mix(in srgb, var(--color-ipc-500) 15%, transparent) !important;
+  border-color: color-mix(in srgb, var(--color-ipc-500) 40%, transparent) !important;
+}
+
+/* Note expand/collapse */
+@keyframes noteExpand {
+  from { opacity: 0; max-height: 0; margin-top: 0; }
+  to { opacity: 1; max-height: 80px; margin-top: 8px; }
+}
+
+@keyframes noteCollapse {
+  from { opacity: 1; max-height: 80px; margin-top: 8px; }
+  to { opacity: 0; max-height: 0; margin-top: 0; }
+}
+
+.note-expand {
+  animation: noteExpand 0.15s ease-out forwards;
+  overflow: hidden;
+}
+
+.note-collapse {
+  animation: noteCollapse 0.15s ease-in forwards;
+  overflow: hidden;
+}
+
+/* ── Volume Slider ── */
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    var(--color-ipc-500) 0%,
+    var(--color-ipc-500) var(--slider-progress),
+    var(--color-ipc-200) var(--slider-progress),
+    var(--color-ipc-200) 100%
+  );
+  outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-ipc-500);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(196, 152, 74, 0.15);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-ipc-500);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(196, 152, 74, 0.15);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.volume-slider:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(196, 152, 74, 0.2);
+}
+
+.volume-slider:active::-moz-range-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(196, 152, 74, 0.2);
+}
+
+/* ── Volume Slider (Drink / Blue variant) ── */
+.volume-slider-drink {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    var(--color-drink) 0%,
+    var(--color-drink) var(--slider-progress),
+    #c8dced var(--slider-progress),
+    #c8dced 100%
+  );
+  outline: none;
+}
+
+.volume-slider-drink::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-drink);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(90, 138, 180, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.volume-slider-drink::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-drink);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(90, 138, 180, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.volume-slider-drink:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(90, 138, 180, 0.25);
+}
+
+.volume-slider-drink:active::-moz-range-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(90, 138, 180, 0.25);
+}
+
+/* ── Sensation Slider ── */
+.sensation-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    var(--color-ipc-100),
+    var(--color-ipc-200) 25%,
+    var(--color-ipc-400) 50%,
+    var(--color-ipc-600) 75%,
+    var(--color-ipc-800) 100%
+  );
+  outline: none;
+}
+
+.sensation-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--sensation-color);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(196, 152, 74, 0.15);
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sensation-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--sensation-color);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(196, 152, 74, 0.15);
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sensation-slider:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(196, 152, 74, 0.2);
+}
+
+.sensation-slider:active::-moz-range-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(196, 152, 74, 0.2);
+}
+
+/* ── Start Day CTA pulse ── */
+@keyframes startDayPulse {
+  0% { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 0 rgba(196, 152, 74, 0.4); }
+  70% { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 10px rgba(196, 152, 74, 0); }
+  100% { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 0 rgba(196, 152, 74, 0); }
+}
+
+.animate-start-day {
+  animation: fadeSlideUp 0.4s ease-out both, startDayPulse 1.8s ease-out 0.5s 2;
+}
