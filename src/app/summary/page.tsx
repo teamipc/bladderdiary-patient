@@ -23,7 +23,7 @@ export default function SummaryPage() {
       const voids = getVoidsForDay(d);
       const drinks = getDrinksForDay(d);
       if (voids.length === 0) dataWarnings.push(`Day ${d} has no pee entries`);
-      else if (drinks.length === 0) dataWarnings.push(`Day ${d} has no drink entries`);
+      if (drinks.length === 0) dataWarnings.push(`Day ${d} has no drink entries — your report will still work but fluid intake data will be missing`);
     }
   }
 
@@ -75,7 +75,7 @@ export default function SummaryPage() {
                 Please review your data
               </p>
               <p className="text-xs text-amber-700 leading-relaxed">
-                {dataWarnings.join('. ')}. Go back and check your diary days before exporting to make sure everything looks right.
+                {dataWarnings.join('. ')}. You can still generate your report, but for the most accurate results consider going back to add any missing entries.
               </p>
             </div>
           </div>

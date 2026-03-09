@@ -281,9 +281,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
                 >
                   <CopyPlus size={16} />
                   <span className="flex flex-col items-start leading-tight">
-                    <span>Went twice</span>
+                    <span>Double void</span>
                     <span className={`text-[10px] font-normal ${doubleVoid ? 'text-ipc-500' : 'text-ipc-300'}`}>
-                      Peed, then went again right away
+                      Peed again right after to fully empty
                     </span>
                   </span>
                 </button>
