@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDiaryStore } from '@/lib/store';
 import DaySummaryCard from '@/components/export/DaySummaryCard';
@@ -28,8 +29,13 @@ export default function SummaryPage() {
   }
 
   // Redirect to landing if diary not started
+  useEffect(() => {
+    if (!diaryStarted) {
+      router.replace('/');
+    }
+  }, [diaryStarted, router]);
+
   if (!diaryStarted) {
-    router.replace('/');
     return null;
   }
 

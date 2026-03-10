@@ -253,7 +253,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
 
   return (
     <div className={`flex flex-col transition-colors duration-700 ${
-      isNighttime ? 'nighttime-tint -mx-4 px-4 -mt-4 pt-7 min-h-screen pb-24' : 'rounded-2xl'
+      isNighttime ? 'nighttime-tint -mx-4 px-4 -mt-4 pt-7 min-h-screen pb-24' : 'rounded-2xl pb-28'
     }`}>
       {/* 5-step journey progress: D1 → N1 → D2 → N2 → D3 */}
       <div className="flex items-center justify-center mb-3 px-4">
@@ -617,7 +617,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 Mark your wake-up time
               </p>
               <p className="text-xs mt-0.5 font-medium text-warning/70">
-                Log all overnight pees and drinks first
+                Add all overnight pees and drinks before marking wake-up
               </p>
             </div>
             <button
@@ -666,7 +666,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 Mark your bedtime
               </p>
               <p className="text-xs mt-0.5 font-medium text-bedtime/80">
-                Add all your pees and drinks of the day first
+                Add all pees and drinks before marking bedtime
               </p>
             </div>
             {onLogBedtime && (

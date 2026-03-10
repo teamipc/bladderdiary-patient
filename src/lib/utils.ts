@@ -127,6 +127,21 @@ export function getDefaultTimeForDay(
   return defaultTime.toISOString();
 }
 
+/**
+ * Correct the date of a night-view timestamp so it falls between bedtime and wake-up.
+ * PM times (hour >= 12) are placed on the bedtime's date; AM times on the next day.
+ */
+export function correctNightDate(timeIso: string, bedtimeIso: string): string {
+  const t = parseISO(timeIso);
+  const bed = parseISO(bedtimeIso);
+  const hour = t.getHours();
+  // PM → same date as bedtime; AM → day after bedtime
+  const anchor = hour >= 12 ? bed : addDays(bed, 1);
+  const corrected = new Date(anchor);
+  corrected.setHours(t.getHours(), t.getMinutes(), t.getSeconds(), 0);
+  return corrected.toISOString();
+}
+
 /** Get the current tracking day (1, 2, or 3) based on today's date vs startDate. */
 export function getCurrentDay(startDate: string): 1 | 2 | 3 {
   const diff = differenceInCalendarDays(new Date(), parseISO(startDate + 'T00:00:00'));

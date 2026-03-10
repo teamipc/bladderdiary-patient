@@ -7,7 +7,7 @@ import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { SENSATION_LABELS, VOLUME_CONFIG } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, correctNightDate, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { BladderSensation, VoidEntry } from '@/lib/types';
 
 interface LogVoidFormProps {
@@ -27,13 +27,29 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const prevDayBedtime = dayNumber > 1 ? getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3) : undefined;
   const wakeTimeEntry = getWakeTimeForDay(dayNumber);
 
+  // Current day's bedtime — upper bound for day-view events
+  const currentBedtime = getBedtimeForDay(dayNumber as 1 | 2 | 3);
+
   // Smart default: anchor to the diary day's date, after wake-up or prev bedtime
   const smartDefault = () => {
     if (editEntry) return editEntry.timestampIso;
     if (initialTime) return initialTime;
+    // Night view: anchor to bedtime date, not the day's date
+    if (isNightView && prevDayBedtime) {
+      return new Date(new Date(prevDayBedtime.timestampIso).getTime() + 5 * 60 * 1000).toISOString();
+    }
     const after = wakeTimeEntry?.timestampIso ?? prevDayBedtime?.timestampIso;
     return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after);
   };
+
+  // Wrap time changes: in night view, correct the date so PM uses bedtime date, AM uses next day
+  const handleTimeChange = useCallback((newTime: string) => {
+    if (isNightView && prevDayBedtime) {
+      setTime(correctNightDate(newTime, prevDayBedtime.timestampIso));
+    } else {
+      setTime(newTime);
+    }
+  }, [isNightView, prevDayBedtime]);
 
   // Form state — volumes in display unit; converted to mL on save
   const [volume, setVolume] = useState(editEntry ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit) : vc.default);
@@ -149,6 +165,8 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   // Check time boundaries based on view
   const isBeforeWakeTime = !isNightView && wakeTimeEntry ? time < wakeTimeEntry.timestampIso : false;
   const isAfterWakeTime = isNightView && wakeTimeEntry ? time >= wakeTimeEntry.timestampIso : false;
+  // Day view: block events at or after bedtime (must go to night view for those)
+  const isAfterBedtime = !isNightView && currentBedtime ? time >= currentBedtime.timestampIso : false;
 
   // Temporary warning state
   const [timeWarning, setTimeWarning] = useState<string | null>(null);
@@ -183,6 +201,15 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
+    // Block saving if day event is at/after bedtime
+    if (isAfterBedtime && currentBedtime) {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      setTimeWarning(
+        `This time is after bedtime (${formatTime(currentBedtime.timestampIso)}). Go to the night view for overnight events.`
+      );
+      warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
+      return;
+    }
     savedRef.current = true;
     const data = {
       timestampIso: time,
@@ -199,7 +226,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
       addVoid(data);
     }
     onSave();
-  }, [volume, sensation, leak, time, note, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTimeEntry]);
+  }, [volume, sensation, leak, time, note, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTimeEntry, isAfterBedtime, currentBedtime]);
 
   // Animation class based on slide direction
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
@@ -460,7 +487,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 When was this?
               </h3>
 
-              <TimePicker value={time} onChange={setTime} />
+              <TimePicker value={time} onChange={handleTimeChange} />
 
               {timeWarning && (
                 <div className="mt-3 px-4 py-2.5 rounded-2xl bg-danger-light border border-danger/20 animate-fade-slide-up">
