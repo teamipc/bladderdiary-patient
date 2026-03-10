@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Plus, Droplets, Coffee, X } from 'lucide-react';
 
 type LogAction = 'void' | 'drink' | 'bedtime';
@@ -11,6 +11,25 @@ interface QuickLogFABProps {
 
 export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
   const [expanded, setExpanded] = useState(false);
+
+  // Mirror the nav's scroll-hide logic so FAB drops when nav hides
+  const [navHidden, setNavHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const delta = currentY - lastScrollY.current;
+      if (delta > 8 && currentY > 60) {
+        setNavHidden(true);
+      } else if (delta < -8) {
+        setNavHidden(false);
+      }
+      lastScrollY.current = currentY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleAction = useCallback(
     (action: LogAction) => {
@@ -30,8 +49,10 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
         />
       )}
 
-      {/* FAB container */}
-      <div className="fixed bottom-24 right-5 z-50 flex flex-col items-end gap-3">
+      {/* FAB container — drops lower when nav auto-hides on scroll */}
+      <div className={`fixed right-5 z-50 flex flex-col items-end gap-3 transition-[bottom] duration-300 ${
+        navHidden ? 'bottom-6' : 'bottom-24'
+      }`}>
         {/* Action buttons (shown when expanded) */}
         {expanded && (
           <div className="flex flex-col items-end gap-3 animate-fade-slide-up">

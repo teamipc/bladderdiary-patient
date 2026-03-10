@@ -14,13 +14,12 @@ interface LogVoidFormProps {
   onSave: () => void;
   dayNumber: number;
   editEntry?: VoidEntry;
-  markAsMorningVoid?: boolean;
   initialTime?: string;
   isNightView?: boolean;
 }
 
-export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMorningVoid, initialTime, isNightView }: LogVoidFormProps) {
-  const { addVoid, updateVoid, getVoidsForDay, getWakeTimeForDay, getBedtimeForDay, startDate, volumeUnit } = useDiaryStore();
+export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogVoidFormProps) {
+  const { addVoid, updateVoid, getWakeTimeForDay, getBedtimeForDay, startDate, volumeUnit } = useDiaryStore();
   const vc = VOLUME_CONFIG[volumeUnit];
   const isEditing = !!editEntry;
 
@@ -43,19 +42,6 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
   const [note, setNote] = useState(editEntry?.note ?? '');
   const [leak, setLeak] = useState(editEntry?.leak ?? false);
 
-  const existingVoids = getVoidsForDay(dayNumber);
-  const wakeTime = wakeTimeEntry;
-  const hasMorningVoid = existingVoids.some((v) => v.isFirstMorningVoid);
-
-  // Auto-tag as morning void: if wake time is set and no morning void exists yet,
-  // the next pee logged is automatically the first morning pee
-  // Never auto-tag during nighttime (no wake time yet on day > 1)
-  const isNighttime = dayNumber > 1 && !wakeTimeEntry;
-  const shouldAutoTagMorning = !isEditing && !isNighttime && !!wakeTime && !hasMorningVoid;
-  const isFirstVoid = isEditing
-    ? editEntry.isFirstMorningVoid
-    : (markAsMorningVoid ?? shouldAutoTagMorning ?? (!isNighttime && existingVoids.length === 0));
-  const [firstMorning] = useState(isFirstVoid);
   const [doubleVoid, setDoubleVoid] = useState(!!editEntry?.doubleVoidMl);
   const [doubleVoidVolume, setDoubleVoidVolume] = useState(
     editEntry?.doubleVoidMl ? mlToDisplayVolume(editEntry.doubleVoidMl, volumeUnit) : (volumeUnit === 'oz' ? 3 : 75),
@@ -71,9 +57,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
 
   // Auto-save refs: track latest form values + whether Save button was used
   const savedRef = useRef(false);
-  const formRef = useRef({ volume, sensation, time, note, leak, firstMorning, doubleVoid, doubleVoidVolume });
+  const formRef = useRef({ volume, sensation, time, note, leak, doubleVoid, doubleVoidVolume });
   useEffect(() => {
-    formRef.current = { volume, sensation, time, note, leak, firstMorning, doubleVoid, doubleVoidVolume };
+    formRef.current = { volume, sensation, time, note, leak, doubleVoid, doubleVoidVolume };
   });
 
   // Auto-save on unmount when editing (dismiss without tapping Save)
@@ -90,7 +76,6 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
         sensation: d.sensation,
         leak: d.leak,
         note: d.note,
-        isFirstMorningVoid: d.firstMorning,
       });
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -206,7 +191,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
       sensation,
       leak,
       note,
-      isFirstMorningVoid: firstMorning,
+      isFirstMorningVoid: false, // Store auto-assigns FMV to void closest to wake time
     };
     if (isEditing && editEntry) {
       updateVoid(editEntry.id, data);
@@ -214,7 +199,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
       addVoid(data);
     }
     onSave();
-  }, [volume, sensation, leak, time, note, firstMorning, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTimeEntry]);
+  }, [volume, sensation, leak, time, note, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTimeEntry]);
 
   // Animation class based on slide direction
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
@@ -247,7 +232,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
           <button
             type="button"
             onClick={() => goToStep(step - 1)}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10
+            className="absolute left-0 top-4 z-10
               w-9 h-9 flex items-center justify-center rounded-full
               bg-ipc-100 border border-ipc-200 text-ipc-600 shadow-sm
               active:scale-[0.85] active:bg-ipc-200 transition-all"
@@ -260,7 +245,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
           <button
             type="button"
             onClick={() => goToStep(step + 1)}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10
+            className={`absolute right-0 top-4 z-10
               w-9 h-9 flex items-center justify-center rounded-full
               bg-ipc-100 border border-ipc-200 text-ipc-600 shadow-sm
               active:scale-[0.85] active:bg-ipc-200 transition-all
@@ -470,7 +455,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
           )}
 
           {step === 3 && (
-            <div className="flex flex-col items-center justify-center min-h-[40vh]">
+            <div className="flex flex-col items-center pt-2">
               <h3 className="text-xl font-bold text-center mb-5 text-ipc-800">
                 When was this?
               </h3>

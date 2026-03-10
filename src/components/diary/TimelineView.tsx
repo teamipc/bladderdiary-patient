@@ -252,8 +252,8 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
   };
 
   return (
-    <div className={`flex flex-col transition-colors duration-700 rounded-2xl ${
-      isNighttime ? 'nighttime-tint -mx-3 px-3 py-3' : ''
+    <div className={`flex flex-col transition-colors duration-700 ${
+      isNighttime ? 'nighttime-tint -mx-3 px-3 py-3 min-h-screen pb-24' : 'rounded-2xl'
     }`}>
       {/* 5-step journey progress: D1 → N1 → D2 → N2 → D3 */}
       <div className="flex items-center justify-center mb-3 px-4">
