@@ -72,9 +72,11 @@ export default function DayPageClient() {
   // Toggle full-page night background on body
   useEffect(() => {
     if (isNightView) {
+      document.documentElement.classList.add('nighttime-bg');
       document.body.classList.add('nighttime-bg');
     }
     return () => {
+      document.documentElement.classList.remove('nighttime-bg');
       document.body.classList.remove('nighttime-bg');
     };
   }, [isNightView]);

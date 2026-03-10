@@ -119,10 +119,15 @@ input, select, textarea {
   background-color: #1e1b3a !important;
 }
 
-/* Header and bottom nav adapt to night mode */
+/* Override surface backgrounds in night mode */
+.nighttime-bg .bg-surface {
+  background-color: #1e1b3a !important;
+}
+
+/* Header adapts to night mode — original warm color, semi-transparent over purple */
 .nighttime-bg header {
-  background-color: rgba(30, 27, 58, 0.85) !important;
-  border-bottom-color: rgba(99, 90, 160, 0.25) !important;
+  background-color: rgba(253, 248, 239, 0.12) !important;
+  border-bottom-color: rgba(99, 90, 160, 0.15) !important;
 }
 .nighttime-bg header .text-ipc-900 {
   color: #e8e6f0 !important;
@@ -130,6 +135,8 @@ input, select, textarea {
 .nighttime-bg header .text-ipc-400 {
   color: #7a72a8 !important;
 }
+
+/* Bottom nav adapts to night mode */
 .nighttime-bg nav {
   background-color: rgba(30, 27, 58, 0.95) !important;
   border-top-color: rgba(99, 90, 160, 0.25) !important;
