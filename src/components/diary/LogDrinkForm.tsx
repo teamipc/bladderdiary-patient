@@ -16,11 +16,12 @@ interface LogDrinkFormProps {
   dayNumber: number;
   editEntry?: DrinkEntry;
   initialTime?: string;
+  isNightView?: boolean;
 }
 
 const TOTAL_STEPS = 2;
 
-export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime }: LogDrinkFormProps) {
+export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogDrinkFormProps) {
   const { addDrink, updateDrink, getBedtimeForDay, getWakeTimeForDay, startDate, volumeUnit } = useDiaryStore();
   const vc = VOLUME_CONFIG[volumeUnit];
   const isEditing = !!editEntry;
@@ -140,6 +141,10 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   // Check if time is before previous day's bedtime
   const isBeforePrevBedtime = prevDayBedtime ? time <= prevDayBedtime.timestampIso : false;
 
+  // Check time boundaries based on view
+  const isBeforeWakeTime = !isNightView && wakeTime ? time < wakeTime.timestampIso : false;
+  const isAfterWakeTime = isNightView && wakeTime ? time >= wakeTime.timestampIso : false;
+
   // Temporary warning state
   const [timeWarning, setTimeWarning] = useState<string | null>(null);
   const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -151,6 +156,24 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
       setTimeWarning(
         `This time is before Day ${dayNumber - 1}'s bedtime (${formatTime(prevDayBedtime.timestampIso)}). Pick a later time.`
+      );
+      warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
+      return;
+    }
+    // Block saving if day event is before wake-up time
+    if (isBeforeWakeTime && wakeTime) {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      setTimeWarning(
+        `This time is before wake-up (${formatTime(wakeTime.timestampIso)}). Daytime events must be after you woke up.`
+      );
+      warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
+      return;
+    }
+    // Block saving if night event is at/after wake-up time
+    if (isAfterWakeTime && wakeTime) {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      setTimeWarning(
+        `This time is after wake-up (${formatTime(wakeTime.timestampIso)}). Overnight events must be before you woke up.`
       );
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
@@ -168,7 +191,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       addDrink(data);
     }
     onSave();
-  }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit]);
+  }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTime]);
 
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
@@ -228,7 +251,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
         <div key={step} className={`px-10 ${slideClass}`}>
           {step === 1 && (
             <>
-              <h3 className="text-xl font-bold text-ipc-950 text-center mb-2">
+              <h3 className="text-xl font-bold text-center mb-2 text-ipc-950">
                 What did you drink?
               </h3>
 
@@ -282,7 +305,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
               {/* Separator */}
               <div className="border-t border-drink/15 mt-2 mb-2" />
 
-              <h3 className="text-lg font-bold text-ipc-950 text-center mb-1">
+              <h3 className="text-lg font-bold text-center mb-1 text-ipc-950">
                 About how much?
               </h3>
 
@@ -293,6 +316,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                 <VolumeInput
                   value={volume}
                   onChange={handleVolumeChange}
+                  onEditingChange={(editing) => { if (editing) cancelAutoAdvance(); }}
                   unit={volumeUnit}
                   max={vc.max}
                   step={vc.step}
@@ -304,7 +328,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
 
           {step === 2 && (
             <div className="flex flex-col items-center justify-center min-h-[40vh]">
-              <h3 className="text-xl font-bold text-ipc-950 text-center mb-5">
+              <h3 className="text-xl font-bold text-center mb-5 text-ipc-950">
                 When was this?
               </h3>
 

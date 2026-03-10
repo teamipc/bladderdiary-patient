@@ -7,40 +7,37 @@ import { useDiaryStore } from '@/lib/store';
 import DrinkIcon from '@/components/ui/DrinkIcon';
 import type { VoidEntry, DrinkEntry, BedtimeEntry, WakeTimeEntry } from '@/lib/types';
 
+type TimelineEventBase = { nightMode?: boolean };
 type TimelineEventProps =
-  | { type: 'void'; entry: VoidEntry; onDelete: (id: string) => void; onEdit?: (entry: VoidEntry) => void; onMarkMorning?: (id: string) => void }
-  | { type: 'drink'; entry: DrinkEntry; onDelete: (id: string) => void; onEdit?: (entry: DrinkEntry) => void }
-  | { type: 'bedtime'; entry: BedtimeEntry; onDelete: (dayNumber: number) => void; onEdit?: (entry: BedtimeEntry) => void }
-  | { type: 'wakeup'; entry: WakeTimeEntry; onDelete: (dayNumber: number) => void };
+  | (TimelineEventBase & { type: 'void'; entry: VoidEntry; onDelete: (id: string) => void; onEdit?: (entry: VoidEntry) => void })
+  | (TimelineEventBase & { type: 'drink'; entry: DrinkEntry; onDelete: (id: string) => void; onEdit?: (entry: DrinkEntry) => void })
+  | (TimelineEventBase & { type: 'bedtime'; entry: BedtimeEntry; onDelete: (dayNumber: number) => void; onEdit?: (entry: BedtimeEntry) => void })
+  | (TimelineEventBase & { type: 'wakeup'; entry: WakeTimeEntry; onDelete: (dayNumber: number) => void });
 
 export default function TimelineEvent(props: TimelineEventProps) {
-  const { type } = props;
+  const { type, nightMode } = props;
   const { volumeUnit } = useDiaryStore();
   const fmt = (ml: number) => mlToDisplayVolume(ml, volumeUnit);
 
   if (type === 'void') {
-    const { entry, onDelete, onEdit, onMarkMorning } = props;
+    const { entry, onDelete, onEdit } = props;
     return (
       <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border border-ipc-100
         hover:border-ipc-200 transition-colors group animate-fade-slide-up">
-        {/* Icon — tappable sun to mark as morning pee */}
-        <button
-          type="button"
-          onClick={() => onMarkMorning?.(entry.id)}
-          className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0
-            transition-all active:scale-[0.9] ${
-              entry.isFirstMorningVoid
-                ? 'bg-warning/15 ring-1 ring-warning/30'
-                : 'bg-void/10'
-            }`}
-          aria-label={entry.isFirstMorningVoid ? 'Morning pee (tap to unmark)' : 'Tap to mark as morning pee'}
+        {/* Icon — sun for morning pee, droplets otherwise; purple in night mode */}
+        <div
+          className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+            entry.isFirstMorningVoid
+              ? 'bg-warning/15 ring-1 ring-warning/30'
+              : nightMode ? 'bg-indigo-500/20' : 'bg-void/10'
+          }`}
         >
           {entry.isFirstMorningVoid ? (
             <Sun size={22} className="text-warning" />
           ) : (
-            <Droplets size={22} className="text-void" />
+            <Droplets size={22} className={nightMode ? 'text-indigo-400' : 'text-void'} />
           )}
-        </button>
+        </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
@@ -109,7 +106,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
     return (
       <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border border-drink/20
         hover:border-drink/40 transition-colors group animate-fade-slide-up">
-        <div className="w-11 h-11 rounded-xl bg-drink/10 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-drink/10">
           <DrinkIcon name={getDrinkIconName(entry.drinkType)} size={22} className="text-drink" />
         </div>
 

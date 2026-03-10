@@ -61,23 +61,30 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
           </div>
         )}
 
-        {/* Main FAB button */}
-        <button
-          type="button"
-          onClick={() => setExpanded((prev) => !prev)}
-          className={`w-16 h-16 rounded-full shadow-xl flex items-center justify-center
-            transition-all active:scale-[0.9] ${
-              expanded
-                ? 'bg-ipc-800 rotate-45'
-                : 'bg-ipc-500 hover:bg-ipc-600'
-            }`}
-        >
-          {expanded ? (
-            <X size={28} className="text-white -rotate-45" />
-          ) : (
-            <Plus size={28} className="text-white" />
+        {/* Main FAB button with label */}
+        <div className="flex flex-col items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setExpanded((prev) => !prev)}
+            className={`w-16 h-16 rounded-full flex items-center justify-center
+              transition-all active:scale-[0.9] ${
+                expanded
+                  ? 'bg-ipc-800 rotate-45 shadow-xl'
+                  : 'bg-ipc-500 hover:bg-ipc-600 animate-fab-glow'
+              }`}
+          >
+            {expanded ? (
+              <X size={28} className="text-white -rotate-45" />
+            ) : (
+              <Plus size={28} className="text-white" />
+            )}
+          </button>
+          {!expanded && (
+            <span className="text-[10px] font-semibold text-ipc-500">
+              Log
+            </span>
           )}
-        </button>
+        </div>
       </div>
     </>
   );

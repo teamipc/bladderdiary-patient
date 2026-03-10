@@ -5,16 +5,18 @@ import { useState, useRef, useEffect } from 'react';
 interface VolumeInputProps {
   value: number;
   onChange: (value: number) => void;
+  onEditingChange?: (editing: boolean) => void;
   unit?: 'mL' | 'oz';
   min?: number;
   max?: number;
   step?: number;
-  variant?: 'default' | 'drink';
+  variant?: 'default' | 'drink' | 'night';
 }
 
 export default function VolumeInput({
   value,
   onChange,
+  onEditingChange,
   unit = 'mL',
   min = 0,
   max = 1000,
@@ -33,9 +35,11 @@ export default function VolumeInput({
     }
   }, [isEditing]);
 
-  const handleTapNumber = () => {
+  const handleTapNumber = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setEditValue(String(value));
     setIsEditing(true);
+    onEditingChange?.(true);
   };
 
   const commitEdit = () => {
@@ -44,11 +48,15 @@ export default function VolumeInput({
       onChange(parsed);
     }
     setIsEditing(false);
+    onEditingChange?.(false);
   };
 
   const handleEditKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') commitEdit();
-    if (e.key === 'Escape') setIsEditing(false);
+    if (e.key === 'Escape') {
+      setIsEditing(false);
+      onEditingChange?.(false);
+    }
   };
 
   return (
@@ -56,26 +64,32 @@ export default function VolumeInput({
       {/* Large tappable value display */}
       <div className="text-center py-1">
         {isEditing ? (
-          <div className="inline-flex items-baseline gap-1">
+          <div
+            className="inline-flex items-baseline gap-1.5"
+            onPointerUp={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
             <input
               ref={inputRef}
-              type="number"
+              type="text"
               inputMode="numeric"
+              pattern="[0-9]*"
               value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
+              onChange={(e) => setEditValue(e.target.value.replace(/[^0-9]/g, ''))}
               onBlur={commitEdit}
               onKeyDown={handleEditKeyDown}
-              min={min}
-              max={max}
-              className={`w-28 text-4xl font-bold text-ipc-950 tabular-nums text-center
-                bg-white/50 backdrop-blur-sm border-2 rounded-xl
-                outline-none transition-all ${
-                  variant === 'drink'
+              className={`w-32 text-4xl font-bold text-ipc-950 tabular-nums text-center
+                bg-white/50 backdrop-blur-sm border-2 rounded-xl py-1
+                outline-none transition-all text-[16px] sm:text-4xl ${
+                  variant === 'night'
+                    ? 'border-indigo-400/40 focus:border-indigo-500'
+                    : variant === 'drink'
                     ? 'border-drink/40 focus:border-drink'
                     : 'border-ipc-300 focus:border-ipc-500'
                 }`}
+              style={{ fontSize: '2.25rem' }}
             />
-            <span className={`text-lg font-medium ${variant === 'drink' ? 'text-drink' : 'text-ipc-400'}`}>{unit}</span>
+            <span className={`text-lg font-medium ${variant === 'night' ? 'text-indigo-500' : variant === 'drink' ? 'text-drink' : 'text-ipc-400'}`}>{unit}</span>
           </div>
         ) : (
           <button
@@ -86,7 +100,7 @@ export default function VolumeInput({
             <span className="text-4xl font-bold text-ipc-950 tabular-nums">
               {value}
             </span>
-            <span className={`text-lg font-medium ${variant === 'drink' ? 'text-drink' : 'text-ipc-400'}`}>{unit}</span>
+            <span className={`text-lg font-medium ${variant === 'night' ? 'text-indigo-500' : variant === 'drink' ? 'text-drink' : 'text-ipc-400'}`}>{unit}</span>
           </button>
         )}
       </div>
@@ -100,7 +114,7 @@ export default function VolumeInput({
           step={step}
           value={value}
           onChange={(e) => onChange(parseInt(e.target.value))}
-          className={`${variant === 'drink' ? 'volume-slider-drink' : 'volume-slider'} w-full`}
+          className={`${variant === 'night' ? 'volume-slider-night' : variant === 'drink' ? 'volume-slider-drink' : 'volume-slider'} w-full`}
           aria-label={`Volume in ${unit}`}
           style={{
             '--slider-progress': `${percentage}%`,
