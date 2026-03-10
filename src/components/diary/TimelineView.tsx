@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Sun, Moon, Droplets, CheckCircle2, ChevronLeft, ChevronRight, Plus, RotateCcw, Check } from 'lucide-react';
 import TimelineEvent from './TimelineEvent';
 import DrinkIcon from '@/components/ui/DrinkIcon';
@@ -45,39 +45,72 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
     removeDrink,
     removeBedtime,
     removeWakeTime,
-    markMorningVoid,
     resetDiary,
   } = useDiaryStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const voids = getVoidsForDay(dayNumber);
-  const drinks = getDrinksForDay(dayNumber);
+  const allVoids = getVoidsForDay(dayNumber);
+  const allDrinks = getDrinksForDay(dayNumber);
   const bedtime = getBedtimeForDay(dayNumber);
   const wakeTime = getWakeTimeForDay(dayNumber);
 
   const dayDateStr = getDayDate(startDate, dayNumber);
   const dayLabel = formatDate(dayDateStr + 'T12:00:00');
 
-  const hasMorningVoid = voids.some((v) => v.isFirstMorningVoid);
-  const hasBedtime = !!bedtime;
   const hasWakeTime = !!wakeTime;
+  const hasBedtime = !!bedtime;
 
   // Day navigation
   const prevDayBedtime = dayNumber > 1 ? getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3) : undefined;
   const nextDayAccessible = dayNumber < 3 && hasBedtime;
 
-  // Day completion status for progress indicator
+  // Night phase: this day has a previous bedtime (i.e. there was an overnight period)
+  const hasNightPhase = dayNumber > 1 && !!prevDayBedtime;
+
+  // Night view: explicit ?view=night param, OR auto-detect (night phase, no wake time yet)
+  const viewParam = searchParams.get('view');
+  const isNighttime = hasNightPhase && (viewParam === 'night' || (!viewParam && !hasWakeTime));
+  const isNightComplete = isNighttime && hasWakeTime;
+
+  // Separate night vs day events: night = before wake time, day = at/after wake time
+  const voids = isNighttime
+    ? (hasWakeTime
+      ? allVoids.filter((v) => v.timestampIso < wakeTime!.timestampIso)
+      : allVoids)
+    : hasWakeTime
+      ? allVoids.filter((v) => v.timestampIso >= wakeTime!.timestampIso)
+      : allVoids;
+  const drinks = isNighttime
+    ? (hasWakeTime
+      ? allDrinks.filter((d) => d.timestampIso < wakeTime!.timestampIso)
+      : allDrinks)
+    : hasWakeTime
+      ? allDrinks.filter((d) => d.timestampIso >= wakeTime!.timestampIso)
+      : allDrinks;
+
+  const hasMorningVoid = allVoids.some((v) => v.isFirstMorningVoid);
+
+  // 5-step journey: Day 1, Night 1, Day 2, Night 2, Day 3
   const day1Bedtime = !!getBedtimeForDay(1);
+  const day2Wake = !!getWakeTimeForDay(2);
   const day2Bedtime = !!getBedtimeForDay(2);
+  const day3Wake = !!getWakeTimeForDay(3);
   const day3Bedtime = !!getBedtimeForDay(3);
-  const dayStatus = [
-    { num: 1, complete: day1Bedtime, accessible: true },
-    { num: 2, complete: day2Bedtime, accessible: day1Bedtime },
-    { num: 3, complete: day3Bedtime, accessible: day2Bedtime },
+
+  type StepInfo = { label: string; complete: boolean; accessible: boolean; href: string; isCurrent: boolean };
+  const journeySteps: StepInfo[] = [
+    { label: 'D1', complete: day1Bedtime, accessible: true, href: '/diary/day/1', isCurrent: dayNumber === 1 && !isNighttime },
+    { label: 'N1', complete: day2Wake, accessible: day1Bedtime, href: '/diary/day/2?view=night', isCurrent: dayNumber === 2 && isNighttime },
+    { label: 'D2', complete: day2Bedtime, accessible: day2Wake, href: '/diary/day/2?view=day', isCurrent: dayNumber === 2 && !isNighttime },
+    { label: 'N2', complete: day3Wake, accessible: day2Bedtime, href: '/diary/day/3?view=night', isCurrent: dayNumber === 3 && isNighttime },
+    { label: 'D3', complete: day3Bedtime, accessible: day3Wake, href: '/diary/day/3?view=day', isCurrent: dayNumber === 3 && !isNighttime },
   ];
 
-  // Nighttime mode: Day 2/3, previous bedtime set, NO wake time yet
-  const isNighttime = dayNumber > 1 && !hasWakeTime && !!prevDayBedtime;
+  // Navigation: find current step and determine prev/next
+  const currentStepIdx = journeySteps.findIndex((s) => s.isCurrent);
+  const prevStep = currentStepIdx > 0 ? journeySteps[currentStepIdx - 1] : null;
+  const nextStep = currentStepIdx < journeySteps.length - 1 ? journeySteps[currentStepIdx + 1] : null;
 
   // Day is complete:
   // Day 1: first void logged + bedtime set (no wake-up needed, diary starts with first void)
@@ -92,25 +125,6 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
   // Reset confirmation
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  // Morning void warning
-  const [morningWarning, setMorningWarning] = useState<string | null>(null);
-  const warningTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleMarkMorning = useCallback((id: string) => {
-    if (wakeTime) {
-      const entry = voids.find((v) => v.id === id);
-      if (entry && entry.timestampIso < wakeTime.timestampIso) {
-        if (warningTimer.current) clearTimeout(warningTimer.current);
-        setMorningWarning(
-          `This pee was before your wake-up at ${formatTime(wakeTime.timestampIso)}`,
-        );
-        warningTimer.current = setTimeout(() => setMorningWarning(null), 3500);
-        return;
-      }
-    }
-    setMorningWarning(null);
-    markMorningVoid(id, dayNumber);
-  }, [wakeTime, voids, markMorningVoid, dayNumber]);
 
   // Handle "Wake up" button — opens wake-up time form
   const handleWakeUp = useCallback(() => {
@@ -122,13 +136,17 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
     const all: TimelineItem[] = [
       ...voids.map((entry) => ({ kind: 'void' as const, entry })),
       ...drinks.map((entry) => ({ kind: 'drink' as const, entry })),
-      ...(bedtime ? [{ kind: 'bedtime' as const, entry: bedtime }] : []),
+      // Day view: show current day's bedtime (marks end of day)
+      ...(!isNighttime && bedtime ? [{ kind: 'bedtime' as const, entry: bedtime }] : []),
+      // Night view: show previous day's bedtime (marks start of night)
+      ...(isNighttime && prevDayBedtime ? [{ kind: 'bedtime' as const, entry: prevDayBedtime }] : []),
+      // Wake time shows in both night view (marks end of night) and day view (marks start of day)
       ...(wakeTime ? [{ kind: 'wakeup' as const, entry: wakeTime }] : []),
     ];
     return all.sort((a, b) =>
       a.entry.timestampIso.localeCompare(b.entry.timestampIso),
     );
-  }, [voids, drinks, bedtime, wakeTime]);
+  }, [voids, drinks, bedtime, wakeTime, isNighttime, prevDayBedtime]);
 
   const handleInsertVoid = (gapIdx: number) => {
     if (gapIdx < items.length - 1) {
@@ -166,7 +184,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           entry={item.entry}
           onDelete={removeVoid}
           onEdit={onEditVoid}
-          onMarkMorning={handleMarkMorning}
+          nightMode={isNighttime}
         />
       );
     }
@@ -178,10 +196,30 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           entry={item.entry}
           onDelete={removeDrink}
           onEdit={onEditDrink}
+          nightMode={isNighttime}
         />
       );
     }
     if (item.kind === 'wakeup') {
+      // In day view, wake-up is just context (start of day) — show as simple text
+      if (!isNighttime) {
+        const noDayEvents = voids.length === 0 && drinks.length === 0;
+        return (
+          <div key={item.entry.id} className="px-4 py-2">
+            <div className="flex items-center gap-2">
+              <Sun size={16} className="text-warning shrink-0" />
+              <span className="text-sm font-medium text-ipc-500">
+                Woke up at {formatTime(item.entry.timestampIso)}
+              </span>
+            </div>
+            {noDayEvents && (
+              <p className="text-xs text-ipc-400 mt-1 ml-6 animate-fade-slide-up">
+                Add your first event of the day
+              </p>
+            )}
+          </div>
+        );
+      }
       return (
         <TimelineEvent
           key={item.entry.id}
@@ -189,6 +227,17 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           entry={item.entry}
           onDelete={(dn) => removeWakeTime(dn as 1 | 2 | 3)}
         />
+      );
+    }
+    // In night view, bedtime is just context (start of night) — show as simple text
+    if (isNighttime) {
+      return (
+        <div key={item.entry.id} className="flex items-center gap-2 px-4 py-2">
+          <Moon size={16} className="text-indigo-400 shrink-0" />
+          <span className="text-sm font-medium text-indigo-300">
+            Went to bed at {formatTime(item.entry.timestampIso)}
+          </span>
+        </div>
       );
     }
     return (
@@ -206,21 +255,21 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
     <div className={`flex flex-col transition-colors duration-700 rounded-2xl ${
       isNighttime ? 'nighttime-tint -mx-3 px-3 py-3' : ''
     }`}>
-      {/* 3-day journey progress — subtle indicator */}
-      <div className="flex items-center justify-center mb-3 px-8">
-        {dayStatus.map((day, idx) => {
-          const isCurrent = day.num === dayNumber;
-          const isComplete = day.complete;
-          const isAccessible = day.accessible;
+      {/* 5-step journey progress: D1 → N1 → D2 → N2 → D3 */}
+      <div className="flex items-center justify-center mb-3 px-4">
+        {journeySteps.map((step, idx) => {
+          const isNight = step.label.startsWith('N');
 
-          // Circle colors — subtle palette
+          // Circle colors
           let circleClass: string;
           let labelClass: string;
           if (isNighttime) {
-            if (isCurrent) {
-              circleClass = 'bg-indigo-400/80 text-white ring-1 ring-indigo-300/30';
+            if (step.isCurrent) {
+              circleClass = isNight
+                ? 'bg-indigo-400/80 text-white ring-1 ring-indigo-300/30'
+                : 'bg-ipc-400/80 text-white ring-1 ring-ipc-300/30';
               labelClass = 'text-indigo-300/70';
-            } else if (isComplete) {
+            } else if (step.complete) {
               circleClass = 'bg-indigo-400/40 text-white/80';
               labelClass = 'text-indigo-400/40';
             } else {
@@ -228,52 +277,50 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
               labelClass = 'text-indigo-500/20';
             }
           } else {
-            if (isCurrent) {
+            if (step.isCurrent) {
               circleClass = 'bg-ipc-400 text-white ring-1 ring-ipc-300/30';
               labelClass = 'text-ipc-500';
-            } else if (isComplete) {
-              circleClass = 'bg-ipc-300 text-white';
-              labelClass = 'text-ipc-300';
+            } else if (step.complete) {
+              circleClass = isNight ? 'bg-bedtime/60 text-white' : 'bg-ipc-300 text-white';
+              labelClass = isNight ? 'text-bedtime/50' : 'text-ipc-300';
             } else {
               circleClass = 'bg-ipc-100 text-ipc-300';
               labelClass = 'text-ipc-200';
             }
           }
 
-          // Line between dots
-          const showLine = idx < 2;
-          const lineComplete = dayStatus[idx].complete;
+          const showLine = idx < journeySteps.length - 1;
+          const lineComplete = step.complete;
 
           const circleContent = (
             <div className="flex flex-col items-center gap-0.5">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold
                 transition-all ${circleClass}`}>
-                {isComplete && !isCurrent ? <Check size={11} strokeWidth={2.5} /> : day.num}
+                {step.complete && !step.isCurrent ? <Check size={9} strokeWidth={3} /> : step.label}
               </div>
-              <span className={`text-[9px] font-medium ${labelClass}`}>
-                Day {day.num}
+              <span className={`text-[8px] font-medium leading-none ${labelClass}`}>
+                {isNight ? `Night ${step.label[1]}` : `Day ${step.label[1]}`}
               </span>
             </div>
           );
 
           return (
-            <div key={day.num} className="flex items-center">
-              {isAccessible ? (
+            <div key={step.label} className="flex items-center">
+              {step.accessible ? (
                 <Link
-                  href={`/diary/day/${day.num}`}
+                  href={step.href}
                   className="active:scale-[0.9] transition-all"
-                  aria-label={`Day ${day.num}${isComplete ? ' (complete)' : isCurrent ? ' (current)' : ''}`}
+                  aria-label={`${isNight ? 'Night' : 'Day'} ${step.label[1]}${step.complete ? ' (complete)' : step.isCurrent ? ' (current)' : ''}`}
                 >
                   {circleContent}
                 </Link>
               ) : (
-                <div aria-label={`Day ${day.num} (locked)`}>
+                <div aria-label={`${isNight ? 'Night' : 'Day'} ${step.label[1]} (locked)`}>
                   {circleContent}
                 </div>
               )}
-              {/* Connecting line */}
               {showLine && (
-                <div className={`flex-1 w-8 h-px mt-[-10px] mx-1.5 transition-colors ${
+                <div className={`flex-1 w-5 h-px mt-[-10px] mx-1 transition-colors ${
                   isNighttime
                     ? lineComplete ? 'bg-indigo-400/40' : 'bg-indigo-500/10'
                     : lineComplete ? 'bg-ipc-300' : 'bg-ipc-100'
@@ -286,17 +333,25 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
 
       {/* Day header with navigation arrows */}
       <div className="flex items-center justify-between px-1 mb-3">
-        {dayNumber > 1 ? (
-          <Link
-            href={`/diary/day/${dayNumber - 1}`}
-            className={`w-10 h-10 flex items-center justify-center rounded-full transition-all
-              active:scale-[0.9] ${
-                isNighttime ? 'text-indigo-200 hover:bg-indigo-500/20' : 'text-ipc-600 hover:bg-ipc-100'
-              }`}
-            aria-label={`Go to Day ${dayNumber - 1}`}
-          >
-            <ChevronLeft size={24} strokeWidth={2.5} />
-          </Link>
+        {prevStep ? (
+          prevStep.accessible ? (
+            <Link
+              href={prevStep.href}
+              className={`w-10 h-10 flex items-center justify-center rounded-full transition-all
+                active:scale-[0.9] ${
+                  isNighttime ? 'text-indigo-200 hover:bg-indigo-500/20' : 'text-ipc-600 hover:bg-ipc-100'
+                }`}
+              aria-label={`Go to ${prevStep.label}`}
+            >
+              <ChevronLeft size={24} strokeWidth={2.5} />
+            </Link>
+          ) : (
+            <div className={`w-10 h-10 flex items-center justify-center rounded-full ${
+              isNighttime ? 'text-indigo-500/30' : 'text-ipc-200'
+            }`}>
+              <ChevronLeft size={24} strokeWidth={2.5} />
+            </div>
+          )
         ) : (
           <button
             type="button"
@@ -311,22 +366,22 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
 
         <div className="text-center">
           <h2 className={`text-xl font-bold ${isNighttime ? 'text-indigo-100' : 'text-ipc-950'}`}>
-            Day {dayNumber}
+            {isNighttime ? `Night ${dayNumber - 1}` : `Day ${dayNumber}`}
           </h2>
           <span className={`font-medium text-sm ${isNighttime ? 'text-indigo-300/80' : 'text-ipc-500'}`}>
             {dayLabel}
           </span>
         </div>
 
-        {dayNumber < 3 ? (
-          nextDayAccessible ? (
+        {nextStep ? (
+          nextStep.accessible ? (
             <Link
-              href={`/diary/day/${dayNumber + 1}`}
+              href={nextStep.href}
               className={`w-10 h-10 flex items-center justify-center rounded-full transition-all
                 active:scale-[0.9] ${
                   isNighttime ? 'text-indigo-200 hover:bg-indigo-500/20' : 'text-ipc-600 hover:bg-ipc-100'
                 }`}
-              aria-label={`Go to Day ${dayNumber + 1}`}
+              aria-label={`Go to ${nextStep.label}`}
             >
               <ChevronRight size={24} strokeWidth={2.5} />
             </Link>
@@ -339,7 +394,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
               <ChevronRight size={24} strokeWidth={2.5} />
             </div>
           )
-        ) : isDayComplete ? (
+        ) : isDayComplete && dayNumber === 3 ? (
           <Link
             href="/summary"
             className="w-10 h-10 flex items-center justify-center rounded-full transition-all
@@ -353,24 +408,8 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         )}
       </div>
 
-      {/* Day/Night indicator */}
-      <div className="flex items-center justify-center gap-2 mb-4">
-        {isNighttime ? (
-          <>
-            <Moon size={14} className="text-indigo-300" />
-            <span className="text-xs font-medium text-indigo-300/80">
-              Nighttime
-            </span>
-          </>
-        ) : (
-          <>
-            <Sun size={14} className="text-ipc-400" />
-            <span className="text-xs font-medium text-ipc-400">
-              Daytime
-            </span>
-          </>
-        )}
-      </div>
+      {/* Spacer */}
+      <div className="mb-2" />
 
       {/* Empty state */}
       {items.length === 0 ? (
@@ -383,15 +422,18 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           <p className={`text-lg font-semibold mb-1 ${isNighttime ? 'text-indigo-100' : 'text-ipc-800'}`}>
             {isNighttime ? 'Good evening!' : dayNumber === 1 ? 'Hello!' : 'Good morning!'}
           </p>
-          <p className={`text-base mb-5 ${isNighttime ? 'text-indigo-300/80' : 'text-ipc-500'}`}>
-            {isNighttime
-              ? 'Add any overnight trips or drinks'
-              : dayNumber === 1 && !hasWakeTime
+          {!isNighttime && (
+            <p className={`text-base mb-5 ${isNighttime ? 'text-indigo-300/80' : 'text-ipc-500'}`}>
+              {dayNumber === 1 && !hasWakeTime
                 ? 'Start by adding your wake-up time'
                 : `Add your first pee to start Day ${dayNumber}`}
-          </p>
+            </p>
+          )}
           {isNighttime ? (
             <div className="space-y-4">
+              <p className="text-lg font-light text-indigo-200 text-center mb-2">
+                Did you pee or drink anything overnight?
+              </p>
               <div className="flex justify-center gap-3">
                 {onLogVoid && (
                   <button
@@ -419,20 +461,20 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 )}
               </div>
               {onLogWakeUp && (
-                <div className="flex flex-col items-center gap-2 mt-2">
-                  <div className="w-12 h-px bg-indigo-400/20 mx-auto mb-1" />
-                  <p className="text-sm text-amber-300/80 text-center">
-                    Add any overnight pees or drinks first
+                <div className="flex flex-col items-center gap-2 mt-8">
+                  <div className="w-12 h-px bg-indigo-400/20 mx-auto" />
+                  <p className="text-xs text-indigo-400/60 text-center">
+                    Nothing overnight?
                   </p>
                   <button
                     type="button"
                     onClick={handleWakeUp}
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-2xl
                       font-semibold text-base active:scale-[0.97] transition-all
-                      bg-amber-400/20 text-amber-200 border border-amber-400/30"
+                      bg-ipc-500 text-white animate-start-day"
                   >
-                    <Sun size={18} />
-                    I&apos;m awake
+                    Continue to Day
+                    <Sun size={16} />
                   </button>
                 </div>
               )}
@@ -474,8 +516,8 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
             <div key={item.entry.id} className="relative pb-4">
               {renderTimelineItem(item)}
 
-              {/* "+" insertion button at bottom border of event — hidden once day is complete */}
-              {!isDayComplete && (
+              {/* "+" insertion button at bottom border of event — hidden once day is complete or Day 1 without wake time */}
+              {!isDayComplete && !isNightComplete && (dayNumber !== 1 || hasWakeTime) && (
                 <div className="absolute -bottom-0 left-0 right-0 flex justify-center z-10">
                   {openInsertIdx === idx ? (
                     <div className="flex items-center gap-2 animate-scale-in bg-white/80 dark:bg-transparent backdrop-blur-sm rounded-full px-2 py-0.5">
@@ -539,32 +581,24 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         </div>
       )}
 
-      {/* Morning void warning */}
-      {morningWarning && (
-        <div className="mt-3 px-4 py-2.5 rounded-2xl bg-danger-light border border-danger/20 animate-fade-slide-up">
-          <p className="text-sm font-medium text-danger text-center">
-            {morningWarning}
-          </p>
-        </div>
-      )}
-
-      {/* Wake-up reminder — show below night events so user taps it when they wake up */}
-      {isNighttime && items.length > 0 && (
-        <div className="mt-4 px-4 py-3 rounded-2xl bg-indigo-500/15 border border-indigo-400/20 animate-fade-slide-up">
+      {/* Wake-up reminder — only show after at least one overnight void or drink, hide when night complete */}
+      {isNighttime && !isNightComplete && (voids.length > 0 || drinks.length > 0) && onLogWakeUp && (
+        <div className="mt-4 px-4 py-3 rounded-2xl bg-warning/10 border border-warning/25 animate-fade-slide-up">
           <div className="flex items-center gap-3">
-            <Sun size={20} className="text-amber-300 shrink-0" />
+            <Sun size={20} className="shrink-0 text-warning" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-indigo-100">
+              <p className="text-sm font-semibold text-warning">
                 Mark your wake-up time
               </p>
-              <p className="text-xs text-indigo-300/70 mt-0.5">
-                This switches to daytime
+              <p className="text-xs mt-0.5 font-medium text-warning/70">
+                Log all overnight pees and drinks first
               </p>
             </div>
             <button
               type="button"
               onClick={handleWakeUp}
-              className="text-sm font-semibold text-amber-300 hover:text-amber-200
+              className="px-4 py-2 rounded-full text-sm font-semibold
+                bg-warning text-white
                 active:scale-[0.95] transition-all"
             >
               Wake up
@@ -573,17 +607,40 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         </div>
       )}
 
-      {/* Bedtime reminder */}
-      {items.length > 0 && !hasBedtime && !isNighttime && (
-        <div className="mt-4 px-4 py-3 rounded-2xl bg-bedtime/5 border border-bedtime/15">
+      {/* Night complete indicator */}
+      {isNightComplete && (
+        <div className="mt-4 space-y-2.5">
+          <div className="px-4 py-2.5 rounded-2xl bg-indigo-500/15 border border-indigo-400/20">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={18} className="text-indigo-400" />
+              <p className="text-sm font-medium text-indigo-300">
+                Night {dayNumber - 1} complete
+              </p>
+            </div>
+          </div>
+          <Link
+            href={`/diary/day/${dayNumber}?view=day`}
+            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl
+              bg-ipc-500 text-white font-semibold text-base
+              active:scale-[0.97] transition-all animate-start-day"
+          >
+            Continue to Day
+            <Sun size={16} />
+          </Link>
+        </div>
+      )}
+
+      {/* Bedtime reminder — only show after at least one void or drink is logged */}
+      {(voids.length > 0 || drinks.length > 0) && !hasBedtime && !isNighttime && (
+        <div className="mt-4 px-4 py-3 rounded-2xl bg-bedtime/10 border border-bedtime/25">
           <div className="flex items-center gap-3">
-            <Moon size={20} className="shrink-0 text-bedtime/70" />
+            <Moon size={20} className="shrink-0 text-bedtime" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-bedtime">
+              <p className="text-sm font-semibold text-bedtime">
                 Mark your bedtime
               </p>
-              <p className="text-xs mt-0.5 text-bedtime/70">
-                This wraps up Day {dayNumber}
+              <p className="text-xs mt-0.5 font-medium text-bedtime/80">
+                Add all your pees and drinks of the day first
               </p>
             </div>
             {onLogBedtime && (
@@ -601,8 +658,8 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         </div>
       )}
 
-      {/* Day complete indicator */}
-      {isDayComplete && (
+      {/* Day complete indicator — hide during night view */}
+      {isDayComplete && !isNighttime && (
         <div className="mt-4 space-y-2.5">
           <div className="px-4 py-2.5 rounded-2xl bg-ipc-100/30 border border-ipc-200/30">
             <div className="flex items-center gap-2">
@@ -613,15 +670,17 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
             </div>
           </div>
           {dayNumber < 3 && nextDayAccessible && (
-            <Link
-              href={`/diary/day/${dayNumber + 1}`}
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl
-                bg-ipc-500 text-white font-semibold text-base
-                active:scale-[0.97] transition-all animate-start-day"
-            >
-              Start Day {dayNumber + 1}
-              <ChevronRight size={18} />
-            </Link>
+            <div className="space-y-2">
+              <Link
+                href={`/diary/day/${dayNumber + 1}?view=night`}
+                className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl
+                  bg-bedtime text-white font-semibold text-base
+                  active:scale-[0.97] transition-all animate-night-pulse"
+              >
+                Continue to Night
+                <Moon size={16} />
+              </Link>
+            </div>
           )}
           {dayNumber === 3 && (
             <Link

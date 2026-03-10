@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import TimelineView from '@/components/diary/TimelineView';
 import QuickLogFAB from '@/components/diary/QuickLogFAB';
 import BottomSheet from '@/components/ui/BottomSheet';
@@ -18,18 +18,31 @@ type SheetMode = null | 'void' | 'drink' | 'bedtime' | 'wakeup';
 export default function DayPageClient() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dayNumber = Math.min(3, Math.max(1, Number(params.dayNumber))) as 1 | 2 | 3;
-  const { diaryStarted, getBedtimeForDay, getVoidsForDay } = useDiaryStore();
+  const { diaryStarted, getBedtimeForDay, getVoidsForDay, getWakeTimeForDay } = useDiaryStore();
   // Check if previous day is complete (needed to access this day)
   const prevDayComplete = dayNumber === 1 ? true
     : !!getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3);
 
   // Hide add buttons once day is complete
   const hasBedtime = !!getBedtimeForDay(dayNumber);
+  const hasWakeTime = !!getWakeTimeForDay(dayNumber);
+  const prevDayBedtime = dayNumber > 1 ? !!getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3) : false;
   const dayVoids = getVoidsForDay(dayNumber);
   const isDayComplete = dayNumber === 1
     ? dayVoids.length > 0 && hasBedtime
     : dayVoids.some((v) => v.isFirstMorningVoid) && hasBedtime;
+
+  // Night view detection (mirrors TimelineView logic)
+  const hasNightPhase = dayNumber > 1 && prevDayBedtime;
+  const viewParam = searchParams.get('view');
+  const isNightView = hasNightPhase && (viewParam === 'night' || (!viewParam && !hasWakeTime));
+  const isNightComplete = isNightView && hasWakeTime;
+
+  // Day 1 requires wake time before logging anything
+  // Night complete: no more events can be added
+  const canLogEntries = (dayNumber !== 1 || hasWakeTime) && !isNightComplete;
 
   const [sheetMode, setSheetMode] = useState<SheetMode>(null);
   const [toastMessage, setToastMessage] = useState('');
@@ -111,14 +124,14 @@ export default function DayPageClient() {
         dayNumber={dayNumber}
         onLogVoid={handleLogVoid}
         onLogDrink={handleLogDrink}
-        onLogBedtime={() => setSheetMode('bedtime')}
+        onLogBedtime={isNightView ? undefined : () => setSheetMode('bedtime')}
         onLogWakeUp={() => setSheetMode('wakeup')}
         onEditVoid={handleEditVoid}
         onEditDrink={handleEditDrink}
         onEditBedtime={handleEditBedtime}
       />
 
-      {!isDayComplete && (
+      {canLogEntries && (isNightView || !isDayComplete) && (
         <QuickLogFAB onAction={(action) => setSheetMode(action)} />
       )}
 
@@ -134,6 +147,7 @@ export default function DayPageClient() {
             dayNumber={dayNumber}
             editEntry={editVoidEntry}
             initialTime={initialTime}
+            isNightView={isNightView}
             onSave={() => handleSave(editVoidEntry ? 'Pee updated' : 'Pee saved')}
           />
         )}
@@ -143,6 +157,7 @@ export default function DayPageClient() {
             dayNumber={dayNumber}
             editEntry={editDrinkEntry}
             initialTime={initialTime}
+            isNightView={isNightView}
             onSave={() => handleSave(editDrinkEntry ? 'Drink updated' : 'Drink saved')}
           />
         )}

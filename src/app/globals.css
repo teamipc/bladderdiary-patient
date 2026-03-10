@@ -308,6 +308,56 @@ input, select, textarea {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(90, 138, 180, 0.25);
 }
 
+/* ── Volume Slider (Night / Purple variant) ── */
+.volume-slider-night {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    #7c5cbf 0%,
+    #7c5cbf var(--slider-progress),
+    #d8d0e8 var(--slider-progress),
+    #d8d0e8 100%
+  );
+  outline: none;
+}
+
+.volume-slider-night::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #7c5cbf;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(124, 92, 191, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.volume-slider-night::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #7c5cbf;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(124, 92, 191, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.volume-slider-night:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(124, 92, 191, 0.25);
+}
+
+.volume-slider-night:active::-moz-range-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(124, 92, 191, 0.25);
+}
+
 /* ── Sensation Slider ── */
 .sensation-slider {
   -webkit-appearance: none;
@@ -368,4 +418,26 @@ input, select, textarea {
 
 .animate-start-day {
   animation: fadeSlideUp 0.4s ease-out both, startDayPulse 1.8s ease-out 0.5s 2;
+}
+
+/* FAB glow pulse */
+@keyframes fabGlow {
+  0% { box-shadow: 0 4px 14px rgba(196, 152, 74, 0.3), 0 0 0 0 rgba(196, 152, 74, 0.35); }
+  70% { box-shadow: 0 4px 14px rgba(196, 152, 74, 0.3), 0 0 0 12px rgba(196, 152, 74, 0); }
+  100% { box-shadow: 0 4px 14px rgba(196, 152, 74, 0.3), 0 0 0 0 rgba(196, 152, 74, 0); }
+}
+
+.animate-fab-glow {
+  animation: fabGlow 2s ease-in-out infinite;
+}
+
+/* Continue to Night purple pulse */
+@keyframes nightPulse {
+  0% { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 0 rgba(129, 97, 226, 0.4); }
+  70% { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 10px rgba(129, 97, 226, 0); }
+  100% { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 0 rgba(129, 97, 226, 0); }
+}
+
+.animate-night-pulse {
+  animation: fadeSlideUp 0.4s ease-out both, nightPulse 1.8s ease-out 0.5s 2;
 }

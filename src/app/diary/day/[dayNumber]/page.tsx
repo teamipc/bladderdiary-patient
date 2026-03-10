@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import DayPageClient from './DayPageClient';
 
 // Required for static export with output: 'export'
@@ -10,5 +11,9 @@ export function generateStaticParams() {
 }
 
 export default function DayPage() {
-  return <DayPageClient />;
+  return (
+    <Suspense>
+      <DayPageClient />
+    </Suspense>
+  );
 }

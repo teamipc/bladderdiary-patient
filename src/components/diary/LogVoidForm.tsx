@@ -16,9 +16,10 @@ interface LogVoidFormProps {
   editEntry?: VoidEntry;
   markAsMorningVoid?: boolean;
   initialTime?: string;
+  isNightView?: boolean;
 }
 
-export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMorningVoid, initialTime }: LogVoidFormProps) {
+export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMorningVoid, initialTime, isNightView }: LogVoidFormProps) {
   const { addVoid, updateVoid, getVoidsForDay, getWakeTimeForDay, getBedtimeForDay, startDate, volumeUnit } = useDiaryStore();
   const vc = VOLUME_CONFIG[volumeUnit];
   const isEditing = !!editEntry;
@@ -48,10 +49,12 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
 
   // Auto-tag as morning void: if wake time is set and no morning void exists yet,
   // the next pee logged is automatically the first morning pee
-  const shouldAutoTagMorning = !isEditing && !!wakeTime && !hasMorningVoid;
+  // Never auto-tag during nighttime (no wake time yet on day > 1)
+  const isNighttime = dayNumber > 1 && !wakeTimeEntry;
+  const shouldAutoTagMorning = !isEditing && !isNighttime && !!wakeTime && !hasMorningVoid;
   const isFirstVoid = isEditing
     ? editEntry.isFirstMorningVoid
-    : (markAsMorningVoid ?? shouldAutoTagMorning ?? existingVoids.length === 0);
+    : (markAsMorningVoid ?? shouldAutoTagMorning ?? (!isNighttime && existingVoids.length === 0));
   const [firstMorning] = useState(isFirstVoid);
   const [doubleVoid, setDoubleVoid] = useState(!!editEntry?.doubleVoidMl);
   const [doubleVoidVolume, setDoubleVoidVolume] = useState(
@@ -158,6 +161,10 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
   // Check if time is before previous day's bedtime
   const isBeforePrevBedtime = prevDayBedtime ? time <= prevDayBedtime.timestampIso : false;
 
+  // Check time boundaries based on view
+  const isBeforeWakeTime = !isNightView && wakeTimeEntry ? time < wakeTimeEntry.timestampIso : false;
+  const isAfterWakeTime = isNightView && wakeTimeEntry ? time >= wakeTimeEntry.timestampIso : false;
+
   // Temporary warning state
   const [timeWarning, setTimeWarning] = useState<string | null>(null);
   const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -169,6 +176,24 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
       setTimeWarning(
         `This time is before Day ${dayNumber - 1}'s bedtime (${formatTime(prevDayBedtime.timestampIso)}). Pick a later time.`
+      );
+      warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
+      return;
+    }
+    // Block saving if day event is before wake-up time
+    if (isBeforeWakeTime && wakeTimeEntry) {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      setTimeWarning(
+        `This time is before wake-up (${formatTime(wakeTimeEntry.timestampIso)}). Daytime events must be after you woke up.`
+      );
+      warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
+      return;
+    }
+    // Block saving if night event is at/after wake-up time
+    if (isAfterWakeTime && wakeTimeEntry) {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      setTimeWarning(
+        `This time is after wake-up (${formatTime(wakeTimeEntry.timestampIso)}). Overnight events must be before you woke up.`
       );
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
@@ -189,7 +214,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
       addVoid(data);
     }
     onSave();
-  }, [volume, sensation, leak, time, note, firstMorning, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit]);
+  }, [volume, sensation, leak, time, note, firstMorning, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTimeEntry]);
 
   // Animation class based on slide direction
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
@@ -250,7 +275,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
         <div key={step} className={`px-10 ${slideClass}`}>
           {step === 1 && (
             <>
-              <h3 className="text-xl font-bold text-ipc-800 text-center mb-3">
+              <h3 className="text-xl font-bold text-center mb-3 text-ipc-800">
                 About how much?
               </h3>
 
@@ -261,6 +286,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
                 <VolumeInput
                   value={volume}
                   onChange={handleVolumeChange}
+                  onEditingChange={(editing) => { if (editing) cancelAutoAdvance(); }}
                   unit={volumeUnit}
                   max={vc.max}
                   step={vc.step}
@@ -311,6 +337,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
                   <VolumeInput
                     value={doubleVoidVolume}
                     onChange={setDoubleVoidVolume}
+                    onEditingChange={(editing) => { if (editing) cancelAutoAdvance(); }}
                     unit={volumeUnit}
                     max={volumeUnit === 'oz' ? 17 : 500}
                     step={vc.step}
@@ -322,7 +349,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
 
           {step === 2 && (
             <>
-              <h3 className="text-xl font-bold text-ipc-800 text-center mb-3">
+              <h3 className="text-xl font-bold text-center mb-3 text-ipc-800">
                 Anything else to note?
               </h3>
 
@@ -444,7 +471,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, markAsMornin
 
           {step === 3 && (
             <div className="flex flex-col items-center justify-center min-h-[40vh]">
-              <h3 className="text-xl font-bold text-ipc-800 text-center mb-5">
+              <h3 className="text-xl font-bold text-center mb-5 text-ipc-800">
                 When was this?
               </h3>
 
