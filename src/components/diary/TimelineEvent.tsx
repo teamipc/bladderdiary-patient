@@ -66,9 +66,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
               {SENSATION_LABELS[entry.sensation].short}
             </span>
             {entry.leak && (
-              <span className="text-xs bg-ipc-100 text-ipc-600 px-2 py-0.5 rounded-full font-medium shrink-0">
-                Leak
-              </span>
+              <Droplets size={14} className="text-ipc-400 shrink-0" />
             )}
           </div>
           {entry.note && (
