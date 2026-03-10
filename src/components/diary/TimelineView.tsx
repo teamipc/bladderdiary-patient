@@ -590,7 +590,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
             Did you pee or drink anything overnight?
           </p>
           <p className="text-xs text-indigo-400/50">
-            Use the + button above to log overnight events, or continue to the next day
+            Use the + button to log overnight events, or continue to the next day
           </p>
           {onLogWakeUp && (
             <button
