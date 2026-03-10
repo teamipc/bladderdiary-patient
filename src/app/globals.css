@@ -223,6 +223,12 @@ input, select, textarea {
   border-color: color-mix(in srgb, var(--color-ipc-500) 40%, transparent) !important;
 }
 
+.arrow-pulse-drink {
+  animation: arrowPulse 1s ease-in-out 3;
+  background-color: color-mix(in srgb, var(--color-drink) 15%, transparent) !important;
+  border-color: color-mix(in srgb, var(--color-drink) 40%, transparent) !important;
+}
+
 /* Note expand/collapse */
 @keyframes noteExpand {
   from { opacity: 0; max-height: 0; margin-top: 0; }

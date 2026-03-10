@@ -8,7 +8,7 @@ import DrinkTypePicker from '@/components/diary/DrinkTypePicker';
 import Button from '@/components/ui/Button';
 import { VOLUME_CONFIG } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, correctNightDate, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { DrinkType, DrinkEntry } from '@/lib/types';
 
 interface LogDrinkFormProps {
@@ -29,14 +29,29 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   // Previous day's bedtime — events on this day must be after it
   const prevDayBedtime = dayNumber > 1 ? getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3) : undefined;
   const wakeTime = getWakeTimeForDay(dayNumber as 1 | 2 | 3);
+  // Current day's bedtime — upper bound for day-view events
+  const currentBedtime = getBedtimeForDay(dayNumber as 1 | 2 | 3);
 
   // Smart default: anchor to the diary day's date, after wake-up or prev bedtime
   const smartDefault = () => {
     if (editEntry) return editEntry.timestampIso;
     if (initialTime) return initialTime;
+    // Night view: anchor to bedtime date, not the day's date
+    if (isNightView && prevDayBedtime) {
+      return new Date(new Date(prevDayBedtime.timestampIso).getTime() + 5 * 60 * 1000).toISOString();
+    }
     const after = wakeTime?.timestampIso ?? prevDayBedtime?.timestampIso;
     return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after);
   };
+
+  // Wrap time changes: in night view, correct the date so PM uses bedtime date, AM uses next day
+  const handleTimeChange = useCallback((newTime: string) => {
+    if (isNightView && prevDayBedtime) {
+      setTime(correctNightDate(newTime, prevDayBedtime.timestampIso));
+    } else {
+      setTime(newTime);
+    }
+  }, [isNightView, prevDayBedtime]);
 
   // Form state
   const [drinkType, setDrinkType] = useState<DrinkType>(editEntry?.drinkType ?? 'water');
@@ -144,6 +159,8 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   // Check time boundaries based on view
   const isBeforeWakeTime = !isNightView && wakeTime ? time < wakeTime.timestampIso : false;
   const isAfterWakeTime = isNightView && wakeTime ? time >= wakeTime.timestampIso : false;
+  // Day view: block events at or after bedtime (must go to night view for those)
+  const isAfterBedtime = !isNightView && currentBedtime ? time >= currentBedtime.timestampIso : false;
 
   // Temporary warning state
   const [timeWarning, setTimeWarning] = useState<string | null>(null);
@@ -178,6 +195,15 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
+    // Block saving if day event is at/after bedtime
+    if (isAfterBedtime && currentBedtime) {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      setTimeWarning(
+        `This time is after bedtime (${formatTime(currentBedtime.timestampIso)}). Go to the night view for overnight events.`
+      );
+      warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
+      return;
+    }
     savedRef.current = true;
     const data = {
       timestampIso: time,
@@ -191,7 +217,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       addDrink(data);
     }
     onSave();
-  }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTime]);
+  }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime]);
 
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
@@ -240,7 +266,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
               w-9 h-9 flex items-center justify-center rounded-full
               bg-drink/10 border border-drink/20 text-drink shadow-sm
               active:scale-[0.85] active:bg-drink/20 transition-all
-              ${arrowFlash ? 'arrow-pulse' : ''}`}
+              ${arrowFlash ? 'arrow-pulse-drink' : ''}`}
             aria-label="Next step"
           >
             <ChevronRight size={22} strokeWidth={2.5} />
@@ -332,7 +358,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                 When was this?
               </h3>
 
-              <TimePicker value={time} onChange={setTime} variant="drink" />
+              <TimePicker value={time} onChange={handleTimeChange} variant="drink" />
 
               {timeWarning && (
                 <div className="mt-3 px-4 py-2.5 rounded-2xl bg-danger-light border border-danger/20 animate-fade-slide-up">

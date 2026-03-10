@@ -17,7 +17,7 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
   const wakeTime = getWakeTimeForDay(dayNumber);
 
   const totalFluids = drinks.reduce((sum, d) => sum + d.volumeMl, 0);
-  const totalVoids = voids.reduce((sum, v) => sum + v.volumeMl, 0);
+  const totalVoids = voids.reduce((sum, v) => sum + v.volumeMl + (v.doubleVoidMl ?? 0), 0);
   const leaks = voids.filter((v) => v.leak).length;
 
   const dayDateStr = getDayDate(startDate, dayNumber);
