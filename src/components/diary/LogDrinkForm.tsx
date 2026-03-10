@@ -223,7 +223,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
           <button
             type="button"
             onClick={() => goToStep(step - 1)}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10
+            className="absolute left-0 top-4 z-10
               w-9 h-9 flex items-center justify-center rounded-full
               bg-drink/10 border border-drink/20 text-drink shadow-sm
               active:scale-[0.85] active:bg-drink/20 transition-all"
@@ -236,7 +236,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
           <button
             type="button"
             onClick={() => goToStep(step + 1)}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10
+            className={`absolute right-0 top-4 z-10
               w-9 h-9 flex items-center justify-center rounded-full
               bg-drink/10 border border-drink/20 text-drink shadow-sm
               active:scale-[0.85] active:bg-drink/20 transition-all
@@ -327,7 +327,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
           )}
 
           {step === 2 && (
-            <div className="flex flex-col items-center justify-center min-h-[40vh]">
+            <div className="flex flex-col items-center pt-2">
               <h3 className="text-xl font-bold text-center mb-5 text-ipc-950">
                 When was this?
               </h3>

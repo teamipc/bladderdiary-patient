@@ -69,6 +69,16 @@ export default function DayPageClient() {
     }
   }, [diaryStarted, prevDayComplete, dayNumber, router]);
 
+  // Toggle full-page night background on body
+  useEffect(() => {
+    if (isNightView) {
+      document.body.classList.add('nighttime-bg');
+    }
+    return () => {
+      document.body.classList.remove('nighttime-bg');
+    };
+  }, [isNightView]);
+
   const handleSave = useCallback((message: string) => {
     setSheetMode(null);
     setEditVoidEntry(undefined);

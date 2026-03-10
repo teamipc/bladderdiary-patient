@@ -18,6 +18,52 @@ import type {
   DiaryState,
 } from './types';
 
+/**
+ * Given all voids for a day and the wake time, return the voids array
+ * with isFirstMorningVoid assigned to the day-phase void closest to wake time.
+ * Night-phase voids (before wake) are never tagged as FMV.
+ */
+function reassignMorningVoid(
+  allVoids: VoidEntry[],
+  dayNumber: number,
+  startDate: string,
+  bedtimes: BedtimeEntry[],
+  wakeTimes: WakeTimeEntry[],
+): VoidEntry[] {
+  const wakeEntry = wakeTimes.find((w) => w.dayNumber === dayNumber);
+  if (!wakeEntry) return allVoids; // No wake time → don't change anything
+
+  const wakeIso = wakeEntry.timestampIso;
+
+  // Find all day-phase voids for this day (at or after wake time)
+  const dayVoidIndices: { index: number; diff: number }[] = [];
+  allVoids.forEach((v, i) => {
+    const vDay = getDayNumber(v.timestampIso, startDate, bedtimes);
+    if (vDay === dayNumber && v.timestampIso >= wakeIso) {
+      const diff = Math.abs(new Date(v.timestampIso).getTime() - new Date(wakeIso).getTime());
+      dayVoidIndices.push({ index: i, diff });
+    }
+  });
+
+  // Find the closest to wake time
+  let closestIdx = -1;
+  if (dayVoidIndices.length > 0) {
+    dayVoidIndices.sort((a, b) => a.diff - b.diff);
+    closestIdx = dayVoidIndices[0].index;
+  }
+
+  // Reassign flags for this day only
+  return allVoids.map((v, i) => {
+    const vDay = getDayNumber(v.timestampIso, startDate, bedtimes);
+    if (vDay !== dayNumber) return v;
+    const shouldBeFmv = i === closestIdx;
+    if (v.isFirstMorningVoid !== shouldBeFmv) {
+      return { ...v, isFirstMorningVoid: shouldBeFmv };
+    }
+    return v;
+  });
+}
+
 interface DiaryStore extends DiaryState {
   // Setup
   setStartDate: (date: string) => void;
@@ -89,30 +135,27 @@ export const useDiaryStore = create<DiaryStore>()(
           );
           if (hasDuplicate) return {};
 
-          let voids = s.voids;
-          // If marking as first morning pee, clear that flag from all other voids
-          if (v.isFirstMorningVoid) {
-            const dayNum = getDayNumber(v.timestampIso, s.startDate, s.bedtimes);
-            voids = voids.map((existing) => {
-              if (
-                existing.isFirstMorningVoid &&
-                getDayNumber(existing.timestampIso, s.startDate, s.bedtimes) === dayNum
-              ) {
-                return { ...existing, isFirstMorningVoid: false };
-              }
-              return existing;
-            });
-          }
-          return { voids: [...voids, { ...v, id: generateId() }] };
+          const dayNum = getDayNumber(v.timestampIso, s.startDate, s.bedtimes);
+          // Add the void (always with FMV false — reassignMorningVoid will set it)
+          const newVoids = [...s.voids, { ...v, id: generateId(), isFirstMorningVoid: false }];
+          return { voids: reassignMorningVoid(newVoids, dayNum, s.startDate, s.bedtimes, s.wakeTimes) };
         }),
       updateVoid: (id, updates) =>
-        set((s) => ({
-          voids: s.voids.map((v) => (v.id === id ? { ...v, ...updates } : v)),
-        })),
+        set((s) => {
+          const updatedVoids = s.voids.map((v) => (v.id === id ? { ...v, ...updates } : v));
+          const updated = updatedVoids.find((v) => v.id === id);
+          if (!updated) return { voids: updatedVoids };
+          const dayNum = getDayNumber(updated.timestampIso, s.startDate, s.bedtimes);
+          return { voids: reassignMorningVoid(updatedVoids, dayNum, s.startDate, s.bedtimes, s.wakeTimes) };
+        }),
       removeVoid: (id) =>
-        set((s) => ({
-          voids: s.voids.filter((v) => v.id !== id),
-        })),
+        set((s) => {
+          const removed = s.voids.find((v) => v.id === id);
+          const remaining = s.voids.filter((v) => v.id !== id);
+          if (!removed) return { voids: remaining };
+          const dayNum = getDayNumber(removed.timestampIso, s.startDate, s.bedtimes);
+          return { voids: reassignMorningVoid(remaining, dayNum, s.startDate, s.bedtimes, s.wakeTimes) };
+        }),
       markMorningVoid: (id, dayNumber) =>
         set((s) => ({
           voids: s.voids.map((v) => {
@@ -161,9 +204,10 @@ export const useDiaryStore = create<DiaryStore>()(
       setWakeTime: (dayNumber, timestampIso) =>
         set((s) => {
           const existing = s.wakeTimes.filter((w) => w.dayNumber !== dayNumber);
-          return {
-            wakeTimes: [...existing, { id: generateId(), timestampIso, dayNumber }],
-          };
+          const newWakeTimes: WakeTimeEntry[] = [...existing, { id: generateId(), timestampIso, dayNumber }];
+          // Reassign FMV now that wake time changed
+          const voids = reassignMorningVoid(s.voids, dayNumber, s.startDate, s.bedtimes, newWakeTimes);
+          return { wakeTimes: newWakeTimes, voids };
         }),
       removeWakeTime: (dayNumber) =>
         set((s) => ({

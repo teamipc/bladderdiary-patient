@@ -106,21 +106,18 @@ describe('addVoid', () => {
     expect(useDiaryStore.getState().voids).toHaveLength(2);
   });
 
-  it('clears previous first-morning-void flag on same day', () => {
+  it('auto-assigns FMV to the void closest to wake time', () => {
     const store = useDiaryStore.getState();
-    store.addVoid(makeVoid({
-      timestampIso: '2026-03-08T06:00:00.000Z',
-      isFirstMorningVoid: true,
-    }));
-    store.addVoid(makeVoid({
-      timestampIso: '2026-03-08T07:00:00.000Z',
-      isFirstMorningVoid: true,
-    }));
-    const voids = useDiaryStore.getState().voids;
+    // Set wake time first
+    store.setWakeTime(1, '2026-03-08T06:30:00.000Z');
+    // Add two voids — the 7:00 one is further from wake, the 6:35 one is closer
+    store.addVoid(makeVoid({ timestampIso: '2026-03-08T07:00:00.000Z' }));
+    store.addVoid(makeVoid({ timestampIso: '2026-03-08T06:35:00.000Z' }));
+    const voids = useDiaryStore.getState().getVoidsForDay(1);
     expect(voids).toHaveLength(2);
-    // Only the second one should be flagged
-    expect(voids[0].isFirstMorningVoid).toBe(false);
-    expect(voids[1].isFirstMorningVoid).toBe(true);
+    // The 6:35 void (closer to 6:30 wake) should be FMV
+    expect(voids.find(v => v.timestampIso.includes('06:35'))!.isFirstMorningVoid).toBe(true);
+    expect(voids.find(v => v.timestampIso.includes('07:00'))!.isFirstMorningVoid).toBe(false);
   });
 });
 
@@ -156,13 +153,13 @@ describe('removeVoid', () => {
 describe('markMorningVoid', () => {
   it('sets isFirstMorningVoid for the given id and clears others on same day', () => {
     const store = useDiaryStore.getState();
-    store.addVoid(makeVoid({
-      timestampIso: '2026-03-08T06:00:00.000Z',
-      isFirstMorningVoid: true,
-    }));
+    store.setWakeTime(1, '2026-03-08T05:30:00.000Z');
+    store.addVoid(makeVoid({ timestampIso: '2026-03-08T06:00:00.000Z' }));
     store.addVoid(makeVoid({ timestampIso: '2026-03-08T07:00:00.000Z' }));
+    // Auto-assigned FMV should be 6:00 (closest to 5:30 wake)
+    expect(useDiaryStore.getState().voids[0].isFirstMorningVoid).toBe(true);
+    // Manually override to mark the 7:00 void as morning void
     const voids = useDiaryStore.getState().voids;
-    // Mark the second as morning void
     useDiaryStore.getState().markMorningVoid(voids[1].id, 1);
     const updated = useDiaryStore.getState().voids;
     expect(updated[0].isFirstMorningVoid).toBe(false);
