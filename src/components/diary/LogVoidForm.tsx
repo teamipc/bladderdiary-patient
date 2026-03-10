@@ -299,7 +299,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                   <CopyPlus size={16} />
                   <span className="flex flex-col items-start leading-tight">
                     <span>Double void</span>
-                    <span className={`text-[10px] font-normal ${doubleVoid ? 'text-ipc-500' : 'text-ipc-500/60'}`}>
+                    <span className={`text-[10px] font-normal ${doubleVoid ? 'text-ipc-600' : 'text-ipc-500'}`}>
                       Peed again right after to fully empty
                     </span>
                   </span>
