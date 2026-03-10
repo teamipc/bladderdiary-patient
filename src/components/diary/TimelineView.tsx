@@ -253,7 +253,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
 
   return (
     <div className={`flex flex-col transition-colors duration-700 ${
-      isNighttime ? 'nighttime-tint -mx-3 px-3 py-3 min-h-screen pb-24' : 'rounded-2xl'
+      isNighttime ? 'nighttime-tint -mx-4 px-4 -mt-4 pt-7 min-h-screen pb-24' : 'rounded-2xl'
     }`}>
       {/* 5-step journey progress: D1 → N1 → D2 → N2 → D3 */}
       <div className="flex items-center justify-center mb-3 px-4">
@@ -520,7 +520,9 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
               {!isDayComplete && !isNightComplete && (dayNumber !== 1 || hasWakeTime) && (
                 <div className="absolute -bottom-0 left-0 right-0 flex justify-center z-10">
                   {openInsertIdx === idx ? (
-                    <div className="flex items-center gap-2 animate-scale-in bg-white/80 dark:bg-transparent backdrop-blur-sm rounded-full px-2 py-0.5">
+                    <div className={`flex items-center gap-2 animate-scale-in backdrop-blur-sm rounded-full px-2 py-0.5 ${
+                      isNighttime ? 'bg-indigo-900/80' : 'bg-white/80'
+                    }`}>
                       <button
                         type="button"
                         onClick={() => handleInsertVoid(idx)}
@@ -578,6 +580,30 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Night prompt — show when bedtime exists but no overnight events logged yet */}
+      {isNighttime && !isNightComplete && voids.length === 0 && drinks.length === 0 && !hasWakeTime && (
+        <div className="text-center py-6 space-y-6">
+          <p className="text-base font-light text-indigo-200/80">
+            Did you pee or drink anything overnight?
+          </p>
+          <p className="text-xs text-indigo-400/50">
+            Use the + button above to log overnight events, or continue to the next day
+          </p>
+          {onLogWakeUp && (
+            <button
+              type="button"
+              onClick={handleWakeUp}
+              className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-2xl
+                font-semibold text-base active:scale-[0.97] transition-all
+                bg-ipc-500 text-white animate-start-day"
+            >
+              Continue to Day
+              <Sun size={16} />
+            </button>
+          )}
         </div>
       )}
 
