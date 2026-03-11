@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { format, subDays } from 'date-fns';
 import {
   generateId,
   formatTime,
@@ -222,23 +223,26 @@ describe('roundToMinutes', () => {
 // getCurrentDay
 // ──────────────────────────────────────────────
 describe('getCurrentDay', () => {
+  // getCurrentDay uses differenceInCalendarDays with local dates,
+  // so test dates must also be computed in local time (not UTC).
+
   it('returns 1 when start date is today', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = format(new Date(), 'yyyy-MM-dd');
     expect(getCurrentDay(today)).toBe(1);
   });
 
   it('returns 2 when start date was yesterday', () => {
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd');
     expect(getCurrentDay(yesterday)).toBe(2);
   });
 
   it('returns 3 when start date was 2+ days ago', () => {
-    const twoDaysAgo = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
+    const twoDaysAgo = format(subDays(new Date(), 2), 'yyyy-MM-dd');
     expect(getCurrentDay(twoDaysAgo)).toBe(3);
   });
 
   it('clamps future start dates to Day 1', () => {
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+    const tomorrow = format(subDays(new Date(), -1), 'yyyy-MM-dd');
     expect(getCurrentDay(tomorrow)).toBe(1);
   });
 
