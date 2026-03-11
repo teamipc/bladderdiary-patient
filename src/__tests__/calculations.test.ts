@@ -488,7 +488,8 @@ describe('IPC calculations — per-day metrics', () => {
 
     // Day 1 total void volume = 200 + (150+80) + 250 = 680
     expect(day1.totalVoidVolumeMl).toBe(680);
-    expect(day1.voidCount).toBe(3);
+    // 3 void entries, one with doubleVoidMl → 4 individual voids per IPC
+    expect(day1.voidCount).toBe(4);
     expect(day1.drinkCount).toBe(2);
     expect(day1.totalFluidIntakeMl).toBe(500);
   });

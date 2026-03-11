@@ -1,7 +1,7 @@
 /**
  * Clinical bladder diary calculations.
  *
- * Implements ICS (International Continence Society) standard metrics:
+ * Implements IPC (Integrated Pelvic Care) standard metrics:
  * - 24HV  (24-hour voided volume)
  * - NPi   (Nocturnal Polyuria Index)
  * - MVV   (Maximum Voided Volume)
@@ -10,6 +10,7 @@
  *
  * Day 1 is excluded from 24HV / NPi / AVV calculations (adaptation period).
  * Double-void volumes are combined for volume calculations but NOT for MVV.
+ * Double voids count as 2 individual voids for AVV and void count purposes.
  */
 
 import { getDayNumber } from './utils';
@@ -143,11 +144,12 @@ function calcNocturnalVolume(
   );
 
   const nocturnalVolumeMl = nocturnalVoids.reduce((s, v) => s + voidTotalMl(v), 0);
+  const nocturnalVoidCount = nocturnalVoids.reduce((count, v) => count + 1 + (v.doubleVoidMl ? 1 : 0), 0);
 
   return {
     nightLabel: label,
     nocturnalVolumeMl,
-    nocturnalVoidCount: nocturnalVoids.length,
+    nocturnalVoidCount,
     bedtimeIso: bedtime.timestampIso,
     fmvIso: fmv?.timestampIso ?? endIso,
   };
@@ -181,7 +183,7 @@ function calc24HV(state: DiaryState, periodNum: 1 | 2): number {
   return periodVoids.reduce((s, v) => s + voidTotalMl(v), 0);
 }
 
-/** Count voids in a 24HV period. */
+/** Count individual voids in a 24HV period (double voids count as 2). */
 function count24HVVoids(state: DiaryState, periodNum: 1 | 2): number {
   const fromDay = periodNum as 1 | 2;
   const toDay = (periodNum + 1) as 2 | 3;
@@ -191,11 +193,13 @@ function count24HVVoids(state: DiaryState, periodNum: 1 | 2): number {
 
   if (!startBedtime || !endBedtime) return 0;
 
-  return state.voids.filter(
-    (v) =>
-      v.timestampIso > startBedtime.timestampIso &&
-      v.timestampIso <= endBedtime.timestampIso,
-  ).length;
+  return state.voids
+    .filter(
+      (v) =>
+        v.timestampIso > startBedtime.timestampIso &&
+        v.timestampIso <= endBedtime.timestampIso,
+    )
+    .reduce((count, v) => count + 1 + (v.doubleVoidMl ? 1 : 0), 0);
 }
 
 /* ------------------------------------------------------------------ */
@@ -229,7 +233,7 @@ function calcDayMetrics(state: DiaryState, day: 1 | 2 | 3): DayMetrics {
     dayNumber: day,
     totalFluidIntakeMl: drinks.reduce((s, d) => s + d.volumeMl, 0),
     totalVoidVolumeMl: voids.reduce((s, v) => s + voidTotalMl(v), 0),
-    voidCount: voids.length,
+    voidCount: voids.reduce((count, v) => count + 1 + (v.doubleVoidMl ? 1 : 0), 0),
     drinkCount: drinks.length,
     leakCount: voids.filter((v) => v.leak).length,
     wakeTimeIso: wake?.timestampIso,
