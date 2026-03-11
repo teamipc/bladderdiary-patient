@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { format } from 'date-fns';
 import { useDiaryStore } from '@/lib/store';
 
 /**
@@ -368,7 +369,8 @@ describe('resetDiary', () => {
 
   it('sets startDate to today', () => {
     useDiaryStore.getState().resetDiary();
-    const today = new Date().toISOString().slice(0, 10);
+    // resetDiary uses format(new Date(), 'yyyy-MM-dd') which is local time
+    const today = format(new Date(), 'yyyy-MM-dd');
     expect(useDiaryStore.getState().startDate).toBe(today);
   });
 });
