@@ -144,6 +144,42 @@ input, select, textarea {
 .nighttime-bg nav .text-ipc-200 {
   color: rgba(99, 90, 160, 0.5) !important;
 }
+
+/* Bottom sheet adapts to night mode — darker surface, lighter text */
+.nighttime-bg .bg-white\/70 {
+  background-color: rgba(38, 34, 70, 0.92) !important;
+  border-top-color: rgba(99, 90, 160, 0.3) !important;
+}
+.nighttime-bg .bg-white\/70 .text-ipc-400 {
+  color: #9a92c8 !important;
+}
+.nighttime-bg .bg-white\/70 .text-ipc-500 {
+  color: #b0a8d4 !important;
+}
+.nighttime-bg .bg-white\/70 .text-ipc-600 {
+  color: #c8c0e8 !important;
+}
+.nighttime-bg .bg-white\/70 .text-ipc-700 {
+  color: #d8d2f0 !important;
+}
+.nighttime-bg .bg-white\/70 .text-ipc-800 {
+  color: #e8e4f4 !important;
+}
+.nighttime-bg .bg-white\/70 .text-ipc-950 {
+  color: #f0eef8 !important;
+}
+.nighttime-bg .bg-white\/70 .border-ipc-100\/60 {
+  border-color: rgba(99, 90, 160, 0.25) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-ipc-300\/40 {
+  background-color: rgba(99, 90, 160, 0.4) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-white\/40 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+.nighttime-bg .bg-white\/70 .border-ipc-100\/50 {
+  border-color: rgba(99, 90, 160, 0.3) !important;
+}
 .nighttime-bg nav .text-ipc-600 {
   color: #b0a8d4 !important;
 }

@@ -121,6 +121,7 @@ function dv(ml: number, state: DiaryState): number {
 }
 
 function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
+  doc.addPage('a4', 'portrait');
   addLogo(doc);
 
   // Title block
@@ -293,7 +294,7 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot
 }
 
 function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: DayMetrics) {
-  doc.addPage();
+  doc.addPage('a4', 'portrait');
   addLogo(doc);
 
   const dayDateStr = getDayDate(state.startDate, dayNum);
@@ -435,9 +436,9 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
 /*  Combined 3-Day Bladder Diary (landscape, side-by-side)             */
 /* ================================================================== */
 
-function pageCombinedDiary(doc: jsPDF, state: DiaryState) {
-  // Add landscape page
-  doc.addPage('a4', 'landscape');
+function pageCombinedDiary(doc: jsPDF, state: DiaryState, useCurrentPage = false) {
+  // Add landscape page (unless we're using the initial page)
+  if (!useCurrentPage) doc.addPage('a4', 'landscape');
 
   const LW = 297; // A4 landscape width
   const LH = 210; // A4 landscape height
@@ -672,7 +673,7 @@ function drawAxis(
 }
 
 function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
-  doc.addPage();
+  doc.addPage('a4', 'portrait');
   addLogo(doc);
 
   doc.setFontSize(16);
@@ -925,7 +926,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
 /* ================================================================== */
 
 function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
-  doc.addPage();
+  doc.addPage('a4', 'portrait');
   addLogo(doc);
 
   doc.setFontSize(13);
@@ -1052,24 +1053,25 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
 
 /** Generate the PDF blob without triggering a download. */
 export function generatePdfBlob(state: DiaryState): { blob: Blob; filename: string } {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  // Start landscape — the combined 3-day diary is the first page
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const metrics = computeMetrics(state);
 
-  // Page 1: Results overview
+  // Page 1: Combined 3-day diary (landscape) — uses the initial page
+  pageCombinedDiary(doc, state, true);
+
+  // Page 2: Results overview
   pageResultsOverview(doc, state, metrics);
 
-  // Pages 2-4: Daily diary grids
+  // Pages 3-5: Daily diary grids
   for (const dayNum of [1, 2, 3] as const) {
     pageDailyDiary(doc, state, dayNum, metrics.dayMetrics[dayNum - 1]);
   }
 
-  // Page 5: Combined 3-day diary (landscape)
-  pageCombinedDiary(doc, state);
-
   // Page 6: Graphs
   pageGraphs(doc, state, metrics);
 
-  // Page 6: Machine-readable data
+  // Page 7: Machine-readable data
   pageMachineData(doc, state, metrics);
 
   // Add footers to all pages
