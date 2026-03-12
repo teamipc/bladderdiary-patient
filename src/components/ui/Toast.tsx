@@ -12,7 +12,7 @@ interface ToastProps {
   duration?: number;
 }
 
-export default function Toast({ message, subtitle, emoji, visible, onDismiss, duration = 3000 }: ToastProps) {
+export default function Toast({ message, subtitle, emoji, visible, onDismiss, duration = 1800 }: ToastProps) {
   useEffect(() => {
     if (!visible) return;
     const timer = setTimeout(onDismiss, duration);
