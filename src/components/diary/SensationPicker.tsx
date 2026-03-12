@@ -4,8 +4,8 @@ import { SENSATION_LABELS } from '@/lib/constants';
 import type { BladderSensation } from '@/lib/types';
 
 interface SensationPickerProps {
-  value: BladderSensation;
-  onChange: (value: BladderSensation) => void;
+  value: BladderSensation | null;
+  onChange: (value: BladderSensation | null) => void;
 }
 
 const sensations: BladderSensation[] = [0, 1, 2, 3, 4];
@@ -14,7 +14,7 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
   return (
     <div className="space-y-2">
       <label className="block text-base font-medium text-ipc-800">
-        How strong was the urge?
+        Bladder sensation
       </label>
 
       {/* Pill buttons */}
@@ -25,7 +25,7 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
             <button
               key={s}
               type="button"
-              onClick={() => onChange(s)}
+              onClick={() => onChange(selected ? null : s)}
               className={`flex-1 py-2.5 rounded-xl text-center transition-all
                 active:scale-[0.95] min-h-[44px] ${
                   selected
@@ -33,7 +33,8 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
                     : 'bg-white/40 text-ipc-600 font-medium border border-ipc-100/50'
                 }`}
             >
-              <span className="text-xs leading-tight block">
+              <span className="text-[11px] leading-tight block font-semibold">{s}</span>
+              <span className="text-[9px] leading-tight block mt-0.5">
                 {SENSATION_LABELS[s].short}
               </span>
             </button>

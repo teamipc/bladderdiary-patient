@@ -29,8 +29,8 @@ export interface VoidEntry {
   volumeMl: number;
   /** Optional double-void volume in millilitres. */
   doubleVoidMl?: number;
-  /** Urgency sensation at time of void. */
-  sensation: BladderSensation;
+  /** Urgency sensation at time of void (null = not recorded). */
+  sensation: BladderSensation | null;
   /** Whether any leakage occurred. */
   leak: boolean;
   /** Free-text note (max 120 chars). */

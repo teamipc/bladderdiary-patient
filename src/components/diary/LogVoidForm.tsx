@@ -6,8 +6,9 @@ import VolumeInput from '@/components/ui/VolumeInput';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { SENSATION_LABELS, VOLUME_CONFIG } from '@/lib/constants';
+import SensationPicker from '@/components/diary/SensationPicker';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay, correctNightDate, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { BladderSensation, VoidEntry } from '@/lib/types';
 
 interface LogVoidFormProps {
@@ -43,17 +44,18 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   };
 
   // Wrap time changes: in night view, correct the date so PM uses bedtime date, AM uses next day
+  // In day view, correct after-midnight times (e.g. 1 AM bedtime = next calendar day)
   const handleTimeChange = useCallback((newTime: string) => {
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso));
     } else {
-      setTime(newTime);
+      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate));
     }
-  }, [isNightView, prevDayBedtime]);
+  }, [isNightView, prevDayBedtime, dayNumber, startDate]);
 
   // Form state — volumes in display unit; converted to mL on save
   const [volume, setVolume] = useState(editEntry ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit) : vc.default);
-  const [sensation, setSensation] = useState<BladderSensation>(editEntry?.sensation ?? 2);
+  const [sensation, setSensation] = useState<BladderSensation | null>(editEntry?.sensation ?? null);
   const [time, setTime] = useState(smartDefault);
   const [note, setNote] = useState(editEntry?.note ?? '');
   const [leak, setLeak] = useState(editEntry?.leak ?? false);
@@ -365,53 +367,25 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 Anything else to note?
               </h3>
 
-              <p className="text-base font-semibold text-ipc-700 mb-2">
-                How strong was the urge?
-              </p>
-
-              {/* Big sensation label */}
-              <div className="text-center mb-1">
-                <span className="text-2xl font-bold text-ipc-900">
-                  {SENSATION_LABELS[sensation].short}
-                </span>
-              </div>
-              <div className="text-center mb-2">
-                <span className="text-sm text-ipc-800">
-                  {SENSATION_LABELS[sensation].description}
-                </span>
-              </div>
-
-              {/* Sensation slider */}
-              <div
-                className="px-2 mb-5"
-                onPointerUp={() => {
-                  if (step === 2 && !noteOpen) scheduleAutoAdvance(3, 2500);
-                }}
-                onTouchEnd={() => {
-                  if (step === 2 && !noteOpen) scheduleAutoAdvance(3, 2500);
-                }}
-              >
-                <input
-                  type="range"
-                  min={0}
-                  max={4}
-                  step={1}
+              {/* Sensation picker — optional, tap again to deselect */}
+              <div className="mb-4">
+                <SensationPicker
                   value={sensation}
-                  onChange={(e) => {
+                  onChange={(v) => {
                     cancelAutoAdvance();
-                    const v = parseInt(e.target.value) as BladderSensation;
                     setSensation(v);
+                    if (v !== null && !noteOpen) scheduleAutoAdvance(3, 2500);
                   }}
-                  className="sensation-slider w-full"
-                  aria-label="How strong was the urge"
-                  style={{
-                    '--sensation-color': `var(--color-ipc-${[200, 300, 400, 600, 800][sensation]})`,
-                  } as React.CSSProperties}
                 />
-                <div className="flex justify-between text-[10px] text-ipc-800 mt-1 px-0.5">
-                  <span>Not at all</span>
-                  <span>Couldn&apos;t wait</span>
-                </div>
+                {sensation !== null ? (
+                  <p className="text-sm text-ipc-600 text-center mt-2">
+                    {SENSATION_LABELS[sensation].description}
+                  </p>
+                ) : (
+                  <p className="text-xs text-ipc-400 text-center mt-2">
+                    Optional — tap to select, tap again to clear
+                  </p>
+                )}
               </div>
 
               {/* Separator */}

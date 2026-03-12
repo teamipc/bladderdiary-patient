@@ -25,11 +25,11 @@ export const DRINK_TYPES: readonly { value: DrinkType; label: string; icon: Drin
 ] as const;
 
 export const SENSATION_LABELS: Record<BladderSensation, { short: string; description: string }> = {
-  0: { short: 'Not at all', description: 'Went just in case' },
-  1: { short: 'A little', description: 'Slight feeling, nothing urgent' },
-  2: { short: 'Normal', description: 'Needed to go, no rush' },
-  3: { short: 'Quite a bit', description: 'Hard to hold much longer' },
-  4: { short: "Couldn't wait", description: 'Almost didn\'t make it' },
+  0: { short: 'No urge', description: 'Went just in case or social reasons' },
+  1: { short: 'Mild', description: 'Normal desire, no urgency' },
+  2: { short: 'Moderate', description: 'Urgency, but it passed' },
+  3: { short: 'Strong', description: 'Urgency, barely made it' },
+  4: { short: 'Leaked', description: 'Couldn\'t make it in time' },
 };
 
 export const VOLUME_PRESETS_ML = [150, 250, 350, 500] as const;

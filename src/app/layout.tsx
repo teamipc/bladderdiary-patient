@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 import AppShell from '@/components/layout/AppShell';
 import './globals.css';
@@ -84,6 +85,7 @@ export default function RootLayout({
           {children}
         </AppShell>
         <ServiceWorkerRegistration />
+        <Analytics />
       </body>
     </html>
   );
