@@ -5,12 +5,14 @@ import { CheckCircle2, X } from 'lucide-react';
 
 interface ToastProps {
   message: string;
+  subtitle?: string;
+  emoji?: string;
   visible: boolean;
   onDismiss: () => void;
   duration?: number;
 }
 
-export default function Toast({ message, visible, onDismiss, duration = 3000 }: ToastProps) {
+export default function Toast({ message, subtitle, emoji, visible, onDismiss, duration = 3000 }: ToastProps) {
   useEffect(() => {
     if (!visible) return;
     const timer = setTimeout(onDismiss, duration);
@@ -21,10 +23,19 @@ export default function Toast({ message, visible, onDismiss, duration = 3000 }: 
 
   return (
     <div className="fixed bottom-24 left-4 right-4 z-50 flex justify-center animate-fade-slide-up">
-      <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-ipc-950 text-white
+      <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-ipc-950 text-white
         shadow-lg max-w-sm w-full">
-        <CheckCircle2 size={20} className="text-success shrink-0" />
-        <span className="text-base font-medium flex-1">{message}</span>
+        {emoji ? (
+          <span className="text-xl shrink-0">{emoji}</span>
+        ) : (
+          <CheckCircle2 size={20} className="text-success shrink-0" />
+        )}
+        <div className="flex-1 min-w-0">
+          <span className="text-base font-medium block">{message}</span>
+          {subtitle && (
+            <span className="text-xs text-white/60 block mt-0.5">{subtitle}</span>
+          )}
+        </div>
         <button
           type="button"
           onClick={onDismiss}
