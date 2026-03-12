@@ -451,15 +451,69 @@ input, select, textarea {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(196, 152, 74, 0.2);
 }
 
-/* ── Start Day CTA pulse ── */
-@keyframes startDayPulse {
-  0% { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 0 rgba(196, 152, 74, 0.4); }
-  70% { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 10px rgba(196, 152, 74, 0); }
-  100% { box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 0 rgba(196, 152, 74, 0); }
+/* ── Night view staggered entrance ── */
+@keyframes nightSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-night-hero {
+  animation: nightSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-night-actions {
+  animation: nightSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 }
 
+/* ── Start Day CTA — fades in subdued, then warms to gold ── */
+@keyframes warmToGold {
+  0%   { background-color: rgba(129, 140, 248, 0.2); border-color: rgba(129, 140, 248, 0.25); color: rgba(165, 180, 252, 1); }
+  100% { background-color: rgba(196, 152, 74, 0.75); border-color: rgba(196, 152, 74, 0.4); color: #fff; box-shadow: 0 2px 12px rgba(196, 152, 74, 0.25); }
+}
 .animate-start-day {
-  animation: fadeSlideUp 0.4s ease-out both, startDayPulse 1.8s ease-out 0.5s 2;
+  animation: fadeSlideUp 0.35s ease-out 1s both,
+             warmToGold 1.8s ease-in-out 2.5s forwards;
+  opacity: 0;
+}
+
+/* ── Gentle CTA pulse — guides user to the primary action ── */
+@keyframes ctaGlow {
+  0%   { box-shadow: 0 2px 8px rgba(196, 152, 74, 0.15), 0 0 0 0 rgba(196, 152, 74, 0.3); }
+  70%  { box-shadow: 0 2px 8px rgba(196, 152, 74, 0.15), 0 0 0 8px rgba(196, 152, 74, 0); }
+  100% { box-shadow: 0 2px 8px rgba(196, 152, 74, 0.15), 0 0 0 0 rgba(196, 152, 74, 0); }
+}
+.animate-cta-guide {
+  animation: fadeSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both,
+             ctaGlow 2s ease-out 0.8s 2;
+}
+
+/* ── Warning-colored CTA pulse (wake-up time) ── */
+@keyframes warnGlow {
+  0%   { box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15), 0 0 0 0 rgba(245, 158, 11, 0.3); }
+  70%  { box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15), 0 0 0 8px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15), 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+.animate-wake-guide {
+  animation: fadeSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both,
+             warnGlow 2s ease-out 0.8s 2;
+}
+
+/* ── Bedtime reminder entrance — slide in from bottom with subtle bounce ── */
+@keyframes reminderSlideIn {
+  0%   { opacity: 0; transform: translateY(16px) scale(0.98); }
+  60%  { opacity: 1; transform: translateY(-2px) scale(1.005); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-reminder {
+  animation: reminderSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Completion checkmark — scale in with satisfaction ── */
+@keyframes completePop {
+  0%   { opacity: 0; transform: scale(0.85); }
+  60%  { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-complete {
+  animation: completePop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* FAB glow pulse */

@@ -431,10 +431,10 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           )}
           {isNighttime ? (
             <div className="space-y-4">
-              <p className="text-lg font-light text-indigo-200 text-center mb-2">
+              <p className="text-lg font-medium text-indigo-100 text-center mb-2 animate-night-hero">
                 Did you pee or drink anything overnight?
               </p>
-              <div className="flex justify-center gap-3">
+              <div className="flex justify-center gap-3 animate-night-actions">
                 {onLogVoid && (
                   <button
                     type="button"
@@ -469,12 +469,12 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                   <button
                     type="button"
                     onClick={handleWakeUp}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-2xl
-                      font-semibold text-base active:scale-[0.97] transition-all
-                      bg-ipc-500 text-white animate-start-day"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-2xl
+                      font-medium text-sm active:scale-[0.97] transition-all
+                      bg-indigo-400/20 text-indigo-300 border border-indigo-400/25 animate-start-day"
                   >
                     Continue to Day
-                    <Sun size={16} />
+                    <Sun size={14} />
                   </button>
                 </div>
               )}
@@ -488,7 +488,8 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                   onClick={handleWakeUp}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl
                     font-semibold text-base active:scale-[0.97] transition-all
-                    bg-warning/15 text-warning border border-warning/30"
+                    bg-warning/15 text-warning border border-warning/30
+                    animate-wake-guide"
                 >
                   <Sun size={18} />
                   Add wake-up time
@@ -500,7 +501,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                     onClick={() => onLogVoid()}
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl
                       font-semibold text-base active:scale-[0.97] transition-all
-                      bg-ipc-500 text-white"
+                      bg-ipc-500 text-white animate-cta-guide"
                   >
                     Add First Pee
                     <ChevronRight size={18} />
@@ -586,22 +587,22 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
       {/* Night prompt — show when bedtime exists but no overnight events logged yet */}
       {isNighttime && !isNightComplete && voids.length === 0 && drinks.length === 0 && !hasWakeTime && (
         <div className="text-center py-6 space-y-6">
-          <p className="text-base font-light text-indigo-200/80">
+          <p className="text-base font-medium text-indigo-200/80 animate-night-hero">
             Did you pee or drink anything overnight?
           </p>
-          <p className="text-xs text-indigo-400/50">
+          <p className="text-xs text-indigo-400/50 animate-night-actions">
             Use the + button to log overnight events, or continue to the next day
           </p>
           {onLogWakeUp && (
             <button
               type="button"
               onClick={handleWakeUp}
-              className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-2xl
-                font-semibold text-base active:scale-[0.97] transition-all
-                bg-ipc-500 text-white animate-start-day"
+              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-2xl
+                font-medium text-sm active:scale-[0.97] transition-all
+                bg-indigo-400/20 text-indigo-300 border border-indigo-400/25 animate-start-day"
             >
               Continue to Day
-              <Sun size={16} />
+              <Sun size={14} />
             </button>
           )}
         </div>
@@ -648,7 +649,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
             href={`/diary/day/${dayNumber}?view=day`}
             className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl
               bg-ipc-500 text-white font-semibold text-base
-              active:scale-[0.97] transition-all animate-start-day"
+              active:scale-[0.97] transition-all animate-fade-slide-up"
           >
             Continue to Day
             <Sun size={16} />
@@ -658,7 +659,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
 
       {/* Bedtime reminder — only show after at least one void or drink is logged */}
       {(voids.length > 0 || drinks.length > 0) && !hasBedtime && !isNighttime && (
-        <div className="mt-4 px-4 py-3 rounded-2xl bg-bedtime/10 border border-bedtime/25">
+        <div className="mt-4 px-4 py-3 rounded-2xl bg-bedtime/10 border border-bedtime/25 animate-reminder">
           <div className="flex items-center gap-3">
             <Moon size={20} className="shrink-0 text-bedtime" />
             <div className="flex-1">
@@ -687,7 +688,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
       {/* Day complete indicator — hide during night view */}
       {isDayComplete && !isNighttime && (
         <div className="mt-4 space-y-2.5">
-          <div className="px-4 py-2.5 rounded-2xl bg-ipc-100/30 border border-ipc-200/30">
+          <div className="px-4 py-2.5 rounded-2xl bg-ipc-100/30 border border-ipc-200/30 animate-complete">
             <div className="flex items-center gap-2">
               <CheckCircle2 size={18} className="text-ipc-400" />
               <p className="text-sm font-medium text-ipc-500">
@@ -713,7 +714,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
               href="/summary"
               className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl
                 bg-ipc-500 text-white font-semibold text-base
-                active:scale-[0.97] transition-all animate-start-day"
+                active:scale-[0.97] transition-all animate-cta-guide"
             >
               View Results
               <ChevronRight size={18} />

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { track } from '@vercel/analytics';
 import { useDiaryStore } from '@/lib/store';
 import DaySummaryCard from '@/components/export/DaySummaryCard';
 import ExportActions from '@/components/export/ExportActions';
@@ -34,6 +35,15 @@ export default function SummaryPage() {
       router.replace('/');
     }
   }, [diaryStarted, router]);
+
+  // Track page view once when diary is complete
+  const tracked = useRef(false);
+  useEffect(() => {
+    if (isComplete && !tracked.current) {
+      tracked.current = true;
+      track('view_results');
+    }
+  }, [isComplete]);
 
   if (!diaryStarted) {
     return null;
