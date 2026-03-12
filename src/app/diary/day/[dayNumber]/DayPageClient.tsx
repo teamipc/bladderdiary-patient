@@ -17,10 +17,10 @@ type SheetMode = null | 'void' | 'drink' | 'bedtime' | 'wakeup';
 
 // Milestone messages — shown once per session via localStorage
 const MILESTONES: Record<string, { emoji: string; message: string; subtitle: string; duration: number }> = {
-  first_event:   { emoji: '\u{1F4AA}', message: 'You\'re on your way!', subtitle: 'Your data is saved on this device \u2014 come back anytime', duration: 5000 },
-  day1_complete:  { emoji: '\u{1F31F}', message: 'Day 1 complete!', subtitle: 'Great job \u2014 2 more days to go', duration: 4000 },
-  day2_complete:  { emoji: '\u{1F525}', message: 'Day 2 done!', subtitle: 'You\'re over halfway \u2014 keep it up!', duration: 4000 },
-  day3_complete:  { emoji: '\u{1F389}', message: 'All 3 days complete!', subtitle: 'Tap View Results to see your diary', duration: 5000 },
+  first_event:   { emoji: '\u{1F4AA}', message: 'You\'re on your way!', subtitle: 'Your data is saved on this device \u2014 come back anytime', duration: 3000 },
+  day1_complete:  { emoji: '\u{1F31F}', message: 'Day 1 complete!', subtitle: 'Great job \u2014 2 more days to go', duration: 2500 },
+  day2_complete:  { emoji: '\u{1F525}', message: 'Day 2 done!', subtitle: 'You\'re over halfway \u2014 keep it up!', duration: 2500 },
+  day3_complete:  { emoji: '\u{1F389}', message: 'All 3 days complete!', subtitle: 'Tap View Results to see your diary', duration: 3000 },
 };
 
 function checkMilestone(key: string): boolean {
