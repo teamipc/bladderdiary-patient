@@ -15,6 +15,23 @@ import type { VoidEntry, DrinkEntry, BedtimeEntry } from '@/lib/types';
 
 type SheetMode = null | 'void' | 'drink' | 'bedtime' | 'wakeup';
 
+// Milestone messages — shown once per session via localStorage
+const MILESTONES: Record<string, { emoji: string; message: string; subtitle: string; duration: number }> = {
+  first_event:   { emoji: '\u{1F4AA}', message: 'You\'re on your way!', subtitle: 'Your data is saved on this device \u2014 come back anytime', duration: 5000 },
+  day1_complete:  { emoji: '\u{1F31F}', message: 'Day 1 complete!', subtitle: 'Great job \u2014 2 more days to go', duration: 4000 },
+  day2_complete:  { emoji: '\u{1F525}', message: 'Day 2 done!', subtitle: 'You\'re over halfway \u2014 keep it up!', duration: 4000 },
+  day3_complete:  { emoji: '\u{1F389}', message: 'All 3 days complete!', subtitle: 'Tap View Results to see your diary', duration: 5000 },
+};
+
+function checkMilestone(key: string): boolean {
+  const storageKey = `milestone_${key}`;
+  if (typeof window !== 'undefined' && !sessionStorage.getItem(storageKey)) {
+    sessionStorage.setItem(storageKey, '1');
+    return true;
+  }
+  return false;
+}
+
 export default function DayPageClient() {
   const params = useParams();
   const router = useRouter();
@@ -46,6 +63,9 @@ export default function DayPageClient() {
 
   const [sheetMode, setSheetMode] = useState<SheetMode>(null);
   const [toastMessage, setToastMessage] = useState('');
+  const [toastSubtitle, setToastSubtitle] = useState<string | undefined>();
+  const [toastEmoji, setToastEmoji] = useState<string | undefined>();
+  const [toastDuration, setToastDuration] = useState(3000);
   const [showToast, setShowToast] = useState(false);
 
   // Edit state — track the entry being edited
@@ -81,14 +101,54 @@ export default function DayPageClient() {
     };
   }, [isNightView]);
 
+  const showMilestoneToast = useCallback((key: string) => {
+    const m = MILESTONES[key];
+    if (m && checkMilestone(key)) {
+      // Delay milestone toast slightly so it doesn't clash with the save toast
+      setTimeout(() => {
+        setToastEmoji(m.emoji);
+        setToastMessage(m.message);
+        setToastSubtitle(m.subtitle);
+        setToastDuration(m.duration);
+        setShowToast(true);
+      }, 800);
+      return true;
+    }
+    return false;
+  }, []);
+
   const handleSave = useCallback((message: string) => {
     setSheetMode(null);
     setEditVoidEntry(undefined);
     setEditDrinkEntry(undefined);
     setInitialTime(undefined);
+
+    // Check milestones (read fresh state from store)
+    const store = useDiaryStore.getState();
+    const totalEvents = store.getVoidsForDay(dayNumber).length + store.getDrinksForDay(dayNumber).length;
+    const bedtime = store.getBedtimeForDay(dayNumber);
+
+    // First action on Day 1: wake-up or first void/drink
+    if (dayNumber === 1 && !bedtime) {
+      if (message === 'Wake-up time saved' || totalEvents === 1) {
+        showMilestoneToast('first_event');
+        return;
+      }
+    }
+
+    // Day complete (bedtime just saved)
+    if (bedtime && message === 'Bedtime saved') {
+      const shown = showMilestoneToast(`day${dayNumber}_complete`);
+      if (shown) return;
+    }
+
+    // Default save toast
+    setToastEmoji(undefined);
+    setToastSubtitle(undefined);
+    setToastDuration(3000);
     setToastMessage(message);
     setShowToast(true);
-  }, []);
+  }, [dayNumber, showMilestoneToast]);
 
   const handleClose = useCallback(() => {
     setSheetMode(null);
@@ -189,8 +249,11 @@ export default function DayPageClient() {
 
       <Toast
         message={toastMessage}
+        subtitle={toastSubtitle}
+        emoji={toastEmoji}
         visible={showToast}
         onDismiss={() => setShowToast(false)}
+        duration={toastDuration}
       />
     </>
   );
