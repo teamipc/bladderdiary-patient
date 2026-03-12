@@ -142,6 +142,34 @@ export function correctNightDate(timeIso: string, bedtimeIso: string): string {
   return corrected.toISOString();
 }
 
+/**
+ * Correct after-midnight times in day view.
+ *
+ * When a user picks a time like 1:00 AM for a bedtime or late-night event,
+ * the TimePicker keeps it on the day's calendar date. But 1:00 AM "tonight"
+ * actually falls on the next calendar day. This function detects early-AM
+ * times (hours 0–5) that are still on the day's own date and bumps them
+ * forward by one day so they sort correctly after the day's wake time.
+ */
+export function correctAfterMidnight(
+  timeIso: string,
+  dayNumber: 1 | 2 | 3,
+  startDate: string,
+): string {
+  const t = parseISO(timeIso);
+  const hour = t.getHours(); // local hour
+  if (hour > 5) return timeIso; // not an early-AM time — no correction needed
+
+  const dayDate = getDayDate(startDate, dayNumber); // "YYYY-MM-DD"
+  const timeDate = format(t, 'yyyy-MM-dd');          // date portion of the time
+
+  if (timeDate !== dayDate) return timeIso; // already on a different date — leave it
+
+  // Bump to next calendar day, keeping the same clock time
+  const corrected = addDays(t, 1);
+  return corrected.toISOString();
+}
+
 /** Get the current tracking day (1, 2, or 3) based on today's date vs startDate. */
 export function getCurrentDay(startDate: string): 1 | 2 | 3 {
   const diff = differenceInCalendarDays(new Date(), parseISO(startDate + 'T00:00:00'));

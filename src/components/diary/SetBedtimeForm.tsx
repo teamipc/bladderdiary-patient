@@ -5,7 +5,7 @@ import { Moon } from 'lucide-react';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, correctAfterMidnight } from '@/lib/utils';
 
 interface SetBedtimeFormProps {
   dayNumber: 1 | 2 | 3;
@@ -34,7 +34,12 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
     return getDefaultTimeForDay(startDate, dayNumber, wakeTime?.timestampIso);
   };
 
-  const [time, setTime] = useState(smartDefault);
+  const [time, setTime] = useState(() => correctAfterMidnight(smartDefault(), dayNumber, startDate));
+
+  // Correct after-midnight times: 1 AM bedtime means next calendar day
+  const handleTimeChange = useCallback((newTime: string) => {
+    setTime(correctAfterMidnight(newTime, dayNumber, startDate));
+  }, [dayNumber, startDate]);
 
   // Bedtime must be after wake-up time (if one exists for this day)
   const isBeforeWakeUp = useMemo(() => {
@@ -74,7 +79,7 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
         </p>
       </div>
 
-      <TimePicker value={time} onChange={setTime} variant="bedtime" />
+      <TimePicker value={time} onChange={handleTimeChange} variant="bedtime" />
 
       {isBeforeWakeUp && (
         <p className="text-sm text-danger text-center font-medium">

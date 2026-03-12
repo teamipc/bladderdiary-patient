@@ -71,7 +71,7 @@ export function generateCsv(state: DiaryState): string {
       dv(v.volumeMl),
       v.doubleVoidMl ? dv(v.doubleVoidMl) : '',
       '',
-      v.sensation,
+      v.sensation !== null ? v.sensation : '',
       v.isFirstMorningVoid,
       v.leak,
       v.note,
@@ -146,16 +146,25 @@ export function generateCsv(state: DiaryState): string {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Download                                                           */
+/*  Download / share helpers                                           */
 /* ------------------------------------------------------------------ */
 
-export function downloadCsv(state: DiaryState): void {
+/** Generate CSV blob without triggering a download. */
+export function generateCsvBlob(state: DiaryState): { blob: Blob; filename: string } {
   const csv = generateCsv(state);
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  return {
+    blob: new Blob([csv], { type: 'text/csv;charset=utf-8;' }),
+    filename: `my-flow-check-${state.startDate}.csv`,
+  };
+}
+
+/** Generate and download CSV (desktop fallback). */
+export function downloadCsv(state: DiaryState): void {
+  const { blob, filename } = generateCsvBlob(state);
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `my-flow-check-${state.startDate}.csv`;
+  link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
 }

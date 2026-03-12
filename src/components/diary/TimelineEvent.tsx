@@ -62,9 +62,11 @@ export default function TimelineEvent(props: TimelineEventProps) {
                 ? `${fmt(entry.volumeMl)} + ${fmt(entry.doubleVoidMl)} ${volumeUnit}`
                 : `${fmt(entry.volumeMl)} ${volumeUnit}`}
             </span>
-            <span className="text-sm text-ipc-400 shrink-0">
-              {SENSATION_LABELS[entry.sensation]?.short ?? ''}
-            </span>
+            {entry.sensation !== null && (
+              <span className="text-sm text-ipc-400 shrink-0">
+                {entry.sensation} – {SENSATION_LABELS[entry.sensation]?.short ?? ''}
+              </span>
+            )}
             {entry.leak && (
               <Droplets size={14} className="text-ipc-400 shrink-0" />
             )}
