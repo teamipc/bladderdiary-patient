@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { Moon } from 'lucide-react';
+import { track } from '@vercel/analytics';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
@@ -67,8 +68,11 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
   const handleSave = useCallback(() => {
     if (isInvalid) return;
     setBedtime(dayNumber, time);
+    if (!existing) {
+      track('day_complete', { day: dayNumber });
+    }
     onSave();
-  }, [dayNumber, time, isInvalid, setBedtime, onSave]);
+  }, [dayNumber, time, isInvalid, existing, setBedtime, onSave]);
 
   return (
     <div className="space-y-5">
