@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { track } from '@vercel/analytics';
 import TimelineView from '@/components/diary/TimelineView';
 import QuickLogFAB from '@/components/diary/QuickLogFAB';
 import BottomSheet from '@/components/ui/BottomSheet';
@@ -76,6 +77,15 @@ export default function DayPageClient() {
 
   // Initial time — pre-set when inserting between events via "+" button
   const [initialTime, setInitialTime] = useState<string | undefined>();
+
+  // Track page view once per day number
+  const trackedDay = useRef(0);
+  useEffect(() => {
+    if (diaryStarted && prevDayComplete && trackedDay.current !== dayNumber) {
+      trackedDay.current = dayNumber;
+      track('view_day', { day: dayNumber });
+    }
+  }, [diaryStarted, prevDayComplete, dayNumber]);
 
   // Redirect to landing if diary not started
   useEffect(() => {
@@ -237,7 +247,7 @@ export default function DayPageClient() {
             editEntry={editVoidEntry}
             initialTime={initialTime}
             isNightView={isNightView}
-            onSave={() => handleSave(editVoidEntry ? 'Pee updated' : 'Pee saved')}
+            onSave={() => { track('log_void', { day: dayNumber, edit: !!editVoidEntry }); handleSave(editVoidEntry ? 'Pee updated' : 'Pee saved'); }}
           />
         )}
         {sheetMode === 'drink' && (
@@ -247,7 +257,7 @@ export default function DayPageClient() {
             editEntry={editDrinkEntry}
             initialTime={initialTime}
             isNightView={isNightView}
-            onSave={() => handleSave(editDrinkEntry ? 'Drink updated' : 'Drink saved')}
+            onSave={() => { track('log_drink', { day: dayNumber, edit: !!editDrinkEntry }); handleSave(editDrinkEntry ? 'Drink updated' : 'Drink saved'); }}
           />
         )}
         {sheetMode === 'leak' && (
@@ -257,19 +267,19 @@ export default function DayPageClient() {
             editEntry={editLeakEntry}
             initialTime={initialTime}
             isNightView={isNightView}
-            onSave={() => handleSave(editLeakEntry ? 'Leak updated' : 'Leak saved')}
+            onSave={() => { track('log_leak', { day: dayNumber, edit: !!editLeakEntry }); handleSave(editLeakEntry ? 'Leak updated' : 'Leak saved'); }}
           />
         )}
         {sheetMode === 'bedtime' && (
           <SetBedtimeForm
             dayNumber={dayNumber}
-            onSave={() => handleSave('Bedtime saved')}
+            onSave={() => { track('log_bedtime', { day: dayNumber }); handleSave('Bedtime saved'); }}
           />
         )}
         {sheetMode === 'wakeup' && (
           <SetWakeTimeForm
             dayNumber={dayNumber}
-            onSave={() => handleSave('Wake-up time saved')}
+            onSave={() => { track('log_wake', { day: dayNumber }); handleSave('Wake-up time saved'); }}
           />
         )}
       </BottomSheet>
