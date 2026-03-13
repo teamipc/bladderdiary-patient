@@ -46,6 +46,10 @@ export function formatFullDate(dateStr: string): string {
  * Get day number (1, 2, or 3) for a timestamp given the diary start date.
  * When bedtimes are provided, uses bedtime-aware boundaries:
  * entries after a day's bedtime are attributed to the next day (overnight logic).
+ *
+ * Early-AM events (0:00–5:59) on the calendar day *after* a diary day are
+ * attributed to that diary day when it has no bedtime set yet — the user was
+ * still awake past midnight and logged the event on the current day.
  */
 export function getDayNumber(
   timestampIso: string,
@@ -68,6 +72,17 @@ export function getDayNumber(
     const dayBedtime = bedtimes.find((b) => b.dayNumber === dayNum);
     if (dayBedtime && timestampIso > dayBedtime.timestampIso) {
       dayNum = Math.min(3, dayNum + 1);
+    }
+  }
+
+  // Early-AM pull-back: events at 0:00–5:59 on the day after a diary day
+  // belong to that diary day if bedtime hasn't been set yet (user still awake).
+  const hour = eventDate.getHours();
+  if (hour >= 0 && hour <= 5 && dayNum > 1) {
+    const prevDay = dayNum - 1;
+    const prevDayBedtime = bedtimes?.find((b) => b.dayNumber === prevDay);
+    if (!prevDayBedtime) {
+      dayNum = prevDay;
     }
   }
 
