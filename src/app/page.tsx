@@ -160,13 +160,10 @@ function LandingContent() {
       {!isInstalled && (canPrompt || isIos) && (
         <div className="w-full mt-6 animate-fade-slide-up stagger-4">
           <div className="p-4 rounded-2xl bg-ipc-50 border border-ipc-100">
-            <p className="text-sm font-semibold text-ipc-800 mb-1.5">
-              Add to your home screen
-            </p>
             {canPrompt ? (
               <>
-                <p className="text-xs text-ipc-500 mb-3">
-                  Install My Flow Check for quick access and reminders. No app store needed.
+                <p className="text-sm text-ipc-700 mb-3">
+                  Want quick access? You can add My Flow Check to your home screen — no app store needed. Or just keep using it in your browser.
                 </p>
                 <button
                   type="button"
@@ -175,12 +172,12 @@ function LandingContent() {
                     font-semibold bg-ipc-600 text-white active:scale-[0.95] transition-all"
                 >
                   <Download size={15} />
-                  Install App
+                  Add to Home Screen
                 </button>
               </>
             ) : (
-              <p className="text-xs text-ipc-500 leading-relaxed">
-                Tap <Share2 size={12} className="inline -mt-0.5 text-ipc-600" /> <strong>Share</strong> at the bottom of your screen, then tap <strong>&quot;Add to Home Screen&quot;</strong>.
+              <p className="text-sm text-ipc-700 leading-relaxed">
+                Want quick access? Tap <Share2 size={13} className="inline -mt-0.5 text-ipc-600" /> at the bottom of your screen, then <strong>&quot;Add to Home Screen&quot;</strong>. Or just keep using it right here in your browser.
               </p>
             )}
           </div>
