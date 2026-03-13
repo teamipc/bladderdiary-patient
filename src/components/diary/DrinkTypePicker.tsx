@@ -11,7 +11,7 @@ interface DrinkTypePickerProps {
 
 export default function DrinkTypePicker({ value, onChange }: DrinkTypePickerProps) {
   return (
-    <div className="grid grid-cols-4 gap-2 mt-2">
+    <div className="grid grid-cols-4 [grid-auto-rows:1fr] gap-2 mt-8">
       {DRINK_TYPES.map((drink) => {
         const selected = value === drink.value;
         return (
