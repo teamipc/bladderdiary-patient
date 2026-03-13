@@ -52,11 +52,11 @@ export function generateCsv(state: DiaryState): string {
 
   // ── Section 2: Events ──
   lines.push('## EVENTS');
-  lines.push('type,timestamp,dayNumber,volumeMl,doubleVoidMl,drinkType,sensation,isFirstMorningVoid,leak,note');
+  lines.push('type,timestamp,dayNumber,volumeMl,doubleVoidMl,drinkType,sensation,isFirstMorningVoid,leak,note,trigger,urgencyBeforeLeak,amount');
 
   // Wake times
   for (const w of (state.wakeTimes ?? [])) {
-    lines.push(row('wake', w.timestampIso, w.dayNumber, '', '', '', '', '', '', ''));
+    lines.push(row('wake', w.timestampIso, w.dayNumber, '', '', '', '', '', '', '', '', '', ''));
   }
 
   const dv = (ml: number) => mlToDisplayVolume(ml, state.volumeUnit);
@@ -75,6 +75,7 @@ export function generateCsv(state: DiaryState): string {
       v.isFirstMorningVoid,
       v.leak,
       v.note,
+      '', '', '',
     ));
   }
 
@@ -92,12 +93,27 @@ export function generateCsv(state: DiaryState): string {
       '',
       '',
       d.note,
+      '', '', '',
+    ));
+  }
+
+  // Standalone leaks
+  for (const l of (state.leaks ?? [])) {
+    const day = getDayNumber(l.timestampIso, state.startDate, state.bedtimes);
+    lines.push(row(
+      'leak',
+      l.timestampIso,
+      day,
+      '', '', '', '', '', '', l.notes,
+      l.trigger,
+      l.urgencyBeforeLeak !== null ? l.urgencyBeforeLeak : '',
+      l.amount ?? '',
     ));
   }
 
   // Bedtimes
   for (const b of state.bedtimes) {
-    lines.push(row('bedtime', b.timestampIso, b.dayNumber, '', '', '', '', '', '', ''));
+    lines.push(row('bedtime', b.timestampIso, b.dayNumber, '', '', '', '', '', '', '', '', '', ''));
   }
 
   lines.push('');
@@ -111,6 +127,7 @@ export function generateCsv(state: DiaryState): string {
     lines.push(row('total_output_ml', 'overall', metrics.totalVoidVolumeMl));
     lines.push(row('total_voids', 'overall', metrics.totalVoidCount));
     lines.push(row('total_leaks', 'overall', metrics.totalLeaks));
+    lines.push(row('total_standalone_leaks', 'overall', metrics.totalStandaloneLeaks));
     lines.push(row('continent', 'overall', metrics.isContinent));
 
     // Period 1 (Night 1 / Day 2)
@@ -139,6 +156,7 @@ export function generateCsv(state: DiaryState): string {
       lines.push(row('day_output_ml', `day${dm.dayNumber}`, dm.totalVoidVolumeMl));
       lines.push(row('day_voids', `day${dm.dayNumber}`, dm.voidCount));
       lines.push(row('day_leaks', `day${dm.dayNumber}`, dm.leakCount));
+      lines.push(row('day_standalone_leaks', `day${dm.dayNumber}`, dm.standaloneLeakCount));
     }
   }
 

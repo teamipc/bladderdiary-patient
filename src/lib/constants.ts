@@ -1,4 +1,4 @@
-import type { DrinkType, BladderSensation } from './types';
+import type { DrinkType, BladderSensation, LeakTrigger, LeakAmount } from './types';
 
 /** Toggle to enable paid-tier clinical metrics (24HV, NPi, AVV, MVV, etc.). */
 export const PREMIUM_FEATURES_ENABLED = false;
@@ -50,4 +50,46 @@ export function getDrinkLabel(type: DrinkType): string {
 
 export function getDrinkIconName(type: DrinkType): DrinkIconName {
   return DRINK_TYPES.find((d) => d.value === type)?.icon ?? 'Droplets';
+}
+
+/* ── Leak triggers ── */
+
+export type LeakIconName =
+  | 'Wind'
+  | 'Sparkles'
+  | 'Smile'
+  | 'Dumbbell'
+  | 'Activity'
+  | 'Footprints'
+  | 'MoreHorizontal'
+  | 'HelpCircle';
+
+export const LEAK_TRIGGERS: readonly { value: LeakTrigger; label: string; icon: LeakIconName }[] = [
+  { value: 'cough', label: 'Coughing', icon: 'Wind' },
+  { value: 'sneeze', label: 'Sneezing', icon: 'Sparkles' },
+  { value: 'laugh', label: 'Laughing', icon: 'Smile' },
+  { value: 'lifting', label: 'Lifting', icon: 'Dumbbell' },
+  { value: 'exercise', label: 'Exercise', icon: 'Activity' },
+  { value: 'toilet_way', label: 'On the way', icon: 'Footprints' },
+  { value: 'other', label: 'Other', icon: 'MoreHorizontal' },
+  { value: 'not_sure', label: 'Not sure', icon: 'HelpCircle' },
+] as const;
+
+export const LEAK_AMOUNT_OPTIONS: readonly { value: LeakAmount; label: string }[] = [
+  { value: 'drops', label: 'Drops' },
+  { value: 'small', label: 'Small' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'large', label: 'Large' },
+] as const;
+
+export function getLeakTriggerLabel(trigger: LeakTrigger): string {
+  return LEAK_TRIGGERS.find((t) => t.value === trigger)?.label ?? 'Other';
+}
+
+export function getLeakTriggerIconName(trigger: LeakTrigger): LeakIconName {
+  return LEAK_TRIGGERS.find((t) => t.value === trigger)?.icon ?? 'MoreHorizontal';
+}
+
+export function getLeakAmountLabel(amount: LeakAmount): string {
+  return LEAK_AMOUNT_OPTIONS.find((a) => a.value === amount)?.label ?? '';
 }

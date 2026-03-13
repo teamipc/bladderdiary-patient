@@ -20,6 +20,35 @@ export type DrinkType =
 /** Bladder urgency sensation scale: 0 = no urgency, 4 = desperate. */
 export type BladderSensation = 0 | 1 | 2 | 3 | 4;
 
+/** Trigger that caused a standalone leak event. */
+export type LeakTrigger =
+  | 'cough'
+  | 'sneeze'
+  | 'laugh'
+  | 'lifting'
+  | 'exercise'
+  | 'toilet_way'
+  | 'other'
+  | 'not_sure';
+
+/** Subjective leak amount. */
+export type LeakAmount = 'drops' | 'small' | 'medium' | 'large';
+
+/** A standalone leak event (leakage outside of a void). */
+export interface LeakEntry {
+  id: string;
+  /** ISO 8601 timestamp in UTC. */
+  timestampIso: string;
+  /** What triggered the leak. */
+  trigger: LeakTrigger;
+  /** Was there urgency before the leak? */
+  urgencyBeforeLeak: boolean | null;
+  /** Subjective amount (null = not recorded). */
+  amount?: LeakAmount | null;
+  /** Free-text note (max 120 chars). */
+  notes?: string;
+}
+
 /** A single void (urination) event. */
 export interface VoidEntry {
   id: string;
@@ -80,6 +109,8 @@ export interface DiaryState {
   voids: VoidEntry[];
   /** All drink entries across all 3 days. */
   drinks: DrinkEntry[];
+  /** Standalone leak entries across all 3 days. */
+  leaks: LeakEntry[];
   /** Bedtime markers (one per day, max 3). */
   bedtimes: BedtimeEntry[];
   /** Wake time markers (one per day, max 3). */

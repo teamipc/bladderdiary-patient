@@ -3,12 +3,12 @@
 import { useMemo, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Sun, Moon, Droplets, CheckCircle2, ChevronLeft, ChevronRight, Plus, RotateCcw, Check } from 'lucide-react';
+import { Sun, Moon, Droplets, CheckCircle2, ChevronLeft, ChevronRight, Plus, RotateCcw, Check, CloudDrizzle } from 'lucide-react';
 import TimelineEvent from './TimelineEvent';
 import DrinkIcon from '@/components/ui/DrinkIcon';
 import { useDiaryStore } from '@/lib/store';
 import { getDayDate, formatDate, formatTime } from '@/lib/utils';
-import type { VoidEntry, DrinkEntry, BedtimeEntry, WakeTimeEntry } from '@/lib/types';
+import type { VoidEntry, DrinkEntry, BedtimeEntry, WakeTimeEntry, LeakEntry } from '@/lib/types';
 
 interface TimelineViewProps {
   dayNumber: 1 | 2 | 3;
@@ -19,13 +19,16 @@ interface TimelineViewProps {
   onEditVoid?: (entry: VoidEntry) => void;
   onEditDrink?: (entry: DrinkEntry) => void;
   onEditBedtime?: (entry: BedtimeEntry) => void;
+  onLogLeak?: (initialTime?: string) => void;
+  onEditLeak?: (entry: LeakEntry) => void;
 }
 
 type TimelineItem =
   | { kind: 'void'; entry: VoidEntry }
   | { kind: 'drink'; entry: DrinkEntry }
   | { kind: 'bedtime'; entry: BedtimeEntry }
-  | { kind: 'wakeup'; entry: WakeTimeEntry };
+  | { kind: 'wakeup'; entry: WakeTimeEntry }
+  | { kind: 'leak'; entry: LeakEntry };
 
 /** Calculate the midpoint ISO timestamp between two ISO timestamps */
 function midpointTime(a: string, b: string): string {
@@ -34,15 +37,17 @@ function midpointTime(a: string, b: string): string {
   return new Date(Math.round((ta + tb) / 2)).toISOString();
 }
 
-export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBedtime, onLogWakeUp, onEditVoid, onEditDrink, onEditBedtime }: TimelineViewProps) {
+export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBedtime, onLogWakeUp, onEditVoid, onEditDrink, onEditBedtime, onLogLeak, onEditLeak }: TimelineViewProps) {
   const {
     startDate,
     getVoidsForDay,
     getDrinksForDay,
+    getLeaksForDay,
     getBedtimeForDay,
     getWakeTimeForDay,
     removeVoid,
     removeDrink,
+    removeLeak,
     removeBedtime,
     removeWakeTime,
     resetDiary,
@@ -52,6 +57,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
 
   const allVoids = getVoidsForDay(dayNumber);
   const allDrinks = getDrinksForDay(dayNumber);
+  const allLeaks = getLeaksForDay(dayNumber);
   const bedtime = getBedtimeForDay(dayNumber);
   const wakeTime = getWakeTimeForDay(dayNumber);
 
@@ -88,6 +94,13 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
     : hasWakeTime
       ? allDrinks.filter((d) => d.timestampIso >= wakeTime!.timestampIso)
       : allDrinks;
+  const leaks = isNighttime
+    ? (hasWakeTime
+      ? allLeaks.filter((l) => l.timestampIso < wakeTime!.timestampIso)
+      : allLeaks)
+    : hasWakeTime
+      ? allLeaks.filter((l) => l.timestampIso >= wakeTime!.timestampIso)
+      : allLeaks;
 
   const hasMorningVoid = allVoids.some((v) => v.isFirstMorningVoid);
 
@@ -136,6 +149,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
     const all: TimelineItem[] = [
       ...voids.map((entry) => ({ kind: 'void' as const, entry })),
       ...drinks.map((entry) => ({ kind: 'drink' as const, entry })),
+      ...leaks.map((entry) => ({ kind: 'leak' as const, entry })),
       // Day view: show current day's bedtime (marks end of day)
       ...(!isNighttime && bedtime ? [{ kind: 'bedtime' as const, entry: bedtime }] : []),
       // Night view: show previous day's bedtime (marks start of night)
@@ -146,7 +160,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
     return all.sort((a, b) =>
       a.entry.timestampIso.localeCompare(b.entry.timestampIso),
     );
-  }, [voids, drinks, bedtime, wakeTime, isNighttime, prevDayBedtime]);
+  }, [voids, drinks, leaks, bedtime, wakeTime, isNighttime, prevDayBedtime]);
 
   const handleInsertVoid = (gapIdx: number) => {
     if (gapIdx < items.length - 1) {
@@ -175,6 +189,19 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
     }
   };
 
+  const handleInsertLeak = (gapIdx: number) => {
+    if (gapIdx < items.length - 1) {
+      const timeBefore = items[gapIdx].entry.timestampIso;
+      const timeAfter = items[gapIdx + 1].entry.timestampIso;
+      const mid = midpointTime(timeBefore, timeAfter);
+      setOpenInsertIdx(null);
+      onLogLeak?.(mid);
+    } else {
+      setOpenInsertIdx(null);
+      onLogLeak?.();
+    }
+  };
+
   const renderTimelineItem = (item: TimelineItem) => {
     if (item.kind === 'void') {
       return (
@@ -200,10 +227,22 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         />
       );
     }
+    if (item.kind === 'leak') {
+      return (
+        <TimelineEvent
+          key={item.entry.id}
+          type="leak"
+          entry={item.entry}
+          onDelete={removeLeak}
+          onEdit={onEditLeak}
+          nightMode={isNighttime}
+        />
+      );
+    }
     if (item.kind === 'wakeup') {
       // In day view, wake-up is just context (start of day) — show as simple text
       if (!isNighttime) {
-        const noDayEvents = voids.length === 0 && drinks.length === 0;
+        const noDayEvents = voids.length === 0 && drinks.length === 0 && leaks.length === 0;
         return (
           <div key={item.entry.id} className="px-4 py-2">
             <div className="flex items-center gap-2">
@@ -459,6 +498,18 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                     Drink
                   </button>
                 )}
+                {onLogLeak && (
+                  <button
+                    type="button"
+                    onClick={() => onLogLeak()}
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl
+                      font-semibold text-base active:scale-[0.97] transition-all
+                      bg-indigo-400/30 text-indigo-100 border border-indigo-400/30"
+                  >
+                    <CloudDrizzle size={16} className="text-indigo-200" />
+                    Leak
+                  </button>
+                )}
               </div>
               {onLogWakeUp && (
                 <div className="flex flex-col items-center gap-2 mt-8">
@@ -552,6 +603,19 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                       </button>
                       <button
                         type="button"
+                        onClick={() => handleInsertLeak(idx)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
+                          transition-all active:scale-[0.95] ${
+                            isNighttime
+                              ? 'bg-indigo-500/25 text-indigo-200 border border-indigo-400/30'
+                              : 'bg-leak/10 text-leak border border-leak/20'
+                          }`}
+                      >
+                        <CloudDrizzle size={12} />
+                        Leak
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => setOpenInsertIdx(null)}
                         className={`w-6 h-6 flex items-center justify-center rounded-full text-xs
                           transition-all active:scale-[0.9] ${
@@ -585,7 +649,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
       )}
 
       {/* Night prompt — show when bedtime exists but no overnight events logged yet */}
-      {isNighttime && !isNightComplete && voids.length === 0 && drinks.length === 0 && !hasWakeTime && (
+      {isNighttime && !isNightComplete && voids.length === 0 && drinks.length === 0 && leaks.length === 0 && !hasWakeTime && (
         <div className="text-center py-6 space-y-6">
           <p className="text-base font-medium text-indigo-200/80 animate-night-hero">
             Did you pee or drink anything overnight?
@@ -609,7 +673,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
       )}
 
       {/* Wake-up reminder — only show after at least one overnight void or drink, hide when night complete */}
-      {isNighttime && !isNightComplete && (voids.length > 0 || drinks.length > 0) && onLogWakeUp && (
+      {isNighttime && !isNightComplete && (voids.length > 0 || drinks.length > 0 || leaks.length > 0) && onLogWakeUp && (
         <div className="mt-4 px-4 py-3 rounded-2xl bg-warning/10 border border-warning/25 animate-fade-slide-up">
           <div className="flex items-center gap-3">
             <Sun size={20} className="shrink-0 text-warning" />
@@ -658,7 +722,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
       )}
 
       {/* Bedtime reminder — only show after at least one void or drink is logged */}
-      {(voids.length > 0 || drinks.length > 0) && !hasBedtime && !isNighttime && (
+      {(voids.length > 0 || drinks.length > 0 || leaks.length > 0) && !hasBedtime && !isNighttime && (
         <div className="mt-4 px-4 py-3 rounded-2xl bg-bedtime/10 border border-bedtime/25 animate-reminder">
           <div className="flex items-center gap-3">
             <Moon size={20} className="shrink-0 text-bedtime" />

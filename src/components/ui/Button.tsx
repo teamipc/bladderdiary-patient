@@ -3,7 +3,7 @@
 import { forwardRef } from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'drink' | 'bedtime' | 'night';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'drink' | 'bedtime' | 'leak' | 'night';
   size?: 'md' | 'lg';
   fullWidth?: boolean;
   children: React.ReactNode;
@@ -27,6 +27,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       danger: 'bg-danger text-white hover:bg-danger/90',
       drink: 'bg-drink text-white hover:bg-drink/90 active:bg-drink/80 focus:ring-drink/40',
       bedtime: 'bg-bedtime text-white hover:bg-bedtime/90 active:bg-bedtime/80 focus:ring-bedtime/40',
+      leak: 'bg-leak text-white hover:bg-leak/90 active:bg-leak/80 focus:ring-leak/40',
       night: 'bg-indigo-500 text-white hover:bg-indigo-600 active:bg-indigo-700 focus:ring-indigo-400',
     };
 

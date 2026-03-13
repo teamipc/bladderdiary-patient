@@ -7,13 +7,14 @@ import QuickLogFAB from '@/components/diary/QuickLogFAB';
 import BottomSheet from '@/components/ui/BottomSheet';
 import LogVoidForm from '@/components/diary/LogVoidForm';
 import LogDrinkForm from '@/components/diary/LogDrinkForm';
+import LogLeakForm from '@/components/diary/LogLeakForm';
 import SetBedtimeForm from '@/components/diary/SetBedtimeForm';
 import SetWakeTimeForm from '@/components/diary/SetWakeTimeForm';
 import Toast from '@/components/ui/Toast';
 import { useDiaryStore } from '@/lib/store';
-import type { VoidEntry, DrinkEntry, BedtimeEntry } from '@/lib/types';
+import type { VoidEntry, DrinkEntry, LeakEntry, BedtimeEntry } from '@/lib/types';
 
-type SheetMode = null | 'void' | 'drink' | 'bedtime' | 'wakeup';
+type SheetMode = null | 'void' | 'drink' | 'leak' | 'bedtime' | 'wakeup';
 
 // Milestone messages — shown once per session via localStorage
 const MILESTONES: Record<string, { emoji: string; message: string; subtitle: string; duration: number }> = {
@@ -71,6 +72,7 @@ export default function DayPageClient() {
   // Edit state — track the entry being edited
   const [editVoidEntry, setEditVoidEntry] = useState<VoidEntry | undefined>();
   const [editDrinkEntry, setEditDrinkEntry] = useState<DrinkEntry | undefined>();
+  const [editLeakEntry, setEditLeakEntry] = useState<LeakEntry | undefined>();
 
   // Initial time — pre-set when inserting between events via "+" button
   const [initialTime, setInitialTime] = useState<string | undefined>();
@@ -121,6 +123,7 @@ export default function DayPageClient() {
     setSheetMode(null);
     setEditVoidEntry(undefined);
     setEditDrinkEntry(undefined);
+    setEditLeakEntry(undefined);
     setInitialTime(undefined);
 
     // Check milestones (read fresh state from store)
@@ -154,6 +157,7 @@ export default function DayPageClient() {
     setSheetMode(null);
     setEditVoidEntry(undefined);
     setEditDrinkEntry(undefined);
+    setEditLeakEntry(undefined);
     setInitialTime(undefined);
   }, []);
 
@@ -186,6 +190,17 @@ export default function DayPageClient() {
     setSheetMode('drink');
   }, []);
 
+  const handleEditLeak = useCallback((entry: LeakEntry) => {
+    setEditLeakEntry(entry);
+    setInitialTime(undefined);
+    setSheetMode('leak');
+  }, []);
+
+  const handleLogLeak = useCallback((time?: string) => {
+    setInitialTime(time);
+    setSheetMode('leak');
+  }, []);
+
   // All forms manage their own headings — no external sheet title needed
 
   if (!diaryStarted || !prevDayComplete) return null;
@@ -196,10 +211,12 @@ export default function DayPageClient() {
         dayNumber={dayNumber}
         onLogVoid={handleLogVoid}
         onLogDrink={handleLogDrink}
+        onLogLeak={handleLogLeak}
         onLogBedtime={isNightView ? undefined : () => setSheetMode('bedtime')}
         onLogWakeUp={() => setSheetMode('wakeup')}
         onEditVoid={handleEditVoid}
         onEditDrink={handleEditDrink}
+        onEditLeak={handleEditLeak}
         onEditBedtime={handleEditBedtime}
       />
 
@@ -211,7 +228,7 @@ export default function DayPageClient() {
         open={sheetMode !== null}
         onClose={handleClose}
         noScroll={false}
-        variant={sheetMode === 'drink' ? 'drink' : sheetMode === 'bedtime' ? 'bedtime' : 'default'}
+        variant={sheetMode === 'drink' ? 'drink' : sheetMode === 'leak' ? 'leak' : sheetMode === 'bedtime' ? 'bedtime' : 'default'}
       >
         {sheetMode === 'void' && (
           <LogVoidForm
@@ -231,6 +248,16 @@ export default function DayPageClient() {
             initialTime={initialTime}
             isNightView={isNightView}
             onSave={() => handleSave(editDrinkEntry ? 'Drink updated' : 'Drink saved')}
+          />
+        )}
+        {sheetMode === 'leak' && (
+          <LogLeakForm
+            key={editLeakEntry?.id ?? initialTime ?? 'new'}
+            dayNumber={dayNumber}
+            editEntry={editLeakEntry}
+            initialTime={initialTime}
+            isNightView={isNightView}
+            onSave={() => handleSave(editLeakEntry ? 'Leak updated' : 'Leak saved')}
           />
         )}
         {sheetMode === 'bedtime' && (

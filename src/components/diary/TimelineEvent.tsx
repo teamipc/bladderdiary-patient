@@ -1,16 +1,21 @@
 'use client';
 
-import { Droplets, Moon, Trash2, Pencil, Sun } from 'lucide-react';
+import { Droplets, Moon, Trash2, Pencil, Sun, Wind, Sparkles, Smile, Dumbbell, Activity, Footprints, MoreHorizontal, HelpCircle, CloudDrizzle } from 'lucide-react';
 import { formatTime, mlToDisplayVolume } from '@/lib/utils';
-import { getDrinkLabel, getDrinkIconName, SENSATION_LABELS } from '@/lib/constants';
+import { getDrinkLabel, getDrinkIconName, SENSATION_LABELS, getLeakTriggerLabel, getLeakTriggerIconName } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
 import DrinkIcon from '@/components/ui/DrinkIcon';
-import type { VoidEntry, DrinkEntry, BedtimeEntry, WakeTimeEntry } from '@/lib/types';
+import type { VoidEntry, DrinkEntry, BedtimeEntry, WakeTimeEntry, LeakEntry } from '@/lib/types';
+
+const LEAK_ICON_MAP: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  Wind, Sparkles, Smile, Dumbbell, Activity, Footprints, MoreHorizontal, HelpCircle,
+};
 
 type TimelineEventBase = { nightMode?: boolean };
 type TimelineEventProps =
   | (TimelineEventBase & { type: 'void'; entry: VoidEntry; onDelete: (id: string) => void; onEdit?: (entry: VoidEntry) => void })
   | (TimelineEventBase & { type: 'drink'; entry: DrinkEntry; onDelete: (id: string) => void; onEdit?: (entry: DrinkEntry) => void })
+  | (TimelineEventBase & { type: 'leak'; entry: LeakEntry; onDelete: (id: string) => void; onEdit?: (entry: LeakEntry) => void })
   | (TimelineEventBase & { type: 'bedtime'; entry: BedtimeEntry; onDelete: (dayNumber: number) => void; onEdit?: (entry: BedtimeEntry) => void })
   | (TimelineEventBase & { type: 'wakeup'; entry: WakeTimeEntry; onDelete: (dayNumber: number) => void });
 
@@ -144,6 +149,80 @@ export default function TimelineEvent(props: TimelineEventProps) {
             onClick={() => onDelete(entry.id)}
             className="w-9 h-9 flex items-center justify-center rounded-full
               text-drink/40 hover:text-danger hover:bg-danger-light transition-colors"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'leak') {
+    const { entry, onDelete, onEdit } = props;
+    const LeakIcon = LEAK_ICON_MAP[getLeakTriggerIconName(entry.trigger)] ?? CloudDrizzle;
+    return (
+      <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border transition-colors group animate-fade-slide-up ${
+        nightMode ? 'border-indigo-400/15 hover:border-indigo-400/30' : 'border-leak/15 hover:border-leak/30'
+      }`}>
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+          nightMode ? 'bg-indigo-400/15' : 'bg-leak/10'
+        }`}>
+          <LeakIcon size={22} className={nightMode ? 'text-indigo-300' : 'text-leak'} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-base font-semibold text-ipc-950">
+              {formatTime(entry.timestampIso)}
+            </span>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+              nightMode ? 'bg-indigo-400/15 text-indigo-300' : 'bg-leak/10 text-leak'
+            }`}>
+              {getLeakTriggerLabel(entry.trigger)}
+            </span>
+            {entry.urgencyBeforeLeak === true && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                nightMode ? 'bg-indigo-400/15 text-indigo-300' : 'bg-leak/10 text-leak'
+              }`}>
+                Urgency
+              </span>
+            )}
+          </div>
+          {entry.amount && (
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className={`text-sm font-medium ${nightMode ? 'text-indigo-300' : 'text-leak'}`}>
+                {entry.amount.charAt(0).toUpperCase() + entry.amount.slice(1)}
+              </span>
+            </div>
+          )}
+          {entry.notes && (
+            <p className="text-xs text-ipc-500 mt-0.5 truncate">{entry.notes}</p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-1">
+          {onEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(entry)}
+              className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors ${
+                nightMode
+                  ? 'text-indigo-400/40 hover:text-indigo-300 hover:bg-indigo-400/10'
+                  : 'text-leak/40 hover:text-leak hover:bg-leak/10'
+              }`}
+            >
+              <Pencil size={15} />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => onDelete(entry.id)}
+            className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors ${
+              nightMode
+                ? 'text-indigo-400/40 hover:text-danger hover:bg-danger-light'
+                : 'text-leak/40 hover:text-danger hover:bg-danger-light'
+            }`}
           >
             <Trash2 size={15} />
           </button>
