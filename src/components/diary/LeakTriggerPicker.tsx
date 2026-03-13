@@ -32,7 +32,7 @@ export default function LeakTriggerPicker({ value, onChange }: LeakTriggerPicker
               key={t.value}
               type="button"
               onClick={() => onChange(selected ? null : t.value)}
-              className={`flex flex-col items-center gap-1 py-2 px-1.5 rounded-xl
+              className={`flex flex-col items-center gap-1 py-2.5 px-2 rounded-xl
                 transition-all active:scale-[0.95] ${
                   selected
                     ? 'bg-leak text-white ring-2 ring-leak/30 shadow-sm'
@@ -40,10 +40,10 @@ export default function LeakTriggerPicker({ value, onChange }: LeakTriggerPicker
                 }`}
             >
               <Icon
-                size={20}
+                size={22}
                 className={selected ? 'text-white' : 'text-leak'}
               />
-              <span className="text-[11px] font-bold leading-tight">{t.label}</span>
+              <span className="text-xs font-bold leading-tight">{t.label}</span>
             </button>
           );
         })}
