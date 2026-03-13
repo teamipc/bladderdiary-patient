@@ -350,6 +350,9 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                 })}
               </div>
 
+              {/* Separator */}
+              <div className="border-t border-leak/15 mt-1 mb-3 w-full" />
+
               {/* Urgency before leak */}
               <h3 className="text-lg font-bold text-center mb-3 text-ipc-950">
                 Urgency before the leak?

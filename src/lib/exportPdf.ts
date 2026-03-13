@@ -308,6 +308,110 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot
   return { slots, startHour };
 }
 
+interface HalfHourSlot {
+  label: string;
+  drinks: string;
+  voids: string;
+  urgency: string;
+  leak: string;
+  hasDrink: boolean;
+  hasVoid: boolean;
+  hasLeak: boolean;
+  isWake: boolean;
+  isBed: boolean;
+}
+
+function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HalfHourSlot[]; startHour: number } {
+  const dayVoids = state.voids
+    .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
+
+  const dayDrinks = state.drinks
+    .filter((d) => getDayNumber(d.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
+
+  const dayLeaks = (state.leaks ?? [])
+    .filter((l) => getDayNumber(l.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
+
+  const bedtime = state.bedtimes.find((b) => b.dayNumber === dayNum);
+  const wakeTime = (state.wakeTimes ?? []).find((w) => w.dayNumber === dayNum);
+
+  const bedHour = bedtime ? parseISO(bedtime.timestampIso).getHours() : -1;
+  const wakeHour = wakeTime ? parseISO(wakeTime.timestampIso).getHours() : -1;
+
+  const startHour = wakeHour >= 0 ? wakeHour : 6;
+  const u = state.volumeUnit;
+
+  const slots: HalfHourSlot[] = [];
+  for (let i = 0; i < 48; i++) {
+    const hour = (startHour + Math.floor(i / 2)) % 24;
+    const isSecondHalf = i % 2 === 1;
+    const minStart = isSecondHalf ? 30 : 0;
+    const minEnd = isSecondHalf ? 59 : 29;
+
+    // Label: AM/PM only on :00 rows
+    const hourStr = `${hour.toString().padStart(2, '0')}:${isSecondHalf ? '30' : '00'}`;
+    let label: string;
+    if (!isSecondHalf) {
+      const ampm = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
+      label = `${hourStr}\n${ampm}`;
+    } else {
+      label = hourStr;
+    }
+
+    // Filter events in this 30-min window
+    const inSlot = (iso: string) => {
+      const d = parseISO(iso);
+      return d.getHours() === hour && d.getMinutes() >= minStart && d.getMinutes() <= minEnd;
+    };
+
+    const slotDrinks = dayDrinks.filter((d) => inSlot(d.timestampIso));
+    const multiDrink = slotDrinks.length > 1;
+    const drinksText = slotDrinks.map((d) => {
+      const prefix = multiDrink ? `${formatTime(d.timestampIso)} ` : '';
+      return `${prefix}${dv(d.volumeMl, state)} ${u} ${getDrinkLabel(d.drinkType)}`;
+    }).join('\n');
+
+    const slotVoids = dayVoids.filter((v) => inSlot(v.timestampIso));
+    const multiVoid = slotVoids.length > 1;
+    const voidsText = slotVoids
+      .map((v) => {
+        const prefix = multiVoid ? `${formatTime(v.timestampIso)} ` : '';
+        let txt = `${prefix}${dv(v.volumeMl, state)} ${u}`;
+        if (v.doubleVoidMl) txt += `\n  DV: +${dv(v.doubleVoidMl, state)} ${u}`;
+        if (v.isFirstMorningVoid) txt += ' *FMV';
+        return txt;
+      })
+      .join('\n');
+
+    const urgText = slotVoids.map((v) => v.sensation !== null ? `${v.sensation}` : '-').join('\n');
+
+    const slotLeaks = dayLeaks.filter((l) => inSlot(l.timestampIso));
+    const leakParts: string[] = [];
+    if (slotVoids.some((v) => v.leak)) leakParts.push('Yes');
+    for (const l of slotLeaks) {
+      leakParts.push(getLeakTriggerLabel(l.trigger));
+    }
+    const leakText = leakParts.join('\n');
+
+    slots.push({
+      label,
+      drinks: drinksText,
+      voids: voidsText,
+      urgency: urgText,
+      leak: leakText,
+      hasDrink: slotDrinks.length > 0,
+      hasVoid: slotVoids.length > 0,
+      hasLeak: leakText !== '',
+      isWake: hour === wakeHour && !isSecondHalf,
+      isBed: hour === bedHour && !isSecondHalf,
+    });
+  }
+
+  return { slots, startHour };
+}
+
 function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: DayMetrics) {
   doc.addPage('a4', 'portrait');
   addLogo(doc);
@@ -338,8 +442,8 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
   }
   subY += 1;
 
-  // Build hourly grid — 24 rows starting from the actual wake hour
-  const { slots, startHour } = buildHourSlots(state, dayNum);
+  // Build 30-min grid — 48 rows starting from the actual wake hour
+  const { slots, startHour } = buildHalfHourSlots(state, dayNum);
 
   // Determine sleep hours for shading
   const bedtime = state.bedtimes.find((b) => b.dayNumber === dayNum);
@@ -351,47 +455,45 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
 
   autoTable(doc, {
     startY: subY,
-    head: [['Hour', `Fluid In (${state.volumeUnit})`, `Voided (${state.volumeUnit})`, 'Sensation', 'Leak']],
+    head: [['Time', `Fluid In (${state.volumeUnit})`, `Voided (${state.volumeUnit})`, 'Sens', 'Leak']],
     body,
     margin: { left: MARGIN, right: MARGIN },
     styles: {
-      fontSize: 6.5,
-      cellPadding: 1.2,
+      fontSize: 5.5,
+      cellPadding: 0.8,
       textColor: C.dark,
-      minCellHeight: 8.5,
+      minCellHeight: 4.2,
       valign: 'middle',
       lineWidth: 0.1,
       lineColor: [220, 220, 220],
+      overflow: 'ellipsize',
     },
-    headStyles: { fillColor: C.gold, textColor: C.white, fontStyle: 'bold', fontSize: 7 },
+    headStyles: { fillColor: C.gold, textColor: C.white, fontStyle: 'bold', fontSize: 6 },
     columnStyles: {
-      0: { cellWidth: 18, fontStyle: 'bold', halign: 'center', fontSize: 6 },
-      1: { cellWidth: 42 },
-      2: { cellWidth: 36 },
-      3: { cellWidth: 16, halign: 'center' },
-      4: { cellWidth: 14, halign: 'center' },
+      0: { cellWidth: 18, fontStyle: 'bold', halign: 'center', fontSize: 5 },
+      1: { cellWidth: 68 },
+      2: { cellWidth: 46 },
+      3: { cellWidth: 22, halign: 'center' },
+      4: { cellWidth: 28, halign: 'center' },
     },
     didParseCell: (data) => {
       if (data.section !== 'body') return;
       const slot = slots[data.row.index];
       if (!slot) return;
-      const hour = (startHour + data.row.index) % 24;
+      const hour = (startHour + Math.floor(data.row.index / 2)) % 24;
 
       // Sleep hours: shade with light indigo
-      // Works for both normal schedules and night-shift workers
       const isSleepHour = (() => {
         if (bedHour < 0) return false;
         const wk = wakeHour >= 0 ? wakeHour : startHour;
         if (bedHour > wk) {
-          // Normal schedule: sleep is bedHour..23, 0..wakeHour
           return hour >= bedHour || hour < wk;
         }
-        // Night-shift or wrapping: sleep is bedHour..wakeHour
         return hour >= bedHour && hour < wk;
       })();
 
       if (isSleepHour && !slot.hasDrink && !slot.hasVoid) {
-        data.cell.styles.fillColor = [245, 243, 255]; // very light indigo
+        data.cell.styles.fillColor = [245, 243, 255];
         if (data.column.index === 0) {
           data.cell.styles.textColor = [130, 120, 190];
         }
@@ -400,14 +502,15 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
       // Color-code cells with actual data
       if (data.column.index === 1 && slot.hasDrink) {
         data.cell.styles.fillColor = C.inputCell;
-        data.cell.styles.textColor = [0, 100, 160]; // darker blue for contrast
+        data.cell.styles.textColor = [0, 100, 160];
       }
       if (data.column.index === 2 && slot.hasVoid) {
         data.cell.styles.fillColor = C.outputCell;
-        data.cell.styles.textColor = [140, 100, 20]; // darker amber for contrast
+        data.cell.styles.textColor = [140, 100, 20];
       }
-      if (data.column.index === 4 && slot.leak) {
-        data.cell.styles.textColor = C.leakNote;
+      if (data.column.index === 4 && slot.hasLeak) {
+        data.cell.styles.fillColor = [255, 240, 235];
+        data.cell.styles.textColor = C.leakTerracotta;
       }
 
       // Empty cells: lighter text color for the dash
@@ -537,9 +640,9 @@ function pageCombinedDiary(doc: jsPDF, state: DiaryState, useCurrentPage = false
       // Row 2: Sub-headers
       [
         'TIME',
-        `Drinks`, 'Urine\n(${u})','Sens', 'Other',
-        `Drinks`, 'Urine\n(${u})','Sens', 'Other',
-        `Drinks`, 'Urine\n(${u})','Sens', 'Other',
+        `Drinks`, 'Urine\n(${u})','Sens', 'Leak',
+        `Drinks`, 'Urine\n(${u})','Sens', 'Leak',
+        `Drinks`, 'Urine\n(${u})','Sens', 'Leak',
       ],
     ],
     body: rows,
@@ -593,6 +696,12 @@ function pageCombinedDiary(doc: jsPDF, state: DiaryState, useCurrentPage = false
       if ((col === 2 || col === 6 || col === 10) && data.cell.raw && data.cell.raw !== '') {
         data.cell.styles.fillColor = C.outputCell;
         data.cell.styles.textColor = [140, 100, 20];
+      }
+
+      // Color-code leak columns (4, 8, 12)
+      if ((col === 4 || col === 8 || col === 12) && data.cell.raw && data.cell.raw !== '') {
+        data.cell.styles.fillColor = [255, 240, 235];
+        data.cell.styles.textColor = C.leakTerracotta;
       }
 
       // Day separators: thicker left border on day start cols (1, 5, 9)
