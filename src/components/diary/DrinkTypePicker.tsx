@@ -11,7 +11,7 @@ interface DrinkTypePickerProps {
 
 export default function DrinkTypePicker({ value, onChange }: DrinkTypePickerProps) {
   return (
-    <div className="grid grid-cols-4 gap-1.5">
+    <div className="grid grid-cols-4 gap-2 mt-2">
       {DRINK_TYPES.map((drink) => {
         const selected = value === drink.value;
         return (
@@ -19,7 +19,7 @@ export default function DrinkTypePicker({ value, onChange }: DrinkTypePickerProp
             key={drink.value}
             type="button"
             onClick={() => onChange(drink.value)}
-            className={`flex flex-col items-center gap-1 py-2 px-1.5 rounded-xl
+            className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl
               transition-all active:scale-[0.95] ${
                 selected
                   ? 'bg-drink text-white ring-2 ring-drink/30 shadow-sm'
@@ -31,7 +31,7 @@ export default function DrinkTypePicker({ value, onChange }: DrinkTypePickerProp
               size={20}
               className={selected ? 'text-white' : 'text-drink'}
             />
-            <span className="text-[11px] font-bold leading-tight">{drink.label}</span>
+            <span className="text-xs font-bold leading-tight">{drink.label}</span>
           </button>
         );
       })}

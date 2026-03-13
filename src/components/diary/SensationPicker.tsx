@@ -18,7 +18,7 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
       </label>
 
       {/* Pill buttons */}
-      <div className="flex gap-1.5">
+      <div className="flex gap-2 mt-2">
         {sensations.map((s) => {
           const selected = value === s;
           return (
@@ -26,15 +26,15 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
               key={s}
               type="button"
               onClick={() => onChange(selected ? null : s)}
-              className={`flex-1 py-2.5 rounded-xl text-center transition-all
-                active:scale-[0.95] min-h-[44px] ${
+              className={`flex-1 py-3.5 rounded-xl text-center transition-all
+                active:scale-[0.95] min-h-[52px] ${
                   selected
                     ? 'bg-ipc-500/90 text-white font-bold'
                     : 'bg-white/40 text-ipc-600 font-medium border border-ipc-100/50'
                 }`}
             >
-              <span className="text-sm leading-tight block font-semibold">{s}</span>
-              <span className="text-xs leading-tight block mt-0.5">
+              <span className="text-base leading-tight block font-semibold">{s}</span>
+              <span className="text-xs leading-tight block mt-1">
                 {SENSATION_LABELS[s].short}
               </span>
             </button>

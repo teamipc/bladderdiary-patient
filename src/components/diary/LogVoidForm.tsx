@@ -234,7 +234,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
   return (
-    <div className="select-none min-h-[52vh]">
+    <div className="select-none min-h-[60vh]">
       {/* Step dots */}
       <div className="flex justify-center gap-2 mb-3">
         {[1, 2, 3].map((s) => (
@@ -286,7 +286,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
         )}
 
         {/* Active step — only one rendered at a time */}
-        <div key={step} className={`px-10 ${slideClass}`}>
+        <div key={step} className={`px-4 ${slideClass}`}>
           {step === 1 && (
             <>
               <h3 className="text-xl font-bold text-center mb-3 text-ipc-800">
