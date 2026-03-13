@@ -261,11 +261,11 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
         )}
 
         {/* Active step */}
-        <div key={step} className={`px-4 ${slideClass}`}>
+        <div key={step} className={`px-2 ${slideClass}`}>
           {/* ── Step 1: What caused the leak? ── */}
           {step === 1 && (
             <>
-              <h3 className="text-xl font-bold text-center mb-2 text-ipc-950">
+              <h3 className="text-xl font-bold text-center mb-2 text-ipc-950 px-10">
                 What caused the leak?
               </h3>
 
@@ -324,7 +324,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
           {step === 2 && (
             <div className="flex flex-col items-center pt-2">
               {/* How much? */}
-              <h3 className="text-lg font-bold text-center mb-3 text-ipc-950">
+              <h3 className="text-lg font-bold text-center mb-3 text-ipc-950 px-10">
                 How much leaked?
               </h3>
               <p className="text-xs text-ipc-400 text-center mb-2">
@@ -383,7 +383,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
 
           {/* ── Step 3: Time + Save ── */}
           {step === 3 && (
-            <div className="flex flex-col items-center pt-2">
+            <div className="flex flex-col items-center justify-center min-h-[45vh]">
               <h3 className="text-lg font-bold text-center mb-3 text-ipc-950">
                 When was this?
               </h3>

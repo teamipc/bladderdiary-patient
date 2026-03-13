@@ -275,10 +275,10 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
         )}
 
         {/* Active step */}
-        <div key={step} className={`px-4 ${slideClass}`}>
+        <div key={step} className={`px-2 ${slideClass}`}>
           {step === 1 && (
             <>
-              <h3 className="text-xl font-bold text-center mb-2 text-ipc-950">
+              <h3 className="text-xl font-bold text-center mb-2 text-ipc-950 px-10">
                 What did you drink?
               </h3>
 
@@ -354,7 +354,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
           )}
 
           {step === 2 && (
-            <div className="flex flex-col items-center pt-2">
+            <div className="flex flex-col items-center justify-center min-h-[45vh]">
               <h3 className="text-xl font-bold text-center mb-5 text-ipc-950">
                 When was this?
               </h3>

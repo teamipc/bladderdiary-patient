@@ -286,10 +286,10 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
         )}
 
         {/* Active step — only one rendered at a time */}
-        <div key={step} className={`px-4 ${slideClass}`}>
+        <div key={step} className={`px-2 ${slideClass}`}>
           {step === 1 && (
             <>
-              <h3 className="text-xl font-bold text-center mb-3 text-ipc-800">
+              <h3 className="text-xl font-bold text-center mb-3 text-ipc-800 px-10">
                 About how much?
               </h3>
 
@@ -363,7 +363,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
 
           {step === 2 && (
             <>
-              <h3 className="text-xl font-bold text-center mb-3 text-ipc-800">
+              <h3 className="text-xl font-bold text-center mb-3 text-ipc-800 px-10">
                 Anything else to note?
               </h3>
 
@@ -456,7 +456,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
           )}
 
           {step === 3 && (
-            <div className="flex flex-col items-center pt-2">
+            <div className="flex flex-col items-center justify-center min-h-[45vh]">
               <h3 className="text-xl font-bold text-center mb-5 text-ipc-800">
                 When was this?
               </h3>
