@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { format, addDays, parseISO } from 'date-fns';
 import { ChevronRight, Calendar } from 'lucide-react';
+import { track } from '@vercel/analytics';
 import Button from '@/components/ui/Button';
 
 interface OnboardingFlowProps {
@@ -31,6 +32,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const handleConfirm = () => {
     if (!isAgeValid) return;
+    track('onboarding_complete', { age: ageNum, unit: volumeUnit });
     onComplete(ageNum, startDate, volumeUnit);
   };
 
@@ -82,7 +84,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
             <div className="max-w-xs mx-auto">
               <Button
-                onClick={() => { if (isAgeValid) goForward(2); }}
+                onClick={() => { if (isAgeValid) { track('onboarding_age', { age: ageNum }); goForward(2); } }}
                 fullWidth
                 size="lg"
                 disabled={!isAgeValid}
@@ -134,7 +136,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
             <div className="space-y-3 max-w-xs mx-auto">
               <Button
-                onClick={() => goForward(3)}
+                onClick={() => { track('onboarding_unit', { unit: volumeUnit }); goForward(3); }}
                 fullWidth
                 size="lg"
               >

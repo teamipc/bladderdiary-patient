@@ -8,6 +8,7 @@ import { useDiaryStore } from '@/lib/store';
 import { Lock, PlayCircle, RotateCcw, Download, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { track } from '@vercel/analytics';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 import IpcInfoModal from '@/components/ui/IpcInfoModal';
 import { getCurrentDay } from '@/lib/utils';
@@ -52,10 +53,12 @@ function LandingContent() {
 
   const handleResume = () => {
     const currentDay = getCurrentDay(startDate);
+    track('resume_tracking', { day: currentDay });
     router.push(`/diary/day/${currentDay}`);
   };
 
   const handleStartNew = () => {
+    track('reset_diary');
     resetDiary();
     setShowResetConfirm(false);
     setShowOnboarding(false);
@@ -148,7 +151,7 @@ function LandingContent() {
 
       {/* Start button */}
       <div className="w-full animate-fade-slide-up stagger-3">
-        <Button onClick={() => setShowOnboarding(true)} fullWidth size="lg">
+        <Button onClick={() => { track('start_tracking'); setShowOnboarding(true); }} fullWidth size="lg">
           Start Tracking
         </Button>
       </div>
