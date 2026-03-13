@@ -8,7 +8,7 @@ import DrinkTypePicker from '@/components/diary/DrinkTypePicker';
 import Button from '@/components/ui/Button';
 import { VOLUME_CONFIG } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay, correctNightDate, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { DrinkType, DrinkEntry } from '@/lib/types';
 
 interface LogDrinkFormProps {
@@ -45,13 +45,14 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   };
 
   // Wrap time changes: in night view, correct the date so PM uses bedtime date, AM uses next day
+  // In day view, correct after-midnight times so they sort after wake-up
   const handleTimeChange = useCallback((newTime: string) => {
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso));
     } else {
-      setTime(newTime);
+      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate));
     }
-  }, [isNightView, prevDayBedtime]);
+  }, [isNightView, prevDayBedtime, dayNumber, startDate]);
 
   // Form state
   const [drinkType, setDrinkType] = useState<DrinkType>(editEntry?.drinkType ?? 'water');

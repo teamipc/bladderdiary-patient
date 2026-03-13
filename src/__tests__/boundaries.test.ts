@@ -213,6 +213,98 @@ describe('store: full 3-day tracking flow', () => {
 });
 
 // ──────────────────────────────────────────────
+// After-midnight events: stay on current day when no bedtime set
+// (user still awake past midnight — any schedule)
+// ──────────────────────────────────────────────
+describe('after-midnight events without bedtime (all 3 days)', () => {
+  // START_DATE = 2026-03-08 → Day 1 = Mar 8, Day 2 = Mar 9, Day 3 = Mar 10
+
+  it('Day 1: 12:30 AM on Mar 9 stays on Day 1 when no bedtime set', () => {
+    expect(getDayNumber('2026-03-09T00:30:00.000Z', START_DATE)).toBe(1);
+  });
+
+  it('Day 1: 3:00 AM on Mar 9 stays on Day 1 when no bedtime set', () => {
+    expect(getDayNumber('2026-03-09T03:00:00.000Z', START_DATE)).toBe(1);
+  });
+
+  it('Day 1: 5:59 AM on Mar 9 stays on Day 1 when no bedtime set', () => {
+    expect(getDayNumber('2026-03-09T05:59:00.000Z', START_DATE)).toBe(1);
+  });
+
+  it('Day 1: noon on Mar 9 moves to Day 2 (clearly past early-AM window)', () => {
+    expect(getDayNumber('2026-03-09T18:00:00.000Z', START_DATE)).toBe(2);
+  });
+
+  it('Day 2: 1:00 AM on Mar 10 stays on Day 2 when no Day 2 bedtime', () => {
+    const bedtimes: BedtimeEntry[] = [
+      { id: 'bt1', timestampIso: '2026-03-08T22:00:00.000Z', dayNumber: 1 },
+    ];
+    expect(getDayNumber('2026-03-10T01:00:00.000Z', START_DATE, bedtimes)).toBe(2);
+  });
+
+  it('Day 2: 4:00 AM on Mar 10 stays on Day 2 when no Day 2 bedtime', () => {
+    const bedtimes: BedtimeEntry[] = [
+      { id: 'bt1', timestampIso: '2026-03-08T22:00:00.000Z', dayNumber: 1 },
+    ];
+    expect(getDayNumber('2026-03-10T04:00:00.000Z', START_DATE, bedtimes)).toBe(2);
+  });
+
+  it('Day 3: 2:00 AM on Mar 11 stays on Day 3 when no Day 3 bedtime', () => {
+    const bedtimes: BedtimeEntry[] = [
+      { id: 'bt1', timestampIso: '2026-03-08T22:00:00.000Z', dayNumber: 1 },
+      { id: 'bt2', timestampIso: '2026-03-09T21:30:00.000Z', dayNumber: 2 },
+    ];
+    // Mar 11 = Day 3+1 date, but clamped to Day 3 first, then pull-back doesn't apply (dayNum=3 > 1 is true, but prevDay=2 has bedtime)
+    // Actually: diff = 3 → dayNum = 3 (clamped). Early AM check: prevDay=2, bedtime exists → no pullback. Stays Day 3.
+    expect(getDayNumber('2026-03-11T02:00:00.000Z', START_DATE, bedtimes)).toBe(3);
+  });
+
+  it('Day 1: 12:30 AM moves to Day 2 when Day 1 bedtime IS set', () => {
+    const bedtimes: BedtimeEntry[] = [
+      { id: 'bt1', timestampIso: '2026-03-08T22:00:00.000Z', dayNumber: 1 },
+    ];
+    // 12:30 AM on Mar 9 → dayNum = 2 by calendar. Day 1 has bedtime → no pull-back.
+    expect(getDayNumber('2026-03-09T00:30:00.000Z', START_DATE, bedtimes)).toBe(2);
+  });
+});
+
+describe('after-midnight store integration', () => {
+  it('void at 1 AM on next calendar day shows on Day 1 when no bedtime', () => {
+    const store = useDiaryStore.getState();
+    store.setWakeTime(1, '2026-03-08T21:00:00.000Z');
+    store.addVoid({
+      timestampIso: '2026-03-09T01:00:00.000Z', // 1 AM next day
+      volumeMl: 200,
+      sensation: 2,
+      leak: false,
+      note: '',
+      isFirstMorningVoid: false,
+    });
+    expect(useDiaryStore.getState().getVoidsForDay(1)).toHaveLength(1);
+    expect(useDiaryStore.getState().getVoidsForDay(2)).toHaveLength(0);
+  });
+
+  it('setting bedtime later re-attributes after-midnight void to Day 2', () => {
+    const store = useDiaryStore.getState();
+    store.setWakeTime(1, '2026-03-08T21:00:00.000Z');
+    store.addVoid({
+      timestampIso: '2026-03-09T01:00:00.000Z',
+      volumeMl: 200,
+      sensation: 2,
+      leak: false,
+      note: '',
+      isFirstMorningVoid: false,
+    });
+    // Before bedtime: on Day 1
+    expect(useDiaryStore.getState().getVoidsForDay(1)).toHaveLength(1);
+    // Set bedtime at 11 PM → void at 1 AM is after bedtime → moves to Day 2
+    store.setBedtime(1, '2026-03-08T23:00:00.000Z');
+    expect(useDiaryStore.getState().getVoidsForDay(1)).toHaveLength(0);
+    expect(useDiaryStore.getState().getVoidsForDay(2)).toHaveLength(1);
+  });
+});
+
+// ──────────────────────────────────────────────
 // Empty/edge selectors
 // ──────────────────────────────────────────────
 describe('selectors on empty store', () => {

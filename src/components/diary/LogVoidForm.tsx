@@ -8,7 +8,7 @@ import Button from '@/components/ui/Button';
 import { SENSATION_LABELS, VOLUME_CONFIG } from '@/lib/constants';
 import SensationPicker from '@/components/diary/SensationPicker';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay, correctNightDate, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { BladderSensation, VoidEntry } from '@/lib/types';
 
 interface LogVoidFormProps {
@@ -44,13 +44,14 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   };
 
   // Wrap time changes: in night view, correct the date so PM uses bedtime date, AM uses next day
+  // In day view, correct after-midnight times so they sort after wake-up
   const handleTimeChange = useCallback((newTime: string) => {
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso));
     } else {
-      setTime(newTime);
+      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate));
     }
-  }, [isNightView, prevDayBedtime]);
+  }, [isNightView, prevDayBedtime, dayNumber, startDate]);
 
   // Form state — volumes in display unit; converted to mL on save
   const [volume, setVolume] = useState(editEntry ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit) : vc.default);
