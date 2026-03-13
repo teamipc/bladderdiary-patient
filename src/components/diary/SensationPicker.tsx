@@ -33,8 +33,8 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
                     : 'bg-white/40 text-ipc-600 font-medium border border-ipc-100/50'
                 }`}
             >
-              <span className="text-[11px] leading-tight block font-semibold">{s}</span>
-              <span className="text-[9px] leading-tight block mt-0.5">
+              <span className="text-sm leading-tight block font-semibold">{s}</span>
+              <span className="text-xs leading-tight block mt-0.5">
                 {SENSATION_LABELS[s].short}
               </span>
             </button>
