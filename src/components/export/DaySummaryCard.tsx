@@ -2,17 +2,18 @@
 
 import { useDiaryStore } from '@/lib/store';
 import { getDayDate, formatDate, formatTime, mlToDisplayVolume } from '@/lib/utils';
-import { Droplets, Coffee, Moon, Sun } from 'lucide-react';
+import { Droplets, Coffee, Moon, Sun, CloudDrizzle } from 'lucide-react';
 
 interface DaySummaryCardProps {
   dayNumber: 1 | 2 | 3;
 }
 
 export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
-  const { startDate, volumeUnit, getVoidsForDay, getDrinksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
+  const { startDate, volumeUnit, getVoidsForDay, getDrinksForDay, getLeaksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
 
   const voids = getVoidsForDay(dayNumber);
   const drinks = getDrinksForDay(dayNumber);
+  const standaloneLeaks = getLeaksForDay(dayNumber);
   const bedtime = getBedtimeForDay(dayNumber);
   const wakeTime = getWakeTimeForDay(dayNumber);
 
@@ -84,7 +85,13 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
             )}
             {leaks > 0 && (
               <div className="flex items-center gap-1.5 text-danger">
-                <span className="font-medium">{leaks} leak{leaks > 1 ? 's' : ''}</span>
+                <span className="font-medium">{leaks} void leak{leaks > 1 ? 's' : ''}</span>
+              </div>
+            )}
+            {standaloneLeaks.length > 0 && (
+              <div className="flex items-center gap-1.5 text-leak">
+                <CloudDrizzle size={14} />
+                <span className="font-medium">{standaloneLeaks.length} leak{standaloneLeaks.length > 1 ? 's' : ''}</span>
               </div>
             )}
           </div>

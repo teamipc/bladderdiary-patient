@@ -29,6 +29,7 @@
   --color-void: #c4984a;
   --color-drink: #5a8ab4;
   --color-bedtime: #8a6aac;
+  --color-leak: #b85c4a;
 
   --font-sans: "Inter", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
@@ -180,6 +181,18 @@ input, select, textarea {
 .nighttime-bg .bg-white\/70 .border-ipc-100\/50 {
   border-color: rgba(99, 90, 160, 0.3) !important;
 }
+.nighttime-bg .bg-white\/70 .text-leak {
+  color: #d4917a !important;
+}
+.nighttime-bg .bg-white\/70 .bg-leak\/10 {
+  background-color: rgba(184, 92, 74, 0.15) !important;
+}
+.nighttime-bg .bg-white\/70 .border-leak\/20 {
+  border-color: rgba(184, 92, 74, 0.25) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-leak {
+  background-color: #c46a5a !important;
+}
 .nighttime-bg nav .text-ipc-600 {
   color: #b0a8d4 !important;
 }
@@ -263,6 +276,12 @@ input, select, textarea {
   animation: arrowPulse 1s ease-in-out 3;
   background-color: color-mix(in srgb, var(--color-drink) 15%, transparent) !important;
   border-color: color-mix(in srgb, var(--color-drink) 40%, transparent) !important;
+}
+
+.arrow-pulse-leak {
+  animation: arrowPulse 1s ease-in-out 3;
+  background-color: color-mix(in srgb, var(--color-leak) 15%, transparent) !important;
+  border-color: color-mix(in srgb, var(--color-leak) 40%, transparent) !important;
 }
 
 /* Note expand/collapse */

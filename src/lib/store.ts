@@ -13,6 +13,7 @@ import { generateId, getDayNumber } from './utils';
 import type {
   VoidEntry,
   DrinkEntry,
+  LeakEntry,
   BedtimeEntry,
   WakeTimeEntry,
   DiaryState,
@@ -83,6 +84,11 @@ interface DiaryStore extends DiaryState {
   updateDrink: (id: string, updates: Partial<DrinkEntry>) => void;
   removeDrink: (id: string) => void;
 
+  // Leak actions
+  addLeak: (l: Omit<LeakEntry, 'id'>) => void;
+  updateLeak: (id: string, updates: Partial<LeakEntry>) => void;
+  removeLeak: (id: string) => void;
+
   // Bedtime actions
   setBedtime: (dayNumber: 1 | 2 | 3, timestampIso: string) => void;
   removeBedtime: (dayNumber: 1 | 2 | 3) => void;
@@ -94,6 +100,7 @@ interface DiaryStore extends DiaryState {
   // Selectors
   getVoidsForDay: (dayNumber: number) => VoidEntry[];
   getDrinksForDay: (dayNumber: number) => DrinkEntry[];
+  getLeaksForDay: (dayNumber: number) => LeakEntry[];
   getBedtimeForDay: (dayNumber: number) => BedtimeEntry | undefined;
   getWakeTimeForDay: (dayNumber: number) => WakeTimeEntry | undefined;
   hasData: () => boolean;
@@ -107,6 +114,7 @@ const initialState: DiaryState = {
   age: null,
   voids: [],
   drinks: [],
+  leaks: [],
   bedtimes: [],
   wakeTimes: [],
   volumeUnit: 'mL',
@@ -187,6 +195,25 @@ export const useDiaryStore = create<DiaryStore>()(
           drinks: s.drinks.filter((d) => d.id !== id),
         })),
 
+      // ── Leaks ──
+      addLeak: (l) =>
+        set((s) => {
+          const newMinute = l.timestampIso.slice(0, 16);
+          const hasDuplicate = (s.leaks ?? []).some(
+            (existing) => existing.timestampIso.slice(0, 16) === newMinute,
+          );
+          if (hasDuplicate) return {};
+          return { leaks: [...(s.leaks ?? []), { ...l, id: generateId() }] };
+        }),
+      updateLeak: (id, updates) =>
+        set((s) => ({
+          leaks: (s.leaks ?? []).map((l) => (l.id === id ? { ...l, ...updates } : l)),
+        })),
+      removeLeak: (id) =>
+        set((s) => ({
+          leaks: (s.leaks ?? []).filter((l) => l.id !== id),
+        })),
+
       // ── Bedtimes ──
       setBedtime: (dayNumber, timestampIso) =>
         set((s) => {
@@ -227,6 +254,12 @@ export const useDiaryStore = create<DiaryStore>()(
           .filter((d) => getDayNumber(d.timestampIso, s.startDate, s.bedtimes) === dayNumber)
           .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
       },
+      getLeaksForDay: (dayNumber) => {
+        const s = get();
+        return (s.leaks ?? [])
+          .filter((l) => getDayNumber(l.timestampIso, s.startDate, s.bedtimes) === dayNumber)
+          .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
+      },
       getBedtimeForDay: (dayNumber) => {
         const s = get();
         return s.bedtimes.find((b) => b.dayNumber === dayNumber);
@@ -237,7 +270,7 @@ export const useDiaryStore = create<DiaryStore>()(
       },
       hasData: () => {
         const s = get();
-        return s.voids.length > 0 || s.drinks.length > 0 || s.bedtimes.length > 0;
+        return s.voids.length > 0 || s.drinks.length > 0 || (s.leaks ?? []).length > 0 || s.bedtimes.length > 0;
       },
 
       // ── Reset ──

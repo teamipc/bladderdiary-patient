@@ -7,7 +7,7 @@ interface TimePickerProps {
   value: string; // ISO string
   onChange: (isoString: string) => void;
   label?: string;
-  variant?: 'default' | 'drink' | 'bedtime';
+  variant?: 'default' | 'drink' | 'bedtime' | 'leak';
 }
 
 /** Snap a Date to the nearest 15-minute mark */
@@ -26,7 +26,8 @@ function snapTo15(date: Date): Date {
 export default function TimePicker({ value, onChange, label, variant = 'default' }: TimePickerProps) {
   const isDrink = variant === 'drink';
   const isBedtime = variant === 'bedtime';
-  const hasAccent = isDrink || isBedtime;
+  const isLeak = variant === 'leak';
+  const hasAccent = isDrink || isBedtime || isLeak;
   const date = parseISO(value);
   const timeValue = format(date, 'HH:mm');
 
@@ -65,7 +66,7 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
           className={`w-10 h-10 flex items-center justify-center rounded-xl
             bg-white/50 border active:scale-[0.9] transition-all shrink-0 ${
               hasAccent
-                ? `${isBedtime ? 'border-bedtime/30 text-bedtime active:bg-bedtime/10' : 'border-drink/30 text-drink active:bg-drink/10'}`
+                ? `${isLeak ? 'border-leak/30 text-leak active:bg-leak/10' : isBedtime ? 'border-bedtime/30 text-bedtime active:bg-bedtime/10' : 'border-drink/30 text-drink active:bg-drink/10'}`
                 : 'border-ipc-200/50 text-ipc-500 active:bg-ipc-100/50'
             }`}
           aria-label="Subtract 15 minutes"
@@ -81,7 +82,7 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
           className={`w-44 px-3 py-2.5 text-base font-bold rounded-xl
             border-2 outline-none transition-all bg-white/50 backdrop-blur-sm text-ipc-950 text-center ${
               hasAccent
-                ? `${isBedtime ? 'border-bedtime/30 focus:border-bedtime/60 focus:ring-2 focus:ring-bedtime/20' : 'border-drink/30 focus:border-drink/60 focus:ring-2 focus:ring-drink/20'}`
+                ? `${isLeak ? 'border-leak/30 focus:border-leak/60 focus:ring-2 focus:ring-leak/20' : isBedtime ? 'border-bedtime/30 focus:border-bedtime/60 focus:ring-2 focus:ring-bedtime/20' : 'border-drink/30 focus:border-drink/60 focus:ring-2 focus:ring-drink/20'}`
                 : 'border-ipc-200/50 focus:border-ipc-500/60 focus:ring-2 focus:ring-ipc-200/30'
             }`}
         />
@@ -93,7 +94,7 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
           className={`w-10 h-10 flex items-center justify-center rounded-xl
             bg-white/50 border active:scale-[0.9] transition-all shrink-0 ${
               hasAccent
-                ? `${isBedtime ? 'border-bedtime/30 text-bedtime active:bg-bedtime/10' : 'border-drink/30 text-drink active:bg-drink/10'}`
+                ? `${isLeak ? 'border-leak/30 text-leak active:bg-leak/10' : isBedtime ? 'border-bedtime/30 text-bedtime active:bg-bedtime/10' : 'border-drink/30 text-drink active:bg-drink/10'}`
                 : 'border-ipc-200/50 text-ipc-500 active:bg-ipc-100/50'
             }`}
           aria-label="Add 15 minutes"
@@ -108,7 +109,7 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
           className={`px-3.5 h-10 rounded-xl bg-white/50 border
             text-sm font-semibold active:scale-[0.95] transition-all backdrop-blur-sm shrink-0 ${
               hasAccent
-                ? `${isBedtime ? 'border-bedtime/30 text-bedtime hover:bg-bedtime/10' : 'border-drink/30 text-drink hover:bg-drink/10'}`
+                ? `${isLeak ? 'border-leak/30 text-leak hover:bg-leak/10' : isBedtime ? 'border-bedtime/30 text-bedtime hover:bg-bedtime/10' : 'border-drink/30 text-drink hover:bg-drink/10'}`
                 : 'border-ipc-200/50 text-ipc-500 hover:bg-white/60'
             }`}
         >

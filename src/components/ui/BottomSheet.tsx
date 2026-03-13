@@ -8,7 +8,7 @@ interface BottomSheetProps {
   onClose: () => void;
   title?: string;
   noScroll?: boolean;
-  variant?: 'default' | 'drink' | 'bedtime';
+  variant?: 'default' | 'drink' | 'bedtime' | 'leak';
   children: React.ReactNode;
 }
 
@@ -54,7 +54,7 @@ export default function BottomSheet({ open, onClose, title, noScroll, variant = 
         {/* Handle bar */}
         <div className="flex justify-center pt-3 pb-1">
           <div className={`w-10 h-1 rounded-full ${
-            variant === 'drink' ? 'bg-drink/40' : variant === 'bedtime' ? 'bg-bedtime/40' : 'bg-ipc-300/40'
+            variant === 'drink' ? 'bg-drink/40' : variant === 'leak' ? 'bg-leak/40' : variant === 'bedtime' ? 'bg-bedtime/40' : 'bg-ipc-300/40'
           }`} />
         </div>
 

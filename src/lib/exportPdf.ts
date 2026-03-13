@@ -15,7 +15,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format, parseISO } from 'date-fns';
 import { getDayNumber, getDayDate, formatTime, mlToDisplayVolume } from './utils';
-import { getDrinkLabel, SENSATION_LABELS, PREMIUM_FEATURES_ENABLED } from './constants';
+import { getDrinkLabel, SENSATION_LABELS, PREMIUM_FEATURES_ENABLED, getLeakTriggerLabel } from './constants';
 import { computeMetrics, type DiaryMetrics, type DayMetrics } from './calculations';
 import { IPC_LOGO_BASE64, IPC_LOGO_ASPECT } from './ipcLogoBase64';
 import type { DiaryState } from './types';
@@ -40,6 +40,7 @@ const C = {
   wakeRow:    [237, 233, 254] as [number, number, number],  // light indigo
   bedRow:     [237, 233, 254] as [number, number, number],
   leakNote:   [180, 130, 90]  as [number, number, number],  // soft warm brown (not alarming)
+  leakTerracotta: [184, 92, 74] as [number, number, number], // standalone leak events
   white:      [255, 255, 255] as [number, number, number],
 
   // Chart palette
@@ -177,7 +178,8 @@ function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetric
         [`Total Intake (${u})`, '\u2014', '\u2014', fmtVol(metrics.totalFluidIntakeMl)],
         [`Total Output (${u})`, '\u2014', '\u2014', fmtVol(metrics.totalVoidVolumeMl)],
         ['Void Count', '\u2014', '\u2014', fmtV(metrics.totalVoidCount)],
-        ['Leak Count', '\u2014', '\u2014', fmtV(metrics.totalLeaks)],
+        ['Void Leak Count', '\u2014', '\u2014', fmtV(metrics.totalLeaks)],
+        ['Standalone Leaks', '\u2014', '\u2014', fmtV(metrics.totalStandaloneLeaks)],
         ['Continence', '\u2014', '\u2014', metrics.isContinent ? 'Continent' : 'Incontinent'],
       ],
       margin: { left: MARGIN, right: MARGIN },
@@ -201,7 +203,8 @@ function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetric
       [`Void Volume (${u})`,  ...metrics.dayMetrics.map((d) => fmtVol(d.totalVoidVolumeMl))],
       ['Void Count',        ...metrics.dayMetrics.map((d) => fmtV(d.voidCount))],
       ['Drink Count',       ...metrics.dayMetrics.map((d) => fmtV(d.drinkCount))],
-      ['Leaks',             ...metrics.dayMetrics.map((d) => fmtV(d.leakCount))],
+      ['Void Leaks',        ...metrics.dayMetrics.map((d) => fmtV(d.leakCount))],
+      ['Standalone Leaks',  ...metrics.dayMetrics.map((d) => fmtV(d.standaloneLeakCount))],
       ['Wake Time',         ...metrics.dayMetrics.map((d) => d.wakeTimeIso ? formatTime(d.wakeTimeIso) : '\u2014')],
       ['Bedtime',           ...metrics.dayMetrics.map((d) => d.bedtimeIso ? formatTime(d.bedtimeIso) : '\u2014')],
     ],
@@ -235,6 +238,10 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot
 
   const dayDrinks = state.drinks
     .filter((d) => getDayNumber(d.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
+
+  const dayLeaks = (state.leaks ?? [])
+    .filter((l) => getDayNumber(l.timestampIso, state.startDate, state.bedtimes) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 
   const bedtime = state.bedtimes.find((b) => b.dayNumber === dayNum);
@@ -275,7 +282,15 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot
       .join('\n');
 
     const urgText = hourVoids.map((v) => v.sensation !== null ? `${v.sensation}` : '-').join('\n');
-    const leakText = hourVoids.some((v) => v.leak) ? 'Yes' : '';
+
+    // Standalone leaks in this hour
+    const hourLeaks = dayLeaks.filter((l) => parseISO(l.timestampIso).getHours() === hour);
+    const leakParts: string[] = [];
+    if (hourVoids.some((v) => v.leak)) leakParts.push('Yes');
+    for (const l of hourLeaks) {
+      leakParts.push(getLeakTriggerLabel(l.trigger));
+    }
+    const leakText = leakParts.join('\n');
 
     slots.push({
       label: `${hourStr}\n${ampm}`,
@@ -427,7 +442,10 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...C.dark);
-  const totText = `Intake: ${dv(dm.totalFluidIntakeMl, state).toLocaleString()} ${state.volumeUnit}    Output: ${dv(dm.totalVoidVolumeMl, state).toLocaleString()} ${state.volumeUnit} (${dm.voidCount} voids)    Leaks: ${dm.leakCount}`;
+  const leakSummary = dm.standaloneLeakCount > 0
+    ? `Leaks: ${dm.leakCount} void + ${dm.standaloneLeakCount} standalone`
+    : `Leaks: ${dm.leakCount}`;
+  const totText = `Intake: ${dv(dm.totalFluidIntakeMl, state).toLocaleString()} ${state.volumeUnit}    Output: ${dv(dm.totalVoidVolumeMl, state).toLocaleString()} ${state.volumeUnit} (${dm.voidCount} voids)    ${leakSummary}`;
   doc.text(totText, PAGE_W / 2, totY + 5, { align: 'center' });
   doc.setFont('helvetica', 'normal');
 }
@@ -482,9 +500,9 @@ function pageCombinedDiary(doc: jsPDF, state: DiaryState, useCurrentPage = false
       const voids = slot ? slot.voids : '';
       // Sensation
       const sens = slot ? slot.urgency : '';
-      // Other: leak + notes
+      // Other: leak + notes (includes standalone leaks from buildHourSlots)
       const other: string[] = [];
-      if (slot?.leak) other.push('Leak');
+      if (slot?.leak) other.push(slot.leak);
       row.push(drinks || '', voids || '', sens || '', other.join(', '));
     }
 
@@ -852,8 +870,40 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   doc.circle(chartX + 78, leg2Y + 1, 2, 'S');
   doc.setFontSize(5.5);
   doc.setTextColor(...C.dark);
-  doc.text('= Leak', chartX + 81, leg2Y + 2);
+  doc.text('= Void leak', chartX + 81, leg2Y + 2);
   doc.setLineWidth(0.2);
+
+  // Standalone leak markers on chart (terracotta diamonds at bottom)
+  const standaloneLeaks = (state.leaks ?? []);
+  if (standaloneLeaks.length > 0) {
+    standaloneLeaks.forEach((l) => {
+      const dt = parseISO(l.timestampIso);
+      const hourOfDay = dt.getHours() + dt.getMinutes() / 60;
+      const shifted = hourOfDay >= 6 ? hourOfDay - 6 : hourOfDay + 18;
+      const lx = chartX + (shifted / 24) * chartW;
+      const ly = chart2Top + chart2H - 2; // Near bottom of chart
+
+      // Diamond marker
+      doc.setFillColor(...C.leakTerracotta);
+      doc.setDrawColor(...C.leakTerracotta);
+      doc.setLineWidth(0.3);
+      const size = 1.8;
+      // Draw diamond as polygon path
+      doc.lines(
+        [[size, -size], [size, size], [-size, size], [-size, -size]],
+        lx - size, ly,
+        [1, 1],
+        'F',
+      );
+    });
+
+    // Standalone leak legend entry
+    doc.setFillColor(...C.leakTerracotta);
+    doc.rect(chartX + 95, leg2Y - 0.5, 3, 3, 'F');
+    doc.setFontSize(5.5);
+    doc.setTextColor(...C.dark);
+    doc.text('= Standalone leak', chartX + 99.5, leg2Y + 2);
+  }
 
   // ── Chart 3: Urgency Distribution (bottom) ──
   const chart3Y = leg2Y + 10;
@@ -954,6 +1004,7 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
       ['total_output_ml', metrics.totalVoidVolumeMl.toString()],
       ['total_voids', metrics.totalVoidCount.toString()],
       ['total_leaks', metrics.totalLeaks.toString()],
+      ['total_standalone_leaks', metrics.totalStandaloneLeaks.toString()],
       ['continent', metrics.isContinent ? 'true' : 'false'],
       ['24hv_period1_ml', metrics.periods[0]?.twentyFourHV.toString() ?? ''],
       ['npi_period1_pct', metrics.periods[0]?.nPi?.toFixed(1) ?? ''],
@@ -1018,6 +1069,19 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
       '',
       '',
       d.drinkType,
+    ]);
+  }
+  for (const l of (state.leaks ?? [])) {
+    const day = getDayNumber(l.timestampIso, state.startDate, state.bedtimes);
+    rows.push([
+      'leak',
+      l.timestampIso,
+      day.toString(),
+      '',
+      '',
+      '',
+      l.urgencyBeforeLeak === true ? 'Y' : l.urgencyBeforeLeak === false ? 'N' : '',
+      `${l.trigger}${l.amount ? ' ' + l.amount : ''}`,
     ]);
   }
   for (const b of state.bedtimes) {

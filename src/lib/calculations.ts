@@ -14,7 +14,7 @@
  */
 
 import { getDayNumber } from './utils';
-import type { DiaryState, VoidEntry, BedtimeEntry, WakeTimeEntry } from './types';
+import type { DiaryState, VoidEntry, LeakEntry, BedtimeEntry, WakeTimeEntry } from './types';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -26,7 +26,8 @@ export interface DayMetrics {
   totalVoidVolumeMl: number;
   voidCount: number;
   drinkCount: number;
-  leakCount: number;
+  leakCount: number;           // void-associated leaks
+  standaloneLeakCount: number; // standalone leak events
   wakeTimeIso?: string;
   bedtimeIso?: string;
 }
@@ -56,7 +57,8 @@ export interface DiaryMetrics {
   totalFluidIntakeMl: number;
   totalVoidVolumeMl: number;
   totalVoidCount: number;
-  totalLeaks: number;
+  totalLeaks: number;           // void-associated leaks
+  totalStandaloneLeaks: number; // standalone leak events
   isContinent: boolean;
   age: number | null;
   startDate: string;
@@ -92,6 +94,13 @@ function voidsForDay(state: DiaryState, day: number): VoidEntry[] {
 function drinksForDay(state: DiaryState, day: number) {
   return state.drinks
     .filter((d) => getDayNumber(d.timestampIso, state.startDate, state.bedtimes) === day)
+    .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
+}
+
+/** Get standalone leaks for a specific diary day (bedtime-aware). */
+function leaksForDay(state: DiaryState, day: number): LeakEntry[] {
+  return (state.leaks ?? [])
+    .filter((l) => getDayNumber(l.timestampIso, state.startDate, state.bedtimes) === day)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 }
 
@@ -226,6 +235,7 @@ function calcMVV(state: DiaryState): number {
 function calcDayMetrics(state: DiaryState, day: 1 | 2 | 3): DayMetrics {
   const voids = voidsForDay(state, day);
   const drinks = drinksForDay(state, day);
+  const leaks = leaksForDay(state, day);
   const bedtime = bedtimeFor(state, day);
   const wake = wakeFor(state, day);
 
@@ -236,6 +246,7 @@ function calcDayMetrics(state: DiaryState, day: 1 | 2 | 3): DayMetrics {
     voidCount: voids.reduce((count, v) => count + 1 + (v.doubleVoidMl ? 1 : 0), 0),
     drinkCount: drinks.length,
     leakCount: voids.filter((v) => v.leak).length,
+    standaloneLeakCount: leaks.length,
     wakeTimeIso: wake?.timestampIso,
     bedtimeIso: bedtime?.timestampIso,
   };
@@ -287,6 +298,7 @@ export function computeMetrics(state: DiaryState): DiaryMetrics {
   const totalVoidVolumeMl = day1.totalVoidVolumeMl + day2.totalVoidVolumeMl + day3.totalVoidVolumeMl;
   const totalVoidCount = day1.voidCount + day2.voidCount + day3.voidCount;
   const totalLeaks = day1.leakCount + day2.leakCount + day3.leakCount;
+  const totalStandaloneLeaks = day1.standaloneLeakCount + day2.standaloneLeakCount + day3.standaloneLeakCount;
 
   return {
     periods,
@@ -297,7 +309,8 @@ export function computeMetrics(state: DiaryState): DiaryMetrics {
     totalVoidVolumeMl,
     totalVoidCount,
     totalLeaks,
-    isContinent: totalLeaks === 0,
+    totalStandaloneLeaks,
+    isContinent: totalLeaks === 0 && totalStandaloneLeaks === 0,
     age: state.age,
     startDate: state.startDate,
   };

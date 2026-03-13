@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { Plus, Droplets, Coffee, X } from 'lucide-react';
+import { Plus, Droplets, Coffee, CloudDrizzle, X } from 'lucide-react';
 
-type LogAction = 'void' | 'drink' | 'bedtime';
+type LogAction = 'void' | 'drink' | 'leak' | 'bedtime';
 
 interface QuickLogFABProps {
   onAction: (action: LogAction) => void;
@@ -65,6 +65,18 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
               <span className="text-base font-semibold">Drink</span>
               <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                 <Coffee size={20} />
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleAction('leak')}
+              className="flex items-center justify-between gap-3 min-w-[8rem] pl-4 pr-3 py-2.5 rounded-full bg-leak
+                text-white shadow-lg active:scale-[0.95] transition-transform"
+            >
+              <span className="text-base font-semibold">Leak</span>
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                <CloudDrizzle size={20} />
               </div>
             </button>
 
