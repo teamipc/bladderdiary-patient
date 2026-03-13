@@ -223,7 +223,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
   return (
-    <div className="select-none min-h-[60vh]">
+    <div className="select-none min-h-[70vh]">
       {/* Step dots — blue theme */}
       <div className="flex justify-center gap-2 mb-3">
         {[1, 2].map((s) => (
