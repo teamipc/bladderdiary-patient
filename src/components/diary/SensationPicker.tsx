@@ -13,7 +13,7 @@ const sensations: BladderSensation[] = [0, 1, 2, 3, 4];
 export default function SensationPicker({ value, onChange }: SensationPickerProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-base font-medium text-ipc-800">
+      <label className="block text-base font-medium text-ipc-800 px-10 text-center">
         Bladder sensation
       </label>
 
