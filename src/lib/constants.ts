@@ -64,15 +64,15 @@ export type LeakIconName =
   | 'MoreHorizontal'
   | 'HelpCircle';
 
-export const LEAK_TRIGGERS: readonly { value: LeakTrigger; label: string; icon: LeakIconName }[] = [
-  { value: 'cough', label: 'Coughing', icon: 'Wind' },
-  { value: 'sneeze', label: 'Sneezing', icon: 'Sparkles' },
-  { value: 'laugh', label: 'Laughing', icon: 'Smile' },
-  { value: 'lifting', label: 'Lifting', icon: 'Dumbbell' },
-  { value: 'exercise', label: 'Exercise', icon: 'Activity' },
-  { value: 'toilet_way', label: 'On the way', icon: 'Footprints' },
-  { value: 'other', label: 'Other', icon: 'MoreHorizontal' },
-  { value: 'not_sure', label: 'Not sure', icon: 'HelpCircle' },
+export const LEAK_TRIGGERS: readonly { value: LeakTrigger; label: string; icon: LeakIconName; description: string }[] = [
+  { value: 'cough', label: 'Coughing', icon: 'Wind', description: 'It happened when I coughed' },
+  { value: 'sneeze', label: 'Sneezing', icon: 'Sparkles', description: 'It happened when I sneezed' },
+  { value: 'laugh', label: 'Laughing', icon: 'Smile', description: 'It happened when I laughed' },
+  { value: 'lifting', label: 'Lifting', icon: 'Dumbbell', description: 'It happened when I lifted something' },
+  { value: 'exercise', label: 'Exercise', icon: 'Activity', description: 'It happened during exercise' },
+  { value: 'toilet_way', label: 'On the way', icon: 'Footprints', description: 'I couldn\'t quite make it to the toilet' },
+  { value: 'other', label: 'Other', icon: 'MoreHorizontal', description: 'Something else caused it' },
+  { value: 'not_sure', label: 'Not sure', icon: 'HelpCircle', description: 'I\'m not sure what caused it' },
 ] as const;
 
 export const LEAK_AMOUNT_OPTIONS: readonly { value: LeakAmount; label: string }[] = [
