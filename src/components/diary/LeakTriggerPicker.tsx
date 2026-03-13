@@ -23,7 +23,7 @@ export default function LeakTriggerPicker({ value, onChange }: LeakTriggerPicker
 
   return (
     <div>
-      <div className="grid grid-cols-4 gap-2 mt-2">
+      <div className="grid grid-cols-4 [grid-auto-rows:1fr] gap-2 mt-6">
         {LEAK_TRIGGERS.map((t) => {
           const selected = value === t.value;
           const Icon = ICON_MAP[t.icon];
@@ -32,7 +32,7 @@ export default function LeakTriggerPicker({ value, onChange }: LeakTriggerPicker
               key={t.value}
               type="button"
               onClick={() => onChange(selected ? null : t.value)}
-              className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl
+              className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl min-h-[76px]
                 transition-all active:scale-[0.95] ${
                   selected
                     ? 'bg-leak text-white ring-2 ring-leak/30 shadow-sm'
