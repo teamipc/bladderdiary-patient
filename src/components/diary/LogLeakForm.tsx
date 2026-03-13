@@ -18,7 +18,7 @@ interface LogLeakFormProps {
   isNightView?: boolean;
 }
 
-const TOTAL_STEPS = 2;
+const TOTAL_STEPS = 3;
 
 export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogLeakFormProps) {
   const { addLeak, updateLeak, getBedtimeForDay, getWakeTimeForDay, startDate } = useDiaryStore();
@@ -122,18 +122,19 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     setStep(clamped);
   }, [cancelAutoAdvance, step]);
 
-  const handleTriggerChange = useCallback((t: LeakTrigger) => {
+  const handleTriggerChange = useCallback((t: LeakTrigger | null) => {
     setTrigger(t);
-    // Auto-advance after 2.5s if not editing notes
-    if (!noteOpen) {
+    // Auto-advance after 2.5s if a trigger was selected (not deselected) and not editing notes
+    if (t !== null && !noteOpen) {
       scheduleAutoAdvance(2, 2500);
+    } else {
+      cancelAutoAdvance();
     }
-  }, [noteOpen, scheduleAutoAdvance]);
+  }, [noteOpen, scheduleAutoAdvance, cancelAutoAdvance]);
 
   const handleAmountChange = useCallback((a: LeakAmount) => {
-    cancelAutoAdvance();
     setAmount(prev => prev === a ? null : a);
-  }, [cancelAutoAdvance]);
+  }, []);
 
   const handleNoteToggle = useCallback(() => {
     if (!noteOpen) {
@@ -210,7 +211,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     <div className="select-none min-h-[52vh]">
       {/* Step dots — terracotta theme */}
       <div className="flex justify-center gap-2 mb-3">
-        {[1, 2].map((s) => (
+        {[1, 2, 3].map((s) => (
           <button
             key={s}
             type="button"
@@ -260,6 +261,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
 
         {/* Active step */}
         <div key={step} className={`px-10 ${slideClass}`}>
+          {/* ── Step 1: What caused the leak? ── */}
           {step === 1 && (
             <>
               <h3 className="text-xl font-bold text-center mb-2 text-ipc-950">
@@ -267,32 +269,6 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               </h3>
 
               <LeakTriggerPicker value={trigger} onChange={handleTriggerChange} />
-
-              {/* Amount pills — optional */}
-              <div className="mt-3">
-                <p className="text-xs text-ipc-400 text-center mb-1.5">
-                  How much? (optional)
-                </p>
-                <div className="flex justify-center gap-1.5">
-                  {LEAK_AMOUNT_OPTIONS.map((a) => {
-                    const selected = amount === a.value;
-                    return (
-                      <button
-                        key={a.value}
-                        type="button"
-                        onClick={() => handleAmountChange(a.value)}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-[0.95] ${
-                          selected
-                            ? 'bg-leak text-white ring-1 ring-leak/30'
-                            : 'bg-white/40 text-ipc-600 border border-ipc-200/40'
-                        }`}
-                      >
-                        {a.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
 
               {/* Note toggle — only for "other" trigger */}
               {trigger === 'other' && (
@@ -343,13 +319,41 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
             </>
           )}
 
+          {/* ── Step 2: How much + Urgency ── */}
           {step === 2 && (
             <div className="flex flex-col items-center pt-2">
+              {/* How much? */}
+              <h3 className="text-lg font-bold text-center mb-3 text-ipc-950">
+                How much leaked?
+              </h3>
+              <p className="text-xs text-ipc-400 text-center mb-2">
+                optional — tap to select, tap again to clear
+              </p>
+              <div className="flex justify-center gap-2 mb-6">
+                {LEAK_AMOUNT_OPTIONS.map((a) => {
+                  const selected = amount === a.value;
+                  return (
+                    <button
+                      key={a.value}
+                      type="button"
+                      onClick={() => handleAmountChange(a.value)}
+                      className={`px-5 py-2.5 rounded-xl text-base font-semibold transition-all active:scale-[0.95] min-h-[44px] ${
+                        selected
+                          ? 'bg-leak text-white ring-2 ring-leak/30'
+                          : 'bg-white/40 text-ipc-600 border border-ipc-200/40'
+                      }`}
+                    >
+                      {a.label}
+                    </button>
+                  );
+                })}
+              </div>
+
               {/* Urgency before leak */}
               <h3 className="text-lg font-bold text-center mb-3 text-ipc-950">
                 Urgency before the leak?
               </h3>
-              <div className="flex gap-2 mb-5">
+              <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setUrgencyBeforeLeak(true)}
@@ -373,8 +377,12 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                   No
                 </button>
               </div>
+            </div>
+          )}
 
-              {/* Time picker */}
+          {/* ── Step 3: Time + Save ── */}
+          {step === 3 && (
+            <div className="flex flex-col items-center pt-2">
               <h3 className="text-lg font-bold text-center mb-3 text-ipc-950">
                 When was this?
               </h3>
