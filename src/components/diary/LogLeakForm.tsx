@@ -209,7 +209,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
   return (
-    <div className="select-none min-h-[52vh]">
+    <div className="select-none min-h-[60vh]">
       {/* Step dots — terracotta theme */}
       <div className="flex justify-center gap-2 mb-3">
         {[1, 2, 3].map((s) => (
@@ -261,7 +261,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
         )}
 
         {/* Active step */}
-        <div key={step} className={`px-10 ${slideClass}`}>
+        <div key={step} className={`px-4 ${slideClass}`}>
           {/* ── Step 1: What caused the leak? ── */}
           {step === 1 && (
             <>

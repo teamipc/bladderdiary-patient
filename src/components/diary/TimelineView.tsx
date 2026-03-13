@@ -157,9 +157,13 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
       // Wake time shows in both night view (marks end of night) and day view (marks start of day)
       ...(wakeTime ? [{ kind: 'wakeup' as const, entry: wakeTime }] : []),
     ];
-    return all.sort((a, b) =>
-      a.entry.timestampIso.localeCompare(b.entry.timestampIso),
-    );
+    // Sort priority: wakeup first, bedtime last at same timestamp
+    const kindOrder = (k: string) =>
+      k === 'wakeup' ? 0 : k === 'bedtime' ? 2 : 1;
+    return all.sort((a, b) => {
+      const cmp = a.entry.timestampIso.localeCompare(b.entry.timestampIso);
+      return cmp !== 0 ? cmp : kindOrder(a.kind) - kindOrder(b.kind);
+    });
   }, [voids, drinks, leaks, bedtime, wakeTime, isNighttime, prevDayBedtime]);
 
   const handleInsertVoid = (gapIdx: number) => {
