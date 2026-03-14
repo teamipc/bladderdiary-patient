@@ -1,7 +1,7 @@
 'use client';
 
 import { Droplets, Moon, Trash2, Pencil, Sun, Wind, Sparkles, Smile, Dumbbell, Activity, Footprints, MoreHorizontal, HelpCircle, CloudDrizzle } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { formatTime, mlToDisplayVolume } from '@/lib/utils';
 import { getDrinkIconName, getLeakTriggerIconName } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
@@ -28,6 +28,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
   const tl = useTranslations('leakTriggers');
   const tla = useTranslations('leakAmounts');
   const ts = useTranslations('sensations');
+  const locale = useLocale();
   const fmt = (ml: number) => mlToDisplayVolume(ml, volumeUnit);
 
   if (type === 'void') {
@@ -54,7 +55,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold text-ipc-950">
-              {formatTime(entry.timestampIso)}
+              {formatTime(entry.timestampIso, locale)}
             </span>
             {entry.isFirstMorningVoid && (
               <span className="text-xs bg-warning/10 text-warning px-2 py-0.5 rounded-full font-medium">
@@ -124,7 +125,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold text-ipc-950">
-              {formatTime(entry.timestampIso)}
+              {formatTime(entry.timestampIso, locale)}
             </span>
             <span className="text-xs bg-drink/10 text-drink px-2 py-0.5 rounded-full font-medium">
               {td(entry.drinkType)}
@@ -179,7 +180,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-base font-semibold text-ipc-950">
-              {formatTime(entry.timestampIso)}
+              {formatTime(entry.timestampIso, locale)}
             </span>
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
               nightMode ? 'bg-indigo-400/15 text-indigo-300' : 'bg-leak/10 text-leak'
@@ -249,7 +250,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
         <div className="flex-1 min-w-0">
           <span className="text-base font-semibold text-ipc-950">{t('wakeUp')}</span>
           <div className="mt-0.5">
-            <span className="text-sm text-ipc-600">{formatTime(entry.timestampIso)}</span>
+            <span className="text-sm text-ipc-600">{formatTime(entry.timestampIso, locale)}</span>
           </div>
         </div>
 
@@ -277,7 +278,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
       <div className="flex-1 min-w-0">
         <span className="text-base font-semibold text-bedtime">{t('bedtime')}</span>
         <div className="mt-0.5">
-          <span className="text-sm font-medium text-bedtime">{formatTime(entry.timestampIso)}</span>
+          <span className="text-sm font-medium text-bedtime">{formatTime(entry.timestampIso, locale)}</span>
         </div>
       </div>
 

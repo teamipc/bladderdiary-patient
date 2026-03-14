@@ -78,14 +78,15 @@ describe('formatDate', () => {
     expect(result).toContain('2026');
   });
 
-  it('includes day of week abbreviation', () => {
+  it('includes month name', () => {
     const result = formatDate('2026-03-08T12:00:00');
-    expect(result).toContain('Sun');
+    expect(result).toContain('March');
   });
 
-  it('includes month abbreviation', () => {
-    const result = formatDate('2026-03-08T12:00:00');
-    expect(result).toContain('Mar');
+  it('formats French date with correct order', () => {
+    const result = formatDate('2026-03-08T12:00:00', 'fr');
+    expect(result).toContain('mars');
+    expect(result).toContain('2026');
   });
 });
 

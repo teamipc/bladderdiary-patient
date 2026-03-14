@@ -41,7 +41,7 @@
     "areYouSure": "¿Está seguro?",
     "resetWarning": "Esto eliminará todos sus datos actuales. Asegúrese de haber exportado sus datos primero.",
     "yesStartFresh": "Sí, empezar de nuevo",
-    "heroTitle": "Registre sus bebidas y hábitos de baño en 3 días",
+    "heroTitle": "Registre sus hábitos en 3 días",
     "heroSubtitle": "Anote cuándo bebe, cuándo orina, y vea patrones útiles. Todo en 3 días.",
     "startTracking": "Comenzar seguimiento",
     "pwaPromptAndroid": "¿Acceso rápido? Puede agregar My Flow Check a su pantalla de inicio — no necesita tienda de aplicaciones. O simplemente siga usándolo en su navegador.",
@@ -49,7 +49,7 @@
     "pwaPromptTitle": "¿Acceso rápido?",
     "pwaStep1": "Toque <dots></dots> abajo a la derecha",
     "pwaStep2": "Toque <share></share> Compartir",
-    "pwaStep3": "Elija \"Agregar a inicio\"",
+    "pwaStep3": "Elija \"Agregar a pantalla de inicio\"",
     "pwaPromptFooter": "O siga usándolo en su navegador.",
     "privacyTitle": "Su privacidad importa",
     "privacyBody": "Sus datos nunca salen de su teléfono. No se necesita cuenta, no hay registro, nada se guarda en nuestros servidores. Cuando termine, usted elige qué compartir con su profesional de salud.",
@@ -91,18 +91,18 @@
     "startOver": "¿Empezar de nuevo?",
     "clearAllWarning": "Esto eliminará todos los datos de los días 1, 2 y 3. No se puede deshacer.",
     "clearAll": "Borrar todo",
-    "wokeUpAt": "Despertó a las {time}",
-    "addFirstEvent": "Agregue su primer evento del día",
+    "wokeUpAt": "Se despertó a las {time}",
+    "addFirstEvent": "Agregue su primera entrada del día",
     "wentToBedAt": "Se acostó a las {time}",
     "pee": "Orina",
     "drink": "Bebida",
-    "leak": "Fuga",
-    "insertEvent": "Insertar evento aquí",
+    "leak": "Escape",
+    "insertEvent": "Agregar entrada aquí",
     "goTo": "Ir a {label}"
   },
   "logVoid": {
     "howMuch": "¿Aproximadamente cuánto?",
-    "doubleVoid": "Doble micción",
+    "doubleVoid": "Doble orina",
     "doubleVoidDescription": "Oriné otra vez justo después para vaciar bien",
     "secondPeeAmount": "¿Cuánto fue la segunda orina?",
     "anythingElse": "¿Algo más que notar?",
@@ -118,23 +118,23 @@
     "notePlaceholder": "ej., Con el almuerzo"
   },
   "logLeak": {
-    "whatCaused": "¿Qué causó la fuga?",
-    "howMuch": "¿Cuánto se fugó?",
+    "whatCaused": "¿Qué causó el escape?",
+    "howMuch": "¿Cuánto se escapó?",
     "optionalTapHint": "opcional — toque para seleccionar, toque de nuevo para borrar",
-    "urgencyBefore": "¿Urgencia antes de la fuga?",
+    "urgencyBefore": "¿Ganas urgentes antes del escape?",
     "whenWasThis": "¿Cuándo fue?",
     "notePlaceholder": "ej., Durante la caminata"
   },
   "bedtime": {
-    "whenGoToBed": "¿Cuándo se acostó?",
+    "whenGoToBed": "¿A qué hora se acostó?",
     "updateBedtime": "Actualizar hora de acostarse",
     "saveBedtime": "Guardar hora de acostarse",
     "updateBedtimeButton": "Actualizar hora",
     "afterWakeUp": "La hora de acostarse debe ser después de su despertar a las {time}",
-    "afterLastEvent": "La hora de acostarse debe ser después de su último evento a las {time}. Los eventos nocturnos van en el día siguiente."
+    "afterLastEvent": "La hora de acostarse debe ser después de su última entrada a las {time}. Los eventos nocturnos van en el día siguiente."
   },
   "wakeTime": {
-    "whenWakeUp": "¿Cuándo se despertó?",
+    "whenWakeUp": "¿A qué hora se despertó?",
     "updateWakeUp": "Actualizar hora de despertar",
     "saveWakeUp": "Guardar despertar",
     "updateWakeUpButton": "Actualizar despertar",
@@ -144,28 +144,28 @@
   "quickLog": {
     "pee": "Orina",
     "drink": "Bebida",
-    "leak": "Fuga"
+    "leak": "Escape"
   },
   "validation": {
     "beforePrevBedtime": "Esta hora es antes de acostarse del día {dayNumber} ({time}). Elija una hora más tarde.",
-    "beforeWakeUp": "Esta hora es antes de despertar ({time}). Los eventos del día deben ser después de despertar.",
-    "afterWakeUp": "Esta hora es después de despertar ({time}). Los eventos nocturnos deben ser antes de despertar.",
-    "afterBedtime": "Esta hora es después de acostarse ({time}). Vaya a la vista nocturna para eventos de noche."
+    "beforeWakeUp": "Esta hora es antes de despertar ({time}). Las entradas del día deben ser después de despertar.",
+    "afterWakeUp": "Esta hora es después de despertar ({time}). Las entradas nocturnas deben ser antes de despertar.",
+    "afterBedtime": "Esta hora es después de acostarse ({time}). Vaya a la vista nocturna para entradas de noche."
   },
   "timelineEvent": {
-    "morningPee": "Orina matutina",
-    "doubleVoid": "Doble micción",
+    "morningPee": "Primera orina",
+    "doubleVoid": "Doble orina",
     "wakeUp": "Despertar",
-    "bedtime": "Hora de dormir",
-    "urgency": "Urgencia"
+    "bedtime": "Acostarse",
+    "urgency": "Urgente"
   },
   "sensations": {
-    "label": "Sensación de vejiga",
+    "label": "Ganas de orinar",
     "0": { "short": "Sin ganas", "description": "Fui por precaución" },
-    "1": { "short": "Leve", "description": "Ganas normales, sin urgencia" },
-    "2": { "short": "Moderada", "description": "Urgencia, pero pasó" },
-    "3": { "short": "Fuerte", "description": "Urgencia, apenas llegué" },
-    "4": { "short": "Fuga", "description": "No pude contenerme" }
+    "1": { "short": "Leve", "description": "Ganas normales, sin apuro" },
+    "2": { "short": "Moderada", "description": "Ganas fuertes, pero pasaron" },
+    "3": { "short": "Fuerte", "description": "Muy urgente, apenas llegué" },
+    "4": { "short": "Escape", "description": "No pude contenerme" }
   },
   "drinkTypes": {
     "water": "Agua",
@@ -201,8 +201,8 @@
     "diaryLockedDescription": "Complete su período de seguimiento de 3 días para desbloquear su diario y exportar sus datos.",
     "reviewData": "Revise sus datos",
     "reviewDataSuffix": ". Aún puede generar su informe, pero para mejores resultados considere volver a agregar las entradas faltantes.",
-    "noPeeEntries": "El día {day} no tiene registros de orina",
-    "noDrinkEntries": "El día {day} no tiene registros de bebidas - su informe funcionará pero faltarán datos de bebidas",
+    "noPeeEntries": "El día {day} no tiene orinas registradas",
+    "noDrinkEntries": "El día {day} no tiene bebidas registradas — su informe funcionará pero faltarán datos de bebidas",
     "ipcTitle": "Integrated Pelvic Care",
     "ipcDescription": "Mejores datos llevan a mejores cuidados. Comparta estos resultados con su profesional de salud en su próxima cita.",
     "learnMoreIpc": "Más información sobre IPC",
@@ -219,17 +219,17 @@
   },
   "daySummary": {
     "drinks": "{count} bebidas",
-    "voids": "{count} micciones",
+    "voids": "{count} orinas",
     "wake": "Despertar {time}",
-    "bed": "Dormir {time}",
-    "voidLeaks": "{count} fuga urinaria",
-    "voidLeaksPlural": "{count} fugas urinarias",
-    "leaks": "{count} fuga",
-    "leaksPlural": "{count} fugas",
+    "bed": "Acostarse {time}",
+    "voidLeaks": "{count} escape",
+    "voidLeaksPlural": "{count} escapes",
+    "leaks": "{count} escape",
+    "leaksPlural": "{count} escapes",
     "noEntries": "Sin registros"
   },
   "milestones": {
-    "firstEvent": "¡Está en camino!",
+    "firstEvent": "¡Bien comenzado!",
     "firstEventSubtitle": "Sus datos están guardados en este dispositivo — vuelva cuando quiera",
     "day1Complete": "¡Día 1 completado!",
     "day1CompleteSubtitle": "¡Buen trabajo! — faltan 2 días más",
@@ -244,9 +244,9 @@
     "peeUpdated": "Orina actualizada",
     "drinkSaved": "Bebida guardada",
     "drinkUpdated": "Bebida actualizada",
-    "leakSaved": "Fuga guardada",
-    "leakUpdated": "Fuga actualizada",
-    "bedtimeSaved": "Hora de dormir guardada"
+    "leakSaved": "Escape guardado",
+    "leakUpdated": "Escape actualizado",
+    "bedtimeSaved": "Hora de acostarse guardada"
   },
   "notifications": {
     "morningTitle": "¡Buenos días! ☀️",
@@ -266,23 +266,23 @@
   },
   "help": {
     "title": "Ayuda y preguntas frecuentes",
-    "description": "Preguntas frecuentes sobre My Flow Check. Aprenda a registrar bebidas, idas al baño y entender su diario urinario.",
+    "description": "Preguntas frecuentes sobre My Flow Check. Aprenda a registrar bebidas, orinas y a entender su diario.",
     "q1": "¿Qué es este registro?",
     "a1": "Es una herramienta simple de 3 días para anotar cuándo bebe, cuándo orina y cuándo se acuesta. Esto ayuda a su profesional de salud a detectar patrones y recomendarle los mejores pasos.",
     "q2": "¿Cómo agrego una orina?",
-    "a2": "Toque el botón + en la parte inferior de la pantalla, luego toque \"Orina\". Use el control deslizante para indicar la cantidad, evalúe la urgencia, y toque Guardar.",
+    "a2": "Toque el botón + en la parte inferior de la pantalla, luego toque \"Orina\". Use la barra para indicar la cantidad, evalúe las ganas, y toque Guardar.",
     "q3": "¿Cómo mido la cantidad?",
-    "a3": "Su profesional de salud puede darle un vaso medidor. Orine en el vaso, lea el volumen en mililitros e ingréselo en la aplicación. Como referencia: un vaso pequeño es unos 150 mL, uno estándar 250 mL.",
-    "q4": "¿Qué significan los niveles de urgencia?",
-    "a4": "Sin ganas = fui por precaución. Leve = ganas ligeras. Moderada = necesidad normal. Fuerte = difícil de contener. Fuga = urgente, puede haber habido una fuga.",
+    "a3": "Su profesional de salud puede darle un vaso medidor. Orine en el vaso, lea el volumen en mililitros y anótelo en la aplicación. Como referencia: un vaso pequeño es unos 150 mL, uno estándar 250 mL.",
+    "q4": "¿Qué significan los niveles de ganas?",
+    "a4": "Sin ganas = fui por precaución. Leve = ganas ligeras. Moderada = ganas fuertes pero pasaron. Fuerte = difícil de contener. Escape = no pude contenerme.",
     "q5": "¿Por qué debo agregar la hora de dormir?",
     "a5": "Agregar su hora de dormir ayuda a su profesional de salud a distinguir entre las orinas de día y de noche. Despertarse de noche para orinar puede necesitar un enfoque diferente.",
     "q6": "¿Qué pasa después de 3 días?",
-    "a6": "Vaya a la pestaña Resumen para revisar sus datos. Puede descargar un archivo PDF o CSV para compartir con su profesional de salud.",
+    "a6": "Vaya a la pestaña Diario para revisar sus datos. Puede descargar un archivo PDF o CSV para compartir con su profesional de salud.",
     "q7": "¿Mis datos son privados?",
     "a7": "Sí. Todos sus datos se guardan solo en su teléfono y nunca se envían a ningún servidor. Cuando exporta, usted decide con quién compartirlos.",
     "q8": "¿Puedo editar o eliminar una entrada?",
-    "a8": "Sí. En la línea de tiempo del día, toque el ícono de basura junto a cualquier entrada para eliminarla. Luego puede volver a agregarla con la información correcta.",
+    "a8": "Sí. En la vista del día, toque el ícono de basura junto a cualquier entrada para eliminarla. Luego puede volver a agregarla con la información correcta.",
     "q9": "¿Y si olvido agregar algo?",
     "a9": "¡No se preocupe! Puede agregar entradas en cualquier momento y ajustar la hora. Toque el botón + y cambie la hora antes de guardar.",
     "stillHaveQuestions": "¿Aún tiene preguntas? Consulte a su profesional de salud.",

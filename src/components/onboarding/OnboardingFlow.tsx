@@ -193,15 +193,15 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <div className="space-y-2">
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/60 rounded-xl">
                   <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-500 text-white text-xs font-bold">1</span>
-                  <span className="text-sm font-medium text-ipc-800">{format(day1, 'EEEE, MMMM d, yyyy', { locale: dateLocale })}</span>
+                  <span className="text-sm font-medium text-ipc-800">{format(day1, 'PPPP', { locale: dateLocale })}</span>
                 </div>
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/40 rounded-xl">
                   <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-300 text-white text-xs font-bold">2</span>
-                  <span className="text-sm font-medium text-ipc-600">{format(day2, 'EEEE, MMMM d, yyyy', { locale: dateLocale })}</span>
+                  <span className="text-sm font-medium text-ipc-600">{format(day2, 'PPPP', { locale: dateLocale })}</span>
                 </div>
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/30 rounded-xl">
                   <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-200 text-ipc-600 text-xs font-bold">3</span>
-                  <span className="text-sm font-medium text-ipc-500">{format(day3, 'EEEE, MMMM d, yyyy', { locale: dateLocale })}</span>
+                  <span className="text-sm font-medium text-ipc-500">{format(day3, 'PPPP', { locale: dateLocale })}</span>
                 </div>
               </div>
             </div>

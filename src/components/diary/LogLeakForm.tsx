@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, MessageSquarePlus, Check } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import TimePicker from '@/components/ui/TimePicker';
 import LeakTriggerPicker from '@/components/diary/LeakTriggerPicker';
 import Button from '@/components/ui/Button';
@@ -26,6 +26,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   const t = useTranslations('logLeak');
   const tc = useTranslations('common');
   const tv = useTranslations('validation');
+  const locale = useLocale();
   const tla = useTranslations('leakAmounts');
   const isEditing = !!editEntry;
 
@@ -165,25 +166,25 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     if (!trigger || urgencyBeforeLeak === null) return;
     if (isBeforePrevBedtime && prevDayBedtime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(tv('beforePrevBedtime', { dayNumber: dayNumber - 1, time: formatTime(prevDayBedtime.timestampIso) }));
+      setTimeWarning(tv('beforePrevBedtime', { dayNumber: dayNumber - 1, time: formatTime(prevDayBedtime.timestampIso, locale) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
     if (isBeforeWakeTime && wakeTime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(tv('beforeWakeUp', { time: formatTime(wakeTime.timestampIso) }));
+      setTimeWarning(tv('beforeWakeUp', { time: formatTime(wakeTime.timestampIso, locale) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
     if (isAfterWakeTime && wakeTime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(tv('afterWakeUp', { time: formatTime(wakeTime.timestampIso) }));
+      setTimeWarning(tv('afterWakeUp', { time: formatTime(wakeTime.timestampIso, locale) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
     if (isAfterBedtime && currentBedtime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(tv('afterBedtime', { time: formatTime(currentBedtime.timestampIso) }));
+      setTimeWarning(tv('afterBedtime', { time: formatTime(currentBedtime.timestampIso, locale) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }

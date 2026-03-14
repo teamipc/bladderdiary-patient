@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Moon } from 'lucide-react';
 import { track } from '@vercel/analytics';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
@@ -17,6 +17,7 @@ interface SetBedtimeFormProps {
 export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProps) {
   const { setBedtime, getBedtimeForDay, getWakeTimeForDay, getVoidsForDay, getDrinksForDay, startDate } = useDiaryStore();
   const t = useTranslations('bedtime');
+  const locale = useLocale();
   const existing = getBedtimeForDay(dayNumber);
   const wakeTime = getWakeTimeForDay(dayNumber);
   const voids = getVoidsForDay(dayNumber);
@@ -89,13 +90,13 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
 
       {isBeforeWakeUp && (
         <p className="text-sm text-danger text-center font-medium">
-          {t('afterWakeUp', { time: formatTime(wakeTime!.timestampIso) })}
+          {t('afterWakeUp', { time: formatTime(wakeTime!.timestampIso, locale) })}
         </p>
       )}
 
       {!isBeforeWakeUp && isBeforeLastEvent && (
         <p className="text-sm text-danger text-center font-medium">
-          {t('afterLastEvent', { time: formatTime(lastEventTime!) })}
+          {t('afterLastEvent', { time: formatTime(lastEventTime!, locale) })}
         </p>
       )}
 

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { Sun } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
@@ -16,6 +16,7 @@ interface SetWakeTimeFormProps {
 export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormProps) {
   const { setWakeTime, getWakeTimeForDay, getBedtimeForDay, startDate } = useDiaryStore();
   const t = useTranslations('wakeTime');
+  const locale = useLocale();
   const existing = getWakeTimeForDay(dayNumber);
   const bedtime = getBedtimeForDay(dayNumber);
   const prevBedtime = dayNumber > 1 ? getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3) : undefined;
@@ -61,13 +62,13 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
 
       {isBeforePrevBedtime && (
         <p className="text-sm text-danger text-center font-medium">
-          {t('afterBedtime', { time: formatTime(prevBedtime!.timestampIso) })}
+          {t('afterBedtime', { time: formatTime(prevBedtime!.timestampIso, locale) })}
         </p>
       )}
 
       {!isBeforePrevBedtime && isAfterBedtime && (
         <p className="text-sm text-danger text-center font-medium">
-          {t('beforeBedtime', { time: formatTime(bedtime!.timestampIso) })}
+          {t('beforeBedtime', { time: formatTime(bedtime!.timestampIso, locale) })}
         </p>
       )}
 
