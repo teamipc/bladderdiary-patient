@@ -14,11 +14,319 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format, parseISO } from 'date-fns';
+import { enUS, fr, es } from 'date-fns/locale';
+import type { Locale as DateFnsLocale } from 'date-fns';
 import { getDayNumber, getDayDate, formatTime, mlToDisplayVolume } from './utils';
 import { getDrinkLabel, SENSATION_LABELS, PREMIUM_FEATURES_ENABLED, getLeakTriggerLabel } from './constants';
 import { computeMetrics, type DiaryMetrics, type DayMetrics } from './calculations';
 import { IPC_LOGO_BASE64, IPC_LOGO_ASPECT } from './ipcLogoBase64';
-import type { DiaryState } from './types';
+import type { DiaryState, DrinkType, LeakTrigger } from './types';
+
+/* ================================================================== */
+/*  PDF translation strings                                            */
+/* ================================================================== */
+
+const DATE_LOCALES: Record<string, DateFnsLocale> = { en: enUS, fr, es };
+function getDateLocale(locale: string): DateFnsLocale {
+  return DATE_LOCALES[locale] || enUS;
+}
+
+interface PdfStrings {
+  appName: string;
+  reportSubtitle: string;
+  startDate: string;
+  age: string;
+  clinicCode: string;
+  generated: string;
+  clinicalMetrics: string;
+  metric: string;
+  night1Day2: string;
+  night2Day3: string;
+  overall: string;
+  nocturnalVol: string;
+  totalIntake: string;
+  totalOutput: string;
+  voidCount: string;
+  voidLeakCount: string;
+  standaloneLeaks: string;
+  continence: string;
+  continent: string;
+  incontinent: string;
+  dailySummary: string;
+  fluidIntake: string;
+  voidVolume: string;
+  drinkCount: string;
+  voidLeaks: string;
+  wakeTime: string;
+  bedtime: string;
+  day: (n: number) => string;
+  wake: string;
+  bed: string;
+  fluidIn: string;
+  voided: string;
+  sens: string;
+  leak: string;
+  intake: string;
+  output: string;
+  voids: string;
+  leaks: string;
+  voidWord: string;
+  standaloneWord: string;
+  threeDayTitle: string;
+  started: string;
+  name: string;
+  time: string;
+  drinks: string;
+  urine: string;
+  sensationLegend: string;
+  clinicalAnalysis: string;
+  dailyFluidBalance: string;
+  fluidIntakeLabel: string;
+  voidedOutput: string;
+  freqVolChart: string;
+  freqVolDesc: string;
+  voidLeakLegend: string;
+  standaloneLeakLegend: string;
+  urgencyDistribution: string;
+  notRecorded: string;
+  footerTagline: string;
+  footerDisclaimer: string;
+  page: (n: number, total: number) => string;
+  yes: string;
+  morningPee: string;
+  doubleVoid: string;
+  sensLabels: Record<number, string>;
+  drinkLabels: Record<string, string>;
+  leakTriggerLabels: Record<string, string>;
+}
+
+const PDF_STRINGS: Record<string, PdfStrings> = {
+  en: {
+    appName: 'My Flow Check',
+    reportSubtitle: '3-Day Bladder Diary Report',
+    startDate: 'Start date',
+    age: 'Age',
+    clinicCode: 'Clinic code',
+    generated: 'Generated',
+    clinicalMetrics: 'Clinical Metrics',
+    metric: 'Metric',
+    night1Day2: 'Night 1 / Day 2',
+    night2Day3: 'Night 2 / Day 3',
+    overall: 'Overall',
+    nocturnalVol: 'Nocturnal Vol',
+    totalIntake: 'Total Intake',
+    totalOutput: 'Total Output',
+    voidCount: 'Void Count',
+    voidLeakCount: 'Void Leak Count',
+    standaloneLeaks: 'Standalone Leaks',
+    continence: 'Continence',
+    continent: 'Continent',
+    incontinent: 'Incontinent',
+    dailySummary: 'Daily Summary',
+    fluidIntake: 'Fluid Intake',
+    voidVolume: 'Void Volume',
+    drinkCount: 'Drink Count',
+    voidLeaks: 'Void Leaks',
+    wakeTime: 'Wake Time',
+    bedtime: 'Bedtime',
+    day: (n) => `Day ${n}`,
+    wake: 'Wake',
+    bed: 'Bed',
+    fluidIn: 'Fluid In',
+    voided: 'Voided',
+    sens: 'Sens',
+    leak: 'Leak',
+    intake: 'Intake',
+    output: 'Output',
+    voids: 'voids',
+    leaks: 'Leaks',
+    voidWord: 'void',
+    standaloneWord: 'standalone',
+    threeDayTitle: '3-Day Bladder Diary',
+    started: 'Started',
+    name: 'Name',
+    time: 'TIME',
+    drinks: 'Drinks',
+    urine: 'Urine',
+    sensationLegend: 'Bladder sensation codes:  0 = No urge (went just in case)  |  1 = Mild (normal desire)  |  2 = Moderate (urgency, but passed)  |  3 = Strong (barely made it)  |  4 = Leaked (couldn\'t make it)',
+    clinicalAnalysis: 'Clinical Analysis',
+    dailyFluidBalance: 'Daily Fluid Balance',
+    fluidIntakeLabel: 'Fluid Intake',
+    voidedOutput: 'Voided Output',
+    freqVolChart: 'Frequency-Volume Chart',
+    freqVolDesc: 'Each dot = one void, positioned by time of day. Red circle = leak. Dashed line = MVV.',
+    voidLeakLegend: '= Void leak',
+    standaloneLeakLegend: '= Standalone leak',
+    urgencyDistribution: 'Urgency Distribution',
+    notRecorded: 'Not recorded',
+    footerTagline: 'IPC \u2014 Integrated Pelvic Care believes that better data leads to better care.',
+    footerDisclaimer: 'This report is for informational purposes only and does not replace medical advice. Always consult your health professional.',
+    page: (n, total) => `Page ${n} / ${total}`,
+    yes: 'Yes',
+    morningPee: 'FMV',
+    doubleVoid: 'DV',
+    sensLabels: { 0: 'No urge', 1: 'Mild', 2: 'Moderate', 3: 'Strong', 4: 'Leaked' },
+    drinkLabels: { water: 'Water', coffee: 'Coffee', tea: 'Tea', juice: 'Juice', carbonated: 'Soda', alcohol: 'Alcohol', milk: 'Milk', other: 'Other' },
+    leakTriggerLabels: { cough: 'Coughing', sneeze: 'Sneezing', laugh: 'Laughing', lifting: 'Lifting', exercise: 'Exercise', toilet_way: 'On the way', other: 'Other', not_sure: 'Not sure' },
+  },
+  fr: {
+    appName: 'My Flow Check',
+    reportSubtitle: 'Journal urinaire de 3 jours',
+    startDate: 'Date de début',
+    age: 'Âge',
+    clinicCode: 'Code clinique',
+    generated: 'Généré le',
+    clinicalMetrics: 'Mesures cliniques',
+    metric: 'Mesure',
+    night1Day2: 'Nuit 1 / Jour 2',
+    night2Day3: 'Nuit 2 / Jour 3',
+    overall: 'Total',
+    nocturnalVol: 'Vol. nocturne',
+    totalIntake: 'Apport total',
+    totalOutput: 'Volume total',
+    voidCount: 'Nb de mictions',
+    voidLeakCount: 'Escapes lors de miction',
+    standaloneLeaks: 'Escapes isolés',
+    continence: 'Continence',
+    continent: 'Continent',
+    incontinent: 'Incontinent',
+    dailySummary: 'Résumé quotidien',
+    fluidIntake: 'Apport liquidien',
+    voidVolume: 'Volume uriné',
+    drinkCount: 'Nb de boissons',
+    voidLeaks: 'Escapes lors de miction',
+    wakeTime: 'Réveil',
+    bedtime: 'Coucher',
+    day: (n) => `Jour ${n}`,
+    wake: 'Réveil',
+    bed: 'Coucher',
+    fluidIn: 'Boissons',
+    voided: 'Uriné',
+    sens: 'Envie',
+    leak: 'Escape',
+    intake: 'Apport',
+    output: 'Uriné',
+    voids: 'mictions',
+    leaks: 'Escapes',
+    voidWord: 'miction',
+    standaloneWord: 'isolé',
+    threeDayTitle: 'Journal urinaire de 3 jours',
+    started: 'Début',
+    name: 'Nom',
+    time: 'HEURE',
+    drinks: 'Boissons',
+    urine: 'Urine',
+    sensationLegend: 'Codes d\'envie :  0 = Aucune envie (précaution)  |  1 = Légère (normale)  |  2 = Modérée (envie passée)  |  3 = Forte (de justesse)  |  4 = Escape (pas eu le temps)',
+    clinicalAnalysis: 'Analyse clinique',
+    dailyFluidBalance: 'Bilan liquidien quotidien',
+    fluidIntakeLabel: 'Apport liquidien',
+    voidedOutput: 'Volume uriné',
+    freqVolChart: 'Graphique fréquence-volume',
+    freqVolDesc: 'Chaque point = une miction, positionnée par heure. Cercle rouge = escape. Ligne pointillée = VMM.',
+    voidLeakLegend: '= Escape lors de miction',
+    standaloneLeakLegend: '= Escape isolé',
+    urgencyDistribution: 'Distribution de l\'envie',
+    notRecorded: 'Non enregistré',
+    footerTagline: 'IPC \u2014 Integrated Pelvic Care croit que de meilleures données mènent à de meilleurs soins.',
+    footerDisclaimer: 'Ce rapport est fourni à titre informatif et ne remplace pas un avis médical. Consultez toujours votre professionnel de santé.',
+    page: (n, total) => `Page ${n} / ${total}`,
+    yes: 'Oui',
+    morningPee: 'PMU',
+    doubleVoid: 'DV',
+    sensLabels: { 0: 'Aucune envie', 1: 'Légère', 2: 'Modérée', 3: 'Forte', 4: 'Escape' },
+    drinkLabels: { water: 'Eau', coffee: 'Café', tea: 'Thé', juice: 'Jus', carbonated: 'Boisson gazeuse', alcohol: 'Alcool', milk: 'Lait', other: 'Autre' },
+    leakTriggerLabels: { cough: 'Toux', sneeze: 'Éternuement', laugh: 'Rire', lifting: 'Port de charge', exercise: 'Exercice', toilet_way: 'En chemin', other: 'Autre', not_sure: 'Pas sûr' },
+  },
+  es: {
+    appName: 'My Flow Check',
+    reportSubtitle: 'Diario urinario de 3 días',
+    startDate: 'Fecha de inicio',
+    age: 'Edad',
+    clinicCode: 'Código de clínica',
+    generated: 'Generado el',
+    clinicalMetrics: 'Medidas clínicas',
+    metric: 'Medida',
+    night1Day2: 'Noche 1 / Día 2',
+    night2Day3: 'Noche 2 / Día 3',
+    overall: 'Total',
+    nocturnalVol: 'Vol. nocturno',
+    totalIntake: 'Ingesta total',
+    totalOutput: 'Volumen total',
+    voidCount: 'N.º de micciones',
+    voidLeakCount: 'Escapes al orinar',
+    standaloneLeaks: 'Escapes aislados',
+    continence: 'Continencia',
+    continent: 'Continente',
+    incontinent: 'Incontinente',
+    dailySummary: 'Resumen diario',
+    fluidIntake: 'Ingesta de líquidos',
+    voidVolume: 'Volumen orinado',
+    drinkCount: 'N.º de bebidas',
+    voidLeaks: 'Escapes al orinar',
+    wakeTime: 'Despertar',
+    bedtime: 'Acostarse',
+    day: (n) => `Día ${n}`,
+    wake: 'Despertar',
+    bed: 'Acostarse',
+    fluidIn: 'Bebidas',
+    voided: 'Orinado',
+    sens: 'Ganas',
+    leak: 'Escape',
+    intake: 'Ingesta',
+    output: 'Orinado',
+    voids: 'micciones',
+    leaks: 'Escapes',
+    voidWord: 'micción',
+    standaloneWord: 'aislado',
+    threeDayTitle: 'Diario urinario de 3 días',
+    started: 'Inicio',
+    name: 'Nombre',
+    time: 'HORA',
+    drinks: 'Bebidas',
+    urine: 'Orina',
+    sensationLegend: 'Códigos de ganas:  0 = Sin ganas (por precaución)  |  1 = Leve (normal)  |  2 = Moderada (ganas pasaron)  |  3 = Fuerte (por poco)  |  4 = Escape (no llegó a tiempo)',
+    clinicalAnalysis: 'Análisis clínico',
+    dailyFluidBalance: 'Balance de líquidos diario',
+    fluidIntakeLabel: 'Ingesta de líquidos',
+    voidedOutput: 'Volumen orinado',
+    freqVolChart: 'Gráfico frecuencia-volumen',
+    freqVolDesc: 'Cada punto = una micción, posicionada por hora. Círculo rojo = escape. Línea punteada = VMM.',
+    voidLeakLegend: '= Escape al orinar',
+    standaloneLeakLegend: '= Escape aislado',
+    urgencyDistribution: 'Distribución de ganas',
+    notRecorded: 'No registrado',
+    footerTagline: 'IPC \u2014 Integrated Pelvic Care cree que mejores datos llevan a mejor atención.',
+    footerDisclaimer: 'Este informe es solo informativo y no reemplaza el consejo médico. Consulte siempre a su profesional de salud.',
+    page: (n, total) => `Página ${n} / ${total}`,
+    yes: 'Sí',
+    morningPee: 'PMO',
+    doubleVoid: 'DV',
+    sensLabels: { 0: 'Sin ganas', 1: 'Leve', 2: 'Moderada', 3: 'Fuerte', 4: 'Escape' },
+    drinkLabels: { water: 'Agua', coffee: 'Café', tea: 'Té', juice: 'Jugo', carbonated: 'Refresco', alcohol: 'Alcohol', milk: 'Leche', other: 'Otro' },
+    leakTriggerLabels: { cough: 'Tos', sneeze: 'Estornudo', laugh: 'Risa', lifting: 'Levantar peso', exercise: 'Ejercicio', toilet_way: 'De camino', other: 'Otro', not_sure: 'No sé' },
+  },
+};
+
+function getPdfStrings(locale: string): PdfStrings {
+  return PDF_STRINGS[locale] || PDF_STRINGS.en;
+}
+
+/** Get translated drink label for PDF. */
+function pdfDrinkLabel(type: DrinkType, locale: string): string {
+  const s = getPdfStrings(locale);
+  return s.drinkLabels[type] ?? getPdfStrings('en').drinkLabels[type] ?? 'Other';
+}
+
+/** Get translated leak trigger label for PDF. */
+function pdfLeakTriggerLabel(trigger: LeakTrigger, locale: string): string {
+  const s = getPdfStrings(locale);
+  return s.leakTriggerLabels[trigger] ?? getPdfStrings('en').leakTriggerLabels[trigger] ?? 'Other';
+}
+
+/** Format a date string for human-readable PDF pages using the correct locale. */
+function pdfFormatDate(isoString: string, pattern: string, locale: string): string {
+  return format(parseISO(isoString), pattern, { locale: getDateLocale(locale) });
+}
 
 /* ================================================================== */
 /*  Colour palette                                                     */
@@ -80,7 +388,8 @@ function addLogo(doc: jsPDF) {
   );
 }
 
-function addFooter(doc: jsPDF, pageNum: number, totalPages: number) {
+function addFooter(doc: jsPDF, pageNum: number, totalPages: number, locale: string) {
+  const s = getPdfStrings(locale);
   // Detect page dimensions (handles both portrait and landscape pages)
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
@@ -90,18 +399,10 @@ function addFooter(doc: jsPDF, pageNum: number, totalPages: number) {
 
   doc.setFontSize(6.5);
   doc.setTextColor(...C.muted);
-  doc.text(
-    'IPC \u2014 Integrated Pelvic Care believes that better data leads to better care.',
-    MARGIN,
-    y + 4,
-  );
-  doc.text(
-    'This report is for informational purposes only and does not replace medical advice. Always consult your health professional.',
-    MARGIN,
-    y + 7.5,
-  );
+  doc.text(s.footerTagline, MARGIN, y + 4);
+  doc.text(s.footerDisclaimer, MARGIN, y + 7.5);
   doc.text('myflowcheck.com', MARGIN, y + 11);
-  doc.text(`Page ${pageNum} / ${totalPages}`, pageW - MARGIN, y + 11, { align: 'right' });
+  doc.text(s.page(pageNum, totalPages), pageW - MARGIN, y + 11, { align: 'right' });
 }
 
 function sectionTitle(doc: jsPDF, text: string, y: number): number {
@@ -121,7 +422,8 @@ function dv(ml: number, state: DiaryState): number {
   return mlToDisplayVolume(ml, state.volumeUnit);
 }
 
-function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
+function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics, locale: string) {
+  const s = getPdfStrings(locale);
   doc.addPage('a4', 'portrait');
   addLogo(doc);
 
@@ -129,23 +431,23 @@ function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetric
   doc.setFontSize(22);
   doc.setTextColor(...C.dark);
   doc.setFont('helvetica', 'bold');
-  doc.text('My Flow Check', MARGIN, 22);
+  doc.text(s.appName, MARGIN, 22);
   doc.setFont('helvetica', 'normal');
 
   doc.setFontSize(11);
   doc.setTextColor(...C.muted);
-  doc.text('3-Day Bladder Diary Report', MARGIN, 28);
+  doc.text(s.reportSubtitle, MARGIN, 28);
 
   // Patient info
   let y = 36;
   doc.setFontSize(9);
   doc.setTextColor(...C.dark);
-  const startLabel = format(parseISO(state.startDate + 'T12:00:00'), 'EEEE, MMMM d, yyyy');
+  const startLabel = pdfFormatDate(state.startDate + 'T12:00:00', 'PPPP', locale);
   const infoLines = [
-    `Start date: ${startLabel}`,
-    state.age ? `Age: ${state.age}` : '',
-    state.clinicCode ? `Clinic code: ${state.clinicCode}` : '',
-    `Generated: ${format(new Date(), 'MMM d, yyyy h:mm a')}`,
+    `${s.startDate}: ${startLabel}`,
+    state.age ? `${s.age}: ${state.age}` : '',
+    state.clinicCode ? `${s.clinicCode}: ${state.clinicCode}` : '',
+    `${s.generated}: ${format(new Date(), 'PPp', { locale: getDateLocale(locale) })}`,
   ].filter(Boolean);
 
   for (const line of infoLines) {
@@ -160,7 +462,7 @@ function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetric
 
   // ── Clinical Metrics table (premium only) ──
   if (PREMIUM_FEATURES_ENABLED) {
-    y = sectionTitle(doc, 'Clinical Metrics', y);
+    y = sectionTitle(doc, s.clinicalMetrics, y);
 
     const p1 = metrics.periods[0];
     const p2 = metrics.periods[1];
@@ -168,19 +470,19 @@ function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetric
 
     autoTable(doc, {
       startY: y,
-      head: [['Metric', 'Night 1 / Day 2', 'Night 2 / Day 3', 'Overall']],
+      head: [[s.metric, s.night1Day2, s.night2Day3, s.overall]],
       body: [
         [`24HV (${u})`, fmtVol(p1?.twentyFourHV), fmtVol(p2?.twentyFourHV), '\u2014'],
         ['NPi (%)', fmtPct(p1?.nPi), fmtPct(p2?.nPi), '\u2014'],
         [`AVV (${u})`, fmtVol(p1?.avv), fmtVol(p2?.avv), '\u2014'],
-        [`Nocturnal Vol (${u})`, fmtVol(metrics.nights[0]?.nocturnalVolumeMl), fmtVol(metrics.nights[1]?.nocturnalVolumeMl), '\u2014'],
+        [`${s.nocturnalVol} (${u})`, fmtVol(metrics.nights[0]?.nocturnalVolumeMl), fmtVol(metrics.nights[1]?.nocturnalVolumeMl), '\u2014'],
         [`MVV (${u})`, '\u2014', '\u2014', fmtVol(metrics.mvv)],
-        [`Total Intake (${u})`, '\u2014', '\u2014', fmtVol(metrics.totalFluidIntakeMl)],
-        [`Total Output (${u})`, '\u2014', '\u2014', fmtVol(metrics.totalVoidVolumeMl)],
-        ['Void Count', '\u2014', '\u2014', fmtV(metrics.totalVoidCount)],
-        ['Void Leak Count', '\u2014', '\u2014', fmtV(metrics.totalLeaks)],
-        ['Standalone Leaks', '\u2014', '\u2014', fmtV(metrics.totalStandaloneLeaks)],
-        ['Continence', '\u2014', '\u2014', metrics.isContinent ? 'Continent' : 'Incontinent'],
+        [`${s.totalIntake} (${u})`, '\u2014', '\u2014', fmtVol(metrics.totalFluidIntakeMl)],
+        [`${s.totalOutput} (${u})`, '\u2014', '\u2014', fmtVol(metrics.totalVoidVolumeMl)],
+        [s.voidCount, '\u2014', '\u2014', fmtV(metrics.totalVoidCount)],
+        [s.voidLeakCount, '\u2014', '\u2014', fmtV(metrics.totalLeaks)],
+        [s.standaloneLeaks, '\u2014', '\u2014', fmtV(metrics.totalStandaloneLeaks)],
+        [s.continence, '\u2014', '\u2014', metrics.isContinent ? s.continent : s.incontinent],
       ],
       margin: { left: MARGIN, right: MARGIN },
       styles: { fontSize: 8, cellPadding: 2.5, textColor: C.dark },
@@ -193,20 +495,20 @@ function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetric
   }
 
   // ── Per-Day Summary ──
-  y = sectionTitle(doc, 'Daily Summary', y);
+  y = sectionTitle(doc, s.dailySummary, y);
 
   autoTable(doc, {
     startY: y,
-    head: [['', 'Day 1', 'Day 2', 'Day 3']],
+    head: [['', s.day(1), s.day(2), s.day(3)]],
     body: [
-      [`Fluid Intake (${u})`, ...metrics.dayMetrics.map((d) => fmtVol(d.totalFluidIntakeMl))],
-      [`Void Volume (${u})`,  ...metrics.dayMetrics.map((d) => fmtVol(d.totalVoidVolumeMl))],
-      ['Void Count',        ...metrics.dayMetrics.map((d) => fmtV(d.voidCount))],
-      ['Drink Count',       ...metrics.dayMetrics.map((d) => fmtV(d.drinkCount))],
-      ['Void Leaks',        ...metrics.dayMetrics.map((d) => fmtV(d.leakCount))],
-      ['Standalone Leaks',  ...metrics.dayMetrics.map((d) => fmtV(d.standaloneLeakCount))],
-      ['Wake Time',         ...metrics.dayMetrics.map((d) => d.wakeTimeIso ? formatTime(d.wakeTimeIso) : '\u2014')],
-      ['Bedtime',           ...metrics.dayMetrics.map((d) => d.bedtimeIso ? formatTime(d.bedtimeIso) : '\u2014')],
+      [`${s.fluidIntake} (${u})`, ...metrics.dayMetrics.map((d) => fmtVol(d.totalFluidIntakeMl))],
+      [`${s.voidVolume} (${u})`,  ...metrics.dayMetrics.map((d) => fmtVol(d.totalVoidVolumeMl))],
+      [s.voidCount,        ...metrics.dayMetrics.map((d) => fmtV(d.voidCount))],
+      [s.drinkCount,       ...metrics.dayMetrics.map((d) => fmtV(d.drinkCount))],
+      [s.voidLeaks,        ...metrics.dayMetrics.map((d) => fmtV(d.leakCount))],
+      [s.standaloneLeaks,  ...metrics.dayMetrics.map((d) => fmtV(d.standaloneLeakCount))],
+      [s.wakeTime,         ...metrics.dayMetrics.map((d) => d.wakeTimeIso ? formatTime(d.wakeTimeIso, locale) : '\u2014')],
+      [s.bedtime,          ...metrics.dayMetrics.map((d) => d.bedtimeIso ? formatTime(d.bedtimeIso, locale) : '\u2014')],
     ],
     margin: { left: MARGIN, right: MARGIN },
     styles: { fontSize: 8, cellPadding: 2.5, textColor: C.dark },
@@ -231,7 +533,7 @@ interface HourSlot {
   isBed: boolean;
 }
 
-function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot[]; startHour: number } {
+function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: string = 'en'): { slots: HourSlot[]; startHour: number } {
   const dayVoids = state.voids
     .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
@@ -262,10 +564,11 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot
     // Drinks in this hour
     const hourDrinks = dayDrinks.filter((d) => parseISO(d.timestampIso).getHours() === hour);
     const u = state.volumeUnit;
+    const ps = getPdfStrings(locale);
     const multiDrink = hourDrinks.length > 1;
     const drinksText = hourDrinks.map((d) => {
-      const prefix = multiDrink ? `${formatTime(d.timestampIso)} ` : '';
-      return `${prefix}${dv(d.volumeMl, state)} ${u} ${getDrinkLabel(d.drinkType)}`;
+      const prefix = multiDrink ? `${formatTime(d.timestampIso, locale)} ` : '';
+      return `${prefix}${dv(d.volumeMl, state)} ${u} ${pdfDrinkLabel(d.drinkType, locale)}`;
     }).join('\n');
 
     // Voids in this hour
@@ -273,10 +576,10 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot
     const multiVoid = hourVoids.length > 1;
     const voidsText = hourVoids
       .map((v) => {
-        const prefix = multiVoid ? `${formatTime(v.timestampIso)} ` : '';
+        const prefix = multiVoid ? `${formatTime(v.timestampIso, locale)} ` : '';
         let txt = `${prefix}${dv(v.volumeMl, state)} ${u}`;
-        if (v.doubleVoidMl) txt += `\n  DV: +${dv(v.doubleVoidMl, state)} ${u}`;
-        if (v.isFirstMorningVoid) txt += ' *FMV';
+        if (v.doubleVoidMl) txt += `\n  ${ps.doubleVoid}: +${dv(v.doubleVoidMl, state)} ${u}`;
+        if (v.isFirstMorningVoid) txt += ` *${ps.morningPee}`;
         return txt;
       })
       .join('\n');
@@ -286,9 +589,9 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HourSlot
     // Standalone leaks in this hour
     const hourLeaks = dayLeaks.filter((l) => parseISO(l.timestampIso).getHours() === hour);
     const leakParts: string[] = [];
-    if (hourVoids.some((v) => v.leak)) leakParts.push('Yes');
+    if (hourVoids.some((v) => v.leak)) leakParts.push(ps.yes);
     for (const l of hourLeaks) {
-      leakParts.push(getLeakTriggerLabel(l.trigger));
+      leakParts.push(pdfLeakTriggerLabel(l.trigger, locale));
     }
     const leakText = leakParts.join('\n');
 
@@ -321,7 +624,7 @@ interface HalfHourSlot {
   isBed: boolean;
 }
 
-function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: HalfHourSlot[]; startHour: number } {
+function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: string = 'en'): { slots: HalfHourSlot[]; startHour: number } {
   const dayVoids = state.voids
     .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
@@ -366,21 +669,22 @@ function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: Half
       return d.getHours() === hour && d.getMinutes() >= minStart && d.getMinutes() <= minEnd;
     };
 
+    const ps = getPdfStrings(locale);
     const slotDrinks = dayDrinks.filter((d) => inSlot(d.timestampIso));
     const multiDrink = slotDrinks.length > 1;
     const drinksText = slotDrinks.map((d) => {
-      const prefix = multiDrink ? `${formatTime(d.timestampIso)} ` : '';
-      return `${prefix}${dv(d.volumeMl, state)} ${u} ${getDrinkLabel(d.drinkType)}`;
+      const prefix = multiDrink ? `${formatTime(d.timestampIso, locale)} ` : '';
+      return `${prefix}${dv(d.volumeMl, state)} ${u} ${pdfDrinkLabel(d.drinkType, locale)}`;
     }).join('\n');
 
     const slotVoids = dayVoids.filter((v) => inSlot(v.timestampIso));
     const multiVoid = slotVoids.length > 1;
     const voidsText = slotVoids
       .map((v) => {
-        const prefix = multiVoid ? `${formatTime(v.timestampIso)} ` : '';
+        const prefix = multiVoid ? `${formatTime(v.timestampIso, locale)} ` : '';
         let txt = `${prefix}${dv(v.volumeMl, state)} ${u}`;
-        if (v.doubleVoidMl) txt += `\n  DV: +${dv(v.doubleVoidMl, state)} ${u}`;
-        if (v.isFirstMorningVoid) txt += ' *FMV';
+        if (v.doubleVoidMl) txt += `\n  ${ps.doubleVoid}: +${dv(v.doubleVoidMl, state)} ${u}`;
+        if (v.isFirstMorningVoid) txt += ` *${ps.morningPee}`;
         return txt;
       })
       .join('\n');
@@ -389,9 +693,9 @@ function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: Half
 
     const slotLeaks = dayLeaks.filter((l) => inSlot(l.timestampIso));
     const leakParts: string[] = [];
-    if (slotVoids.some((v) => v.leak)) leakParts.push('Yes');
+    if (slotVoids.some((v) => v.leak)) leakParts.push(ps.yes);
     for (const l of slotLeaks) {
-      leakParts.push(getLeakTriggerLabel(l.trigger));
+      leakParts.push(pdfLeakTriggerLabel(l.trigger, locale));
     }
     const leakText = leakParts.join('\n');
 
@@ -412,18 +716,19 @@ function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3): { slots: Half
   return { slots, startHour };
 }
 
-function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: DayMetrics) {
+function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: DayMetrics, locale: string) {
+  const s = getPdfStrings(locale);
   doc.addPage('a4', 'portrait');
   addLogo(doc);
 
   const dayDateStr = getDayDate(state.startDate, dayNum);
-  const dayLabel = format(parseISO(dayDateStr + 'T12:00:00'), 'EEEE, MMM d, yyyy');
+  const dayLabel = pdfFormatDate(dayDateStr + 'T12:00:00', 'PPPP', locale);
 
   // Title
   doc.setFontSize(16);
   doc.setTextColor(...C.dark);
   doc.setFont('helvetica', 'bold');
-  doc.text(`Day ${dayNum}`, MARGIN, 20);
+  doc.text(s.day(dayNum), MARGIN, 20);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(...C.muted);
@@ -434,8 +739,8 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
   doc.setFontSize(8);
   doc.setTextColor(100, 80, 200);
   const wakeBedParts: string[] = [];
-  if (dm.wakeTimeIso) wakeBedParts.push(`Wake: ${formatTime(dm.wakeTimeIso)}`);
-  if (dm.bedtimeIso) wakeBedParts.push(`Bed: ${formatTime(dm.bedtimeIso)}`);
+  if (dm.wakeTimeIso) wakeBedParts.push(`${s.wake}: ${formatTime(dm.wakeTimeIso, locale)}`);
+  if (dm.bedtimeIso) wakeBedParts.push(`${s.bed}: ${formatTime(dm.bedtimeIso, locale)}`);
   if (wakeBedParts.length > 0) {
     doc.text(wakeBedParts.join('    |    '), MARGIN, subY);
     subY += 4;
@@ -443,7 +748,7 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
   subY += 1;
 
   // Build 30-min grid — 48 rows starting from the actual wake hour
-  const { slots, startHour } = buildHalfHourSlots(state, dayNum);
+  const { slots, startHour } = buildHalfHourSlots(state, dayNum, locale);
 
   // Determine sleep hours for shading
   const bedtime = state.bedtimes.find((b) => b.dayNumber === dayNum);
@@ -455,7 +760,7 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
 
   autoTable(doc, {
     startY: subY,
-    head: [['Time', `Fluid In (${state.volumeUnit})`, `Voided (${state.volumeUnit})`, 'Sens', 'Leak']],
+    head: [['Time', `${s.fluidIn} (${state.volumeUnit})`, `${s.voided} (${state.volumeUnit})`, s.sens, s.leak]],
     body,
     margin: { left: MARGIN, right: MARGIN },
     styles: {
@@ -546,9 +851,9 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...C.dark);
   const leakSummary = dm.standaloneLeakCount > 0
-    ? `Leaks: ${dm.leakCount} void + ${dm.standaloneLeakCount} standalone`
-    : `Leaks: ${dm.leakCount}`;
-  const totText = `Intake: ${dv(dm.totalFluidIntakeMl, state).toLocaleString()} ${state.volumeUnit}    Output: ${dv(dm.totalVoidVolumeMl, state).toLocaleString()} ${state.volumeUnit} (${dm.voidCount} voids)    ${leakSummary}`;
+    ? `${s.leaks}: ${dm.leakCount} ${s.voidWord} + ${dm.standaloneLeakCount} ${s.standaloneWord}`
+    : `${s.leaks}: ${dm.leakCount}`;
+  const totText = `${s.intake}: ${dv(dm.totalFluidIntakeMl, state).toLocaleString()} ${state.volumeUnit}    ${s.output}: ${dv(dm.totalVoidVolumeMl, state).toLocaleString()} ${state.volumeUnit} (${dm.voidCount} ${s.voids})    ${leakSummary}`;
   doc.text(totText, PAGE_W / 2, totY + 5, { align: 'center' });
   doc.setFont('helvetica', 'normal');
 }
@@ -557,7 +862,8 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
 /*  Combined 3-Day Bladder Diary (landscape, side-by-side)             */
 /* ================================================================== */
 
-function pageCombinedDiary(doc: jsPDF, state: DiaryState, useCurrentPage = false) {
+function pageCombinedDiary(doc: jsPDF, state: DiaryState, locale: string, useCurrentPage = false) {
+  const s = getPdfStrings(locale);
   // Add landscape page (unless we're using the initial page)
   if (!useCurrentPage) doc.addPage('a4', 'landscape');
 
@@ -574,15 +880,15 @@ function pageCombinedDiary(doc: jsPDF, state: DiaryState, useCurrentPage = false
   doc.setFontSize(14);
   doc.setTextColor(...C.dark);
   doc.setFont('helvetica', 'bold');
-  doc.text('3-Day Bladder Diary', M, 13);
+  doc.text(s.threeDayTitle, M, 13);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(...C.muted);
-  const startLabel = format(parseISO(state.startDate + 'T12:00:00'), 'MMM d, yyyy');
-  doc.text(`Started: ${startLabel}  |  Name: _________________`, M, 18);
+  const startLabel = pdfFormatDate(state.startDate + 'T12:00:00', 'PPP', locale);
+  doc.text(`${s.started}: ${startLabel}  |  ${s.name}: _________________`, M, 18);
 
   // Build per-hour data for all 3 days
-  const allSlots = [1, 2, 3].map((d) => buildHourSlots(state, d as 1 | 2 | 3));
+  const allSlots = [1, 2, 3].map((d) => buildHourSlots(state, d as 1 | 2 | 3, locale));
   const u = state.volumeUnit;
 
   // Use 24 rows from 6 AM (standard diary convention)
@@ -615,7 +921,7 @@ function pageCombinedDiary(doc: jsPDF, state: DiaryState, useCurrentPage = false
   // Column headers: TIME | Day 1 (4 cols) | Day 2 (4 cols) | Day 3 (4 cols) = 13 cols
   const dayHeaders = [1, 2, 3].map((d) => {
     const dateStr = getDayDate(state.startDate, d as 1 | 2 | 3);
-    return format(parseISO(dateStr + 'T12:00:00'), 'EEE, MMM d');
+    return pdfFormatDate(dateStr + 'T12:00:00', 'EEE, PP', locale);
   });
 
   // We use autoTable with custom column spans simulated via styling
@@ -633,16 +939,16 @@ function pageCombinedDiary(doc: jsPDF, state: DiaryState, useCurrentPage = false
       // Row 1: Day headers spanning 4 cols each
       [
         { content: '', colSpan: 1 },
-        { content: `Day 1 — ${dayHeaders[0]}`, colSpan: 4, styles: { halign: 'center' as const } },
-        { content: `Day 2 — ${dayHeaders[1]}`, colSpan: 4, styles: { halign: 'center' as const } },
-        { content: `Day 3 — ${dayHeaders[2]}`, colSpan: 4, styles: { halign: 'center' as const } },
+        { content: `${s.day(1)} — ${dayHeaders[0]}`, colSpan: 4, styles: { halign: 'center' as const } },
+        { content: `${s.day(2)} — ${dayHeaders[1]}`, colSpan: 4, styles: { halign: 'center' as const } },
+        { content: `${s.day(3)} — ${dayHeaders[2]}`, colSpan: 4, styles: { halign: 'center' as const } },
       ],
       // Row 2: Sub-headers
       [
-        'TIME',
-        `Drinks`, 'Urine\n(${u})','Sens', 'Leak',
-        `Drinks`, 'Urine\n(${u})','Sens', 'Leak',
-        `Drinks`, 'Urine\n(${u})','Sens', 'Leak',
+        s.time,
+        s.drinks, `${s.urine}\n(${u})`, s.sens, s.leak,
+        s.drinks, `${s.urine}\n(${u})`, s.sens, s.leak,
+        s.drinks, `${s.urine}\n(${u})`, s.sens, s.leak,
       ],
     ],
     body: rows,
@@ -718,11 +1024,7 @@ function pageCombinedDiary(doc: jsPDF, state: DiaryState, useCurrentPage = false
   const legendY = Math.min(tableEndY + 3, LH - 18);
   doc.setFontSize(5.5);
   doc.setTextColor(...C.muted);
-  doc.text(
-    'Bladder sensation codes:  0 = No urge (went just in case)  |  1 = Mild (normal desire)  |  2 = Moderate (urgency, but passed)  |  3 = Strong (barely made it)  |  4 = Leaked (couldn\'t make it)',
-    M,
-    legendY,
-  );
+  doc.text(s.sensationLegend, M, legendY);
 }
 
 /* ================================================================== */
@@ -799,14 +1101,15 @@ function drawAxis(
   }
 }
 
-function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
+function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics, locale: string) {
+  const s = getPdfStrings(locale);
   doc.addPage('a4', 'portrait');
   addLogo(doc);
 
   doc.setFontSize(16);
   doc.setTextColor(...C.dark);
   doc.setFont('helvetica', 'bold');
-  doc.text('Clinical Analysis', MARGIN, 20);
+  doc.text(s.clinicalAnalysis, MARGIN, 20);
   doc.setFont('helvetica', 'normal');
 
   // ── Chart 1: Daily Fluid Balance (top) ──
@@ -818,7 +1121,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   doc.setFontSize(9);
   doc.setTextColor(...C.dark);
   doc.setFont('helvetica', 'bold');
-  doc.text('Daily Fluid Balance', MARGIN, chart1Y);
+  doc.text(s.dailyFluidBalance, MARGIN, chart1Y);
   doc.setFont('helvetica', 'normal');
 
   const u = state.volumeUnit;
@@ -832,7 +1135,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   const roundedMax = Math.max(Math.ceil(headroom / balanceStep) * balanceStep, u === 'oz' ? 5 : 100);
 
   drawAxis(doc, chartX, chart1Y + 4, chartW, chartH, u, roundedMax, {
-    xLabels: ['Day 1', 'Day 2', 'Day 3'],
+    xLabels: [s.day(1), s.day(2), s.day(3)],
   });
 
   const groupW = chartW / 3;
@@ -886,21 +1189,21 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   doc.rect(chartX, legY, 4, 2.5, 'F');
   doc.setFontSize(6);
   doc.setTextColor(...C.dark);
-  doc.text('Fluid Intake', chartX + 5.5, legY + 2);
+  doc.text(s.fluidIntakeLabel, chartX + 5.5, legY + 2);
   doc.setFillColor(...C.chartAmber);
   doc.rect(chartX + 30, legY, 4, 2.5, 'F');
-  doc.text('Voided Output', chartX + 35.5, legY + 2);
+  doc.text(s.voidedOutput, chartX + 35.5, legY + 2);
 
   // ── Chart 2: Frequency-Volume (time-based scatter plot) ──
   const chart2Y = legY + 12;
   doc.setFontSize(9);
   doc.setTextColor(...C.dark);
   doc.setFont('helvetica', 'bold');
-  doc.text('Frequency-Volume Chart', MARGIN, chart2Y);
+  doc.text(s.freqVolChart, MARGIN, chart2Y);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6);
   doc.setTextColor(...C.muted);
-  doc.text('Each dot = one void, positioned by time of day. Red circle = leak. Dashed line = MVV.', MARGIN, chart2Y + 4);
+  doc.text(s.freqVolDesc, MARGIN, chart2Y + 4);
 
   const chart2Top = chart2Y + 7;
   const chart2H = 50;
@@ -971,7 +1274,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     doc.circle(lx + 1.5, leg2Y + 1, 1.5, 'F');
     doc.setFontSize(5.5);
     doc.setTextColor(...C.dark);
-    doc.text(`Day ${i + 1}`, lx + 4, leg2Y + 2);
+    doc.text(s.day(i + 1), lx + 4, leg2Y + 2);
   }
   // Leak indicator in legend
   doc.setDrawColor(...C.leakNote);
@@ -979,7 +1282,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   doc.circle(chartX + 78, leg2Y + 1, 2, 'S');
   doc.setFontSize(5.5);
   doc.setTextColor(...C.dark);
-  doc.text('= Void leak', chartX + 81, leg2Y + 2);
+  doc.text(s.voidLeakLegend, chartX + 81, leg2Y + 2);
   doc.setLineWidth(0.2);
 
   // Standalone leak markers on chart (terracotta diamonds at bottom)
@@ -1011,7 +1314,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     doc.rect(chartX + 95, leg2Y - 0.5, 3, 3, 'F');
     doc.setFontSize(5.5);
     doc.setTextColor(...C.dark);
-    doc.text('= Standalone leak', chartX + 99.5, leg2Y + 2);
+    doc.text(s.standaloneLeakLegend, chartX + 99.5, leg2Y + 2);
   }
 
   // ── Chart 3: Urgency Distribution (bottom) ──
@@ -1019,7 +1322,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   doc.setFontSize(9);
   doc.setTextColor(...C.dark);
   doc.setFont('helvetica', 'bold');
-  doc.text('Urgency Distribution', MARGIN, chart3Y);
+  doc.text(s.urgencyDistribution, MARGIN, chart3Y);
   doc.setFont('helvetica', 'normal');
 
   const sensCount = [0, 0, 0, 0, 0];
@@ -1038,12 +1341,12 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
 
   for (let i = 0; i < 5; i++) {
     const by = chart3Y + 5 + i * (barH2 + 2.5);
-    const sensLabel = SENSATION_LABELS[i as 0 | 1 | 2 | 3 | 4];
+    const sensLabel = s.sensLabels[i] ?? SENSATION_LABELS[i as 0 | 1 | 2 | 3 | 4].short;
 
     // Label on the left
     doc.setFontSize(5.5);
     doc.setTextColor(...C.muted);
-    doc.text(`${i} - ${sensLabel.short}`, barsX - 2, by + barH2 / 2 + 1, { align: 'right' });
+    doc.text(`${i} - ${sensLabel}`, barsX - 2, by + barH2 / 2 + 1, { align: 'right' });
 
     // Bar background
     doc.setFillColor(245, 245, 245);
@@ -1068,7 +1371,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     const by = chart3Y + 5 + 5 * (barH2 + 2.5);
     doc.setFontSize(5.5);
     doc.setTextColor(...C.muted);
-    doc.text('Not recorded', barsX - 2, by + barH2 / 2 + 1, { align: 'right' });
+    doc.text(s.notRecorded, barsX - 2, by + barH2 / 2 + 1, { align: 'right' });
     doc.setFillColor(245, 245, 245);
     doc.roundedRect(barsX, by, barsW, barH2, 1, 1, 'F');
     const fillW = Math.max((notRecordedCount / maxSens) * barsW, 3);
@@ -1225,33 +1528,33 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
 /* ================================================================== */
 
 /** Generate the PDF blob without triggering a download. */
-export function generatePdfBlob(state: DiaryState): { blob: Blob; filename: string } {
+export function generatePdfBlob(state: DiaryState, locale: string = 'en'): { blob: Blob; filename: string } {
   // Start landscape — the combined 3-day diary is the first page
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const metrics = computeMetrics(state);
 
   // Page 1: Combined 3-day diary (landscape) — uses the initial page
-  pageCombinedDiary(doc, state, true);
+  pageCombinedDiary(doc, state, locale, true);
 
   // Page 2: Results overview
-  pageResultsOverview(doc, state, metrics);
+  pageResultsOverview(doc, state, metrics, locale);
 
   // Pages 3-5: Daily diary grids
   for (const dayNum of [1, 2, 3] as const) {
-    pageDailyDiary(doc, state, dayNum, metrics.dayMetrics[dayNum - 1]);
+    pageDailyDiary(doc, state, dayNum, metrics.dayMetrics[dayNum - 1], locale);
   }
 
   // Page 6: Graphs
-  pageGraphs(doc, state, metrics);
+  pageGraphs(doc, state, metrics, locale);
 
-  // Page 7: Machine-readable data
+  // Page 7: Machine-readable data (always English for clinical software)
   pageMachineData(doc, state, metrics);
 
   // Add footers to all pages
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    addFooter(doc, i, pageCount);
+    addFooter(doc, i, pageCount, locale);
   }
 
   return {
@@ -1261,8 +1564,8 @@ export function generatePdfBlob(state: DiaryState): { blob: Blob; filename: stri
 }
 
 /** Generate and download the PDF (desktop fallback). */
-export function generatePdf(state: DiaryState): void {
-  const { blob, filename } = generatePdfBlob(state);
+export function generatePdf(state: DiaryState, locale: string = 'en'): void {
+  const { blob, filename } = generatePdfBlob(state, locale);
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');
