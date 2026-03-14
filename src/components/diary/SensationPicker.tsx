@@ -1,6 +1,6 @@
 'use client';
 
-import { SENSATION_LABELS } from '@/lib/constants';
+import { useTranslations } from 'next-intl';
 import type { BladderSensation } from '@/lib/types';
 
 interface SensationPickerProps {
@@ -11,10 +11,11 @@ interface SensationPickerProps {
 const sensations: BladderSensation[] = [0, 1, 2, 3, 4];
 
 export default function SensationPicker({ value, onChange }: SensationPickerProps) {
+  const t = useTranslations('sensations');
   return (
     <div className="space-y-2">
       <label className="block text-base font-medium text-ipc-800 px-10 text-center">
-        Bladder sensation
+        {t('label')}
       </label>
 
       {/* Pill buttons */}
@@ -35,7 +36,7 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
             >
               <span className="text-base leading-tight block font-semibold">{s}</span>
               <span className="text-xs leading-tight block mt-1">
-                {SENSATION_LABELS[s].short}
+                {t(`${s}.short`)}
               </span>
             </button>
           );

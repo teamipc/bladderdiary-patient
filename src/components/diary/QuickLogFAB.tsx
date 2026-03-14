@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Plus, Droplets, Coffee, CloudDrizzle, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type LogAction = 'void' | 'drink' | 'leak' | 'bedtime';
 
@@ -10,6 +11,8 @@ interface QuickLogFABProps {
 }
 
 export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
+  const t = useTranslations('quickLog');
+  const tc = useTranslations('common');
   const [expanded, setExpanded] = useState(false);
 
   // Mirror the nav's scroll-hide logic so FAB drops when nav hides
@@ -62,7 +65,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
               className="flex items-center justify-between gap-3 min-w-[8rem] pl-4 pr-3 py-2.5 rounded-full bg-drink
                 text-white shadow-lg active:scale-[0.95] transition-transform"
             >
-              <span className="text-base font-semibold">Drink</span>
+              <span className="text-base font-semibold">{t('drink')}</span>
               <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                 <Coffee size={20} />
               </div>
@@ -74,7 +77,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
               className="flex items-center justify-between gap-3 min-w-[8rem] pl-4 pr-3 py-2.5 rounded-full bg-leak
                 text-white shadow-lg active:scale-[0.95] transition-transform"
             >
-              <span className="text-base font-semibold">Leak</span>
+              <span className="text-base font-semibold">{t('leak')}</span>
               <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                 <CloudDrizzle size={20} />
               </div>
@@ -86,7 +89,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
               className="flex items-center justify-between gap-3 min-w-[8rem] pl-4 pr-3 py-2.5 rounded-full bg-void
                 text-white shadow-lg active:scale-[0.95] transition-transform"
             >
-              <span className="text-base font-semibold">Pee</span>
+              <span className="text-base font-semibold">{t('pee')}</span>
               <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                 <Droplets size={20} />
               </div>
@@ -114,7 +117,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
           </button>
           {!expanded && (
             <span className="text-[10px] font-semibold text-ipc-500">
-              Log
+              {tc('log')}
             </span>
           )}
         </div>

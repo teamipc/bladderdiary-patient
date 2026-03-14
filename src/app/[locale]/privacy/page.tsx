@@ -1,17 +1,32 @@
 import type { Metadata } from 'next';
 import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { setRequestLocale } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description:
-    'Privacy Policy for My Flow Check. Your data stays on your phone. We never collect, store, or transmit any personal or health information.',
-  alternates: {
-    canonical: '/privacy',
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: 'Privacy Policy',
+    description:
+      'Privacy Policy for My Flow Check. Your data stays on your phone. We never collect, store, or transmit any personal or health information.',
+    alternates: {
+      canonical: `/${locale}/privacy`,
+    },
+  };
+}
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <div className="bg-surface min-h-dvh">
       <div className="max-w-lg mx-auto px-4 py-6 pb-28">

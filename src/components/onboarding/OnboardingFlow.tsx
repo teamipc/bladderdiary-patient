@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { format, addDays, parseISO } from 'date-fns';
+import { enUS, fr, es } from 'date-fns/locale';
 import { ChevronRight, Calendar } from 'lucide-react';
 import { track } from '@vercel/analytics';
+import { useTranslations, useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
 
 interface OnboardingFlowProps {
@@ -11,6 +13,11 @@ interface OnboardingFlowProps {
 }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
+  const t = useTranslations('onboarding');
+  const tc = useTranslations('common');
+  const locale = useLocale();
+  const dateLocale = locale === 'fr' ? fr : locale === 'es' ? es : enUS;
+
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [direction, setDirection] = useState<'left' | 'right'>('left');
   const [age, setAge] = useState('');
@@ -57,11 +64,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 1: Age */}
         {step === 1 && (
           <div key="step1" className={`w-full text-center ${animClass}`}>
-            <h2 className="text-2xl font-bold text-ipc-950 mb-2">
-              What&apos;s your age?
+            <h2 className="text-2xl font-bold text-ipc-950 mb-2 text-balance">
+              {t('ageTitle')}
             </h2>
             <p className="text-sm text-ipc-500 mb-8">
-              This is useful information for your health professional.
+              {t('ageSubtitle')}
             </p>
 
             <div className="flex justify-center mb-8">
@@ -70,7 +77,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 inputMode="numeric"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                placeholder="Age"
+                placeholder={t('agePlaceholder')}
                 min={18}
                 max={120}
                 className="w-28 text-center text-3xl font-bold text-ipc-950
@@ -89,7 +96,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 size="lg"
                 disabled={!isAgeValid}
               >
-                Next
+                {tc('next')}
                 <ChevronRight size={18} className="ml-1 inline" />
               </Button>
             </div>
@@ -99,11 +106,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 2: Unit selection */}
         {step === 2 && (
           <div key="step2" className={`w-full text-center ${animClass}`}>
-            <h2 className="text-2xl font-bold text-ipc-950 mb-2">
-              How do you measure?
+            <h2 className="text-2xl font-bold text-ipc-950 mb-2 text-balance">
+              {t('unitTitle')}
             </h2>
             <p className="text-sm text-ipc-500 mb-8">
-              Choose the unit you&apos;re most comfortable with. This will be used throughout the app.
+              {t('unitSubtitle')}
             </p>
 
             <div className="flex gap-3 justify-center mb-8">
@@ -117,7 +124,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 }`}
               >
                 <span className="block text-3xl font-bold text-ipc-950 mb-1">mL</span>
-                <span className="block text-sm text-ipc-500">Millilitres</span>
+                <span className="block text-sm text-ipc-500">{tc('millilitres')}</span>
               </button>
 
               <button
@@ -130,7 +137,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 }`}
               >
                 <span className="block text-3xl font-bold text-ipc-950 mb-1">oz</span>
-                <span className="block text-sm text-ipc-500">Fluid ounces</span>
+                <span className="block text-sm text-ipc-500">{tc('fluidOunces')}</span>
               </button>
             </div>
 
@@ -140,7 +147,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 fullWidth
                 size="lg"
               >
-                Next
+                {tc('next')}
                 <ChevronRight size={18} className="ml-1 inline" />
               </Button>
               <button
@@ -148,7 +155,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 onClick={() => goBack(1)}
                 className="text-sm text-ipc-400 hover:text-ipc-600 transition-colors"
               >
-                Back
+                {tc('back')}
               </button>
             </div>
           </div>
@@ -157,11 +164,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 3: Date confirmation */}
         {step === 3 && (
           <div key="step3" className={`w-full text-center ${animClass}`}>
-            <h2 className="text-2xl font-bold text-ipc-950 mb-2">
-              When do you want to start?
+            <h2 className="text-2xl font-bold text-ipc-950 mb-2 text-balance">
+              {t('dateTitle')}
             </h2>
             <p className="text-sm text-ipc-500 mb-6">
-              You need to track for <span className="font-semibold text-ipc-700">3 consecutive days</span> for it to work. Start on a morning when you can record your first pee of the day.
+              {t('dateSubtitle')}
             </p>
 
             {/* Date input */}
@@ -182,19 +189,19 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
             {/* 3-day preview */}
             <div className="bg-white/60 border border-ipc-100 rounded-2xl p-4 mb-8 text-left">
-              <p className="text-xs font-semibold text-ipc-400 uppercase tracking-wide mb-3">Your 3-day tracking period</p>
+              <p className="text-xs font-semibold text-ipc-400 uppercase tracking-wide mb-3">{t('trackingPeriodLabel')}</p>
               <div className="space-y-2">
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/60 rounded-xl">
                   <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-500 text-white text-xs font-bold">1</span>
-                  <span className="text-sm font-medium text-ipc-800">{format(day1, 'EEEE, MMMM d, yyyy')}</span>
+                  <span className="text-sm font-medium text-ipc-800">{format(day1, 'EEEE, MMMM d, yyyy', { locale: dateLocale })}</span>
                 </div>
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/40 rounded-xl">
                   <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-300 text-white text-xs font-bold">2</span>
-                  <span className="text-sm font-medium text-ipc-600">{format(day2, 'EEEE, MMMM d, yyyy')}</span>
+                  <span className="text-sm font-medium text-ipc-600">{format(day2, 'EEEE, MMMM d, yyyy', { locale: dateLocale })}</span>
                 </div>
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/30 rounded-xl">
                   <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-200 text-ipc-600 text-xs font-bold">3</span>
-                  <span className="text-sm font-medium text-ipc-500">{format(day3, 'EEEE, MMMM d, yyyy')}</span>
+                  <span className="text-sm font-medium text-ipc-500">{format(day3, 'EEEE, MMMM d, yyyy', { locale: dateLocale })}</span>
                 </div>
               </div>
             </div>
@@ -205,14 +212,14 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 fullWidth
                 size="lg"
               >
-                Confirm & Start
+                {t('confirmAndStart')}
               </Button>
               <button
                 type="button"
                 onClick={() => goBack(2)}
                 className="text-sm text-ipc-400 hover:text-ipc-600 transition-colors"
               >
-                Back
+                {tc('back')}
               </button>
             </div>
           </div>

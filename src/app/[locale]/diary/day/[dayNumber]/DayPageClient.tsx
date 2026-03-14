@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { track } from '@vercel/analytics';
 import TimelineView from '@/components/diary/TimelineView';
 import QuickLogFAB from '@/components/diary/QuickLogFAB';
@@ -17,14 +19,6 @@ import type { VoidEntry, DrinkEntry, LeakEntry, BedtimeEntry } from '@/lib/types
 
 type SheetMode = null | 'void' | 'drink' | 'leak' | 'bedtime' | 'wakeup';
 
-// Milestone messages — shown once per session via localStorage
-const MILESTONES: Record<string, { emoji: string; message: string; subtitle: string; duration: number }> = {
-  first_event:   { emoji: '\u{1F4AA}', message: 'You\'re on your way!', subtitle: 'Your data is saved on this device \u2014 come back anytime', duration: 3000 },
-  day1_complete:  { emoji: '\u{1F31F}', message: 'Day 1 complete!', subtitle: 'Great job \u2014 2 more days to go', duration: 2500 },
-  day2_complete:  { emoji: '\u{1F525}', message: 'Day 2 done!', subtitle: 'You\'re over halfway \u2014 keep it up!', duration: 2500 },
-  day3_complete:  { emoji: '\u{1F389}', message: 'All 3 days complete!', subtitle: 'Tap View Results to see your diary', duration: 3000 },
-};
-
 function checkMilestone(key: string): boolean {
   const storageKey = `milestone_${key}`;
   if (typeof window !== 'undefined' && !sessionStorage.getItem(storageKey)) {
@@ -38,8 +32,19 @@ export default function DayPageClient() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('toasts');
+  const tm = useTranslations('milestones');
   const dayNumber = Math.min(3, Math.max(1, Number(params.dayNumber))) as 1 | 2 | 3;
   const { diaryStarted, getBedtimeForDay, getVoidsForDay, getWakeTimeForDay } = useDiaryStore();
+
+  // Milestone messages — shown once per session via localStorage
+  const MILESTONES: Record<string, { emoji: string; message: string; subtitle: string; duration: number }> = {
+    first_event:   { emoji: '\u{1F4AA}', message: tm('firstEvent'), subtitle: tm('firstEventSubtitle'), duration: 3000 },
+    day1_complete:  { emoji: '\u{1F31F}', message: tm('day1Complete'), subtitle: tm('day1CompleteSubtitle'), duration: 2500 },
+    day2_complete:  { emoji: '\u{1F525}', message: tm('day2Complete'), subtitle: tm('day2CompleteSubtitle'), duration: 2500 },
+    day3_complete:  { emoji: '\u{1F389}', message: tm('day3Complete'), subtitle: tm('day3CompleteSubtitle'), duration: 3000 },
+  };
+
   // Check if previous day is complete (needed to access this day)
   const prevDayComplete = dayNumber === 1 ? true
     : !!getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3);
@@ -127,7 +132,8 @@ export default function DayPageClient() {
       return true;
     }
     return false;
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tm]);
 
   const handleSave = useCallback((message: string) => {
     setSheetMode(null);
@@ -143,14 +149,14 @@ export default function DayPageClient() {
 
     // First action on Day 1: wake-up or first void/drink
     if (dayNumber === 1 && !bedtime) {
-      if (message === 'Wake-up time saved' || totalEvents === 1) {
+      if (message === t('wakeUpSaved') || totalEvents === 1) {
         showMilestoneToast('first_event');
         return;
       }
     }
 
     // Day complete (bedtime just saved)
-    if (bedtime && message === 'Bedtime saved') {
+    if (bedtime && message === t('bedtimeSaved')) {
       const shown = showMilestoneToast(`day${dayNumber}_complete`);
       if (shown) return;
     }
@@ -161,7 +167,7 @@ export default function DayPageClient() {
     setToastDuration(3000);
     setToastMessage(message);
     setShowToast(true);
-  }, [dayNumber, showMilestoneToast]);
+  }, [dayNumber, showMilestoneToast, t]);
 
   const handleClose = useCallback(() => {
     setSheetMode(null);
@@ -211,8 +217,6 @@ export default function DayPageClient() {
     setSheetMode('leak');
   }, []);
 
-  // All forms manage their own headings — no external sheet title needed
-
   if (!diaryStarted || !prevDayComplete) return null;
 
   return (
@@ -247,7 +251,7 @@ export default function DayPageClient() {
             editEntry={editVoidEntry}
             initialTime={initialTime}
             isNightView={isNightView}
-            onSave={() => { track('log_void', { day: dayNumber, edit: !!editVoidEntry }); handleSave(editVoidEntry ? 'Pee updated' : 'Pee saved'); }}
+            onSave={() => { track('log_void', { day: dayNumber, edit: !!editVoidEntry }); handleSave(editVoidEntry ? t('peeUpdated') : t('peeSaved')); }}
           />
         )}
         {sheetMode === 'drink' && (
@@ -257,7 +261,7 @@ export default function DayPageClient() {
             editEntry={editDrinkEntry}
             initialTime={initialTime}
             isNightView={isNightView}
-            onSave={() => { track('log_drink', { day: dayNumber, edit: !!editDrinkEntry }); handleSave(editDrinkEntry ? 'Drink updated' : 'Drink saved'); }}
+            onSave={() => { track('log_drink', { day: dayNumber, edit: !!editDrinkEntry }); handleSave(editDrinkEntry ? t('drinkUpdated') : t('drinkSaved')); }}
           />
         )}
         {sheetMode === 'leak' && (
@@ -267,19 +271,19 @@ export default function DayPageClient() {
             editEntry={editLeakEntry}
             initialTime={initialTime}
             isNightView={isNightView}
-            onSave={() => { track('log_leak', { day: dayNumber, edit: !!editLeakEntry }); handleSave(editLeakEntry ? 'Leak updated' : 'Leak saved'); }}
+            onSave={() => { track('log_leak', { day: dayNumber, edit: !!editLeakEntry }); handleSave(editLeakEntry ? t('leakUpdated') : t('leakSaved')); }}
           />
         )}
         {sheetMode === 'bedtime' && (
           <SetBedtimeForm
             dayNumber={dayNumber}
-            onSave={() => { track('log_bedtime', { day: dayNumber }); handleSave('Bedtime saved'); }}
+            onSave={() => { track('log_bedtime', { day: dayNumber }); handleSave(t('bedtimeSaved')); }}
           />
         )}
         {sheetMode === 'wakeup' && (
           <SetWakeTimeForm
             dayNumber={dayNumber}
-            onSave={() => { track('log_wake', { day: dayNumber }); handleSave('Wake-up time saved'); }}
+            onSave={() => { track('log_wake', { day: dayNumber }); handleSave(t('wakeUpSaved')); }}
           />
         )}
       </BottomSheet>

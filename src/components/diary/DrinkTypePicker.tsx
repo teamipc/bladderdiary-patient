@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { DRINK_TYPES } from '@/lib/constants';
 import DrinkIcon from '@/components/ui/DrinkIcon';
 import type { DrinkType } from '@/lib/types';
@@ -10,6 +11,7 @@ interface DrinkTypePickerProps {
 }
 
 export default function DrinkTypePicker({ value, onChange }: DrinkTypePickerProps) {
+  const t = useTranslations('drinkTypes');
   return (
     <div className="grid grid-cols-4 [grid-auto-rows:1fr] gap-2 mt-8">
       {DRINK_TYPES.map((drink) => {
@@ -31,7 +33,7 @@ export default function DrinkTypePicker({ value, onChange }: DrinkTypePickerProp
               size={20}
               className={selected ? 'text-white' : 'text-drink'}
             />
-            <span className="text-xs font-bold leading-tight">{drink.label}</span>
+            <span className="text-xs font-bold leading-tight">{t(drink.value)}</span>
           </button>
         );
       })}

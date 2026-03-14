@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
 import { downloadCsv, generateCsvBlob } from '@/lib/exportCsv';
@@ -23,6 +24,7 @@ function canShareFiles(): boolean {
 
 export default function ExportActions() {
   const store = useDiaryStore();
+  const t = useTranslations('export');
   const [exporting, setExporting] = useState<string | null>(null);
 
   // Detect share capability once on mount (stable across renders)
@@ -81,8 +83,8 @@ export default function ExportActions() {
   }, [store, shareSupported]);
 
   const hasData = store.hasData();
-  const pdfLabel = shareSupported ? 'Share PDF' : 'Download PDF';
-  const csvLabel = shareSupported ? 'Share CSV' : 'Download CSV';
+  const pdfLabel = shareSupported ? t('sharePdf') : t('downloadPdf');
+  const csvLabel = shareSupported ? t('shareCsv') : t('downloadCsv');
   const Icon = shareSupported ? Share2 : FileText;
 
   return (
@@ -94,7 +96,7 @@ export default function ExportActions() {
         disabled={!hasData || exporting === 'pdf'}
       >
         <Icon size={20} />
-        {exporting === 'pdf' ? 'Generating...' : pdfLabel}
+        {exporting === 'pdf' ? t('generating') : pdfLabel}
       </Button>
 
       <Button
@@ -104,12 +106,12 @@ export default function ExportActions() {
         disabled={!hasData || exporting === 'csv'}
       >
         {shareSupported ? <Share2 size={20} /> : <FileSpreadsheet size={20} />}
-        {exporting === 'csv' ? 'Generating...' : csvLabel}
+        {exporting === 'csv' ? t('generating') : csvLabel}
       </Button>
 
       {!hasData && (
         <p className="text-center text-sm text-ipc-400 mt-2">
-          Start adding entries to enable export
+          {t('noDataYet')}
         </p>
       )}
     </div>

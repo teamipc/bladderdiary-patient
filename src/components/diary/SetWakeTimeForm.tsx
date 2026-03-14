@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { Sun } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
@@ -14,6 +15,7 @@ interface SetWakeTimeFormProps {
 
 export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormProps) {
   const { setWakeTime, getWakeTimeForDay, getBedtimeForDay, startDate } = useDiaryStore();
+  const t = useTranslations('wakeTime');
   const existing = getWakeTimeForDay(dayNumber);
   const bedtime = getBedtimeForDay(dayNumber);
   const prevBedtime = dayNumber > 1 ? getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3) : undefined;
@@ -51,7 +53,7 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
       <div className="text-center py-3">
         <Sun size={44} className="text-warning mx-auto" />
         <p className="text-lg font-semibold text-ipc-950 mt-3">
-          {existing ? 'Update wake-up time' : 'When did you wake up?'}
+          {existing ? t('updateWakeUp') : t('whenWakeUp')}
         </p>
       </div>
 
@@ -59,19 +61,19 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
 
       {isBeforePrevBedtime && (
         <p className="text-sm text-danger text-center font-medium">
-          Wake-up must be after last night&apos;s bedtime at {formatTime(prevBedtime!.timestampIso)}
+          {t('afterBedtime', { time: formatTime(prevBedtime!.timestampIso) })}
         </p>
       )}
 
       {!isBeforePrevBedtime && isAfterBedtime && (
         <p className="text-sm text-danger text-center font-medium">
-          Wake-up must be before your bedtime at {formatTime(bedtime!.timestampIso)}
+          {t('beforeBedtime', { time: formatTime(bedtime!.timestampIso) })}
         </p>
       )}
 
       <div className="flex justify-center">
         <Button onClick={handleSave} size="md" disabled={isInvalid}>
-          {existing ? 'Update Wake-up' : 'Save Wake-up'}
+          {existing ? t('updateWakeUpButton') : t('saveWakeUp')}
         </Button>
       </div>
     </div>

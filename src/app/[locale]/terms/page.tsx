@@ -1,17 +1,32 @@
 import type { Metadata } from 'next';
 import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { setRequestLocale } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: 'Terms of Use',
-  description:
-    'Terms of Use for My Flow Check. This app is for personal tracking only and does not provide medical advice, diagnosis, or treatment.',
-  alternates: {
-    canonical: '/terms',
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: 'Terms of Use',
+    description:
+      'Terms of Use for My Flow Check. This app is for personal tracking only and does not provide medical advice, diagnosis, or treatment.',
+    alternates: {
+      canonical: `/${locale}/terms`,
+    },
+  };
+}
 
-export default function TermsOfUsePage() {
+export default async function TermsOfUsePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <div className="bg-surface min-h-dvh">
       <div className="max-w-lg mx-auto px-4 py-6 pb-28">
