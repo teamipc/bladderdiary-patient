@@ -37,8 +37,8 @@ export const VOLUME_PRESETS_OZ = [5, 8, 12, 17] as const;
 
 /** Slider/input config per unit. */
 export const VOLUME_CONFIG = {
-  mL: { presets: VOLUME_PRESETS_ML, default: 250, max: 1000, step: 25 },
-  oz: { presets: VOLUME_PRESETS_OZ, default: 8, max: 34, step: 1 },
+  mL: { presets: VOLUME_PRESETS_ML, default: 250, max: 1500, step: 25 },
+  oz: { presets: VOLUME_PRESETS_OZ, default: 8, max: 51, step: 1 },
 } as const;
 
 /** @deprecated Use VOLUME_PRESETS_ML instead. */
