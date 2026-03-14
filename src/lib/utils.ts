@@ -1,5 +1,13 @@
 import { format, parseISO, differenceInCalendarDays, addDays } from 'date-fns';
+import type { Locale as DateFnsLocale } from 'date-fns';
+import { enUS, fr, es } from 'date-fns/locale';
 import type { BedtimeEntry } from './types';
+
+/** Map locale string to date-fns locale object. */
+const DATE_LOCALES: Record<string, DateFnsLocale> = { en: enUS, fr, es };
+function getDateLocale(locale?: string): DateFnsLocale {
+  return (locale && DATE_LOCALES[locale]) || enUS;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Volume unit conversion                                             */
@@ -27,19 +35,19 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
-/** Format a time string from ISO, e.g. "8:15 AM" */
-export function formatTime(isoString: string): string {
-  return format(parseISO(isoString), 'h:mm a');
+/** Format a time string from ISO. Uses locale-aware pattern (e.g. "8:15 AM" en, "8h15" fr). */
+export function formatTime(isoString: string, locale?: string): string {
+  return format(parseISO(isoString), 'p', { locale: getDateLocale(locale) });
 }
 
-/** Format a date, e.g. "Tue, Mar 10, 2026" */
-export function formatDate(isoString: string): string {
-  return format(parseISO(isoString), 'EEE, MMM d, yyyy');
+/** Format a date, e.g. "Tue, Mar 10, 2026" (en) / "mar. 10 mars 2026" (fr). */
+export function formatDate(isoString: string, locale?: string): string {
+  return format(parseISO(isoString), 'PPP', { locale: getDateLocale(locale) });
 }
 
-/** Format full date, e.g. "March 10, 2026" */
-export function formatFullDate(dateStr: string): string {
-  return format(parseISO(dateStr + 'T12:00:00'), 'MMMM d, yyyy');
+/** Format full date, e.g. "March 10, 2026" (en) / "10 mars 2026" (fr). */
+export function formatFullDate(dateStr: string, locale?: string): string {
+  return format(parseISO(dateStr + 'T12:00:00'), 'PPP', { locale: getDateLocale(locale) });
 }
 
 /**

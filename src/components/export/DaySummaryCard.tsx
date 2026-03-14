@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useDiaryStore } from '@/lib/store';
 import { getDayDate, formatDate, formatTime, mlToDisplayVolume } from '@/lib/utils';
 import { Droplets, Coffee, Moon, Sun, CloudDrizzle } from 'lucide-react';
@@ -12,6 +12,7 @@ interface DaySummaryCardProps {
 export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
   const t = useTranslations('daySummary');
   const tc = useTranslations('common');
+  const locale = useLocale();
   const { startDate, volumeUnit, getVoidsForDay, getDrinksForDay, getLeaksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
 
   const voids = getVoidsForDay(dayNumber);
@@ -25,7 +26,7 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
   const leaks = voids.filter((v) => v.leak).length;
 
   const dayDateStr = getDayDate(startDate, dayNumber);
-  const dayLabel = formatDate(dayDateStr + 'T12:00:00');
+  const dayLabel = formatDate(dayDateStr + 'T12:00:00', locale);
 
   const hasAnyData = voids.length > 0 || drinks.length > 0 || bedtime;
 
@@ -77,13 +78,13 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
             {wakeTime && (
               <div className="flex items-center gap-1.5 text-warning">
                 <Sun size={14} />
-                <span className="font-medium">{t('wake', { time: formatTime(wakeTime.timestampIso) })}</span>
+                <span className="font-medium">{t('wake', { time: formatTime(wakeTime.timestampIso, locale) })}</span>
               </div>
             )}
             {bedtime && (
               <div className="flex items-center gap-1.5 text-bedtime">
                 <Moon size={14} />
-                <span className="font-medium">{t('bed', { time: formatTime(bedtime.timestampIso) })}</span>
+                <span className="font-medium">{t('bed', { time: formatTime(bedtime.timestampIso, locale) })}</span>
               </div>
             )}
             {leaks > 0 && (

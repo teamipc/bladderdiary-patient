@@ -3,7 +3,7 @@
 import { useMemo, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Link, useRouter } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Sun, Moon, Droplets, CheckCircle2, ChevronLeft, ChevronRight, Plus, RotateCcw, Check, CloudDrizzle } from 'lucide-react';
 import TimelineEvent from './TimelineEvent';
 import DrinkIcon from '@/components/ui/DrinkIcon';
@@ -57,6 +57,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
   const searchParams = useSearchParams();
   const t = useTranslations('timeline');
   const tc = useTranslations('common');
+  const locale = useLocale();
 
   const allVoids = getVoidsForDay(dayNumber);
   const allDrinks = getDrinksForDay(dayNumber);
@@ -65,7 +66,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
   const wakeTime = getWakeTimeForDay(dayNumber);
 
   const dayDateStr = getDayDate(startDate, dayNumber);
-  const dayLabel = formatDate(dayDateStr + 'T12:00:00');
+  const dayLabel = formatDate(dayDateStr + 'T12:00:00', locale);
 
   const hasWakeTime = !!wakeTime;
   const hasBedtime = !!bedtime;
@@ -226,7 +227,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
             <div className="flex items-center gap-2">
               <Sun size={16} className="text-warning shrink-0" />
               <span className="text-sm font-medium text-ipc-500">
-                {t('wokeUpAt', { time: formatTime(item.entry.timestampIso) })}
+                {t('wokeUpAt', { time: formatTime(item.entry.timestampIso, locale) })}
               </span>
             </div>
             {noDayEvents && (
@@ -247,7 +248,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         <div key={item.entry.id} className="flex items-center gap-2 px-4 py-2">
           <Moon size={16} className="text-indigo-400 shrink-0" />
           <span className="text-sm font-medium text-indigo-300">
-            {t('wentToBedAt', { time: formatTime(item.entry.timestampIso) })}
+            {t('wentToBedAt', { time: formatTime(item.entry.timestampIso, locale) })}
           </span>
         </div>
       );
