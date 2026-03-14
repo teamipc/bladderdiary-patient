@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, MessageSquarePlus, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import TimePicker from '@/components/ui/TimePicker';
 import LeakTriggerPicker from '@/components/diary/LeakTriggerPicker';
 import Button from '@/components/ui/Button';
@@ -22,6 +23,10 @@ const TOTAL_STEPS = 3;
 
 export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogLeakFormProps) {
   const { addLeak, updateLeak, getBedtimeForDay, getWakeTimeForDay, startDate } = useDiaryStore();
+  const t = useTranslations('logLeak');
+  const tc = useTranslations('common');
+  const tv = useTranslations('validation');
+  const tla = useTranslations('leakAmounts');
   const isEditing = !!editEntry;
 
   const prevDayBedtime = dayNumber > 1 ? getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3) : undefined;
@@ -160,33 +165,25 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     if (!trigger || urgencyBeforeLeak === null) return;
     if (isBeforePrevBedtime && prevDayBedtime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(
-        `This time is before Day ${dayNumber - 1}'s bedtime (${formatTime(prevDayBedtime.timestampIso)}). Pick a later time.`
-      );
+      setTimeWarning(tv('beforePrevBedtime', { dayNumber: dayNumber - 1, time: formatTime(prevDayBedtime.timestampIso) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
     if (isBeforeWakeTime && wakeTime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(
-        `This time is before wake-up (${formatTime(wakeTime.timestampIso)}). Daytime events must be after you woke up.`
-      );
+      setTimeWarning(tv('beforeWakeUp', { time: formatTime(wakeTime.timestampIso) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
     if (isAfterWakeTime && wakeTime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(
-        `This time is after wake-up (${formatTime(wakeTime.timestampIso)}). Overnight events must be before you woke up.`
-      );
+      setTimeWarning(tv('afterWakeUp', { time: formatTime(wakeTime.timestampIso) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
     if (isAfterBedtime && currentBedtime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(
-        `This time is after bedtime (${formatTime(currentBedtime.timestampIso)}). Go to the night view for overnight events.`
-      );
+      setTimeWarning(tv('afterBedtime', { time: formatTime(currentBedtime.timestampIso) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
@@ -204,7 +201,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
       addLeak(data);
     }
     onSave();
-  }, [trigger, urgencyBeforeLeak, amount, time, notes, isEditing, editEntry, addLeak, updateLeak, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime]);
+  }, [trigger, urgencyBeforeLeak, amount, time, notes, isEditing, editEntry, addLeak, updateLeak, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime, tv]);
 
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
@@ -265,8 +262,8 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
           {/* ── Step 1: What caused the leak? ── */}
           {step === 1 && (
             <div className="flex flex-col items-center justify-center min-h-[45vh]">
-              <h3 className="text-xl font-bold text-center mb-2 text-ipc-950 px-10">
-                What caused the leak?
+              <h3 className="text-xl font-bold text-center mb-2 text-ipc-950 px-10 text-balance">
+                {t('whatCaused')}
               </h3>
 
               <LeakTriggerPicker value={trigger} onChange={handleTriggerChange} />
@@ -285,7 +282,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                       }`}
                   >
                     <MessageSquarePlus size={15} />
-                    {notes && !noteOpen ? 'Note \u2713' : 'Add a note'}
+                    {notes && !noteOpen ? tc('noteAdded') : tc('addNote')}
                   </button>
                 </div>
               )}
@@ -296,7 +293,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                     <textarea
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      placeholder="e.g., During walk"
+                      placeholder={t('notePlaceholder')}
                       autoFocus
                       rows={2}
                       maxLength={120}
@@ -310,7 +307,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                       onClick={handleNoteToggle}
                       className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center
                         rounded-lg bg-leak text-white active:scale-[0.9] transition-all"
-                      aria-label="Done"
+                      aria-label={tc('done')}
                     >
                       <Check size={16} strokeWidth={2.5} />
                     </button>
@@ -324,11 +321,11 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
           {step === 2 && (
             <div className="flex flex-col items-center justify-center min-h-[45vh]">
               {/* How much? */}
-              <h3 className="text-lg font-bold text-center mb-3 text-ipc-950 px-10">
-                How much leaked?
+              <h3 className="text-lg font-bold text-center mb-3 text-ipc-950 px-10 text-balance">
+                {t('howMuch')}
               </h3>
               <p className="text-xs text-ipc-400 text-center mb-2">
-                optional — tap to select, tap again to clear
+                {t('optionalTapHint')}
               </p>
               <div className="flex justify-center gap-2 mb-6">
                 {LEAK_AMOUNT_OPTIONS.map((a) => {
@@ -344,7 +341,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                           : 'bg-white/40 text-ipc-600 border border-ipc-200/40'
                       }`}
                     >
-                      {a.label}
+                      {tla(a.value)}
                     </button>
                   );
                 })}
@@ -354,8 +351,8 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               <div className="border-t border-leak/15 mt-1 mb-3 w-full" />
 
               {/* Urgency before leak */}
-              <h3 className="text-lg font-bold text-center mb-3 text-ipc-950">
-                Urgency before the leak?
+              <h3 className="text-lg font-bold text-center mb-3 text-ipc-950 text-balance">
+                {t('urgencyBefore')}
               </h3>
               <div className="flex gap-2">
                 <button
@@ -367,7 +364,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                       : 'bg-white/40 text-ipc-600 border border-ipc-200/40'
                   }`}
                 >
-                  Yes
+                  {tc('yes')}
                 </button>
                 <button
                   type="button"
@@ -378,7 +375,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                       : 'bg-white/40 text-ipc-600 border border-ipc-200/40'
                   }`}
                 >
-                  No
+                  {tc('no')}
                 </button>
               </div>
             </div>
@@ -387,8 +384,8 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
           {/* ── Step 3: Time + Save ── */}
           {step === 3 && (
             <div className="flex flex-col items-center justify-center min-h-[45vh]">
-              <h3 className="text-lg font-bold text-center mb-3 text-ipc-950">
-                When was this?
+              <h3 className="text-lg font-bold text-center mb-3 text-ipc-950 text-balance">
+                {t('whenWasThis')}
               </h3>
 
               <TimePicker value={time} onChange={handleTimeChange} variant="leak" />
@@ -403,7 +400,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
 
               <div className="flex justify-center mt-6">
                 <Button onClick={handleSave} size="md" variant="leak" disabled={!trigger || urgencyBeforeLeak === null}>
-                  {isEditing ? 'Update \u2713' : 'Save \u2713'}
+                  {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>
             </div>

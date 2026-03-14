@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { LEAK_TRIGGERS } from '@/lib/constants';
 import {
   Wind, Sparkles, Smile, Dumbbell, Activity,
@@ -19,19 +20,20 @@ interface LeakTriggerPickerProps {
 }
 
 export default function LeakTriggerPicker({ value, onChange }: LeakTriggerPickerProps) {
-  const selectedTrigger = value ? LEAK_TRIGGERS.find((t) => t.value === value) : null;
+  const t = useTranslations('leakTriggers');
+  const selectedTrigger = value ? LEAK_TRIGGERS.find((lt) => lt.value === value) : null;
 
   return (
     <div>
       <div className="grid grid-cols-4 [grid-auto-rows:1fr] gap-2 mt-6">
-        {LEAK_TRIGGERS.map((t) => {
-          const selected = value === t.value;
-          const Icon = ICON_MAP[t.icon];
+        {LEAK_TRIGGERS.map((lt) => {
+          const selected = value === lt.value;
+          const Icon = ICON_MAP[lt.icon];
           return (
             <button
-              key={t.value}
+              key={lt.value}
               type="button"
-              onClick={() => onChange(selected ? null : t.value)}
+              onClick={() => onChange(selected ? null : lt.value)}
               className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl min-h-[76px]
                 transition-all active:scale-[0.95] ${
                   selected
@@ -43,7 +45,7 @@ export default function LeakTriggerPicker({ value, onChange }: LeakTriggerPicker
                 size={22}
                 className={selected ? 'text-white' : 'text-leak'}
               />
-              <span className="text-xs font-bold leading-tight">{t.label}</span>
+              <span className="text-xs font-bold leading-tight">{t(`${lt.value}.label`)}</span>
             </button>
           );
         })}
@@ -52,7 +54,7 @@ export default function LeakTriggerPicker({ value, onChange }: LeakTriggerPicker
       {/* Description shown when a trigger is selected */}
       {selectedTrigger && (
         <p className="text-sm text-leak font-medium text-center mt-2.5 animate-fade-slide-up">
-          {selectedTrigger.description}
+          {t(`${selectedTrigger.value}.description`)}
         </p>
       )}
     </div>

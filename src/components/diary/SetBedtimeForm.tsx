@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Moon } from 'lucide-react';
 import { track } from '@vercel/analytics';
+import { useTranslations } from 'next-intl';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
@@ -15,6 +16,7 @@ interface SetBedtimeFormProps {
 
 export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProps) {
   const { setBedtime, getBedtimeForDay, getWakeTimeForDay, getVoidsForDay, getDrinksForDay, startDate } = useDiaryStore();
+  const t = useTranslations('bedtime');
   const existing = getBedtimeForDay(dayNumber);
   const wakeTime = getWakeTimeForDay(dayNumber);
   const voids = getVoidsForDay(dayNumber);
@@ -79,7 +81,7 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
       <div className="text-center py-3">
         <Moon size={44} className="text-bedtime mx-auto" />
         <p className="text-lg font-semibold text-bedtime mt-3">
-          {existing ? 'Update bedtime' : 'When did you go to bed?'}
+          {existing ? t('updateBedtime') : t('whenGoToBed')}
         </p>
       </div>
 
@@ -87,19 +89,19 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
 
       {isBeforeWakeUp && (
         <p className="text-sm text-danger text-center font-medium">
-          Bedtime must be after your wake-up at {formatTime(wakeTime!.timestampIso)}
+          {t('afterWakeUp', { time: formatTime(wakeTime!.timestampIso) })}
         </p>
       )}
 
       {!isBeforeWakeUp && isBeforeLastEvent && (
         <p className="text-sm text-danger text-center font-medium">
-          Bedtime must be after your last event at {formatTime(lastEventTime!)}. Overnight events go on the next day.
+          {t('afterLastEvent', { time: formatTime(lastEventTime!) })}
         </p>
       )}
 
       <div className="flex justify-center">
         <Button onClick={handleSave} size="md" variant="bedtime" disabled={isInvalid}>
-          {existing ? 'Update Bedtime' : 'Save Bedtime'}
+          {existing ? t('updateBedtimeButton') : t('saveBedtime')}
         </Button>
       </div>
     </div>

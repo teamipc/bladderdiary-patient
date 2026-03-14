@@ -1,8 +1,9 @@
 'use client';
 
 import { Droplets, Moon, Trash2, Pencil, Sun, Wind, Sparkles, Smile, Dumbbell, Activity, Footprints, MoreHorizontal, HelpCircle, CloudDrizzle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { formatTime, mlToDisplayVolume } from '@/lib/utils';
-import { getDrinkLabel, getDrinkIconName, SENSATION_LABELS, getLeakTriggerLabel, getLeakTriggerIconName } from '@/lib/constants';
+import { getDrinkIconName, getLeakTriggerIconName } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
 import DrinkIcon from '@/components/ui/DrinkIcon';
 import type { VoidEntry, DrinkEntry, BedtimeEntry, WakeTimeEntry, LeakEntry } from '@/lib/types';
@@ -22,6 +23,11 @@ type TimelineEventProps =
 export default function TimelineEvent(props: TimelineEventProps) {
   const { type, nightMode } = props;
   const { volumeUnit } = useDiaryStore();
+  const t = useTranslations('timelineEvent');
+  const td = useTranslations('drinkTypes');
+  const tl = useTranslations('leakTriggers');
+  const tla = useTranslations('leakAmounts');
+  const ts = useTranslations('sensations');
   const fmt = (ml: number) => mlToDisplayVolume(ml, volumeUnit);
 
   if (type === 'void') {
@@ -52,12 +58,12 @@ export default function TimelineEvent(props: TimelineEventProps) {
             </span>
             {entry.isFirstMorningVoid && (
               <span className="text-xs bg-warning/10 text-warning px-2 py-0.5 rounded-full font-medium">
-                Morning pee
+                {t('morningPee')}
               </span>
             )}
             {entry.doubleVoidMl && (
               <span className="text-xs bg-ipc-100 text-ipc-600 px-2 py-0.5 rounded-full font-medium">
-                Double void
+                {t('doubleVoid')}
               </span>
             )}
           </div>
@@ -69,7 +75,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
             </span>
             {entry.sensation !== null && (
               <span className="text-sm text-ipc-400 shrink-0">
-                {entry.sensation} – {SENSATION_LABELS[entry.sensation]?.short ?? ''}
+                {entry.sensation} – {ts(`${entry.sensation}.short`)}
               </span>
             )}
             {entry.leak && (
@@ -121,7 +127,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
               {formatTime(entry.timestampIso)}
             </span>
             <span className="text-xs bg-drink/10 text-drink px-2 py-0.5 rounded-full font-medium">
-              {getDrinkLabel(entry.drinkType)}
+              {td(entry.drinkType)}
             </span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
@@ -178,20 +184,20 @@ export default function TimelineEvent(props: TimelineEventProps) {
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
               nightMode ? 'bg-indigo-400/15 text-indigo-300' : 'bg-leak/10 text-leak'
             }`}>
-              {getLeakTriggerLabel(entry.trigger)}
+              {tl(`${entry.trigger}.label`)}
             </span>
             {entry.urgencyBeforeLeak === true && (
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                 nightMode ? 'bg-indigo-400/15 text-indigo-300' : 'bg-leak/10 text-leak'
               }`}>
-                Urgency
+                {t('urgency')}
               </span>
             )}
           </div>
           {entry.amount && (
             <div className="flex items-center gap-2 mt-0.5">
               <span className={`text-sm font-medium ${nightMode ? 'text-indigo-300' : 'text-leak'}`}>
-                {entry.amount.charAt(0).toUpperCase() + entry.amount.slice(1)}
+                {tla(entry.amount)}
               </span>
             </div>
           )}
@@ -241,7 +247,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
         </div>
 
         <div className="flex-1 min-w-0">
-          <span className="text-base font-semibold text-ipc-950">Wake up</span>
+          <span className="text-base font-semibold text-ipc-950">{t('wakeUp')}</span>
           <div className="mt-0.5">
             <span className="text-sm text-ipc-600">{formatTime(entry.timestampIso)}</span>
           </div>
@@ -269,7 +275,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <span className="text-base font-semibold text-bedtime">Bedtime</span>
+        <span className="text-base font-semibold text-bedtime">{t('bedtime')}</span>
         <div className="mt-0.5">
           <span className="text-sm font-medium text-bedtime">{formatTime(entry.timestampIso)}</span>
         </div>

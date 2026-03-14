@@ -185,7 +185,7 @@ describe('globals.css (viewport/responsive)', () => {
 // ──────────────────────────────────────────────
 describe('layout viewport config', () => {
   const layout = readFileSync(
-    resolve(ROOT, 'src/app/layout.tsx'),
+    resolve(ROOT, 'src/app/[locale]/layout.tsx'),
     'utf-8',
   );
 

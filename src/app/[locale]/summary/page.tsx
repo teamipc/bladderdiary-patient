@@ -1,20 +1,21 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { track } from '@vercel/analytics';
 import { useDiaryStore } from '@/lib/store';
 import DaySummaryCard from '@/components/export/DaySummaryCard';
 import ExportActions from '@/components/export/ExportActions';
 import Button from '@/components/ui/Button';
 import { HelpCircle, Lock, AlertTriangle, ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Link, useRouter } from '@/i18n/navigation';
 import { getCurrentDay } from '@/lib/utils';
 import Image from 'next/image';
 import IpcInfoModal from '@/components/ui/IpcInfoModal';
 
 export default function SummaryPage() {
   const router = useRouter();
+  const t = useTranslations('summary');
   const { diaryStarted, startDate, getBedtimeForDay, getVoidsForDay, getDrinksForDay } = useDiaryStore();
   const isComplete = diaryStarted && !!getBedtimeForDay(3);
 
@@ -24,8 +25,8 @@ export default function SummaryPage() {
     for (const d of [1, 2, 3] as const) {
       const voids = getVoidsForDay(d);
       const drinks = getDrinksForDay(d);
-      if (voids.length === 0) dataWarnings.push(`Day ${d} has no pee entries`);
-      if (drinks.length === 0) dataWarnings.push(`Day ${d} has no drink entries - your report will still work but fluid intake data will be missing`);
+      if (voids.length === 0) dataWarnings.push(t('noPeeEntries', { day: d }));
+      if (drinks.length === 0) dataWarnings.push(t('noDrinkEntries', { day: d }));
     }
   }
 
@@ -56,9 +57,9 @@ export default function SummaryPage() {
         <div className="w-16 h-16 rounded-full bg-ipc-100 flex items-center justify-center mx-auto mb-4">
           <Lock size={28} className="text-ipc-400" />
         </div>
-        <h2 className="text-xl font-bold text-ipc-950 mb-2">Diary Locked</h2>
+        <h2 className="text-xl font-bold text-ipc-950 mb-2 text-balance">{t('diaryLocked')}</h2>
         <p className="text-base text-ipc-500 leading-relaxed">
-          Complete your 3-day tracking period to unlock your diary and export your data.
+          {t('diaryLockedDescription')}
         </p>
       </div>
     );
@@ -73,11 +74,11 @@ export default function SummaryPage() {
           className="inline-flex items-center gap-1 text-ipc-600 hover:text-ipc-800 transition-colors mb-2"
         >
           <ChevronLeft size={20} />
-          <span className="text-sm font-medium">Back to tracking</span>
+          <span className="text-sm font-medium">{t('backToTracking')}</span>
         </Link>
-        <h2 className="text-xl font-bold text-ipc-950">Your Diary</h2>
+        <h2 className="text-xl font-bold text-ipc-950 text-balance">{t('yourDiary')}</h2>
         <p className="text-base text-ipc-500 mt-1">
-          Your 3-day tracking overview
+          {t('trackingOverview')}
         </p>
       </div>
 
@@ -88,10 +89,10 @@ export default function SummaryPage() {
             <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-amber-800 mb-1">
-                Please review your data
+                {t('reviewData')}
               </p>
               <p className="text-xs text-amber-700 leading-relaxed">
-                {dataWarnings.join('. ')}. You can still generate your report, but for the most accurate results consider going back to add any missing entries.
+                {dataWarnings.join('. ')}{t('reviewDataSuffix')}
               </p>
             </div>
           </div>
@@ -110,13 +111,13 @@ export default function SummaryPage() {
         <div className="flex items-start gap-3">
           <Image src="/ipc-logo.png" alt="IPC" width={28} height={28} className="mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-ipc-800 mb-1">Integrated Pelvic Care</p>
+            <p className="text-sm font-semibold text-ipc-800 mb-1">{t('ipcTitle')}</p>
             <p className="text-xs text-ipc-500 leading-relaxed">
-              Better data leads to better care. Share these results with your health professional at your next appointment.
+              {t('ipcDescription')}
             </p>
             <IpcInfoModal>
               <span className="inline-block text-xs font-semibold text-ipc-600 mt-1.5 underline underline-offset-2">
-                Learn more about IPC
+                {t('learnMoreIpc')}
               </span>
             </IpcInfoModal>
           </div>
@@ -125,8 +126,8 @@ export default function SummaryPage() {
 
       {/* Export section */}
       <div className="pt-2">
-        <h3 className="text-lg font-semibold text-ipc-950 mb-3">
-          Export for your health professional
+        <h3 className="text-lg font-semibold text-ipc-950 mb-3 text-balance">
+          {t('exportTitle')}
         </h3>
         <ExportActions />
       </div>
@@ -136,7 +137,7 @@ export default function SummaryPage() {
         <Link href="/help">
           <Button variant="ghost" fullWidth size="md">
             <HelpCircle size={18} />
-            Help & FAQ
+            {t('helpAndFaq')}
           </Button>
         </Link>
       </div>

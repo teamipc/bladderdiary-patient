@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import BottomSheet from './BottomSheet';
 
 interface IpcInfoModalProps {
@@ -17,6 +18,7 @@ interface IpcInfoModalProps {
  * containing blocks (e.g. header with backdrop-blur).
  */
 export default function IpcInfoModal({ children }: IpcInfoModalProps) {
+  const t = useTranslations('ipcModal');
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -33,14 +35,11 @@ export default function IpcInfoModal({ children }: IpcInfoModalProps) {
         </div>
 
         <h3 className="text-lg font-bold text-ipc-950 mb-1">
-          Integrated Pelvic Care
+          {t('title')}
         </h3>
 
         <p className="text-sm text-ipc-500 leading-relaxed mb-4 max-w-xs">
-          At IPC, we believe better data leads to better care. We specialise in
-          male pelvic health and are committed to raising the standard of care
-          in this space. Our tools are designed for everyone, because good
-          health tracking should be accessible to all.
+          {t('description')}
         </p>
 
         <a
@@ -50,11 +49,11 @@ export default function IpcInfoModal({ children }: IpcInfoModalProps) {
           className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm
             font-semibold bg-ipc-600 text-white active:scale-[0.97] transition-all"
         >
-          Learn more about IPC
+          {t('learnMore')}
         </a>
 
         <p className="text-[11px] text-ipc-400 mt-3">
-          Courses and resources for health professionals
+          {t('coursesNote')}
         </p>
       </div>
     </BottomSheet>

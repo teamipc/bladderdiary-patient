@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useDiaryStore } from '@/lib/store';
 import { getDayDate, formatDate, formatTime, mlToDisplayVolume } from '@/lib/utils';
 import { Droplets, Coffee, Moon, Sun, CloudDrizzle } from 'lucide-react';
@@ -9,6 +10,8 @@ interface DaySummaryCardProps {
 }
 
 export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
+  const t = useTranslations('daySummary');
+  const tc = useTranslations('common');
   const { startDate, volumeUnit, getVoidsForDay, getDrinksForDay, getLeaksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
 
   const voids = getVoidsForDay(dayNumber);
@@ -31,7 +34,7 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
       {/* Header */}
       <div className="px-5 py-3 bg-ipc-50 border-b border-ipc-100">
         <h3 className="text-base font-bold text-ipc-950">
-          Day {dayNumber}
+          {tc('day', { number: dayNumber })}
           <span className="text-ipc-500 font-medium ml-2">{dayLabel}</span>
         </h3>
       </div>
@@ -50,7 +53,7 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
                   {mlToDisplayVolume(totalFluids, volumeUnit).toLocaleString()}
                   <span className="text-sm font-medium text-ipc-400 ml-0.5">{volumeUnit}</span>
                 </p>
-                <p className="text-xs text-ipc-500">{drinks.length} drinks</p>
+                <p className="text-xs text-ipc-500">{t('drinks', { count: drinks.length })}</p>
               </div>
             </div>
 
@@ -64,7 +67,7 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
                   {mlToDisplayVolume(totalVoids, volumeUnit).toLocaleString()}
                   <span className="text-sm font-medium text-ipc-400 ml-0.5">{volumeUnit}</span>
                 </p>
-                <p className="text-xs text-ipc-500">{voids.length} voids</p>
+                <p className="text-xs text-ipc-500">{t('voids', { count: voids.length })}</p>
               </div>
             </div>
           </div>
@@ -74,31 +77,31 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
             {wakeTime && (
               <div className="flex items-center gap-1.5 text-warning">
                 <Sun size={14} />
-                <span className="font-medium">Wake {formatTime(wakeTime.timestampIso)}</span>
+                <span className="font-medium">{t('wake', { time: formatTime(wakeTime.timestampIso) })}</span>
               </div>
             )}
             {bedtime && (
               <div className="flex items-center gap-1.5 text-bedtime">
                 <Moon size={14} />
-                <span className="font-medium">Bed {formatTime(bedtime.timestampIso)}</span>
+                <span className="font-medium">{t('bed', { time: formatTime(bedtime.timestampIso) })}</span>
               </div>
             )}
             {leaks > 0 && (
               <div className="flex items-center gap-1.5 text-danger">
-                <span className="font-medium">{leaks} void leak{leaks > 1 ? 's' : ''}</span>
+                <span className="font-medium">{leaks > 1 ? t('voidLeaksPlural', { count: leaks }) : t('voidLeaks', { count: leaks })}</span>
               </div>
             )}
             {standaloneLeaks.length > 0 && (
               <div className="flex items-center gap-1.5 text-leak">
                 <CloudDrizzle size={14} />
-                <span className="font-medium">{standaloneLeaks.length} leak{standaloneLeaks.length > 1 ? 's' : ''}</span>
+                <span className="font-medium">{standaloneLeaks.length > 1 ? t('leaksPlural', { count: standaloneLeaks.length }) : t('leaks', { count: standaloneLeaks.length })}</span>
               </div>
             )}
           </div>
         </div>
       ) : (
         <div className="p-5 text-center">
-          <p className="text-base text-ipc-400">No entries recorded</p>
+          <p className="text-base text-ipc-400">{t('noEntries')}</p>
         </div>
       )}
     </div>

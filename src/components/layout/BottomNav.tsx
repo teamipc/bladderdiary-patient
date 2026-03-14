@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { Home, Droplet, BarChart3, Lock } from 'lucide-react';
 import { useDiaryStore } from '@/lib/store';
 import { getCurrentDay } from '@/lib/utils';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const t = useTranslations('nav');
   const { diaryStarted, startDate, getBedtimeForDay } = useDiaryStore();
 
   const currentDay = diaryStarted ? getCurrentDay(startDate) : 1;
@@ -57,7 +58,7 @@ export default function BottomNav() {
           <span className={`text-xs font-medium ${
             isHomeActive ? 'text-ipc-700' : 'text-ipc-200'
           }`}>
-            Home
+            {t('home')}
           </span>
         </Link>
 
@@ -78,7 +79,7 @@ export default function BottomNav() {
             <span className={`text-xs font-medium ${
               isTrackActive ? 'text-ipc-700' : 'text-ipc-200'
             }`}>
-              Track
+              {t('track')}
             </span>
           </Link>
         ) : (
@@ -87,7 +88,7 @@ export default function BottomNav() {
             <div className="w-8 h-8 flex items-center justify-center">
               <Droplet size={22} />
             </div>
-            <span className="text-xs font-medium">Track</span>
+            <span className="text-xs font-medium">{t('track')}</span>
           </div>
         )}
 
@@ -108,7 +109,7 @@ export default function BottomNav() {
             <span className={`text-xs font-medium ${
               isDiaryActive ? 'text-ipc-700' : 'text-ipc-200'
             }`}>
-              Diary
+              {t('diary')}
             </span>
           </Link>
         ) : (
@@ -121,7 +122,7 @@ export default function BottomNav() {
                 <Lock size={9} className="text-ipc-400" />
               </div>
             </div>
-            <span className="text-xs font-medium">Diary</span>
+            <span className="text-xs font-medium">{t('diary')}</span>
           </div>
         )}
       </div>
