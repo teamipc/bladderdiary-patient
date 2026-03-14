@@ -46,7 +46,10 @@
     "startTracking": "Start Tracking",
     "pwaPromptAndroid": "Want quick access? You can add My Flow Check to your home screen — no app store needed. Or just keep using it in your browser.",
     "addToHomeScreen": "Add to Home Screen",
-    "pwaPromptIos": "Want quick access? Tap the share button at the bottom of your screen, then \"Add to Home Screen\". Or just keep using it right here in your browser.",
+    "pwaPromptTitle": "Want quick access?",
+    "pwaStep1": "Tap the <icon></icon> Share button below",
+    "pwaStep2": "Choose \"Add to Home Screen\"",
+    "pwaPromptFooter": "Or just keep using it in your browser.",
     "privacyTitle": "Your privacy matters",
     "privacyBody": "Your data never leaves your phone. No account needed, no sign-up, nothing stored on our servers. When you're done, you choose what to share with your health professional.",
     "disclaimer": "This app is intended for personal tracking and educational purposes only. It does not provide medical advice, diagnosis, or treatment. Always consult a qualified health professional regarding any medical condition or health concerns."

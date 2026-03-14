@@ -46,7 +46,10 @@
     "startTracking": "Comenzar seguimiento",
     "pwaPromptAndroid": "¿Acceso rápido? Puede agregar My Flow Check a su pantalla de inicio — no necesita tienda de aplicaciones. O simplemente siga usándolo en su navegador.",
     "addToHomeScreen": "Agregar a pantalla de inicio",
-    "pwaPromptIos": "¿Acceso rápido? Toque {shareIcon} en la parte inferior de la pantalla, luego \"Agregar a pantalla de inicio\". O simplemente siga usándolo en su navegador.",
+    "pwaPromptTitle": "¿Acceso rápido?",
+    "pwaStep1": "Toque <icon></icon> Compartir abajo",
+    "pwaStep2": "Elija \"Agregar a inicio\"",
+    "pwaPromptFooter": "O siga usándolo en su navegador.",
     "privacyTitle": "Su privacidad importa",
     "privacyBody": "Sus datos nunca salen de su teléfono. No se necesita cuenta, no hay registro, nada se guarda en nuestros servidores. Cuando termine, usted elige qué compartir con su profesional de salud.",
     "disclaimer": "Esta aplicación es solo para seguimiento personal y fines educativos. No proporciona consejos médicos, diagnósticos ni tratamientos. Siempre consulte a un profesional de salud calificado."

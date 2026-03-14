@@ -171,9 +171,26 @@ function LandingContent() {
                 </button>
               </>
             ) : (
-              <p className="text-sm text-ipc-700 leading-relaxed">
-                {t('pwaPromptIos')}
-              </p>
+              <div className="space-y-2.5">
+                <p className="text-sm font-semibold text-ipc-800">
+                  {t('pwaPromptTitle')}
+                </p>
+                <div className="flex items-center gap-3 text-sm text-ipc-700">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">1</span>
+                  <span className="flex items-center gap-1">
+                    {t.rich('pwaStep1', {
+                      icon: () => <Share2 size={16} className="inline text-blue-500 mx-0.5" />,
+                    })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-ipc-700">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">2</span>
+                  <span>{t('pwaStep2')}</span>
+                </div>
+                <p className="text-xs text-ipc-400 mt-1">
+                  {t('pwaPromptFooter')}
+                </p>
+              </div>
             )}
           </div>
         </div>
