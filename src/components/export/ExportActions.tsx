@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
 import { downloadCsv, generateCsvBlob } from '@/lib/exportCsv';
@@ -25,6 +25,7 @@ function canShareFiles(): boolean {
 export default function ExportActions() {
   const store = useDiaryStore();
   const t = useTranslations('export');
+  const locale = useLocale();
   const [exporting, setExporting] = useState<string | null>(null);
 
   // Detect share capability once on mount (stable across renders)
@@ -37,14 +38,14 @@ export default function ExportActions() {
     track('export_pdf', { method });
     try {
       if (shareSupported) {
-        const { blob, filename } = generatePdfBlob(store);
+        const { blob, filename } = generatePdfBlob(store, locale);
         const file = new File([blob], filename, { type: 'application/pdf' });
         await navigator.share({
           title: 'My Flow Check — Bladder Diary',
           files: [file],
         });
       } else {
-        generatePdf(store);
+        generatePdf(store, locale);
       }
     } catch (err) {
       // Ignore user-cancelled share (AbortError)
@@ -55,7 +56,7 @@ export default function ExportActions() {
     } finally {
       setTimeout(() => setExporting(null), 1000);
     }
-  }, [store, shareSupported]);
+  }, [store, shareSupported, locale]);
 
   // ── CSV ──
   const handleCsv = useCallback(async () => {
