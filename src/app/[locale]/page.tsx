@@ -190,7 +190,7 @@ function LandingContent() {
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">1</span>
                   <span className="flex items-center gap-1.5">
                     {t.rich('pwaStep1', {
-                      dots: () => <Ellipsis size={16} className="inline-block text-blue-500 mx-0.5" />,
+                      dots: () => <Ellipsis size={16} className="inline-block text-ipc-600 mx-0.5" />,
                     })}
                   </span>
                 </div>
@@ -198,7 +198,7 @@ function LandingContent() {
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">2</span>
                   <span className="flex items-center gap-1.5">
                     {t.rich('pwaStep2', {
-                      share: () => <IosShareIcon className="inline-block w-4 h-4 text-blue-500 mx-0.5" />,
+                      share: () => <IosShareIcon className="inline-block w-4 h-4 text-ipc-600 mx-0.5" />,
                     })}
                   </span>
                 </div>
