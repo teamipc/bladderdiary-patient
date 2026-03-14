@@ -19,7 +19,7 @@ export default function VolumeInput({
   onEditingChange,
   unit = 'mL',
   min = 0,
-  max = 1000,
+  max = 1500,
   step = 25,
   variant = 'default',
 }: VolumeInputProps) {

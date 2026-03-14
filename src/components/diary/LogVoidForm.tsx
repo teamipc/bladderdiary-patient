@@ -353,7 +353,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                     onChange={setDoubleVoidVolume}
                     onEditingChange={(editing) => { if (editing) cancelAutoAdvance(); }}
                     unit={volumeUnit}
-                    max={volumeUnit === 'oz' ? 17 : 500}
+                    max={volumeUnit === 'oz' ? 25 : 750}
                     step={vc.step}
                   />
                 </div>
