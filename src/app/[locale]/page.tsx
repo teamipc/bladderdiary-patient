@@ -6,7 +6,18 @@ import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
-import { Lock, PlayCircle, RotateCcw, Download, Share2 } from 'lucide-react';
+import { Lock, PlayCircle, RotateCcw, Download, Ellipsis } from 'lucide-react';
+
+/** iOS share icon — rectangle with arrow pointing up (matches the real Safari icon). */
+function IosShareIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M12 3v12" />
+      <path d="m8 7 4-4 4 4" />
+      <rect x="4" y="11" width="16" height="11" rx="2" />
+    </svg>
+  );
+}
 import Image from 'next/image';
 import { Link, useRouter } from '@/i18n/navigation';
 import { track } from '@vercel/analytics';
@@ -177,15 +188,23 @@ function LandingContent() {
                 </p>
                 <div className="flex items-center gap-3 text-sm text-ipc-700">
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">1</span>
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1.5">
                     {t.rich('pwaStep1', {
-                      icon: () => <Share2 size={16} className="inline text-blue-500 mx-0.5" />,
+                      dots: () => <Ellipsis size={16} className="inline-block text-blue-500 mx-0.5" />,
                     })}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-ipc-700">
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">2</span>
-                  <span>{t('pwaStep2')}</span>
+                  <span className="flex items-center gap-1.5">
+                    {t.rich('pwaStep2', {
+                      share: () => <IosShareIcon className="inline-block w-4 h-4 text-blue-500 mx-0.5" />,
+                    })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-ipc-700">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">3</span>
+                  <span>{t('pwaStep3')}</span>
                 </div>
                 <p className="text-xs text-ipc-400 mt-1">
                   {t('pwaPromptFooter')}
