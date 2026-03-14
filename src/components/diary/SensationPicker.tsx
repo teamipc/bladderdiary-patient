@@ -42,6 +42,13 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
           );
         })}
       </div>
+
+      {/* Description shown when a sensation is selected */}
+      {value !== null && (
+        <p className="text-sm text-ipc-600 font-medium text-center mt-2.5 animate-fade-slide-up">
+          {t(`${value}.description`)}
+        </p>
+      )}
     </div>
   );
 }

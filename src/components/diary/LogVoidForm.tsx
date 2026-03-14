@@ -288,11 +288,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                   setSensation(v);
                   if (v !== null && !noteOpen) scheduleAutoAdvance(3, 2500);
                 }} />
-                {sensation !== null ? (
-                  <p className="text-sm text-ipc-600 text-center mt-2">
-                    {/* Sensation description from translations handled by SensationPicker */}
-                  </p>
-                ) : (
+                {sensation === null && (
                   <p className="text-xs text-ipc-400 text-center mt-2">
                     {t('optionalTapHint')}
                   </p>
