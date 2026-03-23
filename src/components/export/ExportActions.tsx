@@ -34,18 +34,19 @@ export default function ExportActions() {
   // ── PDF ──
   const handlePdf = useCallback(async () => {
     setExporting('pdf');
-    const method = shareSupported ? 'share' : 'download';
-    track('export_pdf', { method });
     try {
       if (shareSupported) {
         const { blob, filename } = generatePdfBlob(store, locale);
+        track('pdf_generated', { method: 'share' });
         const file = new File([blob], filename, { type: 'application/pdf' });
         await navigator.share({
           title: 'My Flow Check — Bladder Diary',
           files: [file],
         });
+        track('pdf_shared');
       } else {
         generatePdf(store, locale);
+        track('pdf_generated', { method: 'download' });
       }
     } catch (err) {
       // Ignore user-cancelled share (AbortError)
@@ -61,18 +62,19 @@ export default function ExportActions() {
   // ── CSV ──
   const handleCsv = useCallback(async () => {
     setExporting('csv');
-    const method = shareSupported ? 'share' : 'download';
-    track('export_csv', { method });
     try {
       if (shareSupported) {
         const { blob, filename } = generateCsvBlob(store);
+        track('csv_generated', { method: 'share' });
         const file = new File([blob], filename, { type: 'text/csv' });
         await navigator.share({
           title: 'My Flow Check — Bladder Diary',
           files: [file],
         });
+        track('csv_shared');
       } else {
         downloadCsv(store);
+        track('csv_generated', { method: 'download' });
       }
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
