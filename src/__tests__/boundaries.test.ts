@@ -13,7 +13,7 @@ const START_DATE = '2026-03-08';
 
 beforeEach(() => {
   useDiaryStore.getState().resetDiary();
-  useDiaryStore.setState({ startDate: START_DATE });
+  useDiaryStore.setState({ startDate: START_DATE, timeZone: 'UTC' });
 });
 
 // ──────────────────────────────────────────────
@@ -26,19 +26,19 @@ describe('overnight bedtime boundaries', () => {
   ];
 
   it('event 1 second after bedtime goes to next day', () => {
-    expect(getDayNumber('2026-03-08T22:00:01.000Z', START_DATE, bedtimes)).toBe(2);
+    expect(getDayNumber('2026-03-08T22:00:01.000Z', START_DATE, bedtimes, 'UTC')).toBe(2);
   });
 
   it('event exactly at bedtime stays on current day', () => {
-    expect(getDayNumber('2026-03-08T22:00:00.000Z', START_DATE, bedtimes)).toBe(1);
+    expect(getDayNumber('2026-03-08T22:00:00.000Z', START_DATE, bedtimes, 'UTC')).toBe(1);
   });
 
   it('3 AM event (after Day 1 bedtime, before Day 2 calendar) → Day 2', () => {
-    expect(getDayNumber('2026-03-09T03:00:00.000Z', START_DATE, bedtimes)).toBe(2);
+    expect(getDayNumber('2026-03-09T03:00:00.000Z', START_DATE, bedtimes, 'UTC')).toBe(2);
   });
 
   it('event after Day 2 bedtime goes to Day 3', () => {
-    expect(getDayNumber('2026-03-09T22:00:00.000Z', START_DATE, bedtimes)).toBe(3);
+    expect(getDayNumber('2026-03-09T22:00:00.000Z', START_DATE, bedtimes, 'UTC')).toBe(3);
   });
 
   it('late night event on Day 3 stays at Day 3 (max clamped)', () => {
@@ -46,7 +46,7 @@ describe('overnight bedtime boundaries', () => {
       ...bedtimes,
       { id: 'bt3', timestampIso: '2026-03-10T22:00:00.000Z', dayNumber: 3 },
     ];
-    expect(getDayNumber('2026-03-10T23:59:00.000Z', START_DATE, allBedtimes)).toBe(3);
+    expect(getDayNumber('2026-03-10T23:59:00.000Z', START_DATE, allBedtimes, 'UTC')).toBe(3);
   });
 });
 
@@ -55,11 +55,11 @@ describe('overnight bedtime boundaries', () => {
 // ──────────────────────────────────────────────
 describe('day clamping', () => {
   it('event weeks before start date clamps to Day 1', () => {
-    expect(getDayNumber('2026-02-01T10:00:00.000Z', START_DATE)).toBe(1);
+    expect(getDayNumber('2026-02-01T10:00:00.000Z', START_DATE, undefined, 'UTC')).toBe(1);
   });
 
   it('event weeks after start date clamps to Day 3', () => {
-    expect(getDayNumber('2026-04-01T10:00:00.000Z', START_DATE)).toBe(3);
+    expect(getDayNumber('2026-04-01T10:00:00.000Z', START_DATE, undefined, 'UTC')).toBe(3);
   });
 
   it('getCurrentDay clamps very old start dates to 3', () => {
@@ -85,7 +85,7 @@ describe('getDayDate consistency', () => {
     for (let day = 1; day <= 3; day++) {
       const dateStr = getDayDate(START_DATE, day as 1 | 2 | 3);
       const eventIso = `${dateStr}T12:00:00.000Z`;
-      expect(getDayNumber(eventIso, START_DATE)).toBe(day);
+      expect(getDayNumber(eventIso, START_DATE, undefined, 'UTC')).toBe(day);
     }
   });
 });
@@ -220,33 +220,33 @@ describe('after-midnight events without bedtime (all 3 days)', () => {
   // START_DATE = 2026-03-08 → Day 1 = Mar 8, Day 2 = Mar 9, Day 3 = Mar 10
 
   it('Day 1: 12:30 AM on Mar 9 stays on Day 1 when no bedtime set', () => {
-    expect(getDayNumber('2026-03-09T00:30:00.000Z', START_DATE)).toBe(1);
+    expect(getDayNumber('2026-03-09T00:30:00.000Z', START_DATE, undefined, 'UTC')).toBe(1);
   });
 
   it('Day 1: 3:00 AM on Mar 9 stays on Day 1 when no bedtime set', () => {
-    expect(getDayNumber('2026-03-09T03:00:00.000Z', START_DATE)).toBe(1);
+    expect(getDayNumber('2026-03-09T03:00:00.000Z', START_DATE, undefined, 'UTC')).toBe(1);
   });
 
   it('Day 1: 5:59 AM on Mar 9 stays on Day 1 when no bedtime set', () => {
-    expect(getDayNumber('2026-03-09T05:59:00.000Z', START_DATE)).toBe(1);
+    expect(getDayNumber('2026-03-09T05:59:00.000Z', START_DATE, undefined, 'UTC')).toBe(1);
   });
 
   it('Day 1: noon on Mar 9 moves to Day 2 (clearly past early-AM window)', () => {
-    expect(getDayNumber('2026-03-09T18:00:00.000Z', START_DATE)).toBe(2);
+    expect(getDayNumber('2026-03-09T18:00:00.000Z', START_DATE, undefined, 'UTC')).toBe(2);
   });
 
   it('Day 2: 1:00 AM on Mar 10 stays on Day 2 when no Day 2 bedtime', () => {
     const bedtimes: BedtimeEntry[] = [
       { id: 'bt1', timestampIso: '2026-03-08T22:00:00.000Z', dayNumber: 1 },
     ];
-    expect(getDayNumber('2026-03-10T01:00:00.000Z', START_DATE, bedtimes)).toBe(2);
+    expect(getDayNumber('2026-03-10T01:00:00.000Z', START_DATE, bedtimes, 'UTC')).toBe(2);
   });
 
   it('Day 2: 4:00 AM on Mar 10 stays on Day 2 when no Day 2 bedtime', () => {
     const bedtimes: BedtimeEntry[] = [
       { id: 'bt1', timestampIso: '2026-03-08T22:00:00.000Z', dayNumber: 1 },
     ];
-    expect(getDayNumber('2026-03-10T04:00:00.000Z', START_DATE, bedtimes)).toBe(2);
+    expect(getDayNumber('2026-03-10T04:00:00.000Z', START_DATE, bedtimes, 'UTC')).toBe(2);
   });
 
   it('Day 3: 2:00 AM on Mar 11 stays on Day 3 when no Day 3 bedtime', () => {
@@ -256,7 +256,7 @@ describe('after-midnight events without bedtime (all 3 days)', () => {
     ];
     // Mar 11 = Day 3+1 date, but clamped to Day 3 first, then pull-back doesn't apply (dayNum=3 > 1 is true, but prevDay=2 has bedtime)
     // Actually: diff = 3 → dayNum = 3 (clamped). Early AM check: prevDay=2, bedtime exists → no pullback. Stays Day 3.
-    expect(getDayNumber('2026-03-11T02:00:00.000Z', START_DATE, bedtimes)).toBe(3);
+    expect(getDayNumber('2026-03-11T02:00:00.000Z', START_DATE, bedtimes, 'UTC')).toBe(3);
   });
 
   it('Day 1: 12:30 AM moves to Day 2 when Day 1 bedtime IS set', () => {

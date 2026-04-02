@@ -64,6 +64,8 @@
     "dateTitle": "¿Cuándo quiere comenzar?",
     "dateSubtitle": "Necesita hacer seguimiento durante 3 días consecutivos para que funcione. Comience en una mañana en la que pueda registrar su primera orina del día.",
     "trackingPeriodLabel": "Su período de seguimiento de 3 días",
+    "timezoneChange": "Cambiar",
+    "timezonePickerTitle": "Seleccione su zona horaria",
     "confirmAndStart": "Confirmar y comenzar"
   },
   "timeline": {

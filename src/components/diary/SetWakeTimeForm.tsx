@@ -14,7 +14,7 @@ interface SetWakeTimeFormProps {
 }
 
 export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormProps) {
-  const { setWakeTime, getWakeTimeForDay, getBedtimeForDay, startDate } = useDiaryStore();
+  const { setWakeTime, getWakeTimeForDay, getBedtimeForDay, startDate, timeZone } = useDiaryStore();
   const t = useTranslations('wakeTime');
   const locale = useLocale();
   const existing = getWakeTimeForDay(dayNumber);
@@ -24,7 +24,7 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
   // Smart default: anchor to the diary day's date, after previous bedtime
   const smartDefault = () => {
     if (existing) return existing.timestampIso;
-    return getDefaultTimeForDay(startDate, dayNumber, prevBedtime?.timestampIso);
+    return getDefaultTimeForDay(startDate, dayNumber, prevBedtime?.timestampIso, timeZone);
   };
 
   const [time, setTime] = useState(smartDefault);
@@ -62,13 +62,13 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
 
       {isBeforePrevBedtime && (
         <p className="text-sm text-danger text-center font-medium">
-          {t('afterBedtime', { time: formatTime(prevBedtime!.timestampIso, locale) })}
+          {t('afterBedtime', { time: formatTime(prevBedtime!.timestampIso, locale, timeZone) })}
         </p>
       )}
 
       {!isBeforePrevBedtime && isAfterBedtime && (
         <p className="text-sm text-danger text-center font-medium">
-          {t('beforeBedtime', { time: formatTime(bedtime!.timestampIso, locale) })}
+          {t('beforeBedtime', { time: formatTime(bedtime!.timestampIso, locale, timeZone) })}
         </p>
       )}
 

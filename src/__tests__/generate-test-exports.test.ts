@@ -35,6 +35,7 @@ const earlyRiser: DiaryState = {
   volumeUnit: 'mL',
   diaryStarted: true,
   clinicCode: null,
+  timeZone: 'UTC',
   leaks: [
     // Standalone leak on Day 2
     {
@@ -112,6 +113,7 @@ const nightShift: DiaryState = {
   volumeUnit: 'mL',
   diaryStarted: true,
   clinicCode: null,
+  timeZone: 'UTC',
   leaks: [
     // Standalone leaks
     {
@@ -198,6 +200,7 @@ const normalFull: DiaryState = {
   volumeUnit: 'oz',
   diaryStarted: true,
   clinicCode: 'IPC-2026',
+  timeZone: 'UTC',
   leaks: [
     {
       id: uid('l', 20),

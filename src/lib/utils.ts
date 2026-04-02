@@ -1,12 +1,120 @@
-import { format, parseISO, differenceInCalendarDays, addDays } from 'date-fns';
-import type { Locale as DateFnsLocale } from 'date-fns';
-import { enUS, fr, es } from 'date-fns/locale';
+import { parseISO, addDays } from 'date-fns';
 import type { BedtimeEntry } from './types';
 
-/** Map locale string to date-fns locale object. */
-const DATE_LOCALES: Record<string, DateFnsLocale> = { en: enUS, fr, es };
-function getDateLocale(locale?: string): DateFnsLocale {
-  return (locale && DATE_LOCALES[locale]) || enUS;
+/* ------------------------------------------------------------------ */
+/*  Intl locale mapping                                                */
+/* ------------------------------------------------------------------ */
+
+const INTL_LOCALES: Record<string, string> = { en: 'en-US', fr: 'fr-FR', es: 'es-ES' };
+
+function toIntlLocale(locale?: string): string {
+  return (locale && INTL_LOCALES[locale]) || 'en-US';
+}
+
+/* ------------------------------------------------------------------ */
+/*  Timezone helpers                                                   */
+/* ------------------------------------------------------------------ */
+
+/** Detect the browser's IANA timezone (e.g. "Asia/Singapore"). */
+export function detectTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return 'UTC';
+  }
+}
+
+/** Extract the hour (0–23) of an ISO timestamp in a specific timezone. */
+export function getHoursInTz(isoString: string, timeZone?: string): number {
+  const d = new Date(isoString);
+  if (!timeZone) return d.getHours(); // fallback to browser local
+  const parts = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    hour12: false,
+    timeZone,
+  }).formatToParts(d);
+  const hourPart = parts.find((p) => p.type === 'hour');
+  const h = parseInt(hourPart?.value ?? '0', 10);
+  return h === 24 ? 0 : h; // midnight is sometimes "24" in formatToParts
+}
+
+/** Extract YYYY-MM-DD of an ISO timestamp in a specific timezone. */
+export function getDateInTz(isoString: string, timeZone?: string): string {
+  const d = new Date(isoString);
+  if (!timeZone) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone,
+  }).formatToParts(d);
+  const y = parts.find((p) => p.type === 'year')?.value ?? '2026';
+  const m = parts.find((p) => p.type === 'month')?.value ?? '01';
+  const day = parts.find((p) => p.type === 'day')?.value ?? '01';
+  return `${y}-${m}-${day}`;
+}
+
+/** Calendar day difference between two ISO timestamps in a specific timezone. */
+function diffCalendarDaysInTz(isoA: string, isoB: string, timeZone?: string): number {
+  const dateA = getDateInTz(isoA, timeZone);
+  const dateB = getDateInTz(isoB, timeZone);
+  const msA = Date.parse(dateA + 'T00:00:00');
+  const msB = Date.parse(dateB + 'T00:00:00');
+  return Math.round((msA - msB) / 86_400_000);
+}
+
+/** Get the current time-of-day (HH:MM:SS) in a specific timezone. */
+function getTimeOfDayInTz(timeZone?: string): string {
+  const now = new Date();
+  if (!timeZone) return now.toTimeString().slice(0, 8);
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone,
+  }).formatToParts(now);
+  const h = parts.find((p) => p.type === 'hour')?.value ?? '00';
+  const m = parts.find((p) => p.type === 'minute')?.value ?? '00';
+  const s = parts.find((p) => p.type === 'second')?.value ?? '00';
+  return `${h}:${m}:${s}`;
+}
+
+/** Get the short timezone abbreviation (e.g. "SGT", "CET", "EST"). */
+export function getTimezoneAbbr(timeZone: string): string {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZoneName: 'short',
+      timeZone,
+    }).formatToParts(new Date());
+    return parts.find((p) => p.type === 'timeZoneName')?.value ?? timeZone;
+  } catch {
+    return timeZone;
+  }
+}
+
+/** Get the UTC offset string (e.g. "UTC+8", "UTC-5"). */
+export function getTimezoneOffset(timeZone: string): string {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZoneName: 'shortOffset',
+      timeZone,
+    }).formatToParts(new Date());
+    return parts.find((p) => p.type === 'timeZoneName')?.value ?? '';
+  } catch {
+    return '';
+  }
+}
+
+/** Extract the city name from an IANA timezone (e.g. "Asia/Singapore" → "Singapore"). */
+export function timeZoneCity(tz: string): string {
+  const city = tz.split('/').pop() ?? tz;
+  return city.replace(/_/g, ' ');
 }
 
 /* ------------------------------------------------------------------ */
@@ -35,20 +143,48 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
+/* ------------------------------------------------------------------ */
+/*  Timezone-aware formatting                                          */
+/* ------------------------------------------------------------------ */
+
 /** Format a time string from ISO. Uses locale-aware pattern (e.g. "8:15 AM" en, "8h15" fr). */
-export function formatTime(isoString: string, locale?: string): string {
-  return format(parseISO(isoString), 'p', { locale: getDateLocale(locale) });
+export function formatTime(isoString: string, locale?: string, timeZone?: string): string {
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
+    hour: 'numeric',
+    minute: '2-digit',
+    ...(timeZone ? { timeZone } : {}),
+  }).format(new Date(isoString));
 }
 
-/** Format a date, e.g. "Tue, Mar 10, 2026" (en) / "mar. 10 mars 2026" (fr). */
-export function formatDate(isoString: string, locale?: string): string {
-  return format(parseISO(isoString), 'PPP', { locale: getDateLocale(locale) });
+/** Format a date, e.g. "Mar 10, 2026" (en) / "10 mars 2026" (fr). */
+export function formatDate(isoString: string, locale?: string, timeZone?: string): string {
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
+    dateStyle: 'medium',
+    ...(timeZone ? { timeZone } : {}),
+  }).format(new Date(isoString));
 }
 
 /** Format full date, e.g. "March 10, 2026" (en) / "10 mars 2026" (fr). */
-export function formatFullDate(dateStr: string, locale?: string): string {
-  return format(parseISO(dateStr + 'T12:00:00'), 'PPP', { locale: getDateLocale(locale) });
+export function formatFullDate(dateStr: string, locale?: string, timeZone?: string): string {
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
+    dateStyle: 'long',
+    ...(timeZone ? { timeZone } : {}),
+  }).format(new Date(dateStr + 'T12:00:00'));
 }
+
+/** Format full day name + date, e.g. "Sunday, March 8, 2026". */
+export function formatFullDayDate(dateStr: string, locale?: string): string {
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(dateStr + 'T12:00:00'));
+}
+
+/* ------------------------------------------------------------------ */
+/*  Day boundary logic                                                 */
+/* ------------------------------------------------------------------ */
 
 /**
  * Get day number (1, 2, or 3) for a timestamp given the diary start date.
@@ -63,10 +199,13 @@ export function getDayNumber(
   timestampIso: string,
   startDate: string,
   bedtimes?: BedtimeEntry[],
+  timeZone?: string,
 ): 1 | 2 | 3 {
-  const eventDate = parseISO(timestampIso);
-  const start = parseISO(startDate + 'T00:00:00');
-  const diff = differenceInCalendarDays(eventDate, start);
+  // Get the event's calendar date in the user's timezone, then diff against startDate directly
+  const eventDateStr = getDateInTz(timestampIso, timeZone); // "YYYY-MM-DD"
+  const diff = Math.round(
+    (Date.parse(eventDateStr + 'T00:00:00') - Date.parse(startDate + 'T00:00:00')) / 86_400_000,
+  );
 
   let dayNum: number;
   if (diff <= 0) dayNum = 1;
@@ -74,8 +213,6 @@ export function getDayNumber(
   else dayNum = diff + 1;
 
   // Bedtime-aware: if entry is after this day's bedtime, bump to next day.
-  // Once bedtime is set, it marks the end of that day — any event after it
-  // belongs to the following day.
   if (bedtimes && bedtimes.length > 0 && dayNum < 3) {
     const dayBedtime = bedtimes.find((b) => b.dayNumber === dayNum);
     if (dayBedtime && timestampIso > dayBedtime.timestampIso) {
@@ -85,7 +222,7 @@ export function getDayNumber(
 
   // Early-AM pull-back: events at 0:00–5:59 on the day after a diary day
   // belong to that diary day if bedtime hasn't been set yet (user still awake).
-  const hour = eventDate.getHours();
+  const hour = getHoursInTz(timestampIso, timeZone);
   if (hour >= 0 && hour <= 5 && dayNum > 1) {
     const prevDay = dayNum - 1;
     const prevDayBedtime = bedtimes?.find((b) => b.dayNumber === prevDay);
@@ -100,7 +237,11 @@ export function getDayNumber(
 /** Get the date string (YYYY-MM-DD) for a specific diary day. */
 export function getDayDate(startDate: string, dayNumber: 1 | 2 | 3): string {
   const base = parseISO(startDate + 'T12:00:00');
-  return format(addDays(base, dayNumber - 1), 'yyyy-MM-dd');
+  const d = addDays(base, dayNumber - 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 /** Round a Date to the nearest N minutes. */
@@ -131,13 +272,12 @@ export function getDefaultTimeForDay(
   startDate: string,
   dayNumber: 1 | 2 | 3,
   afterTimestamp?: string,
+  timeZone?: string,
 ): string {
   const dayDate = getDayDate(startDate, dayNumber);
-  const now = new Date();
+  const timeOfDay = getTimeOfDayInTz(timeZone);
   // Current time-of-day on the diary day's date
-  const defaultTime = new Date(
-    dayDate + 'T' + now.toTimeString().slice(0, 8),
-  );
+  const defaultTime = new Date(dayDate + 'T' + timeOfDay);
 
   if (afterTimestamp) {
     const after = new Date(afterTimestamp);
@@ -154,14 +294,15 @@ export function getDefaultTimeForDay(
  * Correct the date of a night-view timestamp so it falls between bedtime and wake-up.
  * PM times (hour >= 12) are placed on the bedtime's date; AM times on the next day.
  */
-export function correctNightDate(timeIso: string, bedtimeIso: string): string {
-  const t = parseISO(timeIso);
+export function correctNightDate(timeIso: string, bedtimeIso: string, timeZone?: string): string {
   const bed = parseISO(bedtimeIso);
-  const hour = t.getHours();
+  const hour = getHoursInTz(timeIso, timeZone);
   // PM → same date as bedtime; AM → day after bedtime
   const anchor = hour >= 12 ? bed : addDays(bed, 1);
+  // Preserve the UTC hours/minutes from the original timestamp on the new anchor date
+  const orig = new Date(timeIso);
   const corrected = new Date(anchor);
-  corrected.setHours(t.getHours(), t.getMinutes(), t.getSeconds(), 0);
+  corrected.setUTCHours(orig.getUTCHours(), orig.getUTCMinutes(), orig.getUTCSeconds(), 0);
   return corrected.toISOString();
 }
 
@@ -178,24 +319,27 @@ export function correctAfterMidnight(
   timeIso: string,
   dayNumber: 1 | 2 | 3,
   startDate: string,
+  timeZone?: string,
 ): string {
-  const t = parseISO(timeIso);
-  const hour = t.getHours(); // local hour
+  const hour = getHoursInTz(timeIso, timeZone);
   if (hour > 5) return timeIso; // not an early-AM time — no correction needed
 
   const dayDate = getDayDate(startDate, dayNumber); // "YYYY-MM-DD"
-  const timeDate = format(t, 'yyyy-MM-dd');          // date portion of the time
+  const timeDate = getDateInTz(timeIso, timeZone);  // date portion of the time
 
   if (timeDate !== dayDate) return timeIso; // already on a different date — leave it
 
   // Bump to next calendar day, keeping the same clock time
-  const corrected = addDays(t, 1);
+  const corrected = addDays(parseISO(timeIso), 1);
   return corrected.toISOString();
 }
 
 /** Get the current tracking day (1, 2, or 3) based on today's date vs startDate. */
-export function getCurrentDay(startDate: string): 1 | 2 | 3 {
-  const diff = differenceInCalendarDays(new Date(), parseISO(startDate + 'T00:00:00'));
+export function getCurrentDay(startDate: string, timeZone?: string): 1 | 2 | 3 {
+  const todayStr = getDateInTz(new Date().toISOString(), timeZone); // "YYYY-MM-DD"
+  const diff = Math.round(
+    (Date.parse(todayStr + 'T00:00:00') - Date.parse(startDate + 'T00:00:00')) / 86_400_000,
+  );
   if (diff <= 0) return 1;
   if (diff >= 2) return 3;
   return (diff + 1) as 1 | 2 | 3;

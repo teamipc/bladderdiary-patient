@@ -36,7 +36,7 @@ function LandingContent() {
   const searchParams = useSearchParams();
   const t = useTranslations('landing');
   const tc = useTranslations('common');
-  const { diaryStarted, startDate, startDiary, setStartDate, setAge, setVolumeUnit, setClinicCode, resetDiary } = useDiaryStore();
+  const { diaryStarted, startDate, timeZone, startDiary, setStartDate, setAge, setVolumeUnit, setTimeZone, setClinicCode, resetDiary } = useDiaryStore();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const { canPrompt, isIos, isInstalled, promptInstall } = usePwaInstall();
@@ -48,10 +48,11 @@ function LandingContent() {
     }
   }, [searchParams, setClinicCode]);
 
-  const handleOnboardingComplete = async (age: number, selectedDate: string, volumeUnit: 'mL' | 'oz') => {
+  const handleOnboardingComplete = async (age: number, selectedDate: string, volumeUnit: 'mL' | 'oz', tz: string) => {
     setAge(age);
     setStartDate(selectedDate);
     setVolumeUnit(volumeUnit);
+    setTimeZone(tz);
     startDiary();
 
     const permission = await requestNotificationPermission();
@@ -64,7 +65,7 @@ function LandingContent() {
   };
 
   const handleResume = () => {
-    const currentDay = getCurrentDay(startDate);
+    const currentDay = getCurrentDay(startDate, timeZone);
     track('resume_tracking', { day: currentDay });
     router.push(`/diary/day/${currentDay}`);
   };

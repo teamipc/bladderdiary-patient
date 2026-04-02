@@ -2,27 +2,56 @@
 
 import { useState } from 'react';
 import { format, addDays, parseISO } from 'date-fns';
-import { enUS, fr, es } from 'date-fns/locale';
-import { ChevronRight, Calendar } from 'lucide-react';
+import { ChevronRight, Calendar, Globe, Check } from 'lucide-react';
 import { track } from '@vercel/analytics';
 import { useTranslations, useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
+import BottomSheet from '@/components/ui/BottomSheet';
+import { detectTimeZone, timeZoneCity, getTimezoneOffset, formatFullDayDate } from '@/lib/utils';
+
+/* ------------------------------------------------------------------ */
+/*  Curated timezone list                                              */
+/* ------------------------------------------------------------------ */
+
+const CURATED_TIMEZONES = [
+  // Asia-Pacific
+  'Asia/Singapore',
+  'Asia/Taipei',
+  'Asia/Tokyo',
+  'Asia/Shanghai',
+  'Asia/Hong_Kong',
+  'Australia/Sydney',
+  'Australia/Melbourne',
+  'Australia/Perth',
+  // Europe
+  'Europe/London',
+  'Europe/Paris',
+  'Europe/Berlin',
+  'Europe/Madrid',
+  'Europe/Amsterdam',
+  'Europe/Rome',
+  // Americas
+  'America/New_York',
+  'America/Chicago',
+  'America/Los_Angeles',
+] as const;
 
 interface OnboardingFlowProps {
-  onComplete: (age: number, startDate: string, volumeUnit: 'mL' | 'oz') => void;
+  onComplete: (age: number, startDate: string, volumeUnit: 'mL' | 'oz', timeZone: string) => void;
 }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const t = useTranslations('onboarding');
   const tc = useTranslations('common');
   const locale = useLocale();
-  const dateLocale = locale === 'fr' ? fr : locale === 'es' ? es : enUS;
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [direction, setDirection] = useState<'left' | 'right'>('left');
   const [age, setAge] = useState('');
   const [volumeUnit, setVolumeUnit] = useState<'mL' | 'oz'>('mL');
   const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [timeZone, setTimeZone] = useState(detectTimeZone);
+  const [showTzPicker, setShowTzPicker] = useState(false);
 
   const ageNum = parseInt(age, 10);
   const isAgeValid = !isNaN(ageNum) && ageNum >= 18 && ageNum <= 120;
@@ -39,14 +68,19 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const handleConfirm = () => {
     if (!isAgeValid) return;
-    track('onboarding_complete', { age: ageNum, unit: volumeUnit });
-    onComplete(ageNum, startDate, volumeUnit);
+    track('onboarding_complete', { age: ageNum, unit: volumeUnit, tz: timeZone });
+    onComplete(ageNum, startDate, volumeUnit, timeZone);
   };
 
   // Compute the 3 tracking days
   const day1 = parseISO(startDate + 'T12:00:00');
   const day2 = addDays(day1, 1);
   const day3 = addDays(day1, 2);
+
+  // Build timezone options — auto-detected first if not already in list
+  const tzOptions = CURATED_TIMEZONES.includes(timeZone as typeof CURATED_TIMEZONES[number])
+    ? [...CURATED_TIMEZONES]
+    : [timeZone, ...CURATED_TIMEZONES];
 
   const animClass = direction === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
@@ -161,7 +195,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           </div>
         )}
 
-        {/* Step 3: Date confirmation */}
+        {/* Step 3: Date confirmation + Timezone */}
         {step === 3 && (
           <div key="step3" className={`w-full text-center ${animClass}`}>
             <h2 className="text-2xl font-bold text-ipc-950 mb-2 text-balance">
@@ -172,7 +206,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </p>
 
             {/* Date input */}
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-4">
               <div className="relative">
                 <Calendar size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ipc-400 pointer-events-none" />
                 <input
@@ -187,21 +221,36 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               </div>
             </div>
 
+            {/* Timezone display */}
+            <div className="flex items-center justify-center gap-1.5 mb-6">
+              <Globe size={14} className="text-ipc-400" />
+              <span className="text-sm text-ipc-500">
+                {timeZoneCity(timeZone)} ({getTimezoneOffset(timeZone)})
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowTzPicker(true)}
+                className="text-sm font-medium text-ipc-600 hover:text-ipc-800 transition-colors ml-1"
+              >
+                {t('timezoneChange')}
+              </button>
+            </div>
+
             {/* 3-day preview */}
             <div className="bg-white/60 border border-ipc-100 rounded-2xl p-4 mb-8 text-left">
               <p className="text-xs font-semibold text-ipc-400 uppercase tracking-wide mb-3">{t('trackingPeriodLabel')}</p>
               <div className="space-y-2">
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/60 rounded-xl">
                   <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-500 text-white text-xs font-bold">1</span>
-                  <span className="text-sm font-medium text-ipc-800">{format(day1, 'PPPP', { locale: dateLocale })}</span>
+                  <span className="text-sm font-medium text-ipc-800">{formatFullDayDate(format(day1, 'yyyy-MM-dd'), locale)}</span>
                 </div>
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/40 rounded-xl">
                   <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-300 text-white text-xs font-bold">2</span>
-                  <span className="text-sm font-medium text-ipc-600">{format(day2, 'PPPP', { locale: dateLocale })}</span>
+                  <span className="text-sm font-medium text-ipc-600">{formatFullDayDate(format(day2, 'yyyy-MM-dd'), locale)}</span>
                 </div>
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/30 rounded-xl">
                   <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-200 text-ipc-600 text-xs font-bold">3</span>
-                  <span className="text-sm font-medium text-ipc-500">{format(day3, 'PPPP', { locale: dateLocale })}</span>
+                  <span className="text-sm font-medium text-ipc-500">{formatFullDayDate(format(day3, 'yyyy-MM-dd'), locale)}</span>
                 </div>
               </div>
             </div>
@@ -225,6 +274,30 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           </div>
         )}
       </div>
+
+      {/* Timezone Picker BottomSheet */}
+      <BottomSheet open={showTzPicker} onClose={() => setShowTzPicker(false)} title={t('timezonePickerTitle')}>
+        <div className="space-y-1 pb-4">
+          {tzOptions.map((tz) => (
+            <button
+              key={tz}
+              type="button"
+              onClick={() => { setTimeZone(tz); setShowTzPicker(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-left ${
+                tz === timeZone
+                  ? 'bg-ipc-50 border border-ipc-200'
+                  : 'hover:bg-ipc-50/50'
+              }`}
+            >
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-medium text-ipc-900">{timeZoneCity(tz)}</span>
+                <span className="block text-xs text-ipc-400">{getTimezoneOffset(tz)}</span>
+              </div>
+              {tz === timeZone && <Check size={18} className="text-ipc-500 shrink-0" />}
+            </button>
+          ))}
+        </div>
+      </BottomSheet>
     </div>
   );
 }

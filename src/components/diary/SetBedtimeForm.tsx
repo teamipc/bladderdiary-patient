@@ -15,7 +15,7 @@ interface SetBedtimeFormProps {
 }
 
 export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProps) {
-  const { setBedtime, getBedtimeForDay, getWakeTimeForDay, getVoidsForDay, getDrinksForDay, startDate } = useDiaryStore();
+  const { setBedtime, getBedtimeForDay, getWakeTimeForDay, getVoidsForDay, getDrinksForDay, startDate, timeZone } = useDiaryStore();
   const t = useTranslations('bedtime');
   const locale = useLocale();
   const existing = getBedtimeForDay(dayNumber);
@@ -35,15 +35,15 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
       // 15 minutes after the last event
       return new Date(new Date(lastEvent).getTime() + 15 * 60 * 1000).toISOString();
     }
-    return getDefaultTimeForDay(startDate, dayNumber, wakeTime?.timestampIso);
+    return getDefaultTimeForDay(startDate, dayNumber, wakeTime?.timestampIso, timeZone);
   };
 
-  const [time, setTime] = useState(() => correctAfterMidnight(smartDefault(), dayNumber, startDate));
+  const [time, setTime] = useState(() => correctAfterMidnight(smartDefault(), dayNumber, startDate, timeZone));
 
   // Correct after-midnight times: 1 AM bedtime means next calendar day
   const handleTimeChange = useCallback((newTime: string) => {
-    setTime(correctAfterMidnight(newTime, dayNumber, startDate));
-  }, [dayNumber, startDate]);
+    setTime(correctAfterMidnight(newTime, dayNumber, startDate, timeZone));
+  }, [dayNumber, startDate, timeZone]);
 
   // Bedtime must be after wake-up time (if one exists for this day)
   const isBeforeWakeUp = useMemo(() => {
@@ -90,13 +90,13 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
 
       {isBeforeWakeUp && (
         <p className="text-sm text-danger text-center font-medium">
-          {t('afterWakeUp', { time: formatTime(wakeTime!.timestampIso, locale) })}
+          {t('afterWakeUp', { time: formatTime(wakeTime!.timestampIso, locale, timeZone) })}
         </p>
       )}
 
       {!isBeforeWakeUp && isBeforeLastEvent && (
         <p className="text-sm text-danger text-center font-medium">
-          {t('afterLastEvent', { time: formatTime(lastEventTime!, locale) })}
+          {t('afterLastEvent', { time: formatTime(lastEventTime!, locale, timeZone) })}
         </p>
       )}
 

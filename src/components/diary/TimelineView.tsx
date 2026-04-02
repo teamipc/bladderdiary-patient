@@ -41,6 +41,7 @@ function midpointTime(a: string, b: string): string {
 export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBedtime, onLogWakeUp, onEditVoid, onEditDrink, onEditBedtime, onLogLeak, onEditLeak }: TimelineViewProps) {
   const {
     startDate,
+    timeZone,
     getVoidsForDay,
     getDrinksForDay,
     getLeaksForDay,
@@ -66,7 +67,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
   const wakeTime = getWakeTimeForDay(dayNumber);
 
   const dayDateStr = getDayDate(startDate, dayNumber);
-  const dayLabel = formatDate(dayDateStr + 'T12:00:00', locale);
+  const dayLabel = formatDate(dayDateStr + 'T12:00:00', locale, timeZone);
 
   const hasWakeTime = !!wakeTime;
   const hasBedtime = !!bedtime;
@@ -227,7 +228,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
             <div className="flex items-center gap-2">
               <Sun size={16} className="text-warning shrink-0" />
               <span className="text-sm font-medium text-ipc-500">
-                {t('wokeUpAt', { time: formatTime(item.entry.timestampIso, locale) })}
+                {t('wokeUpAt', { time: formatTime(item.entry.timestampIso, locale, timeZone) })}
               </span>
             </div>
             {noDayEvents && (
@@ -248,7 +249,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         <div key={item.entry.id} className="flex items-center gap-2 px-4 py-2">
           <Moon size={16} className="text-indigo-400 shrink-0" />
           <span className="text-sm font-medium text-indigo-300">
-            {t('wentToBedAt', { time: formatTime(item.entry.timestampIso, locale) })}
+            {t('wentToBedAt', { time: formatTime(item.entry.timestampIso, locale, timeZone) })}
           </span>
         </div>
       );
