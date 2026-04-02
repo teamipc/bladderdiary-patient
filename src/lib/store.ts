@@ -9,7 +9,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { format } from 'date-fns';
-import { generateId, getDayNumber } from './utils';
+import { generateId, getDayNumber, detectTimeZone } from './utils';
 import type {
   VoidEntry,
   DrinkEntry,
@@ -30,6 +30,7 @@ function reassignMorningVoid(
   startDate: string,
   bedtimes: BedtimeEntry[],
   wakeTimes: WakeTimeEntry[],
+  timeZone?: string,
 ): VoidEntry[] {
   const wakeEntry = wakeTimes.find((w) => w.dayNumber === dayNumber);
   if (!wakeEntry) return allVoids; // No wake time → don't change anything
@@ -39,7 +40,7 @@ function reassignMorningVoid(
   // Find all day-phase voids for this day (at or after wake time)
   const dayVoidIndices: { index: number; diff: number }[] = [];
   allVoids.forEach((v, i) => {
-    const vDay = getDayNumber(v.timestampIso, startDate, bedtimes);
+    const vDay = getDayNumber(v.timestampIso, startDate, bedtimes, timeZone);
     if (vDay === dayNumber && v.timestampIso >= wakeIso) {
       const diff = Math.abs(new Date(v.timestampIso).getTime() - new Date(wakeIso).getTime());
       dayVoidIndices.push({ index: i, diff });
@@ -55,7 +56,7 @@ function reassignMorningVoid(
 
   // Reassign flags for this day only
   return allVoids.map((v, i) => {
-    const vDay = getDayNumber(v.timestampIso, startDate, bedtimes);
+    const vDay = getDayNumber(v.timestampIso, startDate, bedtimes, timeZone);
     if (vDay !== dayNumber) return v;
     const shouldBeFmv = i === closestIdx;
     if (v.isFirstMorningVoid !== shouldBeFmv) {
@@ -70,6 +71,7 @@ interface DiaryStore extends DiaryState {
   setStartDate: (date: string) => void;
   setAge: (age: number) => void;
   setVolumeUnit: (unit: 'mL' | 'oz') => void;
+  setTimeZone: (tz: string) => void;
   startDiary: () => void;
   setClinicCode: (code: string | null) => void;
 
@@ -120,6 +122,7 @@ const initialState: DiaryState = {
   volumeUnit: 'mL',
   diaryStarted: false,
   clinicCode: null,
+  timeZone: detectTimeZone(),
 };
 
 export const useDiaryStore = create<DiaryStore>()(
@@ -130,6 +133,7 @@ export const useDiaryStore = create<DiaryStore>()(
       setStartDate: (date) => set({ startDate: date }),
       setAge: (age) => set({ age }),
       setVolumeUnit: (unit) => set({ volumeUnit: unit }),
+      setTimeZone: (tz) => set({ timeZone: tz }),
       startDiary: () => set({ diaryStarted: true }),
       setClinicCode: (code) => set({ clinicCode: code }),
 
@@ -143,31 +147,31 @@ export const useDiaryStore = create<DiaryStore>()(
           );
           if (hasDuplicate) return {};
 
-          const dayNum = getDayNumber(v.timestampIso, s.startDate, s.bedtimes);
+          const dayNum = getDayNumber(v.timestampIso, s.startDate, s.bedtimes, s.timeZone);
           // Add the void (always with FMV false — reassignMorningVoid will set it)
           const newVoids = [...s.voids, { ...v, id: generateId(), isFirstMorningVoid: false }];
-          return { voids: reassignMorningVoid(newVoids, dayNum, s.startDate, s.bedtimes, s.wakeTimes) };
+          return { voids: reassignMorningVoid(newVoids, dayNum, s.startDate, s.bedtimes, s.wakeTimes, s.timeZone) };
         }),
       updateVoid: (id, updates) =>
         set((s) => {
           const updatedVoids = s.voids.map((v) => (v.id === id ? { ...v, ...updates } : v));
           const updated = updatedVoids.find((v) => v.id === id);
           if (!updated) return { voids: updatedVoids };
-          const dayNum = getDayNumber(updated.timestampIso, s.startDate, s.bedtimes);
-          return { voids: reassignMorningVoid(updatedVoids, dayNum, s.startDate, s.bedtimes, s.wakeTimes) };
+          const dayNum = getDayNumber(updated.timestampIso, s.startDate, s.bedtimes, s.timeZone);
+          return { voids: reassignMorningVoid(updatedVoids, dayNum, s.startDate, s.bedtimes, s.wakeTimes, s.timeZone) };
         }),
       removeVoid: (id) =>
         set((s) => {
           const removed = s.voids.find((v) => v.id === id);
           const remaining = s.voids.filter((v) => v.id !== id);
           if (!removed) return { voids: remaining };
-          const dayNum = getDayNumber(removed.timestampIso, s.startDate, s.bedtimes);
-          return { voids: reassignMorningVoid(remaining, dayNum, s.startDate, s.bedtimes, s.wakeTimes) };
+          const dayNum = getDayNumber(removed.timestampIso, s.startDate, s.bedtimes, s.timeZone);
+          return { voids: reassignMorningVoid(remaining, dayNum, s.startDate, s.bedtimes, s.wakeTimes, s.timeZone) };
         }),
       markMorningVoid: (id, dayNumber) =>
         set((s) => ({
           voids: s.voids.map((v) => {
-            const vDay = getDayNumber(v.timestampIso, s.startDate, s.bedtimes);
+            const vDay = getDayNumber(v.timestampIso, s.startDate, s.bedtimes, s.timeZone);
             if (vDay === dayNumber) {
               return { ...v, isFirstMorningVoid: v.id === id };
             }
@@ -233,7 +237,7 @@ export const useDiaryStore = create<DiaryStore>()(
           const existing = s.wakeTimes.filter((w) => w.dayNumber !== dayNumber);
           const newWakeTimes: WakeTimeEntry[] = [...existing, { id: generateId(), timestampIso, dayNumber }];
           // Reassign FMV now that wake time changed
-          const voids = reassignMorningVoid(s.voids, dayNumber, s.startDate, s.bedtimes, newWakeTimes);
+          const voids = reassignMorningVoid(s.voids, dayNumber, s.startDate, s.bedtimes, newWakeTimes, s.timeZone);
           return { wakeTimes: newWakeTimes, voids };
         }),
       removeWakeTime: (dayNumber) =>
@@ -245,19 +249,19 @@ export const useDiaryStore = create<DiaryStore>()(
       getVoidsForDay: (dayNumber) => {
         const s = get();
         return s.voids
-          .filter((v) => getDayNumber(v.timestampIso, s.startDate, s.bedtimes) === dayNumber)
+          .filter((v) => getDayNumber(v.timestampIso, s.startDate, s.bedtimes, s.timeZone) === dayNumber)
           .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
       },
       getDrinksForDay: (dayNumber) => {
         const s = get();
         return s.drinks
-          .filter((d) => getDayNumber(d.timestampIso, s.startDate, s.bedtimes) === dayNumber)
+          .filter((d) => getDayNumber(d.timestampIso, s.startDate, s.bedtimes, s.timeZone) === dayNumber)
           .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
       },
       getLeaksForDay: (dayNumber) => {
         const s = get();
         return (s.leaks ?? [])
-          .filter((l) => getDayNumber(l.timestampIso, s.startDate, s.bedtimes) === dayNumber)
+          .filter((l) => getDayNumber(l.timestampIso, s.startDate, s.bedtimes, s.timeZone) === dayNumber)
           .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
       },
       getBedtimeForDay: (dayNumber) => {
@@ -274,10 +278,18 @@ export const useDiaryStore = create<DiaryStore>()(
       },
 
       // ── Reset ──
-      resetDiary: () => set({ ...initialState, startDate: format(new Date(), 'yyyy-MM-dd') }),
+      resetDiary: () => set({ ...initialState, startDate: format(new Date(), 'yyyy-MM-dd'), timeZone: detectTimeZone() }),
     }),
     {
       name: 'bladder-diary-patient',
+      version: 1,
+      migrate: (persisted, version) => {
+        if (version === 0) {
+          // Old data without timeZone — auto-detect from browser
+          return { ...(persisted as Record<string, unknown>), timeZone: detectTimeZone() };
+        }
+        return persisted as DiaryStore;
+      },
     },
   ),
 );

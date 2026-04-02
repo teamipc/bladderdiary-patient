@@ -48,6 +48,7 @@ export function generateCsv(state: DiaryState): string {
   lines.push(row('start_date', state.startDate));
   lines.push(row('clinic_code', state.clinicCode));
   lines.push(row('volume_unit', state.volumeUnit));
+  lines.push(row('timezone', state.timeZone));
   lines.push('');
 
   // ── Section 2: Events ──
@@ -63,7 +64,7 @@ export function generateCsv(state: DiaryState): string {
 
   // Voids
   for (const v of state.voids) {
-    const day = getDayNumber(v.timestampIso, state.startDate, state.bedtimes);
+    const day = getDayNumber(v.timestampIso, state.startDate, state.bedtimes, state.timeZone);
     lines.push(row(
       'void',
       v.timestampIso,
@@ -81,7 +82,7 @@ export function generateCsv(state: DiaryState): string {
 
   // Drinks
   for (const d of state.drinks) {
-    const day = getDayNumber(d.timestampIso, state.startDate, state.bedtimes);
+    const day = getDayNumber(d.timestampIso, state.startDate, state.bedtimes, state.timeZone);
     lines.push(row(
       'drink',
       d.timestampIso,
@@ -99,7 +100,7 @@ export function generateCsv(state: DiaryState): string {
 
   // Standalone leaks
   for (const l of (state.leaks ?? [])) {
-    const day = getDayNumber(l.timestampIso, state.startDate, state.bedtimes);
+    const day = getDayNumber(l.timestampIso, state.startDate, state.bedtimes, state.timeZone);
     lines.push(row(
       'leak',
       l.timestampIso,

@@ -64,6 +64,8 @@
     "dateTitle": "When do you want to start?",
     "dateSubtitle": "You need to track for 3 consecutive days for it to work. Start on a morning when you can record your first pee of the day.",
     "trackingPeriodLabel": "Your 3-day tracking period",
+    "timezoneChange": "Change",
+    "timezonePickerTitle": "Select your timezone",
     "confirmAndStart": "Confirm & Start"
   },
   "timeline": {

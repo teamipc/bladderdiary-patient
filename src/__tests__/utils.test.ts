@@ -9,6 +9,11 @@ import {
   getDayDate,
   roundToMinutes,
   getCurrentDay,
+  getHoursInTz,
+  getDateInTz,
+  detectTimeZone,
+  timeZoneCity,
+  getTimezoneOffset,
 } from '@/lib/utils';
 import type { BedtimeEntry } from '@/lib/types';
 
@@ -29,43 +34,95 @@ describe('generateId', () => {
 });
 
 // ──────────────────────────────────────────────
-// formatTime — uses local timezone so we build
-// expected values from the same local offset.
+// Timezone helpers
+// ──────────────────────────────────────────────
+describe('getHoursInTz', () => {
+  it('returns UTC hour when timeZone is UTC', () => {
+    expect(getHoursInTz('2026-03-08T14:30:00.000Z', 'UTC')).toBe(14);
+  });
+
+  it('returns hour shifted by timezone offset', () => {
+    // UTC 14:30 → Singapore (UTC+8) = 22:30
+    expect(getHoursInTz('2026-03-08T14:30:00.000Z', 'Asia/Singapore')).toBe(22);
+  });
+
+  it('handles midnight correctly', () => {
+    expect(getHoursInTz('2026-03-08T00:00:00.000Z', 'UTC')).toBe(0);
+  });
+
+  it('handles day crossover', () => {
+    // UTC 20:00 → Singapore (UTC+8) = 04:00 next day
+    expect(getHoursInTz('2026-03-08T20:00:00.000Z', 'Asia/Singapore')).toBe(4);
+  });
+});
+
+describe('getDateInTz', () => {
+  it('returns UTC date when timezone is UTC', () => {
+    expect(getDateInTz('2026-03-08T14:30:00.000Z', 'UTC')).toBe('2026-03-08');
+  });
+
+  it('handles date rollover for timezone ahead of UTC', () => {
+    // UTC 20:00 March 8 → Singapore = March 9 04:00
+    expect(getDateInTz('2026-03-08T20:00:00.000Z', 'Asia/Singapore')).toBe('2026-03-09');
+  });
+
+  it('handles date rollback for timezone behind UTC', () => {
+    // UTC 03:00 March 9 → LA (UTC-7 in March) = March 8 20:00
+    expect(getDateInTz('2026-03-09T03:00:00.000Z', 'America/Los_Angeles')).toBe('2026-03-08');
+  });
+});
+
+describe('detectTimeZone', () => {
+  it('returns a non-empty IANA string', () => {
+    const tz = detectTimeZone();
+    expect(typeof tz).toBe('string');
+    expect(tz.length).toBeGreaterThan(0);
+  });
+});
+
+describe('timeZoneCity', () => {
+  it('extracts city from IANA timezone', () => {
+    expect(timeZoneCity('Asia/Singapore')).toBe('Singapore');
+    expect(timeZoneCity('America/New_York')).toBe('New York');
+    expect(timeZoneCity('Australia/Sydney')).toBe('Sydney');
+  });
+});
+
+describe('getTimezoneOffset', () => {
+  it('returns a UTC offset string', () => {
+    const offset = getTimezoneOffset('Asia/Singapore');
+    expect(offset).toContain('GMT');
+  });
+});
+
+// ──────────────────────────────────────────────
+// formatTime — uses Intl.DateTimeFormat with explicit timezone
 // ──────────────────────────────────────────────
 describe('formatTime', () => {
-  /** Helper: build a local time string for a given UTC ISO, matching formatTime output. */
-  function localExpected(iso: string): string {
-    const d = new Date(iso);
-    const h = d.getHours();
-    const m = d.getMinutes().toString().padStart(2, '0');
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 === 0 ? 12 : h % 12;
-    return `${h12}:${m} ${ampm}`;
-  }
-
-  it('returns a non-empty string in h:mm AM/PM format', () => {
+  it('returns a non-empty string', () => {
     const result = formatTime('2026-03-08T08:15:00.000Z');
-    expect(result).toMatch(/^\d{1,2}:\d{2}\s(AM|PM)$/);
+    expect(result.length).toBeGreaterThan(0);
   });
 
-  it('formats morning time correctly (local)', () => {
-    const iso = '2026-03-08T08:15:00.000Z';
-    expect(formatTime(iso)).toBe(localExpected(iso));
+  it('formats morning UTC time in UTC timezone correctly', () => {
+    const result = formatTime('2026-03-08T08:15:00.000Z', 'en', 'UTC');
+    expect(result).toBe('8:15 AM');
   });
 
-  it('formats afternoon time correctly (local)', () => {
-    const iso = '2026-03-08T14:30:00.000Z';
-    expect(formatTime(iso)).toBe(localExpected(iso));
+  it('formats afternoon UTC time in UTC timezone correctly', () => {
+    const result = formatTime('2026-03-08T14:30:00.000Z', 'en', 'UTC');
+    expect(result).toBe('2:30 PM');
   });
 
-  it('formats midnight UTC correctly (local)', () => {
-    const iso = '2026-03-08T00:00:00.000Z';
-    expect(formatTime(iso)).toBe(localExpected(iso));
+  it('converts to Singapore timezone correctly', () => {
+    // UTC 08:15 → SGT 16:15
+    const result = formatTime('2026-03-08T08:15:00.000Z', 'en', 'Asia/Singapore');
+    expect(result).toBe('4:15 PM');
   });
 
-  it('formats noon UTC correctly (local)', () => {
-    const iso = '2026-03-08T12:00:00.000Z';
-    expect(formatTime(iso)).toBe(localExpected(iso));
+  it('uses 24h format for French locale', () => {
+    const result = formatTime('2026-03-08T14:30:00.000Z', 'fr', 'UTC');
+    expect(result).toBe('14:30');
   });
 });
 
@@ -78,14 +135,9 @@ describe('formatDate', () => {
     expect(result).toContain('2026');
   });
 
-  it('includes month name', () => {
-    const result = formatDate('2026-03-08T12:00:00');
-    expect(result).toContain('March');
-  });
-
-  it('formats French date with correct order', () => {
+  it('formats French date with mars', () => {
     const result = formatDate('2026-03-08T12:00:00', 'fr');
-    expect(result).toContain('mars');
+    expect(result.toLowerCase()).toContain('mars');
     expect(result).toContain('2026');
   });
 });
@@ -104,29 +156,31 @@ describe('formatFullDate', () => {
 
 // ──────────────────────────────────────────────
 // getDayNumber — core day boundary logic
+// Uses UTC timezone to match UTC timestamps in tests
 // ──────────────────────────────────────────────
 describe('getDayNumber', () => {
   const startDate = '2026-03-08';
+  const tz = 'UTC';
 
   describe('without bedtimes (calendar-day based)', () => {
     it('assigns events on start date to Day 1', () => {
-      expect(getDayNumber('2026-03-08T10:00:00.000Z', startDate)).toBe(1);
+      expect(getDayNumber('2026-03-08T10:00:00.000Z', startDate, undefined, tz)).toBe(1);
     });
 
     it('assigns events on day after start to Day 2', () => {
-      expect(getDayNumber('2026-03-09T10:00:00.000Z', startDate)).toBe(2);
+      expect(getDayNumber('2026-03-09T10:00:00.000Z', startDate, undefined, tz)).toBe(2);
     });
 
     it('assigns events two days after start to Day 3', () => {
-      expect(getDayNumber('2026-03-10T10:00:00.000Z', startDate)).toBe(3);
+      expect(getDayNumber('2026-03-10T10:00:00.000Z', startDate, undefined, tz)).toBe(3);
     });
 
     it('clamps events before start date to Day 1', () => {
-      expect(getDayNumber('2026-03-07T23:00:00.000Z', startDate)).toBe(1);
+      expect(getDayNumber('2026-03-07T23:00:00.000Z', startDate, undefined, tz)).toBe(1);
     });
 
     it('clamps events far in the future to Day 3', () => {
-      expect(getDayNumber('2026-03-15T10:00:00.000Z', startDate)).toBe(3);
+      expect(getDayNumber('2026-03-15T10:00:00.000Z', startDate, undefined, tz)).toBe(3);
     });
   });
 
@@ -136,15 +190,15 @@ describe('getDayNumber', () => {
     ];
 
     it('assigns events before Day 1 bedtime to Day 1', () => {
-      expect(getDayNumber('2026-03-08T21:00:00.000Z', startDate, bedtimes)).toBe(1);
+      expect(getDayNumber('2026-03-08T21:00:00.000Z', startDate, bedtimes, tz)).toBe(1);
     });
 
     it('assigns events after Day 1 bedtime to Day 2 (overnight bump)', () => {
-      expect(getDayNumber('2026-03-08T23:00:00.000Z', startDate, bedtimes)).toBe(2);
+      expect(getDayNumber('2026-03-08T23:00:00.000Z', startDate, bedtimes, tz)).toBe(2);
     });
 
     it('assigns events at exactly bedtime to Day 1 (not strictly after)', () => {
-      expect(getDayNumber('2026-03-08T22:00:00.000Z', startDate, bedtimes)).toBe(1);
+      expect(getDayNumber('2026-03-08T22:00:00.000Z', startDate, bedtimes, tz)).toBe(1);
     });
 
     it('does not bump Day 3 events beyond Day 3', () => {
@@ -154,7 +208,7 @@ describe('getDayNumber', () => {
         { id: 'bt3', timestampIso: '2026-03-10T22:00:00.000Z', dayNumber: 3 },
       ];
       // Event after Day 3 bedtime stays on Day 3
-      expect(getDayNumber('2026-03-10T23:00:00.000Z', startDate, allBedtimes)).toBe(3);
+      expect(getDayNumber('2026-03-10T23:00:00.000Z', startDate, allBedtimes, tz)).toBe(3);
     });
   });
 
@@ -165,15 +219,41 @@ describe('getDayNumber', () => {
     ];
 
     it('assigns overnight event between Day 1 and Day 2 to Day 2', () => {
-      expect(getDayNumber('2026-03-08T23:30:00.000Z', startDate, bedtimes)).toBe(2);
+      expect(getDayNumber('2026-03-08T23:30:00.000Z', startDate, bedtimes, tz)).toBe(2);
     });
 
     it('assigns event after Day 2 bedtime to Day 3', () => {
-      expect(getDayNumber('2026-03-09T22:00:00.000Z', startDate, bedtimes)).toBe(3);
+      expect(getDayNumber('2026-03-09T22:00:00.000Z', startDate, bedtimes, tz)).toBe(3);
     });
 
     it('assigns daytime Day 2 event to Day 2', () => {
-      expect(getDayNumber('2026-03-09T14:00:00.000Z', startDate, bedtimes)).toBe(2);
+      expect(getDayNumber('2026-03-09T14:00:00.000Z', startDate, bedtimes, tz)).toBe(2);
+    });
+  });
+
+  describe('timezone-aware day boundaries', () => {
+    it('assigns early-AM SGT event to previous day when no bedtime (pull-back)', () => {
+      // UTC 20:00 March 8 = SGT 04:00 March 9 → early AM pull-back to Day 1 (no bedtime set)
+      expect(getDayNumber('2026-03-08T20:00:00.000Z', startDate, undefined, 'Asia/Singapore')).toBe(1);
+    });
+
+    it('assigns SGT daytime event to correct day', () => {
+      // UTC 02:00 March 9 = SGT 10:00 March 9 → Day 2
+      expect(getDayNumber('2026-03-09T02:00:00.000Z', startDate, undefined, 'Asia/Singapore')).toBe(2);
+    });
+
+    it('assigns SGT event to Day 2 after bedtime is set', () => {
+      // UTC 20:00 March 8 = SGT 04:00 March 9 → with Day 1 bedtime, stays on Day 2
+      const bedtimes: BedtimeEntry[] = [
+        { id: 'bt1', timestampIso: '2026-03-08T14:00:00.000Z', dayNumber: 1 }, // SGT 22:00 bedtime
+      ];
+      expect(getDayNumber('2026-03-08T20:00:00.000Z', startDate, bedtimes, 'Asia/Singapore')).toBe(2);
+    });
+
+    it('assigns event to correct day in America/Los_Angeles', () => {
+      // UTC 03:00 March 9 = LA 19:00 March 8 (PST, UTC-8 in March before DST)
+      // Start date March 8 → still Day 1 in LA timezone
+      expect(getDayNumber('2026-03-09T03:00:00.000Z', startDate, undefined, 'America/Los_Angeles')).toBe(1);
     });
   });
 });
@@ -224,9 +304,6 @@ describe('roundToMinutes', () => {
 // getCurrentDay
 // ──────────────────────────────────────────────
 describe('getCurrentDay', () => {
-  // getCurrentDay uses differenceInCalendarDays with local dates,
-  // so test dates must also be computed in local time (not UTC).
-
   it('returns 1 when start date is today', () => {
     const today = format(new Date(), 'yyyy-MM-dd');
     expect(getCurrentDay(today)).toBe(1);

@@ -16,7 +16,7 @@ import autoTable from 'jspdf-autotable';
 import { format, parseISO } from 'date-fns';
 import { enUS, fr, es } from 'date-fns/locale';
 import type { Locale as DateFnsLocale } from 'date-fns';
-import { getDayNumber, getDayDate, formatTime, mlToDisplayVolume } from './utils';
+import { getDayNumber, getDayDate, formatTime, mlToDisplayVolume, getHoursInTz } from './utils';
 import { getDrinkLabel, SENSATION_LABELS, PREMIUM_FEATURES_ENABLED, getLeakTriggerLabel } from './constants';
 import { computeMetrics, type DiaryMetrics, type DayMetrics } from './calculations';
 import { IPC_LOGO_BASE64, IPC_LOGO_ASPECT } from './ipcLogoBase64';
@@ -507,8 +507,8 @@ function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetric
       [s.drinkCount,       ...metrics.dayMetrics.map((d) => fmtV(d.drinkCount))],
       [s.voidLeaks,        ...metrics.dayMetrics.map((d) => fmtV(d.leakCount))],
       [s.standaloneLeaks,  ...metrics.dayMetrics.map((d) => fmtV(d.standaloneLeakCount))],
-      [s.wakeTime,         ...metrics.dayMetrics.map((d) => d.wakeTimeIso ? formatTime(d.wakeTimeIso, locale) : '\u2014')],
-      [s.bedtime,          ...metrics.dayMetrics.map((d) => d.bedtimeIso ? formatTime(d.bedtimeIso, locale) : '\u2014')],
+      [s.wakeTime,         ...metrics.dayMetrics.map((d) => d.wakeTimeIso ? formatTime(d.wakeTimeIso, locale, state.timeZone) : '\u2014')],
+      [s.bedtime,          ...metrics.dayMetrics.map((d) => d.bedtimeIso ? formatTime(d.bedtimeIso, locale, state.timeZone) : '\u2014')],
     ],
     margin: { left: MARGIN, right: MARGIN },
     styles: { fontSize: 8, cellPadding: 2.5, textColor: C.dark },
@@ -535,22 +535,22 @@ interface HourSlot {
 
 function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: string = 'en'): { slots: HourSlot[]; startHour: number } {
   const dayVoids = state.voids
-    .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes, state.timeZone) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 
   const dayDrinks = state.drinks
-    .filter((d) => getDayNumber(d.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .filter((d) => getDayNumber(d.timestampIso, state.startDate, state.bedtimes, state.timeZone) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 
   const dayLeaks = (state.leaks ?? [])
-    .filter((l) => getDayNumber(l.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .filter((l) => getDayNumber(l.timestampIso, state.startDate, state.bedtimes, state.timeZone) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 
   const bedtime = state.bedtimes.find((b) => b.dayNumber === dayNum);
   const wakeTime = (state.wakeTimes ?? []).find((w) => w.dayNumber === dayNum);
 
-  const bedHour = bedtime ? parseISO(bedtime.timestampIso).getHours() : -1;
-  const wakeHour = wakeTime ? parseISO(wakeTime.timestampIso).getHours() : -1;
+  const bedHour = bedtime ? getHoursInTz(bedtime.timestampIso, state.timeZone) : -1;
+  const wakeHour = wakeTime ? getHoursInTz(wakeTime.timestampIso, state.timeZone) : -1;
 
   // Start the 24-hour grid from the actual wake hour (default 6 AM)
   const startHour = wakeHour >= 0 ? wakeHour : 6;
@@ -562,21 +562,21 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: string = '
     const ampm = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
 
     // Drinks in this hour
-    const hourDrinks = dayDrinks.filter((d) => parseISO(d.timestampIso).getHours() === hour);
+    const hourDrinks = dayDrinks.filter((d) => getHoursInTz(d.timestampIso, state.timeZone) === hour);
     const u = state.volumeUnit;
     const ps = getPdfStrings(locale);
     const multiDrink = hourDrinks.length > 1;
     const drinksText = hourDrinks.map((d) => {
-      const prefix = multiDrink ? `${formatTime(d.timestampIso, locale)} ` : '';
+      const prefix = multiDrink ? `${formatTime(d.timestampIso, locale, state.timeZone)} ` : '';
       return `${prefix}${dv(d.volumeMl, state)} ${u} ${pdfDrinkLabel(d.drinkType, locale)}`;
     }).join('\n');
 
     // Voids in this hour
-    const hourVoids = dayVoids.filter((v) => parseISO(v.timestampIso).getHours() === hour);
+    const hourVoids = dayVoids.filter((v) => getHoursInTz(v.timestampIso, state.timeZone) === hour);
     const multiVoid = hourVoids.length > 1;
     const voidsText = hourVoids
       .map((v) => {
-        const prefix = multiVoid ? `${formatTime(v.timestampIso, locale)} ` : '';
+        const prefix = multiVoid ? `${formatTime(v.timestampIso, locale, state.timeZone)} ` : '';
         let txt = `${prefix}${dv(v.volumeMl, state)} ${u}`;
         if (v.doubleVoidMl) txt += `\n  ${ps.doubleVoid}: +${dv(v.doubleVoidMl, state)} ${u}`;
         if (v.isFirstMorningVoid) txt += ` *${ps.morningPee}`;
@@ -587,7 +587,7 @@ function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: string = '
     const urgText = hourVoids.map((v) => v.sensation !== null ? `${v.sensation}` : '-').join('\n');
 
     // Standalone leaks in this hour
-    const hourLeaks = dayLeaks.filter((l) => parseISO(l.timestampIso).getHours() === hour);
+    const hourLeaks = dayLeaks.filter((l) => getHoursInTz(l.timestampIso, state.timeZone) === hour);
     const leakParts: string[] = [];
     if (hourVoids.some((v) => v.leak)) leakParts.push(ps.yes);
     for (const l of hourLeaks) {
@@ -626,22 +626,22 @@ interface HalfHourSlot {
 
 function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: string = 'en'): { slots: HalfHourSlot[]; startHour: number } {
   const dayVoids = state.voids
-    .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes, state.timeZone) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 
   const dayDrinks = state.drinks
-    .filter((d) => getDayNumber(d.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .filter((d) => getDayNumber(d.timestampIso, state.startDate, state.bedtimes, state.timeZone) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 
   const dayLeaks = (state.leaks ?? [])
-    .filter((l) => getDayNumber(l.timestampIso, state.startDate, state.bedtimes) === dayNum)
+    .filter((l) => getDayNumber(l.timestampIso, state.startDate, state.bedtimes, state.timeZone) === dayNum)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 
   const bedtime = state.bedtimes.find((b) => b.dayNumber === dayNum);
   const wakeTime = (state.wakeTimes ?? []).find((w) => w.dayNumber === dayNum);
 
-  const bedHour = bedtime ? parseISO(bedtime.timestampIso).getHours() : -1;
-  const wakeHour = wakeTime ? parseISO(wakeTime.timestampIso).getHours() : -1;
+  const bedHour = bedtime ? getHoursInTz(bedtime.timestampIso, state.timeZone) : -1;
+  const wakeHour = wakeTime ? getHoursInTz(wakeTime.timestampIso, state.timeZone) : -1;
 
   const startHour = wakeHour >= 0 ? wakeHour : 6;
   const u = state.volumeUnit;
@@ -666,14 +666,14 @@ function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: string
     // Filter events in this 30-min window
     const inSlot = (iso: string) => {
       const d = parseISO(iso);
-      return d.getHours() === hour && d.getMinutes() >= minStart && d.getMinutes() <= minEnd;
+      return getHoursInTz(iso, state.timeZone) === hour && d.getMinutes() >= minStart && d.getMinutes() <= minEnd;
     };
 
     const ps = getPdfStrings(locale);
     const slotDrinks = dayDrinks.filter((d) => inSlot(d.timestampIso));
     const multiDrink = slotDrinks.length > 1;
     const drinksText = slotDrinks.map((d) => {
-      const prefix = multiDrink ? `${formatTime(d.timestampIso, locale)} ` : '';
+      const prefix = multiDrink ? `${formatTime(d.timestampIso, locale, state.timeZone)} ` : '';
       return `${prefix}${dv(d.volumeMl, state)} ${u} ${pdfDrinkLabel(d.drinkType, locale)}`;
     }).join('\n');
 
@@ -681,7 +681,7 @@ function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: string
     const multiVoid = slotVoids.length > 1;
     const voidsText = slotVoids
       .map((v) => {
-        const prefix = multiVoid ? `${formatTime(v.timestampIso, locale)} ` : '';
+        const prefix = multiVoid ? `${formatTime(v.timestampIso, locale, state.timeZone)} ` : '';
         let txt = `${prefix}${dv(v.volumeMl, state)} ${u}`;
         if (v.doubleVoidMl) txt += `\n  ${ps.doubleVoid}: +${dv(v.doubleVoidMl, state)} ${u}`;
         if (v.isFirstMorningVoid) txt += ` *${ps.morningPee}`;
@@ -739,8 +739,8 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
   doc.setFontSize(8);
   doc.setTextColor(100, 80, 200);
   const wakeBedParts: string[] = [];
-  if (dm.wakeTimeIso) wakeBedParts.push(`${s.wake}: ${formatTime(dm.wakeTimeIso, locale)}`);
-  if (dm.bedtimeIso) wakeBedParts.push(`${s.bed}: ${formatTime(dm.bedtimeIso, locale)}`);
+  if (dm.wakeTimeIso) wakeBedParts.push(`${s.wake}: ${formatTime(dm.wakeTimeIso, locale, state.timeZone)}`);
+  if (dm.bedtimeIso) wakeBedParts.push(`${s.bed}: ${formatTime(dm.bedtimeIso, locale, state.timeZone)}`);
   if (wakeBedParts.length > 0) {
     doc.text(wakeBedParts.join('    |    '), MARGIN, subY);
     subY += 4;
@@ -753,8 +753,8 @@ function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: Da
   // Determine sleep hours for shading
   const bedtime = state.bedtimes.find((b) => b.dayNumber === dayNum);
   const wakeTime = (state.wakeTimes ?? []).find((w) => w.dayNumber === dayNum);
-  const bedHour = bedtime ? parseISO(bedtime.timestampIso).getHours() : -1;
-  const wakeHour = wakeTime ? parseISO(wakeTime.timestampIso).getHours() : -1;
+  const bedHour = bedtime ? getHoursInTz(bedtime.timestampIso, state.timeZone) : -1;
+  const wakeHour = wakeTime ? getHoursInTz(wakeTime.timestampIso, state.timeZone) : -1;
 
   const body = slots.map((s) => [s.label, s.drinks || '\u2014', s.voids || '\u2014', s.urgency || '\u2014', s.leak || '']);
 
@@ -1228,10 +1228,10 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics, locale
     const dayColors = [C.chartBlue, C.chartAmber, C.chartTeal] as const;
 
     allVoids.forEach((v) => {
-      const dayNum = getDayNumber(v.timestampIso, state.startDate, state.bedtimes);
+      const dayNum = getDayNumber(v.timestampIso, state.startDate, state.bedtimes, state.timeZone);
       const color = dayColors[(dayNum - 1) as 0 | 1 | 2];
       const dt = parseISO(v.timestampIso);
-      const hourOfDay = dt.getHours() + dt.getMinutes() / 60;
+      const hourOfDay = getHoursInTz(v.timestampIso, state.timeZone) + dt.getMinutes() / 60;
       // Shift so 6am = 0, 5am = 23
       const shifted = hourOfDay >= 6 ? hourOfDay - 6 : hourOfDay + 18;
       const dotX = chartX + (shifted / 24) * chartW;
@@ -1290,7 +1290,7 @@ function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics, locale
   if (standaloneLeaks.length > 0) {
     standaloneLeaks.forEach((l) => {
       const dt = parseISO(l.timestampIso);
-      const hourOfDay = dt.getHours() + dt.getMinutes() / 60;
+      const hourOfDay = getHoursInTz(l.timestampIso, state.timeZone) + dt.getMinutes() / 60;
       const shifted = hourOfDay >= 6 ? hourOfDay - 6 : hourOfDay + 18;
       const lx = chartX + (shifted / 24) * chartW;
       const ly = chart2Top + chart2H - 2; // Near bottom of chart
@@ -1406,6 +1406,7 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     ['patient_age', state.age?.toString() ?? ''],
     ['start_date', state.startDate],
     ['clinic_code', state.clinicCode ?? ''],
+    ['timezone', state.timeZone ?? ''],
     ['volume_unit', state.volumeUnit],
   ];
 
@@ -1458,7 +1459,7 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     rows.push(['wake', w.timestampIso, w.dayNumber.toString(), '', '', '', '', '']);
   }
   for (const v of state.voids) {
-    const day = getDayNumber(v.timestampIso, state.startDate, state.bedtimes);
+    const day = getDayNumber(v.timestampIso, state.startDate, state.bedtimes, state.timeZone);
     rows.push([
       'void',
       v.timestampIso,
@@ -1471,7 +1472,7 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     ]);
   }
   for (const d of state.drinks) {
-    const day = getDayNumber(d.timestampIso, state.startDate, state.bedtimes);
+    const day = getDayNumber(d.timestampIso, state.startDate, state.bedtimes, state.timeZone);
     rows.push([
       'drink',
       d.timestampIso,
@@ -1484,7 +1485,7 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
     ]);
   }
   for (const l of (state.leaks ?? [])) {
-    const day = getDayNumber(l.timestampIso, state.startDate, state.bedtimes);
+    const day = getDayNumber(l.timestampIso, state.startDate, state.bedtimes, state.timeZone);
     rows.push([
       'leak',
       l.timestampIso,

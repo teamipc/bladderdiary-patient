@@ -10,9 +10,9 @@ import { getCurrentDay } from '@/lib/utils';
 export default function BottomNav() {
   const pathname = usePathname();
   const t = useTranslations('nav');
-  const { diaryStarted, startDate, getBedtimeForDay } = useDiaryStore();
+  const { diaryStarted, startDate, timeZone, getBedtimeForDay } = useDiaryStore();
 
-  const currentDay = diaryStarted ? getCurrentDay(startDate) : 1;
+  const currentDay = diaryStarted ? getCurrentDay(startDate, timeZone) : 1;
   const todayHref = `/diary/day/${currentDay}`;
   const isTrackingComplete = diaryStarted && !!getBedtimeForDay(3);
 

@@ -86,21 +86,21 @@ function wakeFor(state: DiaryState, day: 1 | 2 | 3): WakeTimeEntry | undefined {
 /** Get voids for a specific diary day (bedtime-aware). */
 function voidsForDay(state: DiaryState, day: number): VoidEntry[] {
   return state.voids
-    .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes) === day)
+    .filter((v) => getDayNumber(v.timestampIso, state.startDate, state.bedtimes, state.timeZone) === day)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 }
 
 /** Get drinks for a specific diary day (bedtime-aware). */
 function drinksForDay(state: DiaryState, day: number) {
   return state.drinks
-    .filter((d) => getDayNumber(d.timestampIso, state.startDate, state.bedtimes) === day)
+    .filter((d) => getDayNumber(d.timestampIso, state.startDate, state.bedtimes, state.timeZone) === day)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 }
 
 /** Get standalone leaks for a specific diary day (bedtime-aware). */
 function leaksForDay(state: DiaryState, day: number): LeakEntry[] {
   return (state.leaks ?? [])
-    .filter((l) => getDayNumber(l.timestampIso, state.startDate, state.bedtimes) === day)
+    .filter((l) => getDayNumber(l.timestampIso, state.startDate, state.bedtimes, state.timeZone) === day)
     .sort((a, b) => a.timestampIso.localeCompare(b.timestampIso));
 }
 

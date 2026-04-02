@@ -16,7 +16,7 @@ import IpcInfoModal from '@/components/ui/IpcInfoModal';
 export default function SummaryPage() {
   const router = useRouter();
   const t = useTranslations('summary');
-  const { diaryStarted, startDate, getBedtimeForDay, getVoidsForDay, getDrinksForDay } = useDiaryStore();
+  const { diaryStarted, startDate, timeZone, getBedtimeForDay, getVoidsForDay, getDrinksForDay } = useDiaryStore();
   const isComplete = diaryStarted && !!getBedtimeForDay(3);
 
   // Data consistency check — warn if any completed day has very few entries
@@ -70,7 +70,7 @@ export default function SummaryPage() {
       {/* Back arrow + Page title */}
       <div>
         <Link
-          href={`/diary/day/${getCurrentDay(startDate)}`}
+          href={`/diary/day/${getCurrentDay(startDate, timeZone)}`}
           className="inline-flex items-center gap-1 text-ipc-600 hover:text-ipc-800 transition-colors mb-2"
         >
           <ChevronLeft size={20} />

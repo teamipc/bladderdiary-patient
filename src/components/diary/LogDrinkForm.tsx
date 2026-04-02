@@ -23,7 +23,7 @@ interface LogDrinkFormProps {
 const TOTAL_STEPS = 2;
 
 export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogDrinkFormProps) {
-  const { addDrink, updateDrink, getBedtimeForDay, getWakeTimeForDay, startDate, volumeUnit } = useDiaryStore();
+  const { addDrink, updateDrink, getBedtimeForDay, getWakeTimeForDay, startDate, volumeUnit, timeZone } = useDiaryStore();
   const t = useTranslations('logDrink');
   const tc = useTranslations('common');
   const tv = useTranslations('validation');
@@ -42,16 +42,16 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       return new Date(new Date(prevDayBedtime.timestampIso).getTime() + 5 * 60 * 1000).toISOString();
     }
     const after = wakeTime?.timestampIso ?? prevDayBedtime?.timestampIso;
-    return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after);
+    return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after, timeZone);
   };
 
   const handleTimeChange = useCallback((newTime: string) => {
     if (isNightView && prevDayBedtime) {
-      setTime(correctNightDate(newTime, prevDayBedtime.timestampIso));
+      setTime(correctNightDate(newTime, prevDayBedtime.timestampIso, timeZone));
     } else {
-      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate));
+      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone));
     }
-  }, [isNightView, prevDayBedtime, dayNumber, startDate]);
+  }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone]);
 
   const [drinkType, setDrinkType] = useState<DrinkType>(editEntry?.drinkType ?? 'water');
   const [volume, setVolume] = useState(editEntry ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit) : vc.default);
@@ -161,25 +161,25 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     if (volume <= 0) return;
     if (isBeforePrevBedtime && prevDayBedtime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(tv('beforePrevBedtime', { dayNumber: dayNumber - 1, time: formatTime(prevDayBedtime.timestampIso, locale) }));
+      setTimeWarning(tv('beforePrevBedtime', { dayNumber: dayNumber - 1, time: formatTime(prevDayBedtime.timestampIso, locale, timeZone) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
     if (isBeforeWakeTime && wakeTime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(tv('beforeWakeUp', { time: formatTime(wakeTime.timestampIso, locale) }));
+      setTimeWarning(tv('beforeWakeUp', { time: formatTime(wakeTime.timestampIso, locale, timeZone) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
     if (isAfterWakeTime && wakeTime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(tv('afterWakeUp', { time: formatTime(wakeTime.timestampIso, locale) }));
+      setTimeWarning(tv('afterWakeUp', { time: formatTime(wakeTime.timestampIso, locale, timeZone) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
     if (isAfterBedtime && currentBedtime) {
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      setTimeWarning(tv('afterBedtime', { time: formatTime(currentBedtime.timestampIso, locale) }));
+      setTimeWarning(tv('afterBedtime', { time: formatTime(currentBedtime.timestampIso, locale, timeZone) }));
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }

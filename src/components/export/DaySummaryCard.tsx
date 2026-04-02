@@ -13,7 +13,7 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
   const t = useTranslations('daySummary');
   const tc = useTranslations('common');
   const locale = useLocale();
-  const { startDate, volumeUnit, getVoidsForDay, getDrinksForDay, getLeaksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
+  const { startDate, volumeUnit, timeZone, getVoidsForDay, getDrinksForDay, getLeaksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
 
   const voids = getVoidsForDay(dayNumber);
   const drinks = getDrinksForDay(dayNumber);
@@ -26,7 +26,7 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
   const leaks = voids.filter((v) => v.leak).length;
 
   const dayDateStr = getDayDate(startDate, dayNumber);
-  const dayLabel = formatDate(dayDateStr + 'T12:00:00', locale);
+  const dayLabel = formatDate(dayDateStr + 'T12:00:00', locale, timeZone);
 
   const hasAnyData = voids.length > 0 || drinks.length > 0 || bedtime;
 
@@ -78,13 +78,13 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
             {wakeTime && (
               <div className="flex items-center gap-1.5 text-warning">
                 <Sun size={14} />
-                <span className="font-medium">{t('wake', { time: formatTime(wakeTime.timestampIso, locale) })}</span>
+                <span className="font-medium">{t('wake', { time: formatTime(wakeTime.timestampIso, locale, timeZone) })}</span>
               </div>
             )}
             {bedtime && (
               <div className="flex items-center gap-1.5 text-bedtime">
                 <Moon size={14} />
-                <span className="font-medium">{t('bed', { time: formatTime(bedtime.timestampIso, locale) })}</span>
+                <span className="font-medium">{t('bed', { time: formatTime(bedtime.timestampIso, locale, timeZone) })}</span>
               </div>
             )}
             {leaks > 0 && (

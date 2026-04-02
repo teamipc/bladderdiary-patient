@@ -121,4 +121,6 @@ export interface DiaryState {
   diaryStarted: boolean;
   /** Optional clinic code for professional integration. */
   clinicCode: string | null;
+  /** IANA timezone string (e.g. "Asia/Singapore"). Auto-detected, user-overridable. */
+  timeZone: string;
 }
