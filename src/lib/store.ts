@@ -17,6 +17,7 @@ import type {
   BedtimeEntry,
   WakeTimeEntry,
   DiaryState,
+  MorningAnchor,
 } from './types';
 
 /**
@@ -99,6 +100,10 @@ interface DiaryStore extends DiaryState {
   setWakeTime: (dayNumber: 1 | 2 | 3, timestampIso: string) => void;
   removeWakeTime: (dayNumber: 1 | 2 | 3) => void;
 
+  // Day 1 peak-end moment
+  setMorningAnchor: (anchor: MorningAnchor | null) => void;
+  markDay1CelebrationShown: () => void;
+
   // Selectors
   getVoidsForDay: (dayNumber: number) => VoidEntry[];
   getDrinksForDay: (dayNumber: number) => DrinkEntry[];
@@ -123,6 +128,8 @@ const initialState: DiaryState = {
   diaryStarted: false,
   clinicCode: null,
   timeZone: detectTimeZone(),
+  morningAnchor: null,
+  day1CelebrationShown: false,
 };
 
 export const useDiaryStore = create<DiaryStore>()(
@@ -277,18 +284,28 @@ export const useDiaryStore = create<DiaryStore>()(
         return s.voids.length > 0 || s.drinks.length > 0 || (s.leaks ?? []).length > 0 || s.bedtimes.length > 0;
       },
 
+      // ── Day 1 peak-end moment ──
+      setMorningAnchor: (anchor) => set({ morningAnchor: anchor }),
+      markDay1CelebrationShown: () => set({ day1CelebrationShown: true }),
+
       // ── Reset ──
       resetDiary: () => set({ ...initialState, startDate: format(new Date(), 'yyyy-MM-dd'), timeZone: detectTimeZone() }),
     }),
     {
       name: 'bladder-diary-patient',
-      version: 1,
+      version: 2,
       migrate: (persisted, version) => {
-        if (version === 0) {
-          // Old data without timeZone — auto-detect from browser
-          return { ...(persisted as Record<string, unknown>), timeZone: detectTimeZone() };
+        const obj = persisted as Record<string, unknown>;
+        if (version < 1) {
+          // v0 had no timeZone — auto-detect from browser
+          obj.timeZone = detectTimeZone();
         }
-        return persisted as DiaryStore;
+        if (version < 2) {
+          // v1 had no morning anchor / Day 1 celebration flag
+          obj.morningAnchor = null;
+          obj.day1CelebrationShown = false;
+        }
+        return obj as DiaryStore;
       },
     },
   ),
