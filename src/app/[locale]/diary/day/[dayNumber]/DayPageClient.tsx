@@ -6,6 +6,7 @@ import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { track } from '@vercel/analytics';
 import TimelineView from '@/components/diary/TimelineView';
+import NextStepBanner from '@/components/diary/NextStepBanner';
 import QuickLogFAB from '@/components/diary/QuickLogFAB';
 import BottomSheet from '@/components/ui/BottomSheet';
 import LogVoidForm from '@/components/diary/LogVoidForm';
@@ -13,6 +14,7 @@ import LogDrinkForm from '@/components/diary/LogDrinkForm';
 import LogLeakForm from '@/components/diary/LogLeakForm';
 import SetBedtimeForm from '@/components/diary/SetBedtimeForm';
 import SetWakeTimeForm from '@/components/diary/SetWakeTimeForm';
+import Day1Celebration from '@/components/diary/Day1Celebration';
 import Toast from '@/components/ui/Toast';
 import { useDiaryStore } from '@/lib/store';
 import type { VoidEntry, DrinkEntry, LeakEntry, BedtimeEntry } from '@/lib/types';
@@ -35,7 +37,15 @@ export default function DayPageClient() {
   const t = useTranslations('toasts');
   const tm = useTranslations('milestones');
   const dayNumber = Math.min(3, Math.max(1, Number(params.dayNumber))) as 1 | 2 | 3;
-  const { diaryStarted, getBedtimeForDay, getVoidsForDay, getWakeTimeForDay } = useDiaryStore();
+  const {
+    diaryStarted,
+    getBedtimeForDay,
+    getVoidsForDay,
+    getWakeTimeForDay,
+    day1CelebrationShown,
+    markDay1CelebrationShown,
+    setMorningAnchor,
+  } = useDiaryStore();
 
   // Milestone messages — shown once per session via localStorage
   const MILESTONES: Record<string, { emoji: string; message: string; subtitle: string; duration: number }> = {
@@ -82,6 +92,10 @@ export default function DayPageClient() {
 
   // Initial time — pre-set when inserting between events via "+" button
   const [initialTime, setInitialTime] = useState<string | undefined>();
+
+  // Day 1 peak-end celebration state
+  const [day1CelebrationOpen, setDay1CelebrationOpen] = useState(false);
+  const [day1EventCount, setDay1EventCount] = useState(0);
 
   // Track page view once per day number
   const trackedDay = useRef(0);
@@ -157,7 +171,31 @@ export default function DayPageClient() {
 
     // Day complete (bedtime just saved)
     if (bedtime && message === t('bedtimeSaved')) {
+      // Day 1 first-time completion → full-screen peak-end moment instead of toast.
+      // Targets the EN Day 1 → Day 2 return bleed (60% drop).
+      if (dayNumber === 1 && !day1CelebrationShown) {
+        const count =
+          store.getVoidsForDay(1).length +
+          store.getDrinksForDay(1).length +
+          store.getLeaksForDay(1).length +
+          (store.getWakeTimeForDay(1) ? 1 : 0) +
+          1; // bedtime just saved
+        setDay1EventCount(count);
+        setDay1CelebrationOpen(true);
+        track('day1_celebration_shown');
+        return;
+      }
+
       const shown = showMilestoneToast(`day${dayNumber}_complete`);
+
+      // Day 3 bedtime = diary complete. Auto-redirect to summary so users
+      // actually reach the finish-line moment — funnel showed ~60% drop here.
+      // Delay lets the celebration toast land first (peak-end rule).
+      if (dayNumber === 3) {
+        track('auto_redirect_to_summary');
+        setTimeout(() => router.push('/summary'), shown ? 2500 : 1000);
+      }
+
       if (shown) return;
     }
 
@@ -167,7 +205,7 @@ export default function DayPageClient() {
     setToastDuration(3000);
     setToastMessage(message);
     setShowToast(true);
-  }, [dayNumber, showMilestoneToast, t]);
+  }, [dayNumber, showMilestoneToast, t, day1CelebrationShown, router]);
 
   const handleClose = useCallback(() => {
     setSheetMode(null);
@@ -221,6 +259,8 @@ export default function DayPageClient() {
 
   return (
     <>
+      <NextStepBanner dayNumber={dayNumber} isNightView={isNightView} />
+
       <TimelineView
         dayNumber={dayNumber}
         onLogVoid={handleLogVoid}
@@ -295,6 +335,20 @@ export default function DayPageClient() {
         visible={showToast}
         onDismiss={() => setShowToast(false)}
         duration={toastDuration}
+      />
+
+      <Day1Celebration
+        open={day1CelebrationOpen}
+        eventCount={day1EventCount}
+        onClose={({ anchor, method }) => {
+          if (anchor) {
+            setMorningAnchor(anchor);
+            track('day1_anchor_selected', { anchor });
+          }
+          track('day1_reminder_method', { method });
+          markDay1CelebrationShown();
+          setDay1CelebrationOpen(false);
+        }}
       />
     </>
   );

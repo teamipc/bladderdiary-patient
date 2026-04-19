@@ -81,6 +81,9 @@ export interface DrinkEntry {
   note: string;
 }
 
+/** Morning habit anchor chosen by the user at end of Day 1 — used to time Day 2 reminders. */
+export type MorningAnchor = 'wake' | 'coffee' | 'bathroom';
+
 /** Marks end-of-day bedtime. Events after bedtime roll to the next day. */
 export interface BedtimeEntry {
   id: string;
@@ -123,4 +126,8 @@ export interface DiaryState {
   clinicCode: string | null;
   /** IANA timezone string (e.g. "Asia/Singapore"). Auto-detected, user-overridable. */
   timeZone: string;
+  /** User-chosen habit anchor for tomorrow's first log. Set at end of Day 1. */
+  morningAnchor: MorningAnchor | null;
+  /** Whether the Day 1 peak-end celebration has been shown (one-shot). */
+  day1CelebrationShown: boolean;
 }

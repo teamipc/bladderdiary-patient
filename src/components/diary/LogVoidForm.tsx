@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { CopyPlus, ChevronLeft, ChevronRight, Droplets, MessageSquarePlus, Check } from 'lucide-react';
+import { CopyPlus, ChevronLeft, ChevronRight, Droplets, MessageSquarePlus, Check, HelpCircle } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import VolumeInput from '@/components/ui/VolumeInput';
 import TimePicker from '@/components/ui/TimePicker';
@@ -66,6 +66,19 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('left');
   const [noteOpen, setNoteOpen] = useState(false);
   const [arrowFlash, setArrowFlash] = useState(false);
+  const [showCupHelp, setShowCupHelp] = useState(false);
+
+  const VOLUME_PRESETS = volumeUnit === 'oz'
+    ? [
+        { id: 'small', value: 5, labelKey: 'presetSmall' as const, descKey: 'presetSmallDesc' as const },
+        { id: 'medium', value: 8, labelKey: 'presetMedium' as const, descKey: 'presetMediumDesc' as const },
+        { id: 'large', value: 12, labelKey: 'presetLarge' as const, descKey: 'presetLargeDesc' as const },
+      ]
+    : [
+        { id: 'small', value: 150, labelKey: 'presetSmall' as const, descKey: 'presetSmallDesc' as const },
+        { id: 'medium', value: 250, labelKey: 'presetMedium' as const, descKey: 'presetMediumDesc' as const },
+        { id: 'large', value: 350, labelKey: 'presetLarge' as const, descKey: 'presetLargeDesc' as const },
+      ];
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const noteAreaRef = useRef<HTMLDivElement>(null);
 
@@ -242,6 +255,56 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               <h3 className="text-xl font-bold text-center mb-3 text-ipc-800 px-10 text-balance">
                 {t('howMuch')}
               </h3>
+
+              {/* Quick-pick size presets (for users without a measuring cup) */}
+              <div className="grid grid-cols-3 gap-2 mb-2 px-2">
+                {VOLUME_PRESETS.map((p) => {
+                  const active = volume === p.value;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setVolume(p.value);
+                        cancelAutoAdvance();
+                        if (!doubleVoid) scheduleAutoAdvance(2, 2500);
+                      }}
+                      className={`min-h-[62px] px-2 py-2 rounded-2xl border-2 flex flex-col items-center justify-center transition-all active:scale-[0.96] ${
+                        active
+                          ? 'bg-ipc-500 border-ipc-600 text-white shadow-md'
+                          : 'bg-white border-ipc-200 text-ipc-800'
+                      }`}
+                      aria-pressed={active}
+                    >
+                      <span className="text-base font-bold leading-tight">{t(p.labelKey)}</span>
+                      <span className={`text-xs mt-0.5 ${active ? 'text-white/80' : 'text-ipc-500'}`}>
+                        {p.value} {volumeUnit}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => { setShowCupHelp((v) => !v); cancelAutoAdvance(); }}
+                className="flex items-center justify-center gap-1.5 w-full text-sm text-ipc-500 hover:text-ipc-700 py-1.5 mb-2"
+              >
+                <HelpCircle size={14} />
+                {t('noMeasuringCupHelp')}
+              </button>
+
+              {showCupHelp && (
+                <div className="bg-ipc-50 rounded-2xl p-3 mb-3 text-sm text-ipc-700 leading-relaxed space-y-1.5 animate-fade-slide-up">
+                  <p className="mb-2">{t('cupHelpIntro')}</p>
+                  {VOLUME_PRESETS.map((p) => (
+                    <p key={p.id} className="text-sm">
+                      <span className="font-semibold">{t(p.labelKey)}</span> ({p.value} {volumeUnit}): {t(p.descKey)}
+                    </p>
+                  ))}
+                </div>
+              )}
+
               <div onPointerUp={handleSliderRelease} onTouchEnd={handleSliderRelease}>
                 <VolumeInput value={volume} onChange={handleVolumeChange}
                   onEditingChange={(editing) => { if (editing) cancelAutoAdvance(); }}
