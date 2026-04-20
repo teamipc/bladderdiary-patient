@@ -305,7 +305,7 @@ export const useDiaryStore = create<DiaryStore>()(
           obj.morningAnchor = null;
           obj.day1CelebrationShown = false;
         }
-        return obj as DiaryStore;
+        return obj as unknown as DiaryStore;
       },
     },
   ),
