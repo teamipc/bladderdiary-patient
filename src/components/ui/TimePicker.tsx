@@ -2,6 +2,7 @@
 
 import { format, parseISO, addMinutes } from 'date-fns';
 import { Minus, Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface TimePickerProps {
   value: string; // ISO string
@@ -24,6 +25,7 @@ function snapTo15(date: Date): Date {
 }
 
 export default function TimePicker({ value, onChange, label, variant = 'default' }: TimePickerProps) {
+  const tc = useTranslations('common');
   const isDrink = variant === 'drink';
   const isBedtime = variant === 'bedtime';
   const isLeak = variant === 'leak';
@@ -69,7 +71,7 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
                 ? `${isLeak ? 'border-leak/30 text-leak active:bg-leak/10' : isBedtime ? 'border-bedtime/30 text-bedtime active:bg-bedtime/10' : 'border-drink/30 text-drink active:bg-drink/10'}`
                 : 'border-ipc-200/50 text-ipc-500 active:bg-ipc-100/50'
             }`}
-          aria-label="Subtract 15 minutes"
+          aria-label={tc('subtractMinutes', { n: 15 })}
         >
           <Minus size={16} />
         </button>
@@ -97,7 +99,7 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
                 ? `${isLeak ? 'border-leak/30 text-leak active:bg-leak/10' : isBedtime ? 'border-bedtime/30 text-bedtime active:bg-bedtime/10' : 'border-drink/30 text-drink active:bg-drink/10'}`
                 : 'border-ipc-200/50 text-ipc-500 active:bg-ipc-100/50'
             }`}
-          aria-label="Add 15 minutes"
+          aria-label={tc('addMinutes', { n: 15 })}
         >
           <Plus size={16} />
         </button>
@@ -113,7 +115,7 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
                 : 'border-ipc-200/50 text-ipc-500 hover:bg-white/60'
             }`}
         >
-          Now
+          {tc('now')}
         </button>
       </div>
     </div>

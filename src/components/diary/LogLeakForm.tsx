@@ -238,7 +238,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               w-9 h-9 flex items-center justify-center rounded-full
               bg-leak/10 border border-leak/20 text-leak shadow-sm
               active:scale-[0.85] active:bg-leak/20 transition-all"
-            aria-label="Previous step"
+            aria-label={tc('previousStep')}
           >
             <ChevronLeft size={22} strokeWidth={2.5} />
           </button>
@@ -252,7 +252,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               bg-leak/10 border border-leak/20 text-leak shadow-sm
               active:scale-[0.85] active:bg-leak/20 transition-all
               ${arrowFlash ? 'arrow-pulse-leak' : ''}`}
-            aria-label="Next step"
+            aria-label={tc('nextStep')}
           >
             <ChevronRight size={22} strokeWidth={2.5} />
           </button>

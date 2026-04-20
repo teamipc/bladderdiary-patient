@@ -237,14 +237,14 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
         {step > 1 && (
           <button type="button" onClick={() => goToStep(step - 1)}
             className="absolute left-0 top-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-ipc-100 border border-ipc-200 text-ipc-600 shadow-sm active:scale-[0.85] active:bg-ipc-200 transition-all"
-            aria-label="Previous step">
+            aria-label={tc('previousStep')}>
             <ChevronLeft size={22} strokeWidth={2.5} />
           </button>
         )}
         {step < 3 && (
           <button type="button" onClick={() => goToStep(step + 1)}
             className={`absolute right-0 top-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-ipc-100 border border-ipc-200 text-ipc-600 shadow-sm active:scale-[0.85] active:bg-ipc-200 transition-all ${arrowFlash ? 'arrow-pulse' : ''}`}
-            aria-label="Next step">
+            aria-label={tc('nextStep')}>
             <ChevronRight size={22} strokeWidth={2.5} />
           </button>
         )}
