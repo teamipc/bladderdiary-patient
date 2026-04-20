@@ -653,13 +653,32 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
             </div>
           </div>
           {dayNumber < 3 && nextDayAccessible && (
-            <div className="space-y-2">
+            <div className="space-y-3">
+              <div className="px-4 py-3.5 rounded-2xl bg-bedtime/5 border border-bedtime/20">
+                <div className="flex items-start gap-2.5 mb-3">
+                  <Moon size={18} className="shrink-0 text-bedtime mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-ipc-900">
+                      {t('overnightNocturiaPrompt')}
+                    </p>
+                    <p className="text-xs text-ipc-600 mt-0.5 leading-snug">
+                      {t('overnightNocturiaHint')}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href={`/diary/day/${dayNumber + 1}?view=night&add=void`}
+                  className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-2xl bg-bedtime text-white font-semibold text-base active:scale-[0.97] transition-all"
+                >
+                  <Droplets size={18} />
+                  {t('logOvernightPee')}
+                </Link>
+              </div>
               <Link
                 href={`/diary/day/${dayNumber + 1}?view=night`}
-                className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-bedtime text-white font-semibold text-base active:scale-[0.97] transition-all animate-night-pulse"
+                className="flex items-center justify-center gap-1 text-sm text-ipc-500 py-2 font-medium"
               >
-                {t('continueToNight')}
-                <Moon size={16} />
+                {t('noOvernightContinue', { dayNumber: dayNumber + 1 })}
               </Link>
             </div>
           )}

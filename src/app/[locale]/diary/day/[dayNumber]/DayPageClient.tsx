@@ -97,6 +97,17 @@ export default function DayPageClient() {
   const [day1CelebrationOpen, setDay1CelebrationOpen] = useState(false);
   const [day1EventCount, setDay1EventCount] = useState(0);
 
+  // Auto-open void form when arriving with ?add=void (from "Log overnight pee" shortcut)
+  const autoOpenConsumed = useRef(false);
+  useEffect(() => {
+    if (autoOpenConsumed.current) return;
+    if (!diaryStarted || !prevDayComplete) return;
+    if (searchParams.get('add') === 'void' && canLogEntries) {
+      autoOpenConsumed.current = true;
+      setSheetMode('void');
+    }
+  }, [diaryStarted, prevDayComplete, searchParams, canLogEntries]);
+
   // Track page view once per day number
   const trackedDay = useRef(0);
   useEffect(() => {
