@@ -86,13 +86,18 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col items-center px-6 pt-12 pb-12 max-w-lg mx-auto w-full">
+      <div className="flex flex-col items-center px-6 pt-6 pb-10 max-w-lg mx-auto w-full">
 
-        {/* Step dots */}
-        <div className="flex items-center gap-2 mb-8">
-          <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 1 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
-          <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 2 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
-          <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 3 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
+        {/* Step dots + plain-English label (wayfinding for older / non-tech users) */}
+        <div className="flex flex-col items-center gap-1.5 mb-5">
+          <div className="flex items-center gap-2">
+            <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 1 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
+            <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 2 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
+            <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 3 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
+          </div>
+          <span className="text-[11px] font-semibold tracking-wide text-ipc-400 uppercase">
+            {tc('stepOf', { current: step, total: 3 })}
+          </span>
         </div>
 
         {/* Step 1: Age */}
@@ -198,15 +203,15 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 3: Date confirmation + Timezone */}
         {step === 3 && (
           <div key="step3" className={`w-full text-center ${animClass}`}>
-            <h2 className="text-2xl font-bold text-ipc-950 mb-2 text-balance">
+            <h2 className="text-2xl font-bold text-ipc-950 mb-1.5 text-balance">
               {t('dateTitle')}
             </h2>
-            <p className="text-sm text-ipc-500 mb-6">
+            <p className="text-sm text-ipc-500 mb-4 text-balance">
               {t('dateSubtitle')}
             </p>
 
             {/* Date input */}
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-2.5">
               <div className="relative">
                 <Calendar size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ipc-400 pointer-events-none" />
                 <input
@@ -221,41 +226,42 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               </div>
             </div>
 
-            {/* Timezone display */}
-            <div className="flex items-center justify-center gap-1.5 mb-6">
-              <Globe size={14} className="text-ipc-400" />
-              <span className="text-sm text-ipc-500">
+            {/* Timezone display — "Change" reads as a real button for older users */}
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <span className="inline-flex items-center gap-1.5 text-sm text-ipc-500">
+                <Globe size={14} className="text-ipc-400" />
                 {timeZoneCity(timeZone)} ({getTimezoneOffset(timeZone)})
               </span>
               <button
                 type="button"
                 onClick={() => setShowTzPicker(true)}
-                className="text-sm font-medium text-ipc-600 hover:text-ipc-800 transition-colors ml-1"
+                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                  text-ipc-700 bg-white/70 border border-ipc-200 hover:bg-ipc-50 active:scale-[0.96] transition-all"
               >
                 {t('timezoneChange')}
               </button>
             </div>
 
-            {/* 3-day preview */}
-            <div className="bg-white/60 border border-ipc-100 rounded-2xl p-4 mb-8 text-left">
-              <p className="text-xs font-semibold text-ipc-400 uppercase tracking-wide mb-3">{t('trackingPeriodLabel')}</p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/60 rounded-xl">
-                  <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-500 text-white text-xs font-bold">1</span>
+            {/* 3-day preview (compact) */}
+            <div className="bg-white/60 border border-ipc-100 rounded-2xl px-3 py-2.5 mb-5 text-left">
+              <p className="text-[10px] font-semibold text-ipc-400 uppercase tracking-wide mb-1.5">{t('trackingPeriodLabel')}</p>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2.5 px-2 py-1.5 bg-ipc-50/60 rounded-lg">
+                  <span className="w-5 h-5 flex items-center justify-center rounded-full bg-ipc-500 text-white text-[10px] font-bold shrink-0">1</span>
                   <span className="text-sm font-medium text-ipc-800">{formatFullDayDate(format(day1, 'yyyy-MM-dd'), locale)}</span>
                 </div>
-                <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/40 rounded-xl">
-                  <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-300 text-white text-xs font-bold">2</span>
+                <div className="flex items-center gap-2.5 px-2 py-1.5 bg-ipc-50/40 rounded-lg">
+                  <span className="w-5 h-5 flex items-center justify-center rounded-full bg-ipc-300 text-white text-[10px] font-bold shrink-0">2</span>
                   <span className="text-sm font-medium text-ipc-600">{formatFullDayDate(format(day2, 'yyyy-MM-dd'), locale)}</span>
                 </div>
-                <div className="flex items-center gap-3 px-3 py-2.5 bg-ipc-50/30 rounded-xl">
-                  <span className="w-7 h-7 flex items-center justify-center rounded-full bg-ipc-200 text-ipc-600 text-xs font-bold">3</span>
+                <div className="flex items-center gap-2.5 px-2 py-1.5 bg-ipc-50/30 rounded-lg">
+                  <span className="w-5 h-5 flex items-center justify-center rounded-full bg-ipc-200 text-ipc-600 text-[10px] font-bold shrink-0">3</span>
                   <span className="text-sm font-medium text-ipc-500">{formatFullDayDate(format(day3, 'yyyy-MM-dd'), locale)}</span>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <Button
                 onClick={handleConfirm}
                 fullWidth
@@ -266,7 +272,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <button
                 type="button"
                 onClick={() => goBack(2)}
-                className="text-sm text-ipc-400 hover:text-ipc-600 transition-colors"
+                className="text-sm text-ipc-400 hover:text-ipc-600 transition-colors py-1"
               >
                 {tc('back')}
               </button>

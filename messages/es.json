@@ -32,7 +32,8 @@
     "addNote": "Agregar nota",
     "noteAdded": "Nota \u2713",
     "saveCheck": "Guardar \u2713",
-    "updateCheck": "Actualizar \u2713"
+    "updateCheck": "Actualizar \u2713",
+    "stepOf": "Paso {current} de {total}"
   },
   "nav": {
     "home": "Inicio",
@@ -68,7 +69,7 @@
     "unitTitle": "¿Cómo mide?",
     "unitSubtitle": "Elija la unidad con la que se sienta más cómodo. Se usará en toda la aplicación.",
     "dateTitle": "¿Cuándo quiere comenzar?",
-    "dateSubtitle": "Necesita hacer seguimiento durante 3 días consecutivos para que funcione. Comience en una mañana en la que pueda registrar su primera orina del día.",
+    "dateSubtitle": "Elija una mañana en la que pueda registrar su primera orina. Hará el seguimiento durante 3 días seguidos.",
     "trackingPeriodLabel": "Su período de seguimiento de 3 días",
     "timezoneChange": "Cambiar",
     "timezonePickerTitle": "Seleccione su zona horaria",

@@ -20,6 +20,10 @@ export default function BottomNav() {
   const isTrackActive = pathname?.startsWith('/diary/day/');
   const isDiaryActive = pathname === '/summary';
 
+  // Hide nav on the landing/onboarding route before tracking starts: the other
+  // tabs are all disabled or locked, so the bar adds confusion without value.
+  const hideNav = !diaryStarted && pathname === '/';
+
   // Auto-hide on scroll down, show on scroll up
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
@@ -38,6 +42,8 @@ export default function BottomNav() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  if (hideNav) return null;
 
   return (
     <nav className={`fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-ipc-100 safe-bottom transition-transform duration-300 ${hidden ? 'translate-y-full' : 'translate-y-0'}`}>
