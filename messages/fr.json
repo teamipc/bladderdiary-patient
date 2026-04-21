@@ -33,7 +33,10 @@
     "noteAdded": "Note \u2713",
     "saveCheck": "Enregistrer \u2713",
     "updateCheck": "Modifier \u2713",
-    "stepOf": "Étape {current} sur {total}"
+    "stepOf": "Étape {current} sur {total}",
+    "review": "Vous enregistrez :",
+    "close": "Fermer",
+    "help": "Aide"
   },
   "nav": {
     "home": "Accueil",
@@ -130,7 +133,8 @@
     "presetMediumDesc": "une tasse ordinaire",
     "presetLargeDesc": "un grand verre",
     "noMeasuringCupHelp": "Pas de verre doseur ?",
-    "cupHelpIntro": "Pas besoin de verre doseur. Utilisez ces tailles comme repère, ou urinez dans un récipient que vous pouvez mesurer approximativement."
+    "cupHelpIntro": "Pas besoin de verre doseur. Utilisez ces tailles comme repère, ou urinez dans un récipient que vous pouvez mesurer approximativement.",
+    "leakRecap": "avec fuite"
   },
   "logDrink": {
     "whatDrink": "Qu'est-ce que vous avez bu ?",
@@ -143,6 +147,8 @@
     "howMuch": "Quelle quantité ?",
     "optionalTapHint": "facultatif. Appuyez pour sélectionner, appuyez à nouveau pour effacer",
     "urgencyBefore": "Besoin urgent avant la fuite ?",
+    "urgencyYesRecap": "avec besoin urgent",
+    "urgencyNoRecap": "sans besoin urgent",
     "whenWasThis": "C'était quand ?",
     "notePlaceholder": "ex. : pendant la marche"
   },

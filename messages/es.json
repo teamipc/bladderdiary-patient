@@ -33,7 +33,10 @@
     "noteAdded": "Nota \u2713",
     "saveCheck": "Guardar \u2713",
     "updateCheck": "Actualizar \u2713",
-    "stepOf": "Paso {current} de {total}"
+    "stepOf": "Paso {current} de {total}",
+    "review": "Está guardando:",
+    "close": "Cerrar",
+    "help": "Ayuda"
   },
   "nav": {
     "home": "Inicio",
@@ -130,7 +133,8 @@
     "presetMediumDesc": "una taza normal",
     "presetLargeDesc": "un vaso grande",
     "noMeasuringCupHelp": "¿Sin vaso medidor?",
-    "cupHelpIntro": "No hace falta un vaso medidor. Use estos tamaños como referencia, u orine en un recipiente que pueda medir aproximadamente."
+    "cupHelpIntro": "No hace falta un vaso medidor. Use estos tamaños como referencia, u orine en un recipiente que pueda medir aproximadamente.",
+    "leakRecap": "con pérdida"
   },
   "logDrink": {
     "whatDrink": "¿Qué bebió?",
@@ -143,6 +147,8 @@
     "howMuch": "¿Cuánto se escapó?",
     "optionalTapHint": "opcional. Toque para seleccionar, toque de nuevo para borrar",
     "urgencyBefore": "¿Ganas urgentes antes del escape?",
+    "urgencyYesRecap": "con ganas urgentes",
+    "urgencyNoRecap": "sin ganas urgentes",
     "whenWasThis": "¿Cuándo fue?",
     "notePlaceholder": "ej., Durante la caminata"
   },

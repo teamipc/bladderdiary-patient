@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface BottomSheetProps {
   open: boolean;
@@ -14,6 +15,7 @@ interface BottomSheetProps {
 
 export default function BottomSheet({ open, onClose, title, noScroll, variant = 'default', children }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
+  const tc = useTranslations('common');
 
   // Close on escape
   useEffect(() => {
@@ -51,6 +53,20 @@ export default function BottomSheet({ open, onClose, title, noScroll, variant = 
           rounded-t-3xl shadow-2xl border-t border-white/30
           animate-slide-up safe-bottom max-h-[90vh] ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'}`}
       >
+        {/* Close X — always visible in the top-right so non-tech-savvy
+            users have an obvious "escape" affordance beyond tapping the
+            backdrop or swiping down. */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={tc('close')}
+          className="absolute top-2.5 right-2.5 z-10 w-10 h-10 flex items-center justify-center rounded-full
+            text-ipc-500 bg-white/70 border border-ipc-100 shadow-sm
+            hover:bg-white active:scale-[0.9] transition-all"
+        >
+          <X size={20} />
+        </button>
+
         {/* Handle bar */}
         <div className="flex justify-center pt-3 pb-1">
           <div className={`w-10 h-1 rounded-full ${
@@ -60,16 +76,8 @@ export default function BottomSheet({ open, onClose, title, noScroll, variant = 
 
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-5 pb-3">
+          <div className="flex items-center px-5 pb-3 pr-14">
             <h2 className="text-xl font-bold text-ipc-950">{title}</h2>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center rounded-full
-                text-ipc-500 hover:bg-ipc-50 transition-colors"
-            >
-              <X size={22} />
-            </button>
           </div>
         )}
 

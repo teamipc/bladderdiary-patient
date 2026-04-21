@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { HelpCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { BladderSensation } from '@/lib/types';
 
@@ -12,11 +14,24 @@ const sensations: BladderSensation[] = [0, 1, 2, 3, 4];
 
 export default function SensationPicker({ value, onChange }: SensationPickerProps) {
   const t = useTranslations('sensations');
+  const tc = useTranslations('common');
+  const [showHelp, setShowHelp] = useState(false);
+
   return (
     <div className="space-y-2">
-      <label className="block text-base font-medium text-ipc-800 px-10 text-center">
-        {t('label')}
-      </label>
+      <div className="flex items-center justify-center gap-1.5 px-10">
+        <label className="text-base font-medium text-ipc-800 text-center">
+          {t('label')}
+        </label>
+        <button
+          type="button"
+          onClick={() => setShowHelp((v) => !v)}
+          aria-label={tc('help')}
+          className="text-ipc-400 hover:text-ipc-600 active:scale-[0.9] transition-all"
+        >
+          <HelpCircle size={15} />
+        </button>
+      </div>
 
       {/* Pill buttons */}
       <div className="flex gap-2 mt-2">
@@ -43,11 +58,24 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
         })}
       </div>
 
-      {/* Description shown when a sensation is selected */}
-      {value !== null && (
+      {/* Per-sensation description — shown when a sensation is selected */}
+      {value !== null && !showHelp && (
         <p className="text-sm text-ipc-600 font-medium text-center mt-2.5 animate-fade-slide-up">
           {t(`${value}.description`)}
         </p>
+      )}
+
+      {/* Help panel — shows every description so users can understand the
+          clinical scale before picking. */}
+      {showHelp && (
+        <div className="bg-ipc-50 rounded-2xl p-3 mt-2 space-y-1.5 animate-fade-slide-up">
+          {sensations.map((s) => (
+            <p key={s} className="text-xs text-ipc-700 leading-snug">
+              <span className="font-semibold">{s} · {t(`${s}.short`)}</span>{' '}
+              <span className="text-ipc-500">{t(`${s}.description`)}</span>
+            </p>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -27,6 +27,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   const t = useTranslations('logDrink');
   const tc = useTranslations('common');
   const tv = useTranslations('validation');
+  const tdt = useTranslations('drinkTypes');
   const locale = useLocale();
   const vc = VOLUME_CONFIG[volumeUnit];
   const isEditing = !!editEntry;
@@ -61,8 +62,6 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   const [step, setStep] = useState(1);
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('left');
   const [noteOpen, setNoteOpen] = useState(false);
-  const [arrowFlash, setArrowFlash] = useState(false);
-  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const noteAreaRef = useRef<HTMLDivElement>(null);
 
   const savedRef = useRef(false);
@@ -87,67 +86,28 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-    };
-  }, []);
-
-  const cancelAutoAdvance = useCallback(() => {
-    if (autoAdvanceTimer.current) {
-      clearTimeout(autoAdvanceTimer.current);
-      autoAdvanceTimer.current = null;
-    }
-  }, []);
-
-  const flashArrow = useCallback(() => {
-    setArrowFlash(false);
-    requestAnimationFrame(() => setArrowFlash(true));
-    setTimeout(() => setArrowFlash(false), 3200);
-  }, []);
-
-  const scheduleAutoAdvance = useCallback((targetStep: number, delay: number) => {
-    cancelAutoAdvance();
-    autoAdvanceTimer.current = setTimeout(() => {
-      setSlideDir(targetStep > step ? 'left' : 'right');
-      setStep(targetStep);
-      autoAdvanceTimer.current = null;
-    }, delay);
-    flashArrow();
-  }, [cancelAutoAdvance, flashArrow, step]);
-
   const goToStep = useCallback((target: number) => {
-    cancelAutoAdvance();
     const clamped = Math.max(1, Math.min(TOTAL_STEPS, target));
     setSlideDir(clamped > step ? 'left' : 'right');
     setStep(clamped);
-  }, [cancelAutoAdvance, step]);
+  }, [step]);
 
   const handleVolumeChange = useCallback((v: number) => {
     setVolume(v);
   }, []);
 
-  const handleSliderRelease = useCallback(() => {
-    if (step !== 1) return;
-    if (!noteOpen) {
-      scheduleAutoAdvance(2, 2500);
-    }
-  }, [step, noteOpen, scheduleAutoAdvance]);
-
   const handleNoteToggle = useCallback(() => {
     if (!noteOpen) {
-      cancelAutoAdvance();
       setTimeout(() => {
         noteAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 150);
     }
     setNoteOpen(prev => !prev);
-  }, [noteOpen, cancelAutoAdvance]);
+  }, [noteOpen]);
 
   const handleDrinkTypeChange = useCallback((type: DrinkType) => {
     setDrinkType(type);
-    cancelAutoAdvance();
-  }, [cancelAutoAdvance]);
+  }, []);
 
   const isBeforePrevBedtime = prevDayBedtime ? time <= prevDayBedtime.timestampIso : false;
   const isBeforeWakeTime = !isNightView && wakeTime ? time < wakeTime.timestampIso : false;
@@ -212,27 +172,23 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
               aria-label={`Step ${s}`} />
           ))}
         </div>
-        <span className="text-[10px] font-semibold tracking-wide text-drink/70 uppercase">
+        <span className="text-[11px] font-semibold tracking-wide text-drink/70 uppercase">
           {tc('stepOf', { current: step, total: TOTAL_STEPS })}
         </span>
       </div>
 
-      <div className="relative">
-        {step > 1 && (
+      {step > 1 && (
+        <div className="px-2 mb-2">
           <button type="button" onClick={() => goToStep(step - 1)}
-            className="absolute left-0 top-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-drink/10 border border-drink/20 text-drink shadow-sm active:scale-[0.85] active:bg-drink/20 transition-all"
+            className="inline-flex items-center gap-1 pl-2 pr-3 h-8 rounded-full bg-drink/10 border border-drink/20 text-drink active:scale-[0.95] active:bg-drink/20 transition-all"
             aria-label={tc('previousStep')}>
-            <ChevronLeft size={22} strokeWidth={2.5} />
+            <ChevronLeft size={18} strokeWidth={2.5} />
+            <span className="text-sm font-semibold">{tc('back')}</span>
           </button>
-        )}
-        {step < TOTAL_STEPS && (
-          <button type="button" onClick={() => goToStep(step + 1)}
-            className={`absolute right-0 top-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-drink/10 border border-drink/20 text-drink shadow-sm active:scale-[0.85] active:bg-drink/20 transition-all ${arrowFlash ? 'arrow-pulse-drink' : ''}`}
-            aria-label={tc('nextStep')}>
-            <ChevronRight size={22} strokeWidth={2.5} />
-          </button>
-        )}
+        </div>
+      )}
 
+      <div className="relative">
         <div key={step} className={`px-2 ${slideClass}`}>
           {step === 1 && (
             <>
@@ -268,16 +224,23 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
               <h3 className="text-lg font-bold text-center mb-1 text-ipc-950 text-balance">
                 {t('howMuch')}
               </h3>
-              <div onPointerUp={handleSliderRelease} onTouchEnd={handleSliderRelease}>
-                <VolumeInput value={volume} onChange={handleVolumeChange}
-                  onEditingChange={(editing) => { if (editing) cancelAutoAdvance(); }}
-                  unit={volumeUnit} max={vc.max} step={vc.step} variant="drink" />
-              </div>
+              <VolumeInput value={volume} onChange={handleVolumeChange}
+                unit={volumeUnit} max={vc.max} step={vc.step} variant="drink" />
             </>
           )}
 
           {step === 2 && (
-            <div className="flex flex-col items-center justify-center min-h-[45vh]">
+            <div className="flex flex-col items-center min-h-[45vh] pt-4">
+              {/* Recap of step 1 so user confirms before saving */}
+              <div className="w-full mb-5 px-4 py-3 rounded-2xl bg-drink/5 border border-drink/15">
+                <p className="text-[11px] font-semibold tracking-wide text-drink/60 uppercase mb-1">
+                  {tc('review')}
+                </p>
+                <p className="text-sm font-medium text-drink leading-snug">
+                  {[tdt(drinkType), `${volume} ${volumeUnit}`].join(' · ')}
+                </p>
+              </div>
+
               <h3 className="text-xl font-bold text-center mb-5 text-ipc-950 text-balance">
                 {t('whenWasThis')}
               </h3>
@@ -288,7 +251,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                 </div>
               )}
               <div className="flex justify-center mt-6">
-                <Button onClick={handleSave} size="md" variant="drink" disabled={volume <= 0}>
+                <Button onClick={handleSave} size="lg" variant="drink" disabled={volume <= 0}>
                   {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>
@@ -296,6 +259,16 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
           )}
         </div>
       </div>
+
+      {/* Sticky Next on non-final step — always visible at the bottom */}
+      {step < TOTAL_STEPS && (
+        <div className="sticky bottom-0 -mx-5 mt-4 px-5 pt-3 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
+          <Button onClick={() => goToStep(step + 1)} fullWidth size="lg" variant="drink" disabled={volume <= 0}>
+            {tc('next')}
+            <ChevronRight size={18} className="ml-1" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
