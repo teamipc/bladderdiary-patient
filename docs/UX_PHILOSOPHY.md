@@ -78,7 +78,31 @@ sentences (never across em-dashes — see the codebase's `no em-dashes` rule).
 If an idea needs more words, demote it to a `?` help affordance, not the
 subtitle.
 
-### 6. Clinical correctness is non-negotiable
+### 6. Never steal control from the user
+
+Auto-advance, auto-submit, and silent timers feel clever but read as "the
+computer is racing ahead of me" to a 50+ user who is reading carefully. The
+time saved (one or two seconds) is not worth the anxiety created.
+
+Every progression — between steps of a form, between onboarding screens,
+between logged events — must be an **explicit tap on a visible button**.
+Persistent sticky `Next` / `Save` buttons are preferred over hidden ones or
+ones that appear only after the user does something.
+
+Corollary: give the user a visible `Back` affordance (labelled, not just an
+icon) on the final confirmation step. Recoverable progress is a trust signal.
+
+Corollary: any destination that can be closed must have a visible `✕` — not
+just a backdrop tap or a swipe gesture. Older users do not know those
+gestures exist.
+
+### 7. Confirm before commit
+
+Multi-step forms introduce memory load: by step 3 the user has forgotten
+what they picked on step 1. Before the final `Save`, show a one-line recap
+of their prior selections so they can verify without going back.
+
+### 8. Clinical correctness is non-negotiable
 
 This is a medical diagnostic tool. A simpler UI that makes the clinical
 meaning ambiguous is worse than a slightly more complex UI that keeps the
@@ -114,6 +138,48 @@ day/night, sun/moon semantics, plain-English step labels, above-the-fold CTAs.
 
 A dated record of meaningful design choices so future sessions can understand
 the reasoning behind seemingly-small details.
+
+### 2026-04-21 — Remove auto-advance; explicit Next + recap + recoverable escape
+
+**Problem.** A tester reported the log-form sheet "moved forward after making
+a selection before I finished reading all the options." Auto-advance fired
+2.5 s after preset / volume-slider / sensation / trigger selections across
+all three log forms, flashing the side chevron to hint "tap me next." For a
+50+ user reading carefully — including the description that only *appears*
+after selection — 2.5 s is always wrong, and any tuning is still wrong for
+someone else. The pattern, not the delay, was the issue.
+
+**Commit.** [4eb08f9 or follow-up; see `git log`]
+
+**Changes.**
+
+| Area | Before | After | Principle |
+|---|---|---|---|
+| Auto-advance between form steps | `scheduleAutoAdvance(target, 2500)` on preset/slider/sensation/trigger selection, plus a 3-cycle `arrow-pulse*` animation hinting "tap the chevron" | Removed entirely; deleted `@keyframes arrowPulse`, `.arrow-pulse`, `.arrow-pulse-drink`, `.arrow-pulse-leak` | §6 (never steal control) |
+| Step progression | Right-side chevron (small, absolutely-positioned) as the only explicit "next" affordance | Sticky full-width `Next →` button anchored at the bottom of the sheet on every non-final step, mirroring the existing final-step `Save` button | §1 (primary CTA above the fold), §3 (buttons look like buttons) |
+| Back affordance on final step | Left-side chevron icon only | Chevron + labelled pill button ("← Back") so a hesitant user knows they can still change their mind | §6 (corollary: recoverable progress) |
+| Confirmation before save | None — user had to trust memory of step-1 and step-2 choices | One-line recap card above the time picker on the final step ("You are saving: 250 mL · Moderate · with leak") | §7 (confirm before commit) |
+| Tap-confirmation feedback | Selection shown by color change alone | Tiny `✓` icon inside the selected preset / leak-amount button, visible at a glance | §2 (words/symbols beat subtle cues) |
+| Step counter text | `text-[10px]` | `text-[11px]` | Readability for reading glasses |
+| Close the bottom sheet | Only via backdrop tap or Escape key — no visible affordance | Always-visible `✕` pill in the top-right of the sheet | §6 (corollary: visible escape) |
+| Sensation scale help | Description only appeared after picking a value — user had to pick blindly to learn | `?` icon next to the sensation label that toggles a panel showing every level and its description | §2, §6 |
+
+**Interaction details.**
+- Sticky footer uses a white-to-transparent gradient above it so content
+  scrolling behind does not feel clipped.
+- `Next` is disabled (Button's built-in `disabled` state) until the step's
+  required field is filled: `volume > 0` on void/drink step 1, `trigger`
+  on leak step 1, `urgencyBeforeLeak !== null` on leak step 2.
+- Step-dot taps still navigate between steps (kept the existing behavior).
+
+**What we did not change.**
+- Three-step structure of the void and leak forms, two-step structure of
+  the drink form — these map to the clinical data model.
+- Side arrow for going back (it exists, works, and is still useful); we
+  just gave it a label.
+- Auto-save on edit-unmount (editing an existing entry persists changes
+  when the sheet is dismissed) — that's a correctness feature, not an
+  auto-progression.
 
 ### 2026-04-21 — Onboarding fold fix and older-user clarity pass
 

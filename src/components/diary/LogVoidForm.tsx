@@ -25,6 +25,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const t = useTranslations('logVoid');
   const tc = useTranslations('common');
   const tv = useTranslations('validation');
+  const ts = useTranslations('sensations');
   const locale = useLocale();
   const vc = VOLUME_CONFIG[volumeUnit];
   const isEditing = !!editEntry;
@@ -65,7 +66,6 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const [step, setStep] = useState(1);
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('left');
   const [noteOpen, setNoteOpen] = useState(false);
-  const [arrowFlash, setArrowFlash] = useState(false);
   const [showCupHelp, setShowCupHelp] = useState(false);
 
   const VOLUME_PRESETS = volumeUnit === 'oz'
@@ -79,7 +79,6 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
         { id: 'medium', value: 250, labelKey: 'presetMedium' as const, descKey: 'presetMediumDesc' as const },
         { id: 'large', value: 350, labelKey: 'presetLarge' as const, descKey: 'presetLargeDesc' as const },
       ];
-  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const noteAreaRef = useRef<HTMLDivElement>(null);
 
   const savedRef = useRef(false);
@@ -106,52 +105,15 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-    };
-  }, []);
-
-  const cancelAutoAdvance = useCallback(() => {
-    if (autoAdvanceTimer.current) {
-      clearTimeout(autoAdvanceTimer.current);
-      autoAdvanceTimer.current = null;
-    }
-  }, []);
-
-  const flashArrow = useCallback(() => {
-    setArrowFlash(false);
-    requestAnimationFrame(() => setArrowFlash(true));
-    setTimeout(() => setArrowFlash(false), 3200);
-  }, []);
-
-  const scheduleAutoAdvance = useCallback((targetStep: number, delay: number) => {
-    cancelAutoAdvance();
-    autoAdvanceTimer.current = setTimeout(() => {
-      setSlideDir(targetStep > step ? 'left' : 'right');
-      setStep(targetStep);
-      autoAdvanceTimer.current = null;
-    }, delay);
-    flashArrow();
-  }, [cancelAutoAdvance, flashArrow, step]);
-
   const goToStep = useCallback((target: number) => {
-    cancelAutoAdvance();
     const clamped = Math.max(1, Math.min(3, target));
     setSlideDir(clamped > step ? 'left' : 'right');
     setStep(clamped);
-  }, [cancelAutoAdvance, step]);
+  }, [step]);
 
   const handleVolumeChange = useCallback((v: number) => {
     setVolume(v);
   }, []);
-
-  const handleSliderRelease = useCallback(() => {
-    if (step !== 1) return;
-    if (!doubleVoid) {
-      scheduleAutoAdvance(2, 2500);
-    }
-  }, [step, doubleVoid, scheduleAutoAdvance]);
 
   const handleLeakToggle = useCallback(() => {
     setLeak(prev => !prev);
@@ -159,13 +121,12 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
 
   const handleNoteToggle = useCallback(() => {
     if (!noteOpen) {
-      cancelAutoAdvance();
       setTimeout(() => {
         noteAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 150);
     }
     setNoteOpen(prev => !prev);
-  }, [noteOpen, cancelAutoAdvance]);
+  }, [noteOpen]);
 
   const isBeforePrevBedtime = prevDayBedtime ? time <= prevDayBedtime.timestampIso : false;
   const isBeforeWakeTime = !isNightView && wakeTimeEntry ? time < wakeTimeEntry.timestampIso : false;
@@ -233,27 +194,23 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               aria-label={`Step ${s}`} />
           ))}
         </div>
-        <span className="text-[10px] font-semibold tracking-wide text-ipc-400 uppercase">
+        <span className="text-[11px] font-semibold tracking-wide text-ipc-400 uppercase">
           {tc('stepOf', { current: step, total: 3 })}
         </span>
       </div>
 
-      <div className="relative">
-        {step > 1 && (
+      {step > 1 && (
+        <div className="px-2 mb-2">
           <button type="button" onClick={() => goToStep(step - 1)}
-            className="absolute left-0 top-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-ipc-100 border border-ipc-200 text-ipc-600 shadow-sm active:scale-[0.85] active:bg-ipc-200 transition-all"
+            className="inline-flex items-center gap-1 pl-2 pr-3 h-8 rounded-full bg-ipc-100 border border-ipc-200 text-ipc-600 active:scale-[0.95] active:bg-ipc-200 transition-all"
             aria-label={tc('previousStep')}>
-            <ChevronLeft size={22} strokeWidth={2.5} />
+            <ChevronLeft size={18} strokeWidth={2.5} />
+            <span className="text-sm font-semibold">{tc('back')}</span>
           </button>
-        )}
-        {step < 3 && (
-          <button type="button" onClick={() => goToStep(step + 1)}
-            className={`absolute right-0 top-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-ipc-100 border border-ipc-200 text-ipc-600 shadow-sm active:scale-[0.85] active:bg-ipc-200 transition-all ${arrowFlash ? 'arrow-pulse' : ''}`}
-            aria-label={tc('nextStep')}>
-            <ChevronRight size={22} strokeWidth={2.5} />
-          </button>
-        )}
+        </div>
+      )}
 
+      <div className="relative">
         <div key={step} className={`px-2 ${slideClass}`}>
           {step === 1 && (
             <>
@@ -269,18 +226,17 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                     <button
                       key={p.id}
                       type="button"
-                      onClick={() => {
-                        setVolume(p.value);
-                        cancelAutoAdvance();
-                        if (!doubleVoid) scheduleAutoAdvance(2, 2500);
-                      }}
-                      className={`min-h-[62px] px-2 py-2 rounded-2xl border-2 flex flex-col items-center justify-center transition-all active:scale-[0.96] ${
+                      onClick={() => setVolume(p.value)}
+                      className={`min-h-[62px] px-2 py-2 rounded-2xl border-2 flex flex-col items-center justify-center transition-all active:scale-[0.96] relative ${
                         active
                           ? 'bg-ipc-500 border-ipc-600 text-white shadow-md'
                           : 'bg-white border-ipc-200 text-ipc-800'
                       }`}
                       aria-pressed={active}
                     >
+                      {active && (
+                        <Check size={14} strokeWidth={3} className="absolute top-1.5 right-1.5 text-white" />
+                      )}
                       <span className="text-base font-bold leading-tight">{t(p.labelKey)}</span>
                       <span className={`text-xs mt-0.5 ${active ? 'text-white/80' : 'text-ipc-500'}`}>
                         {p.value} {volumeUnit}
@@ -292,7 +248,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
 
               <button
                 type="button"
-                onClick={() => { setShowCupHelp((v) => !v); cancelAutoAdvance(); }}
+                onClick={() => setShowCupHelp((v) => !v)}
                 className="flex items-center justify-center gap-1.5 w-full text-sm text-ipc-500 hover:text-ipc-700 py-1.5 mb-2"
               >
                 <HelpCircle size={14} />
@@ -310,14 +266,11 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 </div>
               )}
 
-              <div onPointerUp={handleSliderRelease} onTouchEnd={handleSliderRelease}>
-                <VolumeInput value={volume} onChange={handleVolumeChange}
-                  onEditingChange={(editing) => { if (editing) cancelAutoAdvance(); }}
-                  unit={volumeUnit} max={vc.max} step={vc.step} />
-              </div>
+              <VolumeInput value={volume} onChange={handleVolumeChange}
+                unit={volumeUnit} max={vc.max} step={vc.step} />
               <div className="border-t border-ipc-100/60 mt-5 mb-4" />
               <div className="flex justify-center">
-                <button type="button" onClick={() => { setDoubleVoid(!doubleVoid); cancelAutoAdvance(); }}
+                <button type="button" onClick={() => setDoubleVoid(!doubleVoid)}
                   className={`inline-flex items-center gap-2 px-5 py-3 rounded-full text-base font-semibold transition-all active:scale-[0.95] ${
                     doubleVoid ? 'bg-ipc-500/15 text-ipc-700 ring-1 ring-ipc-500/30' : 'bg-white/40 text-ipc-400 border border-ipc-100/50'
                   }`}>
@@ -331,14 +284,11 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 </button>
               </div>
               {doubleVoid && (
-                <div className="mt-3 animate-fade-slide-up"
-                  onPointerUp={() => { if (step === 1 && doubleVoid) scheduleAutoAdvance(2, 2500); }}
-                  onTouchEnd={() => { if (step === 1 && doubleVoid) scheduleAutoAdvance(2, 2500); }}>
+                <div className="mt-3 animate-fade-slide-up">
                   <label className="block text-sm font-medium text-ipc-500 mb-1 text-center">
                     {t('secondPeeAmount')}
                   </label>
                   <VolumeInput value={doubleVoidVolume} onChange={setDoubleVoidVolume}
-                    onEditingChange={(editing) => { if (editing) cancelAutoAdvance(); }}
                     unit={volumeUnit} max={volumeUnit === 'oz' ? 25 : 750} step={vc.step} />
                 </div>
               )}
@@ -351,11 +301,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 {t('anythingElse')}
               </h3>
               <div className="mb-4">
-                <SensationPicker value={sensation} onChange={(v) => {
-                  cancelAutoAdvance();
-                  setSensation(v);
-                  if (v !== null && !noteOpen) scheduleAutoAdvance(3, 2500);
-                }} />
+                <SensationPicker value={sensation} onChange={setSensation} />
                 {sensation === null && (
                   <p className="text-xs text-ipc-400 text-center mt-2">
                     {t('optionalTapHint')}
@@ -401,7 +347,22 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
           )}
 
           {step === 3 && (
-            <div className="flex flex-col items-center justify-center min-h-[45vh]">
+            <div className="flex flex-col items-center min-h-[45vh] pt-4">
+              {/* Recap of entries from earlier steps, so user can confirm before saving */}
+              <div className="w-full mb-5 px-4 py-3 rounded-2xl bg-ipc-50/70 border border-ipc-100">
+                <p className="text-[11px] font-semibold tracking-wide text-ipc-400 uppercase mb-1">
+                  {tc('review')}
+                </p>
+                <p className="text-sm font-medium text-ipc-800 leading-snug">
+                  {[
+                    `${volume} ${volumeUnit}`,
+                    doubleVoid ? `+ ${doubleVoidVolume} ${volumeUnit}` : null,
+                    sensation !== null ? ts(`${sensation}.short`) : null,
+                    leak ? t('leakRecap') : null,
+                  ].filter(Boolean).join(' · ')}
+                </p>
+              </div>
+
               <h3 className="text-xl font-bold text-center mb-5 text-ipc-800 text-balance">
                 {t('whenWasThis')}
               </h3>
@@ -412,7 +373,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 </div>
               )}
               <div className="flex justify-center mt-6">
-                <Button onClick={handleSave} size="md" disabled={volume <= 0}>
+                <Button onClick={handleSave} size="lg" disabled={volume <= 0}>
                   {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>
@@ -420,6 +381,17 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
           )}
         </div>
       </div>
+
+      {/* Sticky Next button on non-final steps — always visible, always the
+          same spot, so users never hunt for the advance affordance. */}
+      {step < 3 && (
+        <div className="sticky bottom-0 -mx-5 mt-4 px-5 pt-3 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
+          <Button onClick={() => goToStep(step + 1)} fullWidth size="lg" disabled={volume <= 0}>
+            {tc('next')}
+            <ChevronRight size={18} className="ml-1" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

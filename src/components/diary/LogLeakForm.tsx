@@ -28,6 +28,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   const tv = useTranslations('validation');
   const locale = useLocale();
   const tla = useTranslations('leakAmounts');
+  const tlt = useTranslations('leakTriggers');
   const isEditing = !!editEntry;
 
   const prevDayBedtime = dayNumber > 1 ? getBedtimeForDay((dayNumber - 1) as 1 | 2 | 3) : undefined;
@@ -64,8 +65,6 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   // Wizard state
   const [step, setStep] = useState(1);
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('left');
-  const [arrowFlash, setArrowFlash] = useState(false);
-  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const noteAreaRef = useRef<HTMLDivElement>(null);
 
   // Auto-save refs
@@ -93,51 +92,15 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-    };
-  }, []);
-
-  const cancelAutoAdvance = useCallback(() => {
-    if (autoAdvanceTimer.current) {
-      clearTimeout(autoAdvanceTimer.current);
-      autoAdvanceTimer.current = null;
-    }
-  }, []);
-
-  const flashArrow = useCallback(() => {
-    setArrowFlash(false);
-    requestAnimationFrame(() => setArrowFlash(true));
-    setTimeout(() => setArrowFlash(false), 3200);
-  }, []);
-
-  const scheduleAutoAdvance = useCallback((targetStep: number, delay: number) => {
-    cancelAutoAdvance();
-    autoAdvanceTimer.current = setTimeout(() => {
-      setSlideDir(targetStep > step ? 'left' : 'right');
-      setStep(targetStep);
-      autoAdvanceTimer.current = null;
-    }, delay);
-    flashArrow();
-  }, [cancelAutoAdvance, flashArrow, step]);
-
   const goToStep = useCallback((target: number) => {
-    cancelAutoAdvance();
     const clamped = Math.max(1, Math.min(TOTAL_STEPS, target));
     setSlideDir(clamped > step ? 'left' : 'right');
     setStep(clamped);
-  }, [cancelAutoAdvance, step]);
+  }, [step]);
 
   const handleTriggerChange = useCallback((t: LeakTrigger | null) => {
     setTrigger(t);
-    // Auto-advance after 2.5s if a trigger was selected (not deselected) and not editing notes
-    if (t !== null && !noteOpen) {
-      scheduleAutoAdvance(2, 2500);
-    } else {
-      cancelAutoAdvance();
-    }
-  }, [noteOpen, scheduleAutoAdvance, cancelAutoAdvance]);
+  }, []);
 
   const handleAmountChange = useCallback((a: LeakAmount) => {
     setAmount(prev => prev === a ? null : a);
@@ -145,13 +108,12 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
 
   const handleNoteToggle = useCallback(() => {
     if (!noteOpen) {
-      cancelAutoAdvance();
       setTimeout(() => {
         noteAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 150);
     }
     setNoteOpen(prev => !prev);
-  }, [noteOpen, cancelAutoAdvance]);
+  }, [noteOpen]);
 
   // Time boundary checks
   const isBeforePrevBedtime = prevDayBedtime ? time <= prevDayBedtime.timestampIso : false;
@@ -227,42 +189,29 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
             />
           ))}
         </div>
-        <span className="text-[10px] font-semibold tracking-wide text-leak/70 uppercase">
+        <span className="text-[11px] font-semibold tracking-wide text-leak/70 uppercase">
           {tc('stepOf', { current: step, total: TOTAL_STEPS })}
         </span>
       </div>
 
-      {/* Step content area */}
-      <div className="relative">
-        {/* Side arrows — terracotta theme */}
-        {step > 1 && (
+      {step > 1 && (
+        <div className="px-2 mb-2">
           <button
             type="button"
             onClick={() => goToStep(step - 1)}
-            className="absolute left-0 top-4 z-10
-              w-9 h-9 flex items-center justify-center rounded-full
-              bg-leak/10 border border-leak/20 text-leak shadow-sm
-              active:scale-[0.85] active:bg-leak/20 transition-all"
+            className="inline-flex items-center gap-1 pl-2 pr-3 h-8 rounded-full
+              bg-leak/10 border border-leak/20 text-leak
+              active:scale-[0.95] active:bg-leak/20 transition-all"
             aria-label={tc('previousStep')}
           >
-            <ChevronLeft size={22} strokeWidth={2.5} />
+            <ChevronLeft size={18} strokeWidth={2.5} />
+            <span className="text-sm font-semibold">{tc('back')}</span>
           </button>
-        )}
-        {step < TOTAL_STEPS && (
-          <button
-            type="button"
-            onClick={() => goToStep(step + 1)}
-            className={`absolute right-0 top-4 z-10
-              w-9 h-9 flex items-center justify-center rounded-full
-              bg-leak/10 border border-leak/20 text-leak shadow-sm
-              active:scale-[0.85] active:bg-leak/20 transition-all
-              ${arrowFlash ? 'arrow-pulse-leak' : ''}`}
-            aria-label={tc('nextStep')}
-          >
-            <ChevronRight size={22} strokeWidth={2.5} />
-          </button>
-        )}
+        </div>
+      )}
 
+      {/* Step content area */}
+      <div className="relative">
         {/* Active step */}
         <div key={step} className={`px-2 ${slideClass}`}>
           {/* ── Step 1: What caused the leak? ── */}
@@ -341,12 +290,15 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                       key={a.value}
                       type="button"
                       onClick={() => handleAmountChange(a.value)}
-                      className={`px-5 py-2.5 rounded-xl text-base font-semibold transition-all active:scale-[0.95] min-h-[44px] ${
+                      className={`relative px-5 py-2.5 rounded-xl text-base font-semibold transition-all active:scale-[0.95] min-h-[44px] ${
                         selected
                           ? 'bg-leak text-white ring-2 ring-leak/30'
                           : 'bg-white/40 text-ipc-600 border border-ipc-200/40'
                       }`}
                     >
+                      {selected && (
+                        <Check size={12} strokeWidth={3} className="absolute top-1.5 right-1.5 text-white" />
+                      )}
                       {tla(a.value)}
                     </button>
                   );
@@ -389,7 +341,21 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
 
           {/* ── Step 3: Time + Save ── */}
           {step === 3 && (
-            <div className="flex flex-col items-center justify-center min-h-[45vh]">
+            <div className="flex flex-col items-center min-h-[45vh] pt-4">
+              {/* Recap so the user confirms choices from earlier steps before saving */}
+              <div className="w-full mb-5 px-4 py-3 rounded-2xl bg-leak/5 border border-leak/15">
+                <p className="text-[11px] font-semibold tracking-wide text-leak/60 uppercase mb-1">
+                  {tc('review')}
+                </p>
+                <p className="text-sm font-medium text-leak leading-snug">
+                  {[
+                    trigger ? tlt(`${trigger}.label`) : null,
+                    amount ? tla(amount) : null,
+                    urgencyBeforeLeak === true ? t('urgencyYesRecap') : urgencyBeforeLeak === false ? t('urgencyNoRecap') : null,
+                  ].filter(Boolean).join(' · ')}
+                </p>
+              </div>
+
               <h3 className="text-lg font-bold text-center mb-3 text-ipc-950 text-balance">
                 {t('whenWasThis')}
               </h3>
@@ -405,7 +371,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               )}
 
               <div className="flex justify-center mt-6">
-                <Button onClick={handleSave} size="md" variant="leak" disabled={!trigger || urgencyBeforeLeak === null}>
+                <Button onClick={handleSave} size="lg" variant="leak" disabled={!trigger || urgencyBeforeLeak === null}>
                   {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>
@@ -413,6 +379,22 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
           )}
         </div>
       </div>
+
+      {/* Sticky Next on non-final steps — always visible at the bottom */}
+      {step < TOTAL_STEPS && (
+        <div className="sticky bottom-0 -mx-5 mt-4 px-5 pt-3 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
+          <Button
+            onClick={() => goToStep(step + 1)}
+            fullWidth
+            size="lg"
+            variant="leak"
+            disabled={step === 1 ? !trigger : urgencyBeforeLeak === null}
+          >
+            {tc('next')}
+            <ChevronRight size={18} className="ml-1" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

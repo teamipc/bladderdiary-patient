@@ -33,7 +33,10 @@
     "noteAdded": "Note \u2713",
     "saveCheck": "Save \u2713",
     "updateCheck": "Update \u2713",
-    "stepOf": "Step {current} of {total}"
+    "stepOf": "Step {current} of {total}",
+    "review": "You are saving:",
+    "close": "Close",
+    "help": "Help"
   },
   "nav": {
     "home": "Home",
@@ -130,7 +133,8 @@
     "presetMediumDesc": "a standard mug",
     "presetLargeDesc": "a tall drinking glass",
     "noMeasuringCupHelp": "No measuring cup?",
-    "cupHelpIntro": "No measuring cup is fine. Use these sizes as a rough guide, or pee into any container you can roughly measure."
+    "cupHelpIntro": "No measuring cup is fine. Use these sizes as a rough guide, or pee into any container you can roughly measure.",
+    "leakRecap": "with leak"
   },
   "logDrink": {
     "whatDrink": "What did you drink?",
@@ -143,6 +147,8 @@
     "howMuch": "How much leaked?",
     "optionalTapHint": "optional. Tap to select, tap again to clear",
     "urgencyBefore": "Urgency before the leak?",
+    "urgencyYesRecap": "with urgency",
+    "urgencyNoRecap": "no urgency",
     "whenWasThis": "When was this?",
     "notePlaceholder": "e.g., During walk"
   },
