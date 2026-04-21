@@ -301,12 +301,18 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           const stepNumber = step.label[1];
 
           const circleContent = (
-            <div className="flex flex-col items-center gap-0.5">
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold
+            <div className="flex flex-col items-center gap-1">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center
                 transition-all ${circleClass}`}>
-                {step.complete && !step.isCurrent ? <Check size={9} strokeWidth={3} /> : step.label}
+                {step.complete && !step.isCurrent ? (
+                  <Check size={12} strokeWidth={3} />
+                ) : isNight ? (
+                  <Moon size={11} strokeWidth={2.5} />
+                ) : (
+                  <Sun size={12} strokeWidth={2.5} />
+                )}
               </div>
-              <span className={`text-[8px] font-medium leading-none ${labelClass}`}>
+              <span className={`text-[10px] font-semibold leading-none ${labelClass}`}>
                 {isNight ? tc('night', { number: stepNumber }) : tc('day', { number: stepNumber })}
               </span>
             </div>
@@ -328,7 +334,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 </div>
               )}
               {showLine && (
-                <div className={`flex-1 w-5 h-px mt-[-10px] mx-1 transition-colors ${
+                <div className={`flex-1 w-4 h-px mt-[-12px] mx-1 transition-colors ${
                   isNighttime
                     ? lineComplete ? 'bg-indigo-400/40' : 'bg-indigo-500/10'
                     : lineComplete ? 'bg-ipc-300' : 'bg-ipc-100'

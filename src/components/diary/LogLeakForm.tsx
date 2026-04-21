@@ -209,22 +209,27 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   return (
     <div className="select-none min-h-[60vh]">
       {/* Step dots — terracotta theme */}
-      <div className="flex justify-center gap-2 mb-3">
-        {[1, 2, 3].map((s) => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => goToStep(s)}
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-              s === step
-                ? 'bg-leak scale-125'
-                : s < step
-                  ? 'bg-leak/50'
-                  : 'bg-leak/20'
-            }`}
-            aria-label={`Step ${s}`}
-          />
-        ))}
+      <div className="flex flex-col items-center gap-1 mb-3">
+        <div className="flex justify-center gap-2">
+          {[1, 2, 3].map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => goToStep(s)}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                s === step
+                  ? 'bg-leak scale-125'
+                  : s < step
+                    ? 'bg-leak/50'
+                    : 'bg-leak/20'
+              }`}
+              aria-label={`Step ${s}`}
+            />
+          ))}
+        </div>
+        <span className="text-[10px] font-semibold tracking-wide text-leak/70 uppercase">
+          {tc('stepOf', { current: step, total: TOTAL_STEPS })}
+        </span>
       </div>
 
       {/* Step content area */}
