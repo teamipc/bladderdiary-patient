@@ -89,7 +89,7 @@ export default function VolumeInput({
                 }`}
               style={{ fontSize: '2.25rem' }}
             />
-            <span className={`text-lg font-medium ${variant === 'night' ? 'text-indigo-500' : variant === 'drink' ? 'text-drink' : 'text-ipc-400'}`}>{unit}</span>
+            <span className={`text-lg font-medium ${variant === 'night' ? 'text-indigo-500' : variant === 'drink' ? 'text-drink' : 'text-ipc-700'}`}>{unit}</span>
           </div>
         ) : (
           <button
@@ -100,7 +100,7 @@ export default function VolumeInput({
             <span className="text-4xl font-bold text-ipc-950 tabular-nums">
               {value}
             </span>
-            <span className={`text-lg font-medium ${variant === 'night' ? 'text-indigo-500' : variant === 'drink' ? 'text-drink' : 'text-ipc-400'}`}>{unit}</span>
+            <span className={`text-lg font-medium ${variant === 'night' ? 'text-indigo-500' : variant === 'drink' ? 'text-drink' : 'text-ipc-700'}`}>{unit}</span>
           </button>
         )}
       </div>

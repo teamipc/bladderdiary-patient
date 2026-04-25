@@ -295,12 +295,12 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           <div key={item.entry.id} className="px-4 py-2">
             <div className="flex items-center gap-2">
               <Sun size={16} className="text-warning shrink-0" />
-              <span className="text-sm font-medium text-ipc-500">
+              <span className="text-sm font-medium text-ipc-700">
                 {t('wokeUpAt', { time: formatTime(item.entry.timestampIso, locale, timeZone) })}
               </span>
             </div>
             {noDayEvents && (
-              <p className="text-xs text-ipc-400 mt-1 ml-6 animate-fade-slide-up">
+              <p className="text-xs text-ipc-800 mt-1 ml-6 animate-fade-slide-up">
                 {t('addFirstEvent')}
               </p>
             )}
@@ -370,14 +370,14 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
             }
           } else {
             if (step.isCurrent) {
-              circleClass = 'bg-ipc-400 text-white ring-1 ring-ipc-300/30';
-              labelClass = 'text-ipc-500';
+              circleClass = 'bg-ipc-500 text-white ring-1 ring-ipc-300/30';
+              labelClass = 'text-ipc-700';
             } else if (step.complete) {
-              circleClass = isNight ? 'bg-bedtime/60 text-white' : 'bg-ipc-300 text-white';
-              labelClass = isNight ? 'text-bedtime/50' : 'text-ipc-300';
+              circleClass = isNight ? 'bg-bedtime/70 text-white' : 'bg-ipc-400 text-white';
+              labelClass = isNight ? 'text-bedtime' : 'text-ipc-600';
             } else {
-              circleClass = 'bg-ipc-100 text-ipc-300';
-              labelClass = 'text-ipc-200';
+              circleClass = 'bg-ipc-200 text-ipc-700';
+              labelClass = 'text-ipc-700';
             }
           }
 
@@ -477,12 +477,12 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           <h2 className={`text-xl font-bold text-balance ${isNighttime ? 'text-indigo-100' : 'text-ipc-950'}`}>
             {isNighttime ? tc('night', { number: dayNumber - 1 }) : tc('day', { number: dayNumber })}
           </h2>
-          <span className={`font-medium text-sm ${isNighttime ? 'text-indigo-300/80' : 'text-ipc-500'}`}>
+          <span className={`font-medium text-sm ${isNighttime ? 'text-indigo-300/80' : 'text-ipc-700'}`}>
             {dayLabel}
           </span>
           {/* L1: persistent progress subtitle so users always see how far they are */}
           {!isNighttime && (
-            <div className={`text-xs mt-0.5 font-semibold ${isNighttime ? 'text-indigo-300/60' : 'text-ipc-400'}`}>
+            <div className={`text-xs mt-0.5 font-semibold ${isNighttime ? 'text-indigo-300/60' : 'text-ipc-700'}`}>
               {t('progressSubtitle', {
                 day: dayNumber,
                 total: 3,

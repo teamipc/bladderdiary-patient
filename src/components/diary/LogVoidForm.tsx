@@ -220,7 +220,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               aria-label={`Step ${s}`} />
           ))}
         </div>
-        <span className="text-[11px] font-semibold tracking-wide text-ipc-400 uppercase">
+        <span className="text-[11px] font-semibold tracking-wide text-ipc-700 uppercase">
           {tc('stepOf', { current: step, total: 3 })}
         </span>
       </div>
@@ -306,7 +306,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               <div className="flex justify-center">
                 <button type="button" onClick={() => setDoubleVoid(!doubleVoid)}
                   className={`inline-flex items-center gap-2 px-5 py-3 rounded-full text-base font-semibold transition-all active:scale-[0.95] ${
-                    doubleVoid ? 'bg-ipc-500/15 text-ipc-700 ring-1 ring-ipc-500/30' : 'bg-white/40 text-ipc-400 border border-ipc-100/50'
+                    doubleVoid ? 'bg-ipc-500/15 text-ipc-700 ring-1 ring-ipc-500/30' : 'bg-white text-ipc-700 border border-ipc-200/60'
                   }`}>
                   <CopyPlus size={16} />
                   <span className="flex flex-col items-start leading-tight">
@@ -337,7 +337,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               <div className="mb-4">
                 <SensationPicker value={sensation} onChange={setSensation} />
                 {sensation === null && (
-                  <p className="text-xs text-ipc-400 text-center mt-2">
+                  <p className="text-xs text-ipc-600 text-center mt-2">
                     {t('optionalTapHint')}
                   </p>
                 )}
@@ -349,14 +349,14 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               <div className="flex justify-center gap-2 mb-2.5">
                 <button type="button" onClick={handleLeakToggle}
                   className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold transition-all active:scale-[0.95] ${
-                    leak ? 'bg-ipc-500/15 text-ipc-700 ring-1 ring-ipc-500/30' : 'bg-white/40 text-ipc-400 border border-ipc-100/50'
+                    leak ? 'bg-ipc-500/15 text-ipc-700 ring-1 ring-ipc-500/30' : 'bg-white text-ipc-700 border border-ipc-200/60'
                   }`}>
                   <Droplets size={15} />
                   {tc('log')}
                 </button>
                 <button type="button" onClick={handleNoteToggle}
                   className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold transition-all active:scale-[0.95] ${
-                    noteOpen || note ? 'bg-ipc-500/15 text-ipc-700 ring-1 ring-ipc-500/30' : 'bg-white/40 text-ipc-400 border border-ipc-100/50'
+                    noteOpen || note ? 'bg-ipc-500/15 text-ipc-700 ring-1 ring-ipc-500/30' : 'bg-white text-ipc-700 border border-ipc-200/60'
                   }`}>
                   <MessageSquarePlus size={15} />
                   {note && !noteOpen ? tc('noteAdded') : tc('addNote')}
@@ -384,7 +384,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
             <div className="flex flex-col items-center min-h-[45vh] pt-4">
               {/* Recap of entries from earlier steps, so user can confirm before saving */}
               <div className="w-full mb-5 px-4 py-3 rounded-2xl bg-ipc-50/70 border border-ipc-100">
-                <p className="text-[11px] font-semibold tracking-wide text-ipc-400 uppercase mb-1">
+                <p className="text-[11px] font-semibold tracking-wide text-ipc-700 uppercase mb-1">
                   {tc('review')}
                 </p>
                 <p className="text-sm font-medium text-ipc-950 leading-snug">

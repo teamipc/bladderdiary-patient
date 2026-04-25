@@ -116,7 +116,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
             )}
           </button>
           {!expanded && (
-            <span className="text-[10px] font-semibold text-ipc-500">
+            <span className="text-[10px] font-semibold text-ipc-700">
               {tc('log')}
             </span>
           )}

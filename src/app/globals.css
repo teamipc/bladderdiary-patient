@@ -27,7 +27,11 @@
   --color-info-light: #e8f0f8;
 
   --color-void: #c4984a;
-  --color-drink: #5a8ab4;
+  /* Drink darkened from #5a8ab4 (3.67:1 white-on-blue) to #3e6f96
+     (5.12:1) so the active chip / primary CTA / "mL" unit on the
+     drink form clear WCAG AA. The leak + bedtime tokens already
+     pass on day mode. */
+  --color-drink: #3e6f96;
   --color-bedtime: #8a6aac;
   --color-leak: #b85c4a;
 
@@ -150,6 +154,15 @@ input, select, textarea {
 .nighttime-bg header .text-ipc-400 {
   color: #7a72a8 !important;
 }
+/* Header text bumped to ipc-700/800 for day-mode contrast — they need their
+   own indigo remap on night so "Powered by IPC" and the language switcher
+   don't read as olive on purple. */
+.nighttime-bg header .text-ipc-700 {
+  color: #b0a8d4 !important;
+}
+.nighttime-bg header .text-ipc-800 {
+  color: #c8c0e8 !important;
+}
 
 /* Bottom nav adapts to night mode */
 .nighttime-bg nav {
@@ -200,18 +213,22 @@ input, select, textarea {
    instead of three competing color codes (blue / red / gold) on dark. */
 .nighttime-bg .bg-white\/70 .bg-drink,
 .nighttime-bg .bg-white\/70 .bg-leak {
-  background-color: rgb(99, 102, 241) !important; /* indigo-500 */
+  background-color: rgb(79, 70, 229) !important; /* indigo-600 — AAA white-on-indigo */
 }
 .nighttime-bg .bg-white\/70 .text-drink,
-.nighttime-bg .bg-white\/70 .text-drink\/40,
 .nighttime-bg .bg-white\/70 .text-drink\/60,
 .nighttime-bg .bg-white\/70 .text-drink\/70,
 .nighttime-bg .bg-white\/70 .text-drink\/80,
 .nighttime-bg .bg-white\/70 .text-leak,
-.nighttime-bg .bg-white\/70 .text-leak\/40,
 .nighttime-bg .bg-white\/70 .text-leak\/60,
 .nighttime-bg .bg-white\/70 .text-leak\/70,
 .nighttime-bg .bg-white\/70 .text-leak\/80 {
+  color: rgb(224, 231, 255) !important; /* indigo-100 — brighter for older eyes */
+}
+/* The /40 variants are used for placeholder / tertiary text — keep readable
+   but slightly muted relative to primary indigo-100. */
+.nighttime-bg .bg-white\/70 .text-drink\/40,
+.nighttime-bg .bg-white\/70 .text-leak\/40 {
   color: rgb(196, 181, 253) !important; /* indigo-300 */
 }
 .nighttime-bg .bg-white\/70 .border-drink,
@@ -275,7 +292,7 @@ input, select, textarea {
 .nighttime-bg .bg-white\/70 .bg-ipc-500,
 .nighttime-bg .bg-white\/70 .bg-ipc-600,
 .nighttime-bg .bg-white\/70 .bg-ipc-700 {
-  background-color: rgb(99, 102, 241) !important; /* indigo-500 */
+  background-color: rgb(79, 70, 229) !important; /* indigo-600 — AAA white-on-indigo */
 }
 .nighttime-bg .bg-white\/70 .bg-ipc-500:active {
   background-color: rgb(79, 70, 229) !important; /* indigo-600 */
@@ -367,13 +384,19 @@ input, select, textarea {
    Repaint to indigo so the night view stays unified. The expanded ✕ state
    uses ipc-800 (dark brown) which we leave alone — it's already dark. */
 .nighttime-bg .animate-fab-glow {
-  background-color: rgb(99, 102, 241) !important; /* indigo-500 */
+  background-color: rgb(79, 70, 229) !important; /* indigo-600 — AAA white-on-indigo */
+}
+/* The "Log" label under the FAB inherits text-ipc-700 (day-mode contrast).
+   On night that reads as a tan smudge — repaint to a soft indigo. */
+.nighttime-bg .animate-fab-glow + span,
+.nighttime-bg .animate-fab-glow ~ span {
+  color: rgb(196, 181, 253) !important; /* indigo-300 */
 }
 .nighttime-bg .animate-fab-glow:hover {
   background-color: rgb(79, 70, 229) !important; /* indigo-600 */
 }
 .nighttime-bg .bg-void {
-  background-color: rgb(99, 102, 241) !important;
+  background-color: rgb(79, 70, 229) !important; /* indigo-600 */
 }
 /* The "Continue to Day ☀" pull animation cycles through warm gold tones —
    on a night surface those become olive/dingy. Tone down the warmest
