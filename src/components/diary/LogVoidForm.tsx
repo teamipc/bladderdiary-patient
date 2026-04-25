@@ -10,7 +10,7 @@ import { VOLUME_CONFIG } from '@/lib/constants';
 import SensationPicker from '@/components/diary/SensationPicker';
 import { useDiaryStore } from '@/lib/store';
 import { formatTime, getDefaultTimeForDay, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
-import type { BladderSensation, VoidEntry } from '@/lib/types';
+import type { BladderSensation, VoidEntry, WokeBy } from '@/lib/types';
 
 interface LogVoidFormProps {
   onSave: () => void;
@@ -71,6 +71,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const [time, setTime] = useState(smartDefault);
   const [note, setNote] = useState(editEntry?.note ?? '');
   const [leak, setLeak] = useState(editEntry?.leak ?? false);
+  // For nocturnal voids only — was the patient woken by the urge, or already awake?
+  // Helps clinicians distinguish true nocturia from sleep-disorder-related waking.
+  const [wokeBy, setWokeBy] = useState<WokeBy | null>(editEntry?.wokeBy ?? null);
 
   const [doubleVoid, setDoubleVoid] = useState(!!editEntry?.doubleVoidMl);
   const [doubleVoidVolume, setDoubleVoidVolume] = useState(
@@ -159,6 +162,22 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const isAfterWakeTime = isNightView && wakeTimeEntry ? time >= wakeTimeEntry.timestampIso : false;
   const isAfterBedtime = !isNightView && currentBedtime ? time >= currentBedtime.timestampIso : false;
 
+  /**
+   * Is this void nocturnal (between bedtime and the next morning's wake)?
+   * Drives whether the wokeBy question appears in step 2.
+   *
+   * Rules:
+   *   - If the form opened in night view (logging a wake-up), it's nocturnal.
+   *   - Else if logging into Day N's "before wake" window after the prior bedtime, nocturnal.
+   *   - Else if the time is on/after Day N's bedtime (i.e., next-morning territory), nocturnal.
+   */
+  const isNocturnal =
+    !!isNightView ||
+    (prevDayBedtime != null &&
+      time > prevDayBedtime.timestampIso &&
+      (!wakeTimeEntry || time < wakeTimeEntry.timestampIso)) ||
+    (currentBedtime != null && time >= currentBedtime.timestampIso);
+
   const [timeWarning, setTimeWarning] = useState<string | null>(null);
   const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -197,6 +216,8 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
       leak,
       note,
       isFirstMorningVoid: false,
+      // Only persist wokeBy when relevant (the void is nocturnal at save time).
+      wokeBy: isNocturnal ? wokeBy ?? null : null,
     };
     if (isEditing && editEntry) {
       updateVoid(editEntry.id, data);
@@ -204,7 +225,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
       addVoid(data);
     }
     onSave();
-  }, [volume, sensation, leak, time, note, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTimeEntry, isAfterBedtime, currentBedtime, tv]);
+  }, [volume, sensation, leak, time, note, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTimeEntry, isAfterBedtime, currentBedtime, tv, isNocturnal, wokeBy, locale, timeZone]);
 
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
@@ -377,6 +398,43 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                   </div>
                 </div>
               )}
+
+              {isNocturnal && (
+                <div className="mt-5 pt-4 border-t border-ipc-100/60">
+                  <p className="text-base font-semibold text-ipc-950 text-center mb-1">
+                    {t('wokeByTitle')}
+                  </p>
+                  <p className="text-xs text-ipc-600 text-center mb-3 px-2">
+                    {t('wokeBySubtitle')}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setWokeBy(wokeBy === 'urge' ? null : 'urge')}
+                      className={`min-h-[52px] px-4 py-3 rounded-2xl text-sm font-semibold leading-tight transition-all active:scale-[0.97] ${
+                        wokeBy === 'urge'
+                          ? 'bg-ipc-500 text-white ring-2 ring-ipc-500'
+                          : 'bg-white text-ipc-800 border-2 border-ipc-200/60 hover:border-ipc-300'
+                      }`}
+                      aria-pressed={wokeBy === 'urge'}
+                    >
+                      {t('wokeByYes')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setWokeBy(wokeBy === 'awake_anyway' ? null : 'awake_anyway')}
+                      className={`min-h-[52px] px-4 py-3 rounded-2xl text-sm font-semibold leading-tight transition-all active:scale-[0.97] ${
+                        wokeBy === 'awake_anyway'
+                          ? 'bg-ipc-500 text-white ring-2 ring-ipc-500'
+                          : 'bg-white text-ipc-800 border-2 border-ipc-200/60 hover:border-ipc-300'
+                      }`}
+                      aria-pressed={wokeBy === 'awake_anyway'}
+                    >
+                      {t('wokeByAwakeAnyway')}
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
           )}
 
@@ -393,6 +451,8 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                     doubleVoid ? `+ ${doubleVoidVolume} ${volumeUnit}` : null,
                     sensation !== null ? ts(`${sensation}.short`) : null,
                     leak ? t('leakRecap') : null,
+                    isNocturnal && wokeBy === 'urge' ? t('wokeByRecapUrge') : null,
+                    isNocturnal && wokeBy === 'awake_anyway' ? t('wokeByRecapAwake') : null,
                   ].filter(Boolean).join(' · ')}
                 </p>
               </div>

@@ -53,11 +53,13 @@ export function generateCsv(state: DiaryState): string {
 
   // ── Section 2: Events ──
   lines.push('## EVENTS');
-  lines.push('type,timestamp,dayNumber,volumeMl,doubleVoidMl,drinkType,sensation,isFirstMorningVoid,leak,note,trigger,urgencyBeforeLeak,amount');
+  // Header — `wokeBy` is a new optional field on void rows. Older parsers that
+  // ignore unknown columns will tolerate it; the clinician parser will pick it up.
+  lines.push('type,timestamp,dayNumber,volumeMl,doubleVoidMl,drinkType,sensation,isFirstMorningVoid,leak,note,trigger,urgencyBeforeLeak,amount,wokeBy');
 
   // Wake times
   for (const w of (state.wakeTimes ?? [])) {
-    lines.push(row('wake', w.timestampIso, w.dayNumber, '', '', '', '', '', '', '', '', '', ''));
+    lines.push(row('wake', w.timestampIso, w.dayNumber, '', '', '', '', '', '', '', '', '', '', ''));
   }
 
   const dv = (ml: number) => mlToDisplayVolume(ml, state.volumeUnit);
@@ -77,6 +79,7 @@ export function generateCsv(state: DiaryState): string {
       v.leak,
       v.note,
       '', '', '',
+      v.wokeBy ?? '',
     ));
   }
 
@@ -94,7 +97,7 @@ export function generateCsv(state: DiaryState): string {
       '',
       '',
       d.note,
-      '', '', '',
+      '', '', '', '',
     ));
   }
 
@@ -109,12 +112,13 @@ export function generateCsv(state: DiaryState): string {
       l.trigger,
       l.urgencyBeforeLeak !== null ? l.urgencyBeforeLeak : '',
       l.amount ?? '',
+      '',
     ));
   }
 
   // Bedtimes
   for (const b of state.bedtimes) {
-    lines.push(row('bedtime', b.timestampIso, b.dayNumber, '', '', '', '', '', '', '', '', '', ''));
+    lines.push(row('bedtime', b.timestampIso, b.dayNumber, '', '', '', '', '', '', '', '', '', '', ''));
   }
 
   lines.push('');

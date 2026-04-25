@@ -49,6 +49,16 @@ export interface LeakEntry {
   notes?: string;
 }
 
+/**
+ * For nocturnal voids only, captures *why* the patient was up:
+ *   'urge'         — the bladder/urge woke them
+ *   'awake_anyway' — they were awake for another reason and decided to go
+ * Distinguishes true nocturia from sleep-disorder-related waking;
+ * helps the clinician decide whether to treat the bladder or refer for sleep eval.
+ * Optional/null when the void is not nocturnal or the patient skipped the question.
+ */
+export type WokeBy = 'urge' | 'awake_anyway';
+
 /** A single void (urination) event. */
 export interface VoidEntry {
   id: string;
@@ -66,6 +76,11 @@ export interface VoidEntry {
   note: string;
   /** Whether this is the first void after waking. */
   isFirstMorningVoid: boolean;
+  /**
+   * For nocturnal voids: did the bladder wake the patient, or were they up anyway?
+   * Null/undefined for daytime voids or when not asked/answered.
+   */
+  wokeBy?: WokeBy | null;
 }
 
 /** A single fluid intake event. */
