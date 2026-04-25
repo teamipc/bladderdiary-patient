@@ -60,7 +60,7 @@ export default function VolumeInput({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 pb-4">
       {/* Large tappable value display */}
       <div className="text-center py-1">
         {isEditing ? (

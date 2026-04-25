@@ -20,7 +20,7 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-center gap-1.5 px-10">
-        <label className="text-base font-medium text-ipc-800 text-center">
+        <label className="text-base font-medium text-ipc-950 text-center">
           {t('label')}
         </label>
         <button
@@ -42,6 +42,8 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
               key={s}
               type="button"
               onClick={() => onChange(selected ? null : s)}
+              aria-pressed={selected}
+              aria-label={`${s} ${t(`${s}.short`)}`}
               className={`flex-1 py-3.5 rounded-xl text-center transition-all
                 active:scale-[0.95] min-h-[52px] ${
                   selected

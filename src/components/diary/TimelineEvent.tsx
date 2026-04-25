@@ -94,19 +94,21 @@ export default function TimelineEvent(props: TimelineEventProps) {
             <button
               type="button"
               onClick={() => onEdit(entry)}
-              className="w-9 h-9 flex items-center justify-center rounded-full
-                text-ipc-300 hover:text-ipc-600 hover:bg-ipc-50 transition-colors"
+              aria-label={t('editPee')}
+              className="w-11 h-11 flex items-center justify-center rounded-full
+                text-ipc-400 hover:text-ipc-600 hover:bg-ipc-50 transition-colors"
             >
-              <Pencil size={15} />
+              <Pencil size={18} />
             </button>
           )}
           <button
             type="button"
             onClick={() => onDelete(entry.id)}
-            className="w-9 h-9 flex items-center justify-center rounded-full
-              text-ipc-300 hover:text-danger hover:bg-danger-light transition-colors"
+            aria-label={t('deletePee')}
+            className="w-11 h-11 flex items-center justify-center rounded-full
+              text-ipc-400 hover:text-danger hover:bg-danger-light transition-colors"
           >
-            <Trash2 size={15} />
+            <Trash2 size={18} />
           </button>
         </div>
       </div>
@@ -145,19 +147,21 @@ export default function TimelineEvent(props: TimelineEventProps) {
             <button
               type="button"
               onClick={() => onEdit(entry)}
-              className="w-9 h-9 flex items-center justify-center rounded-full
-                text-drink/40 hover:text-drink hover:bg-drink/10 transition-colors"
+              aria-label={t('editDrink')}
+              className="w-11 h-11 flex items-center justify-center rounded-full
+                text-drink/60 hover:text-drink hover:bg-drink/10 transition-colors"
             >
-              <Pencil size={15} />
+              <Pencil size={18} />
             </button>
           )}
           <button
             type="button"
             onClick={() => onDelete(entry.id)}
-            className="w-9 h-9 flex items-center justify-center rounded-full
-              text-drink/40 hover:text-danger hover:bg-danger-light transition-colors"
+            aria-label={t('deleteDrink')}
+            className="w-11 h-11 flex items-center justify-center rounded-full
+              text-drink/60 hover:text-danger hover:bg-danger-light transition-colors"
           >
-            <Trash2 size={15} />
+            <Trash2 size={18} />
           </button>
         </div>
       </div>
@@ -213,25 +217,27 @@ export default function TimelineEvent(props: TimelineEventProps) {
             <button
               type="button"
               onClick={() => onEdit(entry)}
-              className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors ${
+              aria-label={t('editLeak')}
+              className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors ${
                 nightMode
-                  ? 'text-indigo-400/40 hover:text-indigo-300 hover:bg-indigo-400/10'
-                  : 'text-leak/40 hover:text-leak hover:bg-leak/10'
+                  ? 'text-indigo-400/60 hover:text-indigo-300 hover:bg-indigo-400/10'
+                  : 'text-leak/60 hover:text-leak hover:bg-leak/10'
               }`}
             >
-              <Pencil size={15} />
+              <Pencil size={18} />
             </button>
           )}
           <button
             type="button"
             onClick={() => onDelete(entry.id)}
-            className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors ${
+            aria-label={t('deleteLeak')}
+            className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors ${
               nightMode
-                ? 'text-indigo-400/40 hover:text-danger hover:bg-danger-light'
-                : 'text-leak/40 hover:text-danger hover:bg-danger-light'
+                ? 'text-indigo-400/60 hover:text-danger hover:bg-danger-light'
+                : 'text-leak/60 hover:text-danger hover:bg-danger-light'
             }`}
           >
-            <Trash2 size={15} />
+            <Trash2 size={18} />
           </button>
         </div>
       </div>
@@ -257,10 +263,11 @@ export default function TimelineEvent(props: TimelineEventProps) {
         <button
           type="button"
           onClick={() => onDelete(entry.dayNumber)}
-          className="w-9 h-9 flex items-center justify-center rounded-full
-            text-ipc-300 hover:text-danger hover:bg-danger-light transition-colors"
+          aria-label={t('deleteWakeUp')}
+          className="w-11 h-11 flex items-center justify-center rounded-full
+            text-ipc-400 hover:text-danger hover:bg-danger-light transition-colors"
         >
-          <Trash2 size={15} />
+          <Trash2 size={18} />
         </button>
       </div>
     );
@@ -288,19 +295,21 @@ export default function TimelineEvent(props: TimelineEventProps) {
           <button
             type="button"
             onClick={() => onEdit(entry)}
-            className="w-9 h-9 flex items-center justify-center rounded-full
-              text-bedtime/40 hover:text-bedtime hover:bg-bedtime/10 transition-colors"
+            aria-label={t('editBedtime')}
+            className="w-11 h-11 flex items-center justify-center rounded-full
+              text-bedtime/60 hover:text-bedtime hover:bg-bedtime/10 transition-colors"
           >
-            <Pencil size={15} />
+            <Pencil size={18} />
           </button>
         )}
         <button
           type="button"
           onClick={() => onDelete(entry.dayNumber)}
-          className="w-9 h-9 flex items-center justify-center rounded-full
-            text-bedtime/40 hover:text-danger hover:bg-danger-light transition-colors"
+          aria-label={t('deleteBedtime')}
+          className="w-11 h-11 flex items-center justify-center rounded-full
+            text-bedtime/60 hover:text-danger hover:bg-danger-light transition-colors"
         >
-          <Trash2 size={15} />
+          <Trash2 size={18} />
         </button>
       </div>
     </div>

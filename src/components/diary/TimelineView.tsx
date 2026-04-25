@@ -7,8 +7,9 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Sun, Moon, Droplets, CheckCircle2, ChevronLeft, ChevronRight, Plus, RotateCcw, Check, CloudDrizzle } from 'lucide-react';
 import TimelineEvent from './TimelineEvent';
 import DrinkIcon from '@/components/ui/DrinkIcon';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useDiaryStore } from '@/lib/store';
-import { getDayDate, formatDate, formatTime } from '@/lib/utils';
+import { getDayDate, formatDate, formatTime, mlToDisplayVolume } from '@/lib/utils';
 import type { VoidEntry, DrinkEntry, BedtimeEntry, WakeTimeEntry, LeakEntry } from '@/lib/types';
 
 interface TimelineViewProps {
@@ -58,6 +59,9 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
   const searchParams = useSearchParams();
   const t = useTranslations('timeline');
   const tc = useTranslations('common');
+  const tdt = useTranslations('drinkTypes');
+  const tlt = useTranslations('leakTriggers');
+  const { volumeUnit } = useDiaryStore();
   const locale = useLocale();
 
   const allVoids = getVoidsForDay(dayNumber);
@@ -141,6 +145,70 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
   // Reset confirmation
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
+  // M4: After Day 1 the user has seen the journey-tracker labels and learned
+  // the D→N→D→N→D model. Collapse to compact dots from Day 2 onward to
+  // reclaim ~30 px of vertical space above the day header — that's room
+  // we'd otherwise have to fight for elsewhere.
+  const journeyCompact = dayNumber > 1;
+
+  // Delete confirmation — for ANY event the user taps the trash icon on
+  type PendingDelete =
+    | { kind: 'void'; id: string; label: string }
+    | { kind: 'drink'; id: string; label: string }
+    | { kind: 'leak'; id: string; label: string }
+    | { kind: 'bedtime'; dayNumber: 1 | 2 | 3; label: string }
+    | { kind: 'wakeup'; dayNumber: 1 | 2 | 3; label: string };
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
+
+  const requestDeleteVoid = useCallback((id: string) => {
+    const v = allVoids.find((x) => x.id === id);
+    if (!v) return;
+    const time = formatTime(v.timestampIso, locale, timeZone);
+    const vol = mlToDisplayVolume(v.volumeMl, volumeUnit);
+    setPendingDelete({ kind: 'void', id, label: `${vol} ${volumeUnit} · ${time}` });
+  }, [allVoids, locale, timeZone, volumeUnit]);
+
+  const requestDeleteDrink = useCallback((id: string) => {
+    const d = allDrinks.find((x) => x.id === id);
+    if (!d) return;
+    const time = formatTime(d.timestampIso, locale, timeZone);
+    const vol = mlToDisplayVolume(d.volumeMl, volumeUnit);
+    setPendingDelete({ kind: 'drink', id, label: `${tdt(d.drinkType)} · ${vol} ${volumeUnit} · ${time}` });
+  }, [allDrinks, locale, timeZone, volumeUnit, tdt]);
+
+  const requestDeleteLeak = useCallback((id: string) => {
+    const l = allLeaks.find((x) => x.id === id);
+    if (!l) return;
+    const time = formatTime(l.timestampIso, locale, timeZone);
+    setPendingDelete({ kind: 'leak', id, label: `${tlt(`${l.trigger}.label`)} · ${time}` });
+  }, [allLeaks, locale, timeZone, tlt]);
+
+  const requestDeleteBedtime = useCallback((dayNumber: 1 | 2 | 3) => {
+    const b = bedtime;
+    if (!b) return;
+    const time = formatTime(b.timestampIso, locale, timeZone);
+    setPendingDelete({ kind: 'bedtime', dayNumber, label: time });
+  }, [bedtime, locale, timeZone]);
+
+  const requestDeleteWakeUp = useCallback((dayNumber: 1 | 2 | 3) => {
+    const w = wakeTime;
+    if (!w) return;
+    const time = formatTime(w.timestampIso, locale, timeZone);
+    setPendingDelete({ kind: 'wakeup', dayNumber, label: time });
+  }, [wakeTime, locale, timeZone]);
+
+  const confirmDelete = useCallback(() => {
+    if (!pendingDelete) return;
+    switch (pendingDelete.kind) {
+      case 'void': removeVoid(pendingDelete.id); break;
+      case 'drink': removeDrink(pendingDelete.id); break;
+      case 'leak': removeLeak(pendingDelete.id); break;
+      case 'bedtime': removeBedtime(pendingDelete.dayNumber); break;
+      case 'wakeup': removeWakeTime(pendingDelete.dayNumber); break;
+    }
+    setPendingDelete(null);
+  }, [pendingDelete, removeVoid, removeDrink, removeLeak, removeBedtime, removeWakeTime]);
+
 
   // Handle "Wake up" button — opens wake-up time form
   const handleWakeUp = useCallback(() => {
@@ -207,17 +275,17 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
   const renderTimelineItem = (item: TimelineItem) => {
     if (item.kind === 'void') {
       return (
-        <TimelineEvent key={item.entry.id} type="void" entry={item.entry} onDelete={removeVoid} onEdit={onEditVoid} nightMode={isNighttime} />
+        <TimelineEvent key={item.entry.id} type="void" entry={item.entry} onDelete={requestDeleteVoid} onEdit={onEditVoid} nightMode={isNighttime} />
       );
     }
     if (item.kind === 'drink') {
       return (
-        <TimelineEvent key={item.entry.id} type="drink" entry={item.entry} onDelete={removeDrink} onEdit={onEditDrink} nightMode={isNighttime} />
+        <TimelineEvent key={item.entry.id} type="drink" entry={item.entry} onDelete={requestDeleteDrink} onEdit={onEditDrink} nightMode={isNighttime} />
       );
     }
     if (item.kind === 'leak') {
       return (
-        <TimelineEvent key={item.entry.id} type="leak" entry={item.entry} onDelete={removeLeak} onEdit={onEditLeak} nightMode={isNighttime} />
+        <TimelineEvent key={item.entry.id} type="leak" entry={item.entry} onDelete={requestDeleteLeak} onEdit={onEditLeak} nightMode={isNighttime} />
       );
     }
     if (item.kind === 'wakeup') {
@@ -240,7 +308,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         );
       }
       return (
-        <TimelineEvent key={item.entry.id} type="wakeup" entry={item.entry} onDelete={(dn) => removeWakeTime(dn as 1 | 2 | 3)} />
+        <TimelineEvent key={item.entry.id} type="wakeup" entry={item.entry} onDelete={(dn) => requestDeleteWakeUp(dn as 1 | 2 | 3)} />
       );
     }
     // Bedtime in night view — context text
@@ -255,16 +323,33 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
       );
     }
     return (
-      <TimelineEvent key={item.entry.id} type="bedtime" entry={item.entry} onDelete={(dn) => removeBedtime(dn as 1 | 2 | 3)} onEdit={onEditBedtime} />
+      <TimelineEvent key={item.entry.id} type="bedtime" entry={item.entry} onDelete={(dn) => requestDeleteBedtime(dn as 1 | 2 | 3)} onEdit={onEditBedtime} />
     );
   };
 
+  const deleteTitle = pendingDelete
+    ? pendingDelete.kind === 'void'
+      ? tc('deletePeeTitle')
+      : pendingDelete.kind === 'drink'
+        ? tc('deleteDrinkTitle')
+        : pendingDelete.kind === 'leak'
+          ? tc('deleteLeakTitle')
+          : pendingDelete.kind === 'bedtime'
+            ? tc('deleteBedtimeTitle')
+            : tc('deleteWakeUpTitle')
+    : '';
+
   return (
     <div className={`flex flex-col transition-colors duration-700 ${
-      isNighttime ? 'nighttime-tint -mx-4 px-4 -mt-4 pt-7 min-h-screen pb-24' : 'rounded-2xl pb-28'
+      isNighttime ? 'nighttime-tint -mx-4 px-4 -mt-4 pt-7 min-h-dvh pb-44' : 'rounded-2xl pb-44'
     }`}>
-      {/* 5-step journey progress: D1 -> N1 -> D2 -> N2 -> D3 */}
-      <div className="flex items-center justify-center mb-3 px-4">
+      {/* 5-step journey progress: D1 -> N1 -> D2 -> N2 -> D3.
+          On Day 1 we show the labelled version so the user learns the model.
+          From Day 2 onward we collapse to a compact dot-strip — the user
+          already knows the structure, so reclaim ~30 px of vertical real
+          estate above the day header. The compact version still shows
+          progress (filled vs. hollow circles) without the verbose labels. */}
+      <div className={`flex items-center justify-center px-4 ${journeyCompact ? 'mb-1.5' : 'mb-3'}`}>
         {journeySteps.map((step, idx) => {
           const isNight = step.label.startsWith('N');
 
@@ -300,7 +385,17 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           const lineComplete = step.complete;
           const stepNumber = step.label[1];
 
-          const circleContent = (
+          const circleContent = journeyCompact ? (
+            <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${circleClass}`}>
+              {step.complete && !step.isCurrent ? (
+                <Check size={9} strokeWidth={3} />
+              ) : isNight ? (
+                <Moon size={8} strokeWidth={2.5} />
+              ) : (
+                <Sun size={9} strokeWidth={2.5} />
+              )}
+            </div>
+          ) : (
             <div className="flex flex-col items-center gap-1">
               <div className={`w-6 h-6 rounded-full flex items-center justify-center
                 transition-all ${circleClass}`}>
@@ -334,7 +429,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 </div>
               )}
               {showLine && (
-                <div className={`flex-1 w-4 h-px mt-[-12px] mx-1 transition-colors ${
+                <div className={`h-px mx-1 transition-colors ${journeyCompact ? 'w-3 mt-0' : 'flex-1 w-4 mt-[-12px]'} ${
                   isNighttime
                     ? lineComplete ? 'bg-indigo-400/40' : 'bg-indigo-500/10'
                     : lineComplete ? 'bg-ipc-300' : 'bg-ipc-100'
@@ -385,6 +480,16 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           <span className={`font-medium text-sm ${isNighttime ? 'text-indigo-300/80' : 'text-ipc-500'}`}>
             {dayLabel}
           </span>
+          {/* L1: persistent progress subtitle so users always see how far they are */}
+          {!isNighttime && (
+            <div className={`text-xs mt-0.5 font-semibold ${isNighttime ? 'text-indigo-300/60' : 'text-ipc-400'}`}>
+              {t('progressSubtitle', {
+                day: dayNumber,
+                total: 3,
+                count: voids.length + drinks.length + leaks.length,
+              })}
+            </div>
+          )}
         </div>
 
         {nextStep ? (
@@ -624,11 +729,11 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         </div>
       )}
 
-      {/* Bedtime reminder */}
+      {/* Bedtime reminder — full-width button below text so it doesn't collide with the FAB */}
       {(voids.length > 0 || drinks.length > 0 || leaks.length > 0) && !hasBedtime && !isNighttime && (
-        <div className="mt-4 px-4 py-3 rounded-2xl bg-bedtime/10 border border-bedtime/25 animate-reminder">
-          <div className="flex items-center gap-3">
-            <Moon size={20} className="shrink-0 text-bedtime" />
+        <div className="mt-4 px-4 py-4 rounded-2xl bg-bedtime/10 border border-bedtime/25 animate-reminder">
+          <div className="flex items-start gap-3 mb-3">
+            <Moon size={20} className="shrink-0 text-bedtime mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-bedtime">
                 {t('markBedtime')}
@@ -637,13 +742,14 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 {t('addBeforeBedtime')}
               </p>
             </div>
-            {onLogBedtime && (
-              <button type="button" onClick={onLogBedtime}
-                className="px-4 py-2 rounded-full text-sm font-semibold bg-bedtime text-white active:scale-[0.95] transition-all">
-                {t('goToBed')}
-              </button>
-            )}
           </div>
+          {onLogBedtime && (
+            <button type="button" onClick={onLogBedtime}
+              className="w-full min-h-[48px] flex items-center justify-center gap-2 px-5 rounded-2xl text-base font-semibold bg-bedtime text-white active:scale-[0.97] transition-all">
+              <Moon size={18} />
+              {t('goToBed')}
+            </button>
+          )}
         </div>
       )}
 
@@ -682,9 +788,10 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
               </div>
               <Link
                 href={`/diary/day/${dayNumber + 1}?view=night`}
-                className="flex items-center justify-center gap-1 text-sm text-ipc-500 py-2 font-medium"
+                className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-2xl bg-ipc-100/70 border border-ipc-200/70 text-ipc-700 font-semibold text-base active:scale-[0.97] transition-all"
               >
-                {t('noOvernightContinue', { dayNumber: dayNumber + 1 })}
+                {t('noOvernightContinueButton', { dayNumber: dayNumber + 1 })}
+                <ChevronRight size={18} />
               </Link>
             </div>
           )}
@@ -699,6 +806,20 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           )}
         </div>
       )}
+
+      {/* Delete-event confirmation. Boomers with shaky thumbs sit a few px from
+          the trash icon — undoing a silent delete with no toast was causing
+          accidental data loss on the diary they're trying to complete. */}
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={deleteTitle}
+        message={pendingDelete?.label}
+        confirmLabel={tc('delete')}
+        cancelLabel={tc('cancel')}
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
 
       {/* Reset confirmation overlay */}
       {showResetConfirm && (

@@ -23,7 +23,7 @@ interface LogDrinkFormProps {
 const TOTAL_STEPS = 2;
 
 export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogDrinkFormProps) {
-  const { addDrink, updateDrink, getBedtimeForDay, getWakeTimeForDay, startDate, volumeUnit, timeZone } = useDiaryStore();
+  const { addDrink, updateDrink, getBedtimeForDay, getWakeTimeForDay, startDate, volumeUnit, timeZone, drinks: allDrinks } = useDiaryStore();
   const t = useTranslations('logDrink');
   const tc = useTranslations('common');
   const tv = useTranslations('validation');
@@ -54,15 +54,48 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     }
   }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone]);
 
-  const [drinkType, setDrinkType] = useState<DrinkType>(editEntry?.drinkType ?? 'water');
-  const [volume, setVolume] = useState(editEntry ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit) : vc.default);
+  // L3: smart default — when adding a new drink, prefer the patient's most
+  // recent prior drink as the pre-fill. Drink habits are highly repetitive
+  // (same morning coffee, same lunch glass), so pre-filling cuts taps and
+  // signals "the app remembers you" — both retention drivers for older users.
+  const mostRecentPriorDrink = !editEntry && allDrinks.length > 0
+    ? [...allDrinks].sort((a, b) => b.timestampIso.localeCompare(a.timestampIso))[0]
+    : null;
+
+  const defaultDrinkType: DrinkType = editEntry?.drinkType ?? mostRecentPriorDrink?.drinkType ?? 'water';
+  const defaultVolume = editEntry
+    ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit)
+    : mostRecentPriorDrink
+      ? mlToDisplayVolume(mostRecentPriorDrink.volumeMl, volumeUnit)
+      : vc.default;
+
+  const [drinkType, setDrinkType] = useState<DrinkType>(defaultDrinkType);
+  const [volume, setVolume] = useState(defaultVolume);
   const [time, setTime] = useState(smartDefault);
   const [note, setNote] = useState(editEntry?.note ?? '');
+
+  // Drink chips: 3 real-world container sizes pulled from patient diary data
+  // (Bruno's water/coffee/juice 150–500 mL range, Alex's coffee 200, beer 340).
+  // 200 mL = small glass / cup, 350 mL = standard glass / can, 500 mL = bottle.
+  // Three chips keeps Hick's-Law decision time low for older users.
+  const VOLUME_PRESETS = volumeUnit === 'oz'
+    ? [
+        { id: 'p1', value: 7 },
+        { id: 'p2', value: 12 },
+        { id: 'p3', value: 17 },
+      ]
+    : [
+        { id: 'p1', value: 200 },
+        { id: 'p2', value: 350 },
+        { id: 'p3', value: 500 },
+      ];
 
   const [step, setStep] = useState(1);
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('left');
   const [noteOpen, setNoteOpen] = useState(false);
   const noteAreaRef = useRef<HTMLDivElement>(null);
+  // Pavlovian "+VOL" micro-reward — see LogVoidForm for rationale.
+  const [chipPop, setChipPop] = useState<{ id: string; label: string; nonce: number } | null>(null);
 
   const savedRef = useRef(false);
   const formRef = useRef({ drinkType, volume, time, note });
@@ -221,9 +254,48 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                 </div>
               )}
               <div className="border-t border-drink/15 mt-2 mb-2" />
-              <h3 className="text-lg font-bold text-center mb-1 text-ipc-950 text-balance">
+              <h3 className="text-lg font-bold text-center mb-2 text-ipc-950 text-balance">
                 {t('howMuch')}
               </h3>
+              {/* Quick-pick presets — three real-world container sizes */}
+              <div className="grid grid-cols-3 gap-2 mb-2 px-2">
+                {VOLUME_PRESETS.map((p) => {
+                  const active = volume === p.value;
+                  return (
+                    <div key={p.id} className="relative">
+                      {chipPop?.id === p.id && (
+                        <span
+                          key={chipPop.nonce}
+                          aria-hidden="true"
+                          className="absolute left-1/2 -top-3 z-10 px-2 py-0.5 rounded-full
+                            bg-success text-white text-[11px] font-bold shadow-md
+                            pointer-events-none whitespace-nowrap animate-float-pop"
+                        >
+                          {chipPop.label}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setVolume(p.value);
+                          setChipPop({ id: p.id, label: `+${p.value} ${volumeUnit}`, nonce: Date.now() });
+                        }}
+                        aria-pressed={active}
+                        className={`w-full min-h-[58px] px-2 py-2 rounded-2xl border-2 flex items-baseline justify-center gap-1 transition-all active:scale-[0.96] ${
+                          active
+                            ? 'bg-drink border-drink text-white shadow-md'
+                            : 'bg-white border-drink/30 text-ipc-950'
+                        }`}
+                      >
+                        <span className="text-2xl font-bold leading-none tabular-nums">{p.value}</span>
+                        <span className={`text-xs font-medium ${active ? 'text-white/85' : 'text-drink/80'}`}>
+                          {volumeUnit}
+                        </span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
               <VolumeInput value={volume} onChange={handleVolumeChange}
                 unit={volumeUnit} max={vc.max} step={vc.step} variant="drink" />
             </>
@@ -262,7 +334,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
 
       {/* Sticky Next on non-final step — always visible at the bottom */}
       {step < TOTAL_STEPS && (
-        <div className="sticky bottom-0 -mx-5 mt-4 px-5 pt-3 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
+        <div className="sticky bottom-0 -mx-5 mt-6 px-5 pt-5 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
           <Button onClick={() => goToStep(step + 1)} fullWidth size="lg" variant="drink" disabled={volume <= 0}>
             {tc('next')}
             <ChevronRight size={18} className="ml-1" />

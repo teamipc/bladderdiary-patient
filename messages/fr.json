@@ -36,7 +36,15 @@
     "stepOf": "Étape {current} sur {total}",
     "review": "Vous enregistrez :",
     "close": "Fermer",
-    "help": "Aide"
+    "help": "Aide",
+    "delete": "Supprimer",
+    "deletePeeTitle": "Supprimer cette miction ?",
+    "deleteDrinkTitle": "Supprimer cette boisson ?",
+    "deleteLeakTitle": "Supprimer cette fuite ?",
+    "deleteBedtimeTitle": "Supprimer le coucher ?",
+    "deleteWakeUpTitle": "Supprimer le réveil ?",
+    "hoursAgo": "il y a {n} h",
+    "lastNightAt": "{time} hier soir"
   },
   "nav": {
     "home": "Accueil",
@@ -114,7 +122,9 @@
     "drink": "Boisson",
     "leak": "Fuite",
     "insertEvent": "Ajouter une entrée ici",
-    "goTo": "Aller à {label}"
+    "goTo": "Aller à {label}",
+    "progressSubtitle": "Jour {day} sur {total} \u00b7 {count} entrées",
+    "noOvernightContinueButton": "Rien la nuit \u00b7 Passer au jour {dayNumber}"
   },
   "logVoid": {
     "howMuch": "Quelle quantité environ ?",
@@ -133,14 +143,18 @@
     "presetMediumDesc": "une tasse ordinaire",
     "presetLargeDesc": "un grand verre",
     "noMeasuringCupHelp": "Pas de verre doseur ?",
-    "cupHelpIntro": "Pas besoin de verre doseur. Utilisez ces tailles comme repère, ou urinez dans un récipient que vous pouvez mesurer approximativement.",
+    "cupHelpIntro": "Pas besoin de verre doseur. Choisissez la taille la plus proche, ou urinez dans un récipient que vous pouvez mesurer.",
+    "cupHelpVolumes": "Tailles de référence courantes : {values}.",
     "leakRecap": "avec fuite"
   },
   "logDrink": {
     "whatDrink": "Qu'est-ce que vous avez bu ?",
     "howMuch": "Quelle quantité environ ?",
     "whenWasThis": "C'était quand ?",
-    "notePlaceholder": "ex. : avec le déjeuner"
+    "notePlaceholder": "ex. : avec le déjeuner",
+    "presetSmall": "Petit",
+    "presetMedium": "Moyen",
+    "presetLarge": "Grand"
   },
   "logLeak": {
     "whatCaused": "Qu'est-ce qui a causé la fuite ?",
@@ -184,7 +198,16 @@
     "doubleVoid": "Double miction",
     "wakeUp": "Réveil",
     "bedtime": "Coucher",
-    "urgency": "Besoin urgent"
+    "urgency": "Besoin urgent",
+    "editPee": "Modifier cette miction",
+    "deletePee": "Supprimer cette miction",
+    "editDrink": "Modifier cette boisson",
+    "deleteDrink": "Supprimer cette boisson",
+    "editLeak": "Modifier cette fuite",
+    "deleteLeak": "Supprimer cette fuite",
+    "editBedtime": "Modifier le coucher",
+    "deleteBedtime": "Supprimer le coucher",
+    "deleteWakeUp": "Supprimer le réveil"
   },
   "sensations": {
     "label": "Envie d'uriner",
@@ -266,6 +289,8 @@
     "firstEventHint": "Utilisez le bouton plus à chaque fois que vous urinez ou buvez.",
     "keepLoggingTitle": "Continuez à noter au fil de la journée",
     "keepLoggingHint": "Utilisez le bouton plus à chaque pipi, boisson ou fuite.",
+    "staleNudgeTitle": "Dernière entrée il y a environ {hours} h",
+    "staleNudgeHint": "Appuyez sur le bouton plus pour ajouter ce que vous avez pris depuis.",
     "bedtimeTitle": "Presque fini pour aujourd'hui",
     "bedtimeHint": "Avant de dormir, appuyez sur « Se coucher » pour clore la journée."
   },

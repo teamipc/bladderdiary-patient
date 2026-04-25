@@ -84,8 +84,12 @@ export async function generateMetadata({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Allow zoom for accessibility (WCAG 1.4.4). Older users with reading
+  // glasses sometimes pinch-zoom small text; blocking that is a barrier
+  // for the exact demographic this app is built for.
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
   themeColor: '#c4984a',
 };
 
