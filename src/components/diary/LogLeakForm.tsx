@@ -369,7 +369,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               )}
 
               <div className="flex justify-center mt-6">
-                <Button onClick={handleSave} size="lg" variant="leak" disabled={!trigger || urgencyBeforeLeak === null}>
+                <Button onClick={handleSave} size="lg" variant={isNightView ? 'night' : 'leak'} disabled={!trigger || urgencyBeforeLeak === null}>
                   {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>
@@ -385,7 +385,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
             onClick={() => goToStep(step + 1)}
             fullWidth
             size="lg"
-            variant="leak"
+            variant={isNightView ? 'night' : 'leak'}
             disabled={step === 1 ? !trigger : urgencyBeforeLeak === null}
           >
             {tc('next')}

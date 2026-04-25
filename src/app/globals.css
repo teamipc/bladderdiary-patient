@@ -195,17 +195,194 @@ input, select, textarea {
 .nighttime-bg .bg-white\/70 .border-ipc-100\/50 {
   border-color: rgba(99, 90, 160, 0.3) !important;
 }
-.nighttime-bg .bg-white\/70 .text-leak {
-  color: #d4917a !important;
-}
-.nighttime-bg .bg-white\/70 .bg-leak\/10 {
-  background-color: rgba(184, 92, 74, 0.15) !important;
-}
-.nighttime-bg .bg-white\/70 .border-leak\/20 {
-  border-color: rgba(184, 92, 74, 0.25) !important;
-}
+/* Drink + leak forms in night view use the same indigo-glass language as
+   the void form, so the night experience reads as one unified surface
+   instead of three competing color codes (blue / red / gold) on dark. */
+.nighttime-bg .bg-white\/70 .bg-drink,
 .nighttime-bg .bg-white\/70 .bg-leak {
-  background-color: #c46a5a !important;
+  background-color: rgb(99, 102, 241) !important; /* indigo-500 */
+}
+.nighttime-bg .bg-white\/70 .text-drink,
+.nighttime-bg .bg-white\/70 .text-drink\/40,
+.nighttime-bg .bg-white\/70 .text-drink\/60,
+.nighttime-bg .bg-white\/70 .text-drink\/70,
+.nighttime-bg .bg-white\/70 .text-drink\/80,
+.nighttime-bg .bg-white\/70 .text-leak,
+.nighttime-bg .bg-white\/70 .text-leak\/40,
+.nighttime-bg .bg-white\/70 .text-leak\/60,
+.nighttime-bg .bg-white\/70 .text-leak\/70,
+.nighttime-bg .bg-white\/70 .text-leak\/80 {
+  color: rgb(196, 181, 253) !important; /* indigo-300 */
+}
+.nighttime-bg .bg-white\/70 .border-drink,
+.nighttime-bg .bg-white\/70 .border-drink\/15,
+.nighttime-bg .bg-white\/70 .border-drink\/20,
+.nighttime-bg .bg-white\/70 .border-drink\/25,
+.nighttime-bg .bg-white\/70 .border-drink\/30,
+.nighttime-bg .bg-white\/70 .border-drink\/40,
+.nighttime-bg .bg-white\/70 .border-leak,
+.nighttime-bg .bg-white\/70 .border-leak\/15,
+.nighttime-bg .bg-white\/70 .border-leak\/20,
+.nighttime-bg .bg-white\/70 .border-leak\/25,
+.nighttime-bg .bg-white\/70 .border-leak\/30,
+.nighttime-bg .bg-white\/70 .border-leak\/40 {
+  border-color: rgba(165, 180, 252, 0.28) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-drink\/5,
+.nighttime-bg .bg-white\/70 .bg-leak\/5 {
+  background-color: rgba(99, 102, 241, 0.06) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-drink\/10,
+.nighttime-bg .bg-white\/70 .bg-leak\/10 {
+  background-color: rgba(99, 102, 241, 0.14) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-drink\/15,
+.nighttime-bg .bg-white\/70 .bg-leak\/15 {
+  background-color: rgba(99, 102, 241, 0.22) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-drink\/30,
+.nighttime-bg .bg-white\/70 .bg-leak\/30 {
+  background-color: rgba(99, 102, 241, 0.35) !important;
+}
+.nighttime-bg .bg-white\/70 .ring-drink\/30,
+.nighttime-bg .bg-white\/70 .ring-leak\/30 {
+  --tw-ring-color: rgba(165, 180, 252, 0.45) !important;
+}
+.nighttime-bg .bg-white\/70 .ring-drink,
+.nighttime-bg .bg-white\/70 .ring-leak {
+  --tw-ring-color: rgba(165, 180, 252, 0.45) !important;
+}
+.nighttime-bg .bg-white\/70 .focus\:border-drink\/60:focus,
+.nighttime-bg .bg-white\/70 .focus\:border-leak\/60:focus {
+  border-color: rgba(165, 180, 252, 0.6) !important;
+}
+.nighttime-bg .bg-white\/70 .focus\:ring-drink\/20:focus,
+.nighttime-bg .bg-white\/70 .focus\:ring-leak\/20:focus {
+  --tw-ring-color: rgba(165, 180, 252, 0.25) !important;
+}
+
+/* ── Night-mode bottom-sheet form theming ────────────────────────────────
+   When a log form is opened from a night view, the patient is staring at a
+   deep-purple page. The form's gold/cream IPC palette reads as jarring on
+   that surface. These overrides remap the gold tokens to indigo + glass
+   ONLY when the bottom sheet sits over a .nighttime-bg body, keeping the
+   day-mode aesthetic untouched. The aim is the same "frosted-on-purple"
+   feel as the Double-void toggle — subtle, calm, high-enough contrast for
+   older eyes, unified in shade.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Solid surfaces — active chip, primary CTA, sticky Next */
+.nighttime-bg .bg-white\/70 .bg-ipc-500,
+.nighttime-bg .bg-white\/70 .bg-ipc-600,
+.nighttime-bg .bg-white\/70 .bg-ipc-700 {
+  background-color: rgb(99, 102, 241) !important; /* indigo-500 */
+}
+.nighttime-bg .bg-white\/70 .bg-ipc-500:active {
+  background-color: rgb(79, 70, 229) !important; /* indigo-600 */
+}
+.nighttime-bg .bg-white\/70 .border-ipc-500,
+.nighttime-bg .bg-white\/70 .border-ipc-600 {
+  border-color: rgb(79, 70, 229) !important;
+}
+
+/* Tinted overlays — recap cards, pulsed selection states, light fills */
+.nighttime-bg .bg-white\/70 .bg-ipc-50,
+.nighttime-bg .bg-white\/70 .bg-ipc-50\/30,
+.nighttime-bg .bg-white\/70 .bg-ipc-50\/40,
+.nighttime-bg .bg-white\/70 .bg-ipc-50\/60,
+.nighttime-bg .bg-white\/70 .bg-ipc-50\/70 {
+  background-color: rgba(99, 102, 241, 0.10) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-ipc-100,
+.nighttime-bg .bg-white\/70 .bg-ipc-100\/30 {
+  background-color: rgba(99, 102, 241, 0.18) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-ipc-200 {
+  background-color: rgba(99, 102, 241, 0.30) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-ipc-300 {
+  background-color: rgba(165, 180, 252, 0.45) !important;
+}
+.nighttime-bg .bg-white\/70 .bg-ipc-200\/60 {
+  background-color: rgba(165, 180, 252, 0.30) !important;
+}
+
+/* Glass/translucent — the "Double-void"-style toggle */
+.nighttime-bg .bg-white\/70 .bg-ipc-500\/15 {
+  background-color: rgba(99, 102, 241, 0.22) !important;
+}
+.nighttime-bg .bg-white\/70 .ring-ipc-500\/30 {
+  --tw-ring-color: rgba(165, 180, 252, 0.45) !important;
+}
+
+/* Borders — chips, buttons, recap card edges */
+.nighttime-bg .bg-white\/70 .border-ipc-100,
+.nighttime-bg .bg-white\/70 .border-ipc-100\/50,
+.nighttime-bg .bg-white\/70 .border-ipc-100\/60 {
+  border-color: rgba(165, 180, 252, 0.18) !important;
+}
+.nighttime-bg .bg-white\/70 .border-ipc-200,
+.nighttime-bg .bg-white\/70 .border-ipc-200\/40,
+.nighttime-bg .bg-white\/70 .border-ipc-200\/50 {
+  border-color: rgba(165, 180, 252, 0.28) !important;
+}
+.nighttime-bg .bg-white\/70 .border-ipc-300 {
+  border-color: rgba(165, 180, 252, 0.40) !important;
+}
+
+/* The chip and recap card use bg-white as the inactive surface; on dark
+   that needs to be a very faint glass tint, not opaque white. */
+.nighttime-bg .bg-white\/70 .bg-white {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* The wake-up amber accent reads OK on dark, but soften slightly so the
+   gold sun isn't blinding next to the indigo tones. */
+.nighttime-bg .bg-white\/70 .bg-warning\/15 {
+  background-color: rgba(238, 174, 64, 0.18) !important;
+}
+.nighttime-bg .bg-white\/70 .ring-warning\/30 {
+  --tw-ring-color: rgba(238, 174, 64, 0.35) !important;
+}
+
+/* The day-view sun chip on the morning-pee tag: ensure readable contrast */
+.nighttime-bg .bg-white\/70 .text-warning {
+  color: #f5c97c !important;
+}
+
+/* Sticky-Next gradient mask — the white-to-transparent gradient under the
+   sticky CTA must transition into the dark sheet, not into white. */
+.nighttime-bg .bg-white\/70 .from-white {
+  --tw-gradient-from: rgba(38, 34, 70, 0.95) !important;
+}
+.nighttime-bg .bg-white\/70 .via-white\/95 {
+  --tw-gradient-via: rgba(38, 34, 70, 0.85) !important;
+}
+.nighttime-bg .bg-white\/70 .to-white\/0 {
+  --tw-gradient-to: rgba(38, 34, 70, 0) !important;
+}
+
+/* FAB and speed-dial pee button on the night surface — the gold pop-out
+   over a deep-purple page is the same jarring contrast the form chips had.
+   Repaint to indigo so the night view stays unified. The expanded ✕ state
+   uses ipc-800 (dark brown) which we leave alone — it's already dark. */
+.nighttime-bg .animate-fab-glow {
+  background-color: rgb(99, 102, 241) !important; /* indigo-500 */
+}
+.nighttime-bg .animate-fab-glow:hover {
+  background-color: rgb(79, 70, 229) !important; /* indigo-600 */
+}
+.nighttime-bg .bg-void {
+  background-color: rgb(99, 102, 241) !important;
+}
+/* The "Continue to Day ☀" pull animation cycles through warm gold tones —
+   on a night surface those become olive/dingy. Tone down the warmest
+   keyframes so the button reads as a soft pre-dawn glow rather than gold. */
+.nighttime-bg .animate-start-day {
+  background-color: rgba(165, 180, 252, 0.18) !important;
+  border-color: rgba(165, 180, 252, 0.35) !important;
+  color: rgb(196, 181, 253) !important;
+  animation: none !important;
 }
 .nighttime-bg nav .text-ipc-600 {
   color: #b0a8d4 !important;

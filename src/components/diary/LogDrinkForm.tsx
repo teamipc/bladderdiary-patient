@@ -297,7 +297,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                 })}
               </div>
               <VolumeInput value={volume} onChange={handleVolumeChange}
-                unit={volumeUnit} max={vc.max} step={vc.step} variant="drink" />
+                unit={volumeUnit} max={vc.max} step={vc.step} variant={isNightView ? 'night' : 'drink'} />
             </>
           )}
 
@@ -323,7 +323,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                 </div>
               )}
               <div className="flex justify-center mt-6">
-                <Button onClick={handleSave} size="lg" variant="drink" disabled={volume <= 0}>
+                <Button onClick={handleSave} size="lg" variant={isNightView ? 'night' : 'drink'} disabled={volume <= 0}>
                   {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>
@@ -335,7 +335,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       {/* Sticky Next on non-final step — always visible at the bottom */}
       {step < TOTAL_STEPS && (
         <div className="sticky bottom-0 -mx-5 mt-6 px-5 pt-5 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
-          <Button onClick={() => goToStep(step + 1)} fullWidth size="lg" variant="drink" disabled={volume <= 0}>
+          <Button onClick={() => goToStep(step + 1)} fullWidth size="lg" variant={isNightView ? 'night' : 'drink'} disabled={volume <= 0}>
             {tc('next')}
             <ChevronRight size={18} className="ml-1" />
           </Button>

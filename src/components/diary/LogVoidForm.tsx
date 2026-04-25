@@ -301,7 +301,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               )}
 
               <VolumeInput value={volume} onChange={handleVolumeChange}
-                unit={volumeUnit} max={vc.max} step={vc.step} />
+                unit={volumeUnit} max={vc.max} step={vc.step} variant={isNightView ? 'night' : 'default'} />
               <div className="border-t border-ipc-100/60 mt-5 mb-4" />
               <div className="flex justify-center">
                 <button type="button" onClick={() => setDoubleVoid(!doubleVoid)}
@@ -323,7 +323,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                     {t('secondPeeAmount')}
                   </label>
                   <VolumeInput value={doubleVoidVolume} onChange={setDoubleVoidVolume}
-                    unit={volumeUnit} max={volumeUnit === 'oz' ? 25 : 750} step={vc.step} />
+                    unit={volumeUnit} max={volumeUnit === 'oz' ? 25 : 750} step={vc.step} variant={isNightView ? 'night' : 'default'} />
                 </div>
               )}
             </>
@@ -407,7 +407,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 </div>
               )}
               <div className="flex justify-center mt-6">
-                <Button onClick={handleSave} size="lg" disabled={volume <= 0}>
+                <Button onClick={handleSave} size="lg" variant={isNightView ? 'night' : 'primary'} disabled={volume <= 0}>
                   {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>
@@ -420,7 +420,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
           same spot, so users never hunt for the advance affordance. */}
       {step < 3 && (
         <div className="sticky bottom-0 -mx-5 mt-6 px-5 pt-5 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
-          <Button onClick={() => goToStep(step + 1)} fullWidth size="lg" disabled={volume <= 0}>
+          <Button onClick={() => goToStep(step + 1)} fullWidth size="lg" variant={isNightView ? 'night' : 'primary'} disabled={volume <= 0}>
             {tc('next')}
             <ChevronRight size={18} className="ml-1" />
           </Button>
