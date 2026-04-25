@@ -65,7 +65,7 @@ export default function Header({ title }: HeaderProps) {
             </span>
             <span className="flex items-center gap-1 -mt-0.5">
               <Image src="/ipc-logo.png" alt="IPC" width={10} height={10} />
-              <span className="text-[10px] text-ipc-400">{t('poweredByIpc')}</span>
+              <span className="text-[10px] text-ipc-700">{t('poweredByIpc')}</span>
             </span>
           </div>
         </button>
@@ -75,7 +75,7 @@ export default function Header({ title }: HeaderProps) {
           <button
             type="button"
             onClick={() => setOpen(!open)}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-ipc-600 hover:bg-ipc-50 active:bg-ipc-100 transition-colors"
+            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-ipc-800 hover:bg-ipc-50 active:bg-ipc-100 transition-colors"
             aria-label={tLang('switchLanguage')}
             aria-expanded={open}
             aria-haspopup="true"

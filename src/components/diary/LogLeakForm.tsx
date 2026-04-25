@@ -279,7 +279,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               <h3 className="text-lg font-bold text-center mb-3 text-ipc-950 px-10 text-balance">
                 {t('howMuch')}
               </h3>
-              <p className="text-xs text-ipc-400 text-center mb-2">
+              <p className="text-xs text-ipc-600 text-center mb-2">
                 {t('optionalTapHint')}
               </p>
               <div className="grid grid-cols-4 gap-1.5 mb-6 w-full px-1">

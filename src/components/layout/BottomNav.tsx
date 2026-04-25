@@ -53,16 +53,16 @@ export default function BottomNav() {
           href="/"
           className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 min-h-[56px]
             transition-colors ${
-              isHomeActive ? 'text-ipc-600' : 'text-ipc-200 hover:text-ipc-400'
+              isHomeActive ? 'text-ipc-600' : 'text-ipc-700 hover:text-ipc-800'
             }`}
         >
           <div className={`w-8 h-8 flex items-center justify-center ${
-            isHomeActive ? 'text-ipc-600' : 'text-ipc-200'
+            isHomeActive ? 'text-ipc-600' : 'text-ipc-700'
           }`}>
             <Home size={22} />
           </div>
           <span className={`text-xs font-medium ${
-            isHomeActive ? 'text-ipc-700' : 'text-ipc-200'
+            isHomeActive ? 'text-ipc-700' : 'text-ipc-700'
           }`}>
             {t('home')}
           </span>
@@ -74,23 +74,23 @@ export default function BottomNav() {
             href={todayHref}
             className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 min-h-[56px]
               transition-colors ${
-                isTrackActive ? 'text-ipc-600' : 'text-ipc-200 hover:text-ipc-400'
+                isTrackActive ? 'text-ipc-600' : 'text-ipc-700 hover:text-ipc-800'
               }`}
           >
             <div className={`w-8 h-8 flex items-center justify-center ${
-              isTrackActive ? 'text-ipc-600' : 'text-ipc-200'
+              isTrackActive ? 'text-ipc-600' : 'text-ipc-700'
             }`}>
               <Droplet size={22} />
             </div>
             <span className={`text-xs font-medium ${
-              isTrackActive ? 'text-ipc-700' : 'text-ipc-200'
+              isTrackActive ? 'text-ipc-700' : 'text-ipc-700'
             }`}>
               {t('track')}
             </span>
           </Link>
         ) : (
           <div className="flex-1 flex flex-col items-center gap-0.5 py-2.5 min-h-[56px]
-            text-ipc-100 cursor-not-allowed opacity-50">
+            text-ipc-700 cursor-not-allowed">
             <div className="w-8 h-8 flex items-center justify-center">
               <Droplet size={22} />
             </div>
@@ -104,28 +104,28 @@ export default function BottomNav() {
             href="/summary"
             className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 min-h-[56px]
               transition-colors ${
-                isDiaryActive ? 'text-ipc-600' : 'text-ipc-200 hover:text-ipc-400'
+                isDiaryActive ? 'text-ipc-600' : 'text-ipc-700 hover:text-ipc-800'
               }`}
           >
             <div className={`w-8 h-8 flex items-center justify-center ${
-              isDiaryActive ? 'text-ipc-600' : 'text-ipc-200'
+              isDiaryActive ? 'text-ipc-600' : 'text-ipc-700'
             }`}>
               <BarChart3 size={22} />
             </div>
             <span className={`text-xs font-medium ${
-              isDiaryActive ? 'text-ipc-700' : 'text-ipc-200'
+              isDiaryActive ? 'text-ipc-700' : 'text-ipc-700'
             }`}>
               {t('diary')}
             </span>
           </Link>
         ) : (
           <div className="flex-1 flex flex-col items-center gap-0.5 py-2.5 min-h-[56px]
-            text-ipc-100 cursor-not-allowed opacity-40">
+            text-ipc-700 cursor-not-allowed">
             <div className="w-8 h-8 flex items-center justify-center relative">
               <BarChart3 size={22} />
               <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full
-                bg-ipc-100 flex items-center justify-center">
-                <Lock size={9} className="text-ipc-400" />
+                bg-ipc-200 flex items-center justify-center">
+                <Lock size={9} className="text-ipc-700" />
               </div>
             </div>
             <span className="text-xs font-medium">{t('diary')}</span>
