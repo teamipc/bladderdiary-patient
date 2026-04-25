@@ -36,7 +36,15 @@
     "stepOf": "Step {current} of {total}",
     "review": "You are saving:",
     "close": "Close",
-    "help": "Help"
+    "help": "Help",
+    "delete": "Delete",
+    "deletePeeTitle": "Delete this pee?",
+    "deleteDrinkTitle": "Delete this drink?",
+    "deleteLeakTitle": "Delete this leak?",
+    "deleteBedtimeTitle": "Delete bedtime?",
+    "deleteWakeUpTitle": "Delete wake-up time?",
+    "hoursAgo": "{n}h ago",
+    "lastNightAt": "{time} last night"
   },
   "nav": {
     "home": "Home",
@@ -114,7 +122,9 @@
     "drink": "Drink",
     "leak": "Leak",
     "insertEvent": "Insert event here",
-    "goTo": "Go to {label}"
+    "goTo": "Go to {label}",
+    "progressSubtitle": "Day {day} of {total} \u00b7 {count} entries",
+    "noOvernightContinueButton": "Nothing overnight \u00b7 Continue to Day {dayNumber}"
   },
   "logVoid": {
     "howMuch": "About how much?",
@@ -133,14 +143,18 @@
     "presetMediumDesc": "a standard mug",
     "presetLargeDesc": "a tall drinking glass",
     "noMeasuringCupHelp": "No measuring cup?",
-    "cupHelpIntro": "No measuring cup is fine. Use these sizes as a rough guide, or pee into any container you can roughly measure.",
+    "cupHelpIntro": "No measuring cup is fine. Pick the closest size, or pee into any container you can roughly measure.",
+    "cupHelpVolumes": "Common reference sizes: {values}.",
     "leakRecap": "with leak"
   },
   "logDrink": {
     "whatDrink": "What did you drink?",
     "howMuch": "About how much?",
     "whenWasThis": "When was this?",
-    "notePlaceholder": "e.g., With lunch"
+    "notePlaceholder": "e.g., With lunch",
+    "presetSmall": "Small",
+    "presetMedium": "Medium",
+    "presetLarge": "Large"
   },
   "logLeak": {
     "whatCaused": "What caused the leak?",
@@ -184,7 +198,16 @@
     "doubleVoid": "Double void",
     "wakeUp": "Wake up",
     "bedtime": "Bedtime",
-    "urgency": "Urgency"
+    "urgency": "Urgency",
+    "editPee": "Edit this pee",
+    "deletePee": "Delete this pee",
+    "editDrink": "Edit this drink",
+    "deleteDrink": "Delete this drink",
+    "editLeak": "Edit this leak",
+    "deleteLeak": "Delete this leak",
+    "editBedtime": "Edit bedtime",
+    "deleteBedtime": "Delete bedtime",
+    "deleteWakeUp": "Delete wake-up time"
   },
   "sensations": {
     "label": "Bladder sensation",
@@ -267,7 +290,9 @@
     "keepLoggingTitle": "Keep logging as the day goes on",
     "keepLoggingHint": "Use the plus button each time you pee, drink, or have a leak.",
     "bedtimeTitle": "Almost done for today",
-    "bedtimeHint": "Before you sleep, tap \"Go to bed\" below so we know your day is over."
+    "bedtimeHint": "Before you sleep, tap \"Go to bed\" below so we know your day is over.",
+    "staleNudgeTitle": "Last logged about {hours}h ago",
+    "staleNudgeHint": "Tap the plus button below to log anything you've had since."
   },
   "milestones": {
     "firstEvent": "You're on your way!",

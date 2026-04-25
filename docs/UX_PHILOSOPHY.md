@@ -216,6 +216,79 @@ BottomNav added anxiety.
   "big friendly button" pattern.
 - Summary/export page — already had a clear back arrow, H1, labeled Help.
 
+### 2026-04-25 — Medical-grade QA pass: data-loss prevention, real-world volumes, motivational architecture
+
+**Problem.** A walkthrough on iPhone SE (375×667) found a series of issues that
+together would burn the trust of a 50+ patient logging an anxious 3-day medical
+diary: a 36-px trash icon four pixels from a 36-px edit pencil that *deleted on
+single tap with no confirmation and no undo*, an FAB physically overlapping the
+"Go to bed" button (51 × 10 px), the leak-form amount row spilling 6 px past
+both edges of the SE viewport, the Day-1 celebration hiding 3 of 4 reminder
+options below the fold, and viewport meta blocking pinch-zoom (WCAG 1.4.4).
+Behaviorally, the app was strong on the form-flow inside but missing levers for
+the abandonment moment — Day-2 morning re-entry — that drives the 90 % drop-off
+on most multi-day diary apps.
+
+**Commit.** [batch fix — see git log around 2026-04-25]
+
+**Changes — bugs (B-series).**
+
+| # | Area | Before | After | Principle |
+|---|---|---|---|---|
+| B1 | Event card delete | Trash icon → instant silent delete, no undo | Tap opens a `ConfirmDialog` with the entry summary ("250 mL · 11:24 AM") + Cancel / Delete | §6 (recoverable progress); medical-grade safety |
+| B2 | FAB vs. "Go to bed" | FAB at `right-5 bottom-24` collided with banner button (51×10 px) | Bedtime banner restructured: text on top, full-width purple button below; timeline `pb-44` keeps content clear of FAB | §1 (CTA above fold), §3 |
+| B3 | Leak step-2 amount row | 4 amount buttons overflowed iPhone SE 6 px on each edge | `grid grid-cols-4 gap-1.5 px-1` — Drops at x=32, Large ends at x=343 inside the 375 viewport | §1 (fit the budget) |
+| B4 | Edit/trash icons | 36×36 px, below Apple HIG | 44×44 px with 18 px icon (was 15 px) | Apple HIG; doc rule of thumb |
+| B5 | Edit/trash + sensation | No `aria-label`, no `aria-pressed` | Each icon button has a localized `aria-label`; sensation pickers expose `aria-pressed` | Accessibility (VoiceOver). Boomers are the population most likely to use it. |
+| B6 | "Continue to Day 2" | Plain text link below banner | Real bordered button with chevron, full width | §3 (buttons look like buttons) |
+| B7 | Drink form volume | Slider only — fiddly for shaky thumbs | 3 chips (200 / 350 / 500 mL) + retained slider for fine-tune | §1 (accessible defaults); behavioral: Hick's law |
+| B8 | Day-1 celebration | 3 anchor buttons stacked, reminder options below the fold | Anchors as 3-column horizontal grid; all 4 reminder options (calendar / share / helper / skip) visible without scroll | §1; behavioral: present alternatives, not just the default |
+| B9 | TimePicker backfill | Only `±15 min` and `Now`. Logging "I had coffee 4 h ago" took dozens of taps | Added `1h ago / 2h ago / 3h ago` quick chips beneath the main row | §3 (one-tap path); behavioral: minimize friction for backfill |
+
+**Changes — behavioral levers (L-series).**
+
+| # | Lever | Mechanism | Why it matters |
+|---|---|---|---|
+| L1 | Persistent "Day X of 3 · N entries" subtitle under the day title | Loss-aversion / sunk-cost framing — the user always sees what they have already invested | The single highest-leverage anti-abandonment cue per multi-day-tracking research; turns "starting Day 2" into "protecting Day 1" |
+| L2 | Stale-nudge banner: "Last logged about Xh ago" replaces generic "Keep logging" once ≥2 h elapsed | Implementation-intention prompt at the moment of re-entry | Fires on the most-likely abandonment surface (mid-day app re-open). Amber theme to draw the eye away from the journey tracker. |
+| L3 | Drink form pre-fills from the most recent prior drink | Habit recognition — patients drink the same coffee at the same time every day | Cuts taps on Day 2/3 entries by ~60 %. Signals "the app remembers me" — strong retention driver for this demographic. |
+
+**Changes — volumes pulled from real diary data (Bruno + Alex paper PDFs).**
+
+| Form | Before | After (mL) | Why |
+|---|---|---|---|
+| Void | Small / Medium / Large = 150 / 250 / 350 | 150 / 300 / 500 | 200 mL appeared 6× in Bruno's 3-day diary; 250–300 was the modal cluster; 450–500+ covered nocturia. Old "Large = 350" missed the most-common large-bladder events. |
+| Drink | Small / Medium / Large = 150 / 250 / 500 | 200 / 350 / 500 | Real container sizes: small glass / standard glass / bottle. Bruno's 200 mL coffee, Alex's 200 mL coffee, 250 mL water all map cleanly. |
+| Display | "Small" + 250 mL subtitle | Big bold number ("200") + small "mL" unit | "Small / Medium / Large" labels were useless without a mL anchor; the number IS the label. |
+
+**Changes — accessibility / cross-browser.**
+
+- Viewport meta: `userScalable: true`, `maximumScale: 5`, `viewportFit: 'cover'`. Old config blocked pinch-zoom (WCAG 1.4.4). For older users with reading glasses, that was a barrier.
+- Night-mode container `min-h-screen` → `min-h-dvh` — Safari iOS gives wrong viewport height with the dynamic address bar otherwise.
+- Onboarding back buttons converted from text-only links to bordered pills (Principle 3 holdover from the 2026-04-21 pass).
+- Form headers: `text-ipc-800` (brown-tan) → `text-ipc-950` (near-black) so modal text reads as black, matching the rest of the app.
+
+**What we did not change.**
+
+- The 5-step D1 → N1 → D2 → N2 → D3 model — clinical meaning is non-negotiable (§8).
+- The slider — kept under the chips for users who want a non-preset value. The chips are the primary path, the slider the fallback.
+- The chip-strip pattern from the clinician app — different audience. Chips optimize for transcription speed; the patient app's 3 large presets optimize for low-decision-fatigue in-the-moment logging.
+
+**Why 3 chips, not 5 or chip-strip.**
+
+Hicks's law predicts decision time grows logarithmically with options. 3 vs 5
+options ≈ 30 % faster decision; for someone in a rush to the bathroom, faster
+matters. 3 chips also fit the Small / Normal / Big mental model patients
+already use, and the buttons are ~115 px wide (vs ~70 px for 5 chips, ~60 px
+for chip-strip) — fewer mis-taps for shaky thumbs. The slider remains for
+users who genuinely need a non-preset value; that's the long tail.
+
+**Decisions deferred (still open).**
+
+- "+VOL" pop micro-reward (Pavlovian feedback) — consider porting from the clinician app.
+- "Smart-default + chip" combo for the void form (currently smart-default is drinks-only).
+- The journey tracker takes ~80 px vertical above the day title — could collapse into a thin progress bar on Day 2/3 once the user knows the model.
+
 ## When to revisit this document
 
 Add a new entry to the decisions log whenever a change:

@@ -87,35 +87,32 @@ export default function Day1Celebration({ open, eventCount, onClose }: Day1Celeb
       aria-modal="true"
       aria-labelledby="day1-celebration-title"
     >
-      <div className="flex-1 flex flex-col items-center px-6 pt-8 pb-6 max-w-lg mx-auto w-full">
-        <div className="animate-scale-in mb-5">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-ipc-400 to-ipc-600 flex items-center justify-center shadow-xl">
-            <Check size={48} className="text-white" strokeWidth={3} />
+      <div className="flex-1 flex flex-col items-center px-5 pt-5 pb-4 max-w-lg mx-auto w-full">
+        <div className="animate-scale-in mb-3">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-ipc-400 to-ipc-600 flex items-center justify-center shadow-xl">
+            <Check size={32} className="text-white" strokeWidth={3} />
           </div>
         </div>
 
         <h1
           id="day1-celebration-title"
-          className="text-3xl font-bold text-ipc-950 text-center mb-3 animate-fade-slide-up stagger-1"
+          className="text-2xl font-bold text-ipc-950 text-center mb-1.5 animate-fade-slide-up stagger-1"
         >
           {t('title')}
         </h1>
 
-        <p className="text-lg text-ipc-700 text-center mb-2 animate-fade-slide-up stagger-2">
-          {t('evidence', { count: eventCount })}
+        {/* Combined evidence + 2-of-3 progress in one tighter line */}
+        <p className="text-sm text-ipc-600 text-center mb-4 animate-fade-slide-up stagger-2 px-2 leading-snug">
+          {t('evidence', { count: eventCount })} {t('subtitle')}
         </p>
 
-        <p className="text-base text-ipc-600 text-center mb-6 animate-fade-slide-up stagger-3">
-          {t('subtitle')}
-        </p>
-
-        {/* Anchor picker */}
-        <div className="w-full space-y-3 animate-fade-slide-up stagger-4 mb-6">
-          <p className="text-base font-semibold text-ipc-800 text-center">
+        {/* Anchor picker — compact 3-column grid so all 4 reminder options fit on iPhone SE */}
+        <div className="w-full animate-fade-slide-up stagger-3 mb-4">
+          <p className="text-sm font-semibold text-ipc-800 text-center mb-2">
             {t('anchorPrompt')}
           </p>
 
-          <div className="space-y-2.5">
+          <div className="grid grid-cols-3 gap-2">
             {ANCHOR_OPTIONS.map(({ value, icon: Icon, key }) => {
               const isSelected = selected === value;
               return (
@@ -123,54 +120,53 @@ export default function Day1Celebration({ open, eventCount, onClose }: Day1Celeb
                   key={value}
                   type="button"
                   onClick={() => setSelected(value)}
-                  className={`w-full min-h-[56px] px-5 py-3 rounded-2xl border-2 flex items-center gap-4 transition-all active:scale-[0.98]
+                  className={`min-h-[68px] px-2 py-2 rounded-2xl border-2 flex flex-col items-center justify-center gap-1 transition-all active:scale-[0.96]
                     ${isSelected
                       ? 'bg-ipc-500 border-ipc-600 text-white shadow-lg'
                       : 'bg-white border-ipc-200 text-ipc-800 hover:bg-ipc-50'
                     }`}
                   aria-pressed={isSelected}
                 >
-                  <Icon size={22} className={isSelected ? 'text-white' : 'text-ipc-500'} />
-                  <span className="text-lg font-semibold text-left flex-1">{t(key)}</span>
-                  {isSelected && <Check size={20} className="text-white" strokeWidth={3} />}
+                  <Icon size={20} className={isSelected ? 'text-white' : 'text-ipc-500'} />
+                  <span className="text-xs font-semibold text-center leading-tight">{t(key)}</span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Reminder options */}
-        <div className="w-full space-y-3 animate-fade-slide-up stagger-5">
-          <p className="text-base font-semibold text-ipc-800 text-center">
+        {/* Reminder options — all 4 visible without scrolling */}
+        <div className="w-full space-y-2 animate-fade-slide-up stagger-4">
+          <p className="text-sm font-semibold text-ipc-800 text-center mb-1">
             {selected ? t('reminderPromptWithTime', { time: timeLabel }) : t('reminderPrompt')}
           </p>
 
           <Button onClick={handleCalendar} variant="primary" size="lg" fullWidth>
-            <CalendarPlus size={22} />
+            <CalendarPlus size={20} />
             {t('addToCalendar')}
           </Button>
 
           <Button onClick={handleShare} variant="secondary" size="lg" fullWidth>
-            <Share2 size={22} />
+            <Share2 size={20} />
             {t('emailMyself')}
           </Button>
 
           <Button onClick={handleHelperShare} variant="secondary" size="lg" fullWidth>
-            <Users size={22} />
+            <Users size={20} />
             {t('askHelper')}
           </Button>
-
-          <p className="text-xs text-ipc-500 text-center pt-1 leading-relaxed">
-            {t('privacyNote')}
-          </p>
 
           <button
             type="button"
             onClick={() => onClose({ anchor: selected, method: 'none' })}
-            className="w-full min-h-[48px] text-center text-base text-ipc-500 hover:text-ipc-700 py-3 font-medium mt-2 safe-bottom"
+            className="w-full min-h-[44px] text-center text-sm text-ipc-500 hover:text-ipc-700 py-2 font-medium safe-bottom"
           >
             {t('skip')}
           </button>
+
+          <p className="text-[11px] text-ipc-500 text-center leading-relaxed pt-0">
+            {t('privacyNote')}
+          </p>
         </div>
       </div>
     </div>

@@ -36,7 +36,15 @@
     "stepOf": "Paso {current} de {total}",
     "review": "Está guardando:",
     "close": "Cerrar",
-    "help": "Ayuda"
+    "help": "Ayuda",
+    "delete": "Eliminar",
+    "deletePeeTitle": "\u00bfEliminar este pip\u00ed?",
+    "deleteDrinkTitle": "\u00bfEliminar esta bebida?",
+    "deleteLeakTitle": "\u00bfEliminar este escape?",
+    "deleteBedtimeTitle": "\u00bfEliminar la hora de acostarse?",
+    "deleteWakeUpTitle": "\u00bfEliminar la hora de despertar?",
+    "hoursAgo": "hace {n} h",
+    "lastNightAt": "{time} anoche"
   },
   "nav": {
     "home": "Inicio",
@@ -114,7 +122,9 @@
     "drink": "Bebida",
     "leak": "Escape",
     "insertEvent": "Agregar entrada aquí",
-    "goTo": "Ir a {label}"
+    "goTo": "Ir a {label}",
+    "progressSubtitle": "Día {day} de {total} \u00b7 {count} entradas",
+    "noOvernightContinueButton": "Sin episodios nocturnos \u00b7 Continuar al día {dayNumber}"
   },
   "logVoid": {
     "howMuch": "¿Aproximadamente cuánto?",
@@ -133,14 +143,18 @@
     "presetMediumDesc": "una taza normal",
     "presetLargeDesc": "un vaso grande",
     "noMeasuringCupHelp": "¿Sin vaso medidor?",
-    "cupHelpIntro": "No hace falta un vaso medidor. Use estos tamaños como referencia, u orine en un recipiente que pueda medir aproximadamente.",
+    "cupHelpIntro": "No hace falta un vaso medidor. Elija el tamaño más cercano, u orine en un recipiente que pueda medir.",
+    "cupHelpVolumes": "Tamaños de referencia comunes: {values}.",
     "leakRecap": "con pérdida"
   },
   "logDrink": {
     "whatDrink": "¿Qué bebió?",
     "howMuch": "¿Aproximadamente cuánto?",
     "whenWasThis": "¿Cuándo fue?",
-    "notePlaceholder": "ej., Con el almuerzo"
+    "notePlaceholder": "ej., Con el almuerzo",
+    "presetSmall": "Pequeño",
+    "presetMedium": "Mediano",
+    "presetLarge": "Grande"
   },
   "logLeak": {
     "whatCaused": "¿Qué causó el escape?",
@@ -184,7 +198,16 @@
     "doubleVoid": "Doble orina",
     "wakeUp": "Despertar",
     "bedtime": "Acostarse",
-    "urgency": "Urgente"
+    "urgency": "Urgente",
+    "editPee": "Editar este pip\u00ed",
+    "deletePee": "Eliminar este pip\u00ed",
+    "editDrink": "Editar esta bebida",
+    "deleteDrink": "Eliminar esta bebida",
+    "editLeak": "Editar este escape",
+    "deleteLeak": "Eliminar este escape",
+    "editBedtime": "Editar la hora de acostarse",
+    "deleteBedtime": "Eliminar la hora de acostarse",
+    "deleteWakeUp": "Eliminar la hora de despertar"
   },
   "sensations": {
     "label": "Ganas de orinar",
@@ -266,6 +289,8 @@
     "firstEventHint": "Use el botón más cada vez que orine o beba algo.",
     "keepLoggingTitle": "Siga registrando durante el día",
     "keepLoggingHint": "Use el botón más en cada pipí, bebida o escape.",
+    "staleNudgeTitle": "Última entrada hace unas {hours} h",
+    "staleNudgeHint": "Toque el botón más para anotar lo que haya tomado desde entonces.",
     "bedtimeTitle": "Ya casi termina el día",
     "bedtimeHint": "Antes de dormir, toque «Acostarse» para cerrar el día."
   },

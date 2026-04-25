@@ -21,7 +21,7 @@ interface LogVoidFormProps {
 }
 
 export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogVoidFormProps) {
-  const { addVoid, updateVoid, getWakeTimeForDay, getBedtimeForDay, startDate, volumeUnit, timeZone } = useDiaryStore();
+  const { addVoid, updateVoid, getWakeTimeForDay, getBedtimeForDay, startDate, volumeUnit, timeZone, voids: allVoids } = useDiaryStore();
   const t = useTranslations('logVoid');
   const tc = useTranslations('common');
   const tv = useTranslations('validation');
@@ -52,7 +52,21 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
     }
   }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone]);
 
-  const [volume, setVolume] = useState(editEntry ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit) : vc.default);
+  // Smart default: when adding a NEW void, pre-fill the volume from the
+  // patient's most recent prior void. Bladder voids are highly repetitive
+  // for any given patient (each person has their own typical void volume),
+  // so this cuts taps and signals "the app remembers me." Editing keeps
+  // the entry's own value.
+  const mostRecentPriorVoid = !editEntry && allVoids.length > 0
+    ? [...allVoids].sort((a, b) => b.timestampIso.localeCompare(a.timestampIso))[0]
+    : null;
+  const defaultVolume = editEntry
+    ? mlToDisplayVolume(editEntry.volumeMl, volumeUnit)
+    : mostRecentPriorVoid
+      ? mlToDisplayVolume(mostRecentPriorVoid.volumeMl, volumeUnit)
+      : vc.default;
+
+  const [volume, setVolume] = useState(defaultVolume);
   const [sensation, setSensation] = useState<BladderSensation | null>(editEntry?.sensation ?? null);
   const [time, setTime] = useState(smartDefault);
   const [note, setNote] = useState(editEntry?.note ?? '');
@@ -67,17 +81,29 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('left');
   const [noteOpen, setNoteOpen] = useState(false);
   const [showCupHelp, setShowCupHelp] = useState(false);
+  // Pavlovian micro-reward: when the user taps a chip, a "+VOL" pill pops
+  // above it briefly. The nonce re-keys the span so back-to-back taps on
+  // the same chip retrigger the animation. Cheap dopamine on a medical task.
+  const [chipPop, setChipPop] = useState<{ id: string; label: string; nonce: number } | null>(null);
 
+  // Volume chips: 3 options, real-world volumes pulled from the actual void
+  // distribution in patient paper diaries (Alex/Bruno). 150 captures the
+  // first-morning "small" cluster (120–200 in the data), 300 sits in the
+  // 250/275/300 mode (Bruno's most-frequent range), 500 covers the larger
+  // bladder voids and nocturia (450–575 in the data). Three chips beats five
+  // because Hick's Law predicts ~30% slower decisions with five, big chips
+  // beat small ones for shaky thumbs, and 3 fits a familiar small/normal/big
+  // mental model. Slider remains for fine-tuning.
   const VOLUME_PRESETS = volumeUnit === 'oz'
     ? [
-        { id: 'small', value: 5, labelKey: 'presetSmall' as const, descKey: 'presetSmallDesc' as const },
-        { id: 'medium', value: 8, labelKey: 'presetMedium' as const, descKey: 'presetMediumDesc' as const },
-        { id: 'large', value: 12, labelKey: 'presetLarge' as const, descKey: 'presetLargeDesc' as const },
+        { id: 'p1', value: 5 },
+        { id: 'p2', value: 10 },
+        { id: 'p3', value: 17 },
       ]
     : [
-        { id: 'small', value: 150, labelKey: 'presetSmall' as const, descKey: 'presetSmallDesc' as const },
-        { id: 'medium', value: 250, labelKey: 'presetMedium' as const, descKey: 'presetMediumDesc' as const },
-        { id: 'large', value: 350, labelKey: 'presetLarge' as const, descKey: 'presetLargeDesc' as const },
+        { id: 'p1', value: 150 },
+        { id: 'p2', value: 300 },
+        { id: 'p3', value: 500 },
       ];
   const noteAreaRef = useRef<HTMLDivElement>(null);
 
@@ -214,7 +240,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
         <div key={step} className={`px-2 ${slideClass}`}>
           {step === 1 && (
             <>
-              <h3 className="text-xl font-bold text-center mb-3 text-ipc-800 px-10 text-balance">
+              <h3 className="text-xl font-bold text-center mb-3 text-ipc-950 px-10 text-balance">
                 {t('howMuch')}
               </h3>
 
@@ -223,25 +249,37 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 {VOLUME_PRESETS.map((p) => {
                   const active = volume === p.value;
                   return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setVolume(p.value)}
-                      className={`min-h-[62px] px-2 py-2 rounded-2xl border-2 flex flex-col items-center justify-center transition-all active:scale-[0.96] relative ${
-                        active
-                          ? 'bg-ipc-500 border-ipc-600 text-white shadow-md'
-                          : 'bg-white border-ipc-200 text-ipc-800'
-                      }`}
-                      aria-pressed={active}
-                    >
-                      {active && (
-                        <Check size={14} strokeWidth={3} className="absolute top-1.5 right-1.5 text-white" />
+                    <div key={p.id} className="relative">
+                      {chipPop?.id === p.id && (
+                        <span
+                          key={chipPop.nonce}
+                          aria-hidden="true"
+                          className="absolute left-1/2 -top-3 z-10 px-2 py-0.5 rounded-full
+                            bg-success text-white text-[11px] font-bold shadow-md
+                            pointer-events-none whitespace-nowrap animate-float-pop"
+                        >
+                          {chipPop.label}
+                        </span>
                       )}
-                      <span className="text-base font-bold leading-tight">{t(p.labelKey)}</span>
-                      <span className={`text-xs mt-0.5 ${active ? 'text-white/80' : 'text-ipc-500'}`}>
-                        {p.value} {volumeUnit}
-                      </span>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setVolume(p.value);
+                          setChipPop({ id: p.id, label: `+${p.value} ${volumeUnit}`, nonce: Date.now() });
+                        }}
+                        className={`w-full min-h-[62px] px-2 py-2 rounded-2xl border-2 flex items-baseline justify-center gap-1 transition-all active:scale-[0.96] ${
+                          active
+                            ? 'bg-ipc-500 border-ipc-600 text-white shadow-md'
+                            : 'bg-white border-ipc-200 text-ipc-950'
+                        }`}
+                        aria-pressed={active}
+                      >
+                        <span className="text-2xl font-bold leading-none tabular-nums">{p.value}</span>
+                        <span className={`text-xs font-medium ${active ? 'text-white/85' : 'text-ipc-500'}`}>
+                          {volumeUnit}
+                        </span>
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -256,13 +294,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               </button>
 
               {showCupHelp && (
-                <div className="bg-ipc-50 rounded-2xl p-3 mb-3 text-sm text-ipc-700 leading-relaxed space-y-1.5 animate-fade-slide-up">
+                <div className="bg-ipc-50 rounded-2xl p-3 mb-3 text-sm text-ipc-950 leading-relaxed space-y-1.5 animate-fade-slide-up">
                   <p className="mb-2">{t('cupHelpIntro')}</p>
-                  {VOLUME_PRESETS.map((p) => (
-                    <p key={p.id} className="text-sm">
-                      <span className="font-semibold">{t(p.labelKey)}</span> ({p.value} {volumeUnit}): {t(p.descKey)}
-                    </p>
-                  ))}
+                  <p className="text-sm">{t('cupHelpVolumes', { values: VOLUME_PRESETS.map((p) => `${p.value} ${volumeUnit}`).join(' \u00b7 ') })}</p>
                 </div>
               )}
 
@@ -297,7 +331,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
 
           {step === 2 && (
             <>
-              <h3 className="text-xl font-bold text-center mb-3 text-ipc-800 px-10 text-balance">
+              <h3 className="text-xl font-bold text-center mb-3 text-ipc-950 px-10 text-balance">
                 {t('anythingElse')}
               </h3>
               <div className="mb-4">
@@ -309,7 +343,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 )}
               </div>
               <div className="border-t border-ipc-100/60 my-4" />
-              <p className="text-base font-semibold text-ipc-700 mb-2">
+              <p className="text-base font-semibold text-ipc-950 mb-2">
                 {t('didAnythingElseHappen')}
               </p>
               <div className="flex justify-center gap-2 mb-2.5">
@@ -353,7 +387,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 <p className="text-[11px] font-semibold tracking-wide text-ipc-400 uppercase mb-1">
                   {tc('review')}
                 </p>
-                <p className="text-sm font-medium text-ipc-800 leading-snug">
+                <p className="text-sm font-medium text-ipc-950 leading-snug">
                   {[
                     `${volume} ${volumeUnit}`,
                     doubleVoid ? `+ ${doubleVoidVolume} ${volumeUnit}` : null,
@@ -363,7 +397,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 </p>
               </div>
 
-              <h3 className="text-xl font-bold text-center mb-5 text-ipc-800 text-balance">
+              <h3 className="text-xl font-bold text-center mb-5 text-ipc-950 text-balance">
                 {t('whenWasThis')}
               </h3>
               <TimePicker value={time} onChange={handleTimeChange} />
@@ -385,7 +419,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
       {/* Sticky Next button on non-final steps — always visible, always the
           same spot, so users never hunt for the advance affordance. */}
       {step < 3 && (
-        <div className="sticky bottom-0 -mx-5 mt-4 px-5 pt-3 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
+        <div className="sticky bottom-0 -mx-5 mt-6 px-5 pt-5 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
           <Button onClick={() => goToStep(step + 1)} fullWidth size="lg" disabled={volume <= 0}>
             {tc('next')}
             <ChevronRight size={18} className="ml-1" />

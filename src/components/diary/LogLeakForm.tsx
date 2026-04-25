@@ -282,7 +282,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               <p className="text-xs text-ipc-400 text-center mb-2">
                 {t('optionalTapHint')}
               </p>
-              <div className="flex justify-center gap-2 mb-6">
+              <div className="grid grid-cols-4 gap-1.5 mb-6 w-full px-1">
                 {LEAK_AMOUNT_OPTIONS.map((a) => {
                   const selected = amount === a.value;
                   return (
@@ -290,15 +290,13 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                       key={a.value}
                       type="button"
                       onClick={() => handleAmountChange(a.value)}
-                      className={`relative px-5 py-2.5 rounded-xl text-base font-semibold transition-all active:scale-[0.95] min-h-[44px] ${
+                      aria-pressed={selected}
+                      className={`px-1 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.95] min-h-[44px] ${
                         selected
                           ? 'bg-leak text-white ring-2 ring-leak/30'
                           : 'bg-white/40 text-ipc-600 border border-ipc-200/40'
                       }`}
                     >
-                      {selected && (
-                        <Check size={12} strokeWidth={3} className="absolute top-1.5 right-1.5 text-white" />
-                      )}
                       {tla(a.value)}
                     </button>
                   );
@@ -382,7 +380,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
 
       {/* Sticky Next on non-final steps — always visible at the bottom */}
       {step < TOTAL_STEPS && (
-        <div className="sticky bottom-0 -mx-5 mt-4 px-5 pt-3 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
+        <div className="sticky bottom-0 -mx-5 mt-6 px-5 pt-5 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
           <Button
             onClick={() => goToStep(step + 1)}
             fullWidth

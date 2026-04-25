@@ -53,6 +53,21 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
     onChange(updated.toISOString());
   };
 
+  // "X hours ago" — quick backfill for older users who don't want to nudge ±15 many times
+  const handleHoursAgo = (hours: number) => {
+    onChange(addMinutes(new Date(), -60 * hours).toISOString());
+  };
+
+  // Set to a specific clock time YESTERDAY. Used for bedtime backfill —
+  // the "I forgot to mark bedtime last night, now I just woke up" case.
+  // Boomers think in clock times ("10 last night"), not "9 hours ago".
+  const handleLastNightAt = (hour24: number) => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(hour24, 0, 0, 0);
+    onChange(yesterday.toISOString());
+  };
+
   return (
     <div className="space-y-2">
       {label && (
@@ -117,6 +132,55 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
         >
           {tc('now')}
         </button>
+      </div>
+
+      {/* Quick backfill chips. Bedtime gets clock-time presets ("10 PM
+          last night") because patients backfill bedtime when they wake up
+          ~9 h later — chains of "9h ago" are unintuitive. Other variants
+          get hour-relative chips for shorter recent backfill. */}
+      <div className="flex items-center justify-center gap-1.5 pt-1 flex-wrap">
+        {isBedtime ? (
+          <>
+            <button
+              type="button"
+              onClick={() => handleLastNightAt(22)}
+              className="px-3 h-8 rounded-full border border-bedtime/25 text-bedtime/80 text-xs font-semibold hover:bg-bedtime/10 active:scale-[0.95] transition-all whitespace-nowrap"
+            >
+              {tc('lastNightAt', { time: '10 PM' })}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleLastNightAt(23)}
+              className="px-3 h-8 rounded-full border border-bedtime/25 text-bedtime/80 text-xs font-semibold hover:bg-bedtime/10 active:scale-[0.95] transition-all whitespace-nowrap"
+            >
+              {tc('lastNightAt', { time: '11 PM' })}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleLastNightAt(0)}
+              className="px-3 h-8 rounded-full border border-bedtime/25 text-bedtime/80 text-xs font-semibold hover:bg-bedtime/10 active:scale-[0.95] transition-all whitespace-nowrap"
+            >
+              {tc('lastNightAt', { time: '12 AM' })}
+            </button>
+          </>
+        ) : (
+          <>
+            {[1, 2, 3].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => handleHoursAgo(n)}
+                className={`px-3 h-8 rounded-full border text-xs font-semibold active:scale-[0.95] transition-all ${
+                  hasAccent
+                    ? `${isLeak ? 'border-leak/25 text-leak/80 hover:bg-leak/10' : isDrink ? 'border-drink/25 text-drink/80 hover:bg-drink/10' : 'border-ipc-200/60 text-ipc-500 hover:bg-ipc-50'}`
+                    : 'border-ipc-200/60 text-ipc-500 hover:bg-ipc-50'
+                }`}
+              >
+                {tc('hoursAgo', { n })}
+              </button>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

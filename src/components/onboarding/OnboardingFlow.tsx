@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { format, addDays, parseISO } from 'date-fns';
-import { ChevronRight, Calendar, Globe, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Globe, Check } from 'lucide-react';
 import { track } from '@vercel/analytics';
 import { useTranslations, useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
@@ -192,8 +192,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <button
                 type="button"
                 onClick={() => goBack(1)}
-                className="text-sm text-ipc-400 hover:text-ipc-600 transition-colors"
+                className="inline-flex items-center justify-center gap-1 px-4 min-h-[40px] rounded-full
+                  text-sm font-semibold text-ipc-700 bg-white border border-ipc-200
+                  hover:bg-ipc-50 active:scale-[0.97] transition-all"
               >
+                <ChevronLeft size={16} />
                 {tc('back')}
               </button>
             </div>
@@ -272,8 +275,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <button
                 type="button"
                 onClick={() => goBack(2)}
-                className="text-sm text-ipc-400 hover:text-ipc-600 transition-colors py-1"
+                className="inline-flex items-center justify-center gap-1 px-4 min-h-[40px] rounded-full
+                  text-sm font-semibold text-ipc-700 bg-white border border-ipc-200
+                  hover:bg-ipc-50 active:scale-[0.97] transition-all"
               >
+                <ChevronLeft size={16} />
                 {tc('back')}
               </button>
             </div>
