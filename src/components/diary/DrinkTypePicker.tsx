@@ -25,7 +25,7 @@ export default function DrinkTypePicker({ value, onChange }: DrinkTypePickerProp
               transition-all active:scale-[0.95] ${
                 selected
                   ? 'bg-drink text-white ring-2 ring-drink/30 shadow-sm'
-                  : 'bg-white/50 text-ipc-950 hover:bg-white/70 border border-ipc-200/40'
+                  : 'bg-white text-ipc-950 hover:bg-white border border-ipc-200/50 shadow-sm'
               }`}
           >
             <DrinkIcon

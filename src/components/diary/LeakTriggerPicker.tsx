@@ -38,7 +38,7 @@ export default function LeakTriggerPicker({ value, onChange }: LeakTriggerPicker
                 transition-all active:scale-[0.95] ${
                   selected
                     ? 'bg-leak text-white ring-2 ring-leak/30 shadow-sm'
-                    : 'bg-white/50 text-ipc-950 hover:bg-white/70 border border-ipc-200/40'
+                    : 'bg-white text-ipc-950 hover:bg-white border border-ipc-200/50 shadow-sm'
                 }`}
             >
               <Icon
