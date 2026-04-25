@@ -145,7 +145,13 @@
     "noMeasuringCupHelp": "Pas de verre doseur ?",
     "cupHelpIntro": "Pas besoin de verre doseur. Choisissez la taille la plus proche, ou urinez dans un récipient que vous pouvez mesurer.",
     "cupHelpVolumes": "Tailles de référence courantes : {values}.",
-    "leakRecap": "avec fuite"
+    "leakRecap": "avec fuite",
+    "wokeByTitle": "Votre vessie vous a-t-elle réveillé ?",
+    "wokeBySubtitle": "Aide votre thérapeute à distinguer un problème de vessie d'un problème de sommeil.",
+    "wokeByYes": "Oui, l'envie m'a réveillé",
+    "wokeByAwakeAnyway": "J'étais déjà réveillé",
+    "wokeByRecapUrge": "réveillé par l'envie",
+    "wokeByRecapAwake": "déjà réveillé"
   },
   "logDrink": {
     "whatDrink": "Qu'est-ce que vous avez bu ?",

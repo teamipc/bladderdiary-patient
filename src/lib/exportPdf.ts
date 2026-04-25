@@ -1452,14 +1452,17 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
   y += 3;
 
   // Merge all events into one sorted list
-  type EventRow = [string, string, string, string, string, string, string, string];
+  // 9-column row. The trailing `woke` column is new (carries wokeBy for nocturnal
+  // voids: 'urge' or 'awake'). Older clinician parsers ignore unknown columns.
+  type EventRow = [string, string, string, string, string, string, string, string, string];
   const rows: EventRow[] = [];
 
   for (const w of (state.wakeTimes ?? [])) {
-    rows.push(['wake', w.timestampIso, w.dayNumber.toString(), '', '', '', '', '']);
+    rows.push(['wake', w.timestampIso, w.dayNumber.toString(), '', '', '', '', '', '']);
   }
   for (const v of state.voids) {
     const day = getDayNumber(v.timestampIso, state.startDate, state.bedtimes, state.timeZone);
+    const wokeShort = v.wokeBy === 'urge' ? 'urge' : v.wokeBy === 'awake_anyway' ? 'awake' : '';
     rows.push([
       'void',
       v.timestampIso,
@@ -1469,6 +1472,7 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
       v.sensation !== null ? v.sensation.toString() : '',
       v.isFirstMorningVoid ? 'Y' : '',
       v.leak ? 'Y' : '',
+      wokeShort,
     ]);
   }
   for (const d of state.drinks) {
@@ -1482,6 +1486,7 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
       '',
       '',
       d.drinkType,
+      '',
     ]);
   }
   for (const l of (state.leaks ?? [])) {
@@ -1495,10 +1500,11 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
       '',
       l.urgencyBeforeLeak === true ? 'Y' : l.urgencyBeforeLeak === false ? 'N' : '',
       `${l.trigger}${l.amount ? ' ' + l.amount : ''}`,
+      '',
     ]);
   }
   for (const b of state.bedtimes) {
-    rows.push(['bedtime', b.timestampIso, b.dayNumber.toString(), '', '', '', '', '']);
+    rows.push(['bedtime', b.timestampIso, b.dayNumber.toString(), '', '', '', '', '', '']);
   }
 
   // Sort by timestamp
@@ -1506,20 +1512,21 @@ function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
 
   autoTable(doc, {
     startY: y,
-    head: [['type', 'timestamp', 'day', 'vol', 'dbl', 'sens', 'fmv', 'extra']],
+    head: [['type', 'timestamp', 'day', 'vol', 'dbl', 'sens', 'fmv', 'extra', 'woke']],
     body: rows,
     margin: { left: MARGIN, right: MARGIN },
     styles: { fontSize: 5.5, cellPadding: 1, textColor: C.dark, font: 'courier', overflow: 'ellipsize' },
     headStyles: { fillColor: [80, 80, 80], textColor: C.white, fontStyle: 'bold' },
     columnStyles: {
-      0: { cellWidth: 14 },
-      1: { cellWidth: 52 },
-      2: { cellWidth: 8 },
-      3: { cellWidth: 14 },
-      4: { cellWidth: 12 },
-      5: { cellWidth: 10 },
-      6: { cellWidth: 10 },
-      7: { cellWidth: 16 },
+      0: { cellWidth: 12 },
+      1: { cellWidth: 50 },
+      2: { cellWidth: 7 },
+      3: { cellWidth: 12 },
+      4: { cellWidth: 10 },
+      5: { cellWidth: 8 },
+      6: { cellWidth: 8 },
+      7: { cellWidth: 14 },
+      8: { cellWidth: 11 },
     },
   });
 }

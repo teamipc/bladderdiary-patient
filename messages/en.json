@@ -145,7 +145,13 @@
     "noMeasuringCupHelp": "No measuring cup?",
     "cupHelpIntro": "No measuring cup is fine. Pick the closest size, or pee into any container you can roughly measure.",
     "cupHelpVolumes": "Common reference sizes: {values}.",
-    "leakRecap": "with leak"
+    "leakRecap": "with leak",
+    "wokeByTitle": "Did your bladder wake you?",
+    "wokeBySubtitle": "Helps your therapist tell bladder issues apart from sleep issues.",
+    "wokeByYes": "Yes, the urge woke me",
+    "wokeByAwakeAnyway": "I was already awake",
+    "wokeByRecapUrge": "urge woke me",
+    "wokeByRecapAwake": "was already awake"
   },
   "logDrink": {
     "whatDrink": "What did you drink?",

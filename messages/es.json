@@ -145,7 +145,13 @@
     "noMeasuringCupHelp": "¿Sin vaso medidor?",
     "cupHelpIntro": "No hace falta un vaso medidor. Elija el tamaño más cercano, u orine en un recipiente que pueda medir.",
     "cupHelpVolumes": "Tamaños de referencia comunes: {values}.",
-    "leakRecap": "con pérdida"
+    "leakRecap": "con pérdida",
+    "wokeByTitle": "¿Te despertó la vejiga?",
+    "wokeBySubtitle": "Ayuda a tu terapeuta a distinguir un problema de vejiga de un problema de sueño.",
+    "wokeByYes": "Sí, la urgencia me despertó",
+    "wokeByAwakeAnyway": "Ya estaba despierto/a",
+    "wokeByRecapUrge": "la urgencia me despertó",
+    "wokeByRecapAwake": "ya estaba despierto/a"
   },
   "logDrink": {
     "whatDrink": "¿Qué bebió?",
