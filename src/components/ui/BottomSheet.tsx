@@ -46,13 +46,30 @@ export default function BottomSheet({ open, onClose, title, noScroll, variant = 
       {/* Backdrop */}
       <div className="absolute inset-0 backdrop-dim" onClick={onClose} />
 
-      {/* Sheet */}
+      {/* Sheet — bg-white/70 is the canonical surface (also targeted by the
+          night-mode CSS overrides). A subtle accent-tinted overlay is layered
+          on top per variant so the modal doesn't read as a flat white slab
+          with clashing red/blue/purple accents on day mode. */}
       <div
         ref={sheetRef}
         className={`absolute bottom-0 left-0 right-0 bg-white/70 backdrop-blur-xl
           rounded-t-3xl shadow-2xl border-t border-white/30
           animate-slide-up safe-bottom max-h-[90vh] ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'}`}
       >
+        {/* Day-mode accent tint — anchors the form's red/blue/purple accents
+            in a soft matching wash so they feel grounded rather than alarming.
+            Tinted at low opacity (≤ 5 %) so it never compromises text contrast.
+            Hidden on night because the night overrides supply their own tint. */}
+        {variant !== 'default' && (
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-0 ${
+              variant === 'leak' ? 'bg-leak/[0.04]' :
+              variant === 'drink' ? 'bg-drink/[0.04]' :
+              variant === 'bedtime' ? 'bg-bedtime/[0.05]' : ''
+            }`}
+          />
+        )}
         {/* Close X — always visible in the top-right so non-tech-savvy
             users have an obvious "escape" affordance beyond tapping the
             backdrop or swiping down. */}
