@@ -7,7 +7,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import TimePicker from '@/components/ui/TimePicker';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay, correctAfterMidnight } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, correctAfterMidnight, advanceIsoToAfter } from '@/lib/utils';
 
 interface SetBedtimeFormProps {
   dayNumber: 1 | 2 | 3;
@@ -38,12 +38,24 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
     return getDefaultTimeForDay(startDate, dayNumber, wakeTime?.timestampIso, timeZone);
   };
 
-  const [time, setTime] = useState(() => correctAfterMidnight(smartDefault(), dayNumber, startDate, timeZone, wakeTime?.timestampIso));
-
-  // Correct after-midnight times: 1 AM bedtime means next calendar day
-  const handleTimeChange = useCallback((newTime: string) => {
-    setTime(correctAfterMidnight(newTime, dayNumber, startDate, timeZone, wakeTime?.timestampIso));
+  // Bedtime is always after wake. Any pick that lands at-or-before wake — via
+  // a preset like "10 PM last night" (which builds on yesterday's date), via
+  // wrap-around -15 stepping, or via direct typing on a stale picker anchor —
+  // means the user wants the NEXT occurrence of that clock time, not the
+  // sticky stale date. Advance the date until it's after wake.
+  const resolve = useCallback((raw: string) => {
+    const corrected = correctAfterMidnight(raw, dayNumber, startDate, timeZone, wakeTime?.timestampIso);
+    if (wakeTime && corrected <= wakeTime.timestampIso) {
+      return advanceIsoToAfter(corrected, wakeTime.timestampIso, timeZone);
+    }
+    return corrected;
   }, [dayNumber, startDate, timeZone, wakeTime]);
+
+  const [time, setTime] = useState(() => resolve(smartDefault()));
+
+  const handleTimeChange = useCallback((newTime: string) => {
+    setTime(resolve(newTime));
+  }, [resolve]);
 
   // Bedtime must be after wake-up time (if one exists for this day)
   const isBeforeWakeUp = useMemo(() => {

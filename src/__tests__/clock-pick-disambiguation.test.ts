@@ -238,3 +238,115 @@ describe('Wake time clamps when picker emits before prev bedtime', () => {
     expect(result).toBe(wake);
   });
 });
+
+describe('Bedtime form: stale-date trap from "last night" presets', () => {
+  // Patient on Day 1 with wake at 8:25 AM today opens bedtime form. They click
+  // "10 PM last night" — the preset builds (now − 24h) and stamps 10 PM on
+  // that date, which is YESTERDAY. With wake on TODAY, the bedtime would land
+  // before wake and validation would trip every subsequent pick (because
+  // TimePicker.handleChange uses the stale value's date as anchor).
+  // Fix: SetBedtimeForm.handleTimeChange runs every pick through resolve(),
+  // which uses advanceIsoToAfter to push past wake.
+
+  function resolveBedtime(rawIso: string, wakeIso: string): string {
+    const corrected = correctAfterMidnight(rawIso, 1, START, TZ, wakeIso);
+    if (corrected <= wakeIso) return advanceIsoToAfter(corrected, wakeIso, TZ);
+    return corrected;
+  }
+
+  it('"10 PM last night" preset on Day 1 with wake today: lands tonight, not yesterday', () => {
+    const wake = clk(4, 13, 8, 25); // 8:25 AM today (Day 1 = Apr 13)
+    // Preset builds yesterday 10 PM (raw)
+    const rawPreset = clk(4, 12, 22, 0); // Apr 12 22:00
+    const resolved = resolveBedtime(rawPreset, wake);
+    expect(resolved > wake).toBe(true);
+    // Should land on today (Apr 13) at 22:00
+    expect(getDateInTz(resolved, TZ)).toBe('2026-04-13');
+  });
+
+  it('"11 PM last night" preset on Day 1 with wake today: lands tonight', () => {
+    const wake = clk(4, 13, 8, 25);
+    const rawPreset = clk(4, 12, 23, 0);
+    const resolved = resolveBedtime(rawPreset, wake);
+    expect(getDateInTz(resolved, TZ)).toBe('2026-04-13');
+  });
+
+  it('"12 AM last night" preset on Day 1 with wake today: lands tomorrow', () => {
+    const wake = clk(4, 13, 8, 25);
+    // 12 AM yesterday = Apr 12 00:00 EDT
+    const rawPreset = clk(4, 12, 0, 0);
+    const resolved = resolveBedtime(rawPreset, wake);
+    // Today 0:00 is still before today 8:25 wake → must advance to tomorrow
+    expect(resolved > wake).toBe(true);
+    expect(getDateInTz(resolved, TZ)).toBe('2026-04-14');
+  });
+
+  it('successive picks: preset then typing 11 PM keeps date correct', () => {
+    const wake = clk(4, 13, 8, 25);
+    // 1. Click "10 PM last night" → resolves to today 22:00
+    const afterPreset = resolveBedtime(clk(4, 12, 22, 0), wake);
+    expect(getDateInTz(afterPreset, TZ)).toBe('2026-04-13');
+
+    // 2. User types 23:00 — TimePicker uses afterPreset as anchor
+    const typed = buildIsoForClockTimeInTz(afterPreset, 23, 0, TZ);
+    expect(getDateInTz(typed, TZ)).toBe('2026-04-13'); // anchor is today
+    const afterType = resolveBedtime(typed, wake);
+    expect(getDateInTz(afterType, TZ)).toBe('2026-04-13');
+    expect(afterType > wake).toBe(true);
+  });
+
+  it('-15 wrap-around: starting from 8:30 AM, stepping -15 past midnight does not bury date in past', () => {
+    const wake = clk(4, 13, 8, 25);
+    // Simulate 12 clicks of -15 from 8:30 AM smart default → 5:30 AM (still on Day 1)
+    // Each click stays on the same calendar date due to TimePicker's day-wrap logic.
+    let state = clk(4, 13, 8, 30); // smart default
+    state = resolveBedtime(state, wake); // initial resolve — no shift since 8:30 > 8:25
+    expect(state).toBe(clk(4, 13, 8, 30));
+    // After 12 backward steps the picker emits 5:30 AM today
+    const afterSteps = clk(4, 13, 5, 30);
+    const resolved = resolveBedtime(afterSteps, wake);
+    // Goes-to-bed-late intent: bumped to Apr 14 5:30 AM → > wake → kept
+    expect(resolved > wake).toBe(true);
+    expect(getDateInTz(resolved, TZ)).toBe('2026-04-14');
+  });
+
+  it('Day 2 bedtime: "10 PM last night" preset with Day 2 wake at 7 AM resolves correctly', () => {
+    // Day 2 = Apr 14. Wake at 7 AM Apr 14. Patient logs Day 2 bedtime.
+    // Preset builds yesterday (Apr 13) 22:00. That IS before Day 2 wake.
+    const wake = clk(4, 14, 7, 0);
+    function resolveDay2(rawIso: string, wakeIso: string): string {
+      const corrected = correctAfterMidnight(rawIso, 2, START, TZ, wakeIso);
+      if (corrected <= wakeIso) return advanceIsoToAfter(corrected, wakeIso, TZ);
+      return corrected;
+    }
+    const rawPreset = clk(4, 13, 22, 0); // Apr 13 22:00 EDT
+    const resolved = resolveDay2(rawPreset, wake);
+    // Apr 13 22:00 < Apr 14 7:00 → advance to Apr 14 22:00
+    expect(getDateInTz(resolved, TZ)).toBe('2026-04-14');
+    expect(resolved > wake).toBe(true);
+  });
+});
+
+describe('Edit existing entries: smart default uses existing.timestampIso', () => {
+  // When editing, the form's smart default returns the entry's existing ISO,
+  // not "now" or a calendar default. The picker's date stays where the entry
+  // was, so picks don't accidentally shift to today.
+
+  it('editing a Day 1 void at 8 AM Apr 13 keeps date on Apr 13 when picking 9 AM', () => {
+    const existingIso = clk(4, 13, 8, 0);
+    const newPick = buildIsoForClockTimeInTz(existingIso, 9, 0, TZ);
+    expect(getDateInTz(newPick, TZ)).toBe('2026-04-13');
+  });
+
+  it('editing a Day 1 void: picking before-wake fires the form warning, doesn\u2019t silently shift', () => {
+    const wake = clk(4, 13, 7, 0);
+    const existingIso = clk(4, 13, 8, 0);
+    // Picker types "04:00" — handleChange builds Apr 13 04:00
+    const newPick = buildIsoForClockTimeInTz(existingIso, 4, 0, TZ);
+    expect(getDateInTz(newPick, TZ)).toBe('2026-04-13');
+    // For event forms, intent='event': don't bump
+    const corrected = correctAfterMidnight(newPick, 1, START, TZ, wake, 'event');
+    expect(corrected).toBe(newPick); // not shifted
+    expect(corrected < wake).toBe(true); // form will show warning
+  });
+});
