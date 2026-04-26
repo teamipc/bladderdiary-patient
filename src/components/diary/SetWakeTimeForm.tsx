@@ -26,12 +26,18 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
   // patterns (e.g., bedtime 8 PM, wake 11 PM same calendar day) — anchoring
   // to the diary day's date instead would land on the wrong calendar day
   // for the short-sleep case.
+  //
+  // Edge case (rapid testing or clock skew): real time lands at-or-before
+  // the prev-day bedtime. We used to fall back to bedtime + 5 minutes — a
+  // useless default that read as "you slept for 5 min." Now: bedtime +
+  // 7 hours, the typical adult sleep duration. An 11 PM bedtime → 6 AM
+  // wake; midnight bedtime → 7 AM wake. Patient still tweaks via the
+  // picker, but the starting point is in the right neighbourhood.
   const smartDefault = () => {
     if (existing) return existing.timestampIso;
     const now = new Date().toISOString();
     if (prevBedtime && now <= prevBedtime.timestampIso) {
-      // Real time is somehow before prev bedtime — fall back to bedtime + 5 min
-      return new Date(new Date(prevBedtime.timestampIso).getTime() + 5 * 60 * 1000).toISOString();
+      return new Date(new Date(prevBedtime.timestampIso).getTime() + 7 * 60 * 60 * 1000).toISOString();
     }
     return now;
   };
