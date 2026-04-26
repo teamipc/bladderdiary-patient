@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Link } from '@/i18n/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getArticlesForAudience, buildAbsoluteUrl } from '@/lib/content';
 import type { Locale } from '@/i18n/config';
@@ -80,6 +81,12 @@ export default async function ForWomenLanding({
         <section className="mb-8 rounded-2xl bg-ipc-50 border border-ipc-100 p-5">
           <h2 className="text-base font-semibold text-ipc-950 mb-1">{tForWomen('ctaTitle')}</h2>
           <p className="text-sm text-ipc-700 leading-relaxed mb-3">{tForWomen('ctaDescription')}</p>
+          <Link
+            href="/"
+            className="inline-flex items-center px-4 py-2 rounded-full bg-ipc-600 text-white font-semibold text-sm active:scale-[0.98] transition-transform"
+          >
+            {tForWomen('ctaButton')}
+          </Link>
         </section>
 
         <section className="mb-10">

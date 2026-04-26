@@ -610,7 +610,7 @@
       "men": "Para hombres",
       "menDescription": "Art\u00edculos sobre salud de la vejiga, pr\u00f3stata y suelo p\u00e9lvico en hombres.",
       "women": "Para mujeres",
-      "womenDescription": "Art\u00edculos sobre salud urinaria y p\u00e9lvica de las mujeres, con derivaci\u00f3n a recursos especializados."
+      "womenDescription": "Art\u00edculos sobre salud urinaria y p\u00e9lvica de las mujeres. El diario miccional funciona para cualquier cuerpo."
     },
     "forMen": {
       "title": "Salud p\u00e9lvica y urinaria masculina",
@@ -625,8 +625,9 @@
       "title": "Salud p\u00e9lvica y urinaria femenina",
       "description": "Art\u00edculos sobre salud urinaria y p\u00e9lvica de las mujeres.",
       "intro": "La salud urinaria y p\u00e9lvica de las mujeres abarca varias condiciones: incontinencia de esfuerzo, urgencia, infecciones urinarias recurrentes, prolapso de \u00f3rganos p\u00e9lvicos, y los cambios asociados al embarazo y la menopausia. Los art\u00edculos siguientes ofrecen explicaciones en lenguaje sencillo y orientaci\u00f3n pr\u00e1ctica.",
-      "ctaTitle": "\u00bfBuscas un especialista en salud p\u00e9lvica femenina?",
-      "ctaDescription": "Nuestro diario de 3 d\u00edas est\u00e1 construido para la salud p\u00e9lvica masculina. Para mujeres, recomendamos consultar a un cl\u00ednico especializado en cuidados p\u00e9lvicos femeninos o a un fisioterapeuta del suelo p\u00e9lvico.",
+      "ctaTitle": "El diario miccional tambi\u00e9n funciona para ti",
+      "ctaDescription": "La experiencia cl\u00ednica de IPC es en educaci\u00f3n en salud p\u00e9lvica masculina, pero el diario miccional de 3 d\u00edas registra patrones (frecuencia, volumen, urgencia) que se aplican a cualquier cuerpo. Para condiciones p\u00e9lvicas femeninas espec\u00edficas, tambi\u00e9n puedes ver a un cl\u00ednico formado en cuidados p\u00e9lvicos femeninos o a un fisioterapeuta del suelo p\u00e9lvico.",
+      "ctaButton": "Empezar el diario de 3 d\u00edas",
       "noArticles": "A\u00fan no hay art\u00edculos para mujeres. Vuelve pronto."
     },
     "topic": {
@@ -643,8 +644,8 @@
       "citations": "Citas",
       "ctaForMen": "Registra tus s\u00edntomas con nuestro diario miccional de 3 d\u00edas",
       "ctaStartDiary": "Empezar el diario",
-      "ctaForWomen": "Encuentra un especialista en salud p\u00e9lvica femenina",
-      "ctaFindSpecialist": "Ver recursos"
+      "ctaForWomen": "Registra tus s\u00edntomas con nuestro diario miccional de 3 d\u00edas",
+      "ctaFindSpecialist": "Empezar el diario"
     },
     "glossary": {
       "title": "Glosario",

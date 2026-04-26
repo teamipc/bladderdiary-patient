@@ -194,7 +194,7 @@ export default async function ArticlePage({
               {t('article.ctaForWomen')}
             </h2>
             <Link
-              href="/learn/for-women"
+              href="/"
               className="inline-flex items-center mt-3 px-4 py-2 rounded-full bg-ipc-600 text-white font-semibold text-sm active:scale-[0.98] transition-transform"
             >
               {t('article.ctaFindSpecialist')}
