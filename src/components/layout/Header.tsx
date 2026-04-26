@@ -74,10 +74,10 @@ export default function Header({ title }: HeaderProps) {
         <div className="flex items-center gap-1">
           <Link
             href="/learn"
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-ipc-100 active:bg-ipc-200 ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors active:bg-ipc-200 ${
               pathname.startsWith('/learn')
                 ? 'bg-ipc-100 text-ipc-900'
-                : 'text-ipc-700 underline-offset-4 hover:underline'
+                : 'text-ipc-800 underline decoration-ipc-400 underline-offset-4 decoration-2 hover:bg-ipc-100 hover:decoration-ipc-600'
             }`}
           >
             {tNav('learn')}
