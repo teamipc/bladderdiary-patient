@@ -3,7 +3,8 @@
 import { useTranslations, useLocale } from 'next-intl';
 import { useDiaryStore } from '@/lib/store';
 import { getDayDate, formatDate, formatTime, mlToDisplayVolume } from '@/lib/utils';
-import { Droplets, Coffee, Moon, Sun, CloudDrizzle } from 'lucide-react';
+import { Droplets, Coffee, Moon, Sun, CloudDrizzle, Pencil } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 
 interface DaySummaryCardProps {
   dayNumber: 1 | 2 | 3;
@@ -12,6 +13,7 @@ interface DaySummaryCardProps {
 export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
   const t = useTranslations('daySummary');
   const tc = useTranslations('common');
+  const ts = useTranslations('summary');
   const locale = useLocale();
   const { startDate, volumeUnit, timeZone, getVoidsForDay, getDrinksForDay, getLeaksForDay, getBedtimeForDay, getWakeTimeForDay } = useDiaryStore();
 
@@ -105,6 +107,15 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
           <p className="text-base text-ipc-400">{t('noEntries')}</p>
         </div>
       )}
+
+      {/* Look-back link: gentler than "Edit" — invites curiosity, not anxiety. */}
+      <Link
+        href={`/diary/day/${dayNumber}`}
+        className="flex items-center justify-between px-5 py-3 border-t border-ipc-100 text-sm font-medium text-ipc-600 hover:bg-ipc-50/50 active:scale-[0.99] transition-all"
+      >
+        <span>{ts('lookBackAction', { day: dayNumber })}</span>
+        <Pencil size={14} className="text-ipc-400" />
+      </Link>
     </div>
   );
 }
