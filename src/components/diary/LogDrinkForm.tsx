@@ -50,7 +50,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso, timeZone));
     } else {
-      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone, wakeTime?.timestampIso));
+      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone, wakeTime?.timestampIso, 'event'));
     }
   }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone, wakeTime]);
 
