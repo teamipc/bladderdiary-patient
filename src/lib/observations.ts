@@ -130,7 +130,7 @@ export function generateObservations(state: DiaryState): Observation[] {
   // surface a positive observation about consistency. This rewards completion
   // and reinforces the value of tracking.
   if (out.length < 2) {
-    const voidsByDay = [1, 2, 3].map(
+    const voidsByDay = ([1, 2, 3] as const).map(
       (d) => voids.filter((v) => isVoidOnDay(v, d, state)).length,
     );
     if (voidsByDay.every((c) => c >= 3)) {
