@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useRouter, usePathname } from '@/i18n/navigation';
+import { useRouter, usePathname, Link } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Globe } from 'lucide-react';
+import { Globe, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import { locales, type Locale } from '@/i18n/config';
 
@@ -23,6 +23,7 @@ export default function Header({ title }: HeaderProps) {
   const currentLocale = useLocale() as Locale;
   const t = useTranslations('common');
   const tLang = useTranslations('language');
+  const tNav = useTranslations('nav');
   const displayTitle = title ?? t('appName');
 
   const [open, setOpen] = useState(false);
@@ -70,38 +71,51 @@ export default function Header({ title }: HeaderProps) {
           </div>
         </button>
 
-        {/* Language switcher */}
-        <div className="relative" ref={menuRef}>
-          <button
-            type="button"
-            onClick={() => setOpen(!open)}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-ipc-800 hover:bg-ipc-50 active:bg-ipc-100 transition-colors"
-            aria-label={tLang('switchLanguage')}
-            aria-expanded={open}
-            aria-haspopup="true"
+        <div className="flex items-center gap-1">
+          <Link
+            href="/learn"
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-ipc-800 hover:bg-ipc-50 active:bg-ipc-100 transition-colors ${
+              pathname.startsWith('/learn') ? 'bg-ipc-50' : ''
+            }`}
+            aria-label={tNav('learn')}
           >
-            <Globe className="w-5 h-5" />
-            <span className="text-xs font-medium uppercase">{currentLocale}</span>
-          </button>
+            <BookOpen className="w-5 h-5" />
+            <span className="text-xs font-medium hidden sm:inline">{tNav('learn')}</span>
+          </Link>
 
-          {open && (
-            <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-ipc-100 py-1 min-w-[140px] z-50 animate-in fade-in slide-in-from-top-1 duration-150">
-              {locales.map((locale) => (
-                <button
-                  key={locale}
-                  type="button"
-                  onClick={() => switchLocale(locale)}
-                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                    locale === currentLocale
-                      ? 'bg-ipc-50 text-ipc-700 font-semibold'
-                      : 'text-ipc-600 hover:bg-ipc-50'
-                  }`}
-                >
-                  {LOCALE_LABELS[locale]}
-                </button>
-              ))}
-            </div>
-          )}
+          {/* Language switcher */}
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setOpen(!open)}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-ipc-800 hover:bg-ipc-50 active:bg-ipc-100 transition-colors"
+              aria-label={tLang('switchLanguage')}
+              aria-expanded={open}
+              aria-haspopup="true"
+            >
+              <Globe className="w-5 h-5" />
+              <span className="text-xs font-medium uppercase">{currentLocale}</span>
+            </button>
+
+            {open && (
+              <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-ipc-100 py-1 min-w-[140px] z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                {locales.map((locale) => (
+                  <button
+                    key={locale}
+                    type="button"
+                    onClick={() => switchLocale(locale)}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      locale === currentLocale
+                        ? 'bg-ipc-50 text-ipc-700 font-semibold'
+                        : 'text-ipc-600 hover:bg-ipc-50'
+                    }`}
+                  >
+                    {LOCALE_LABELS[locale]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
