@@ -38,6 +38,87 @@ export function getHoursInTz(isoString: string, timeZone?: string): number {
   return h === 24 ? 0 : h; // midnight is sometimes "24" in formatToParts
 }
 
+/** Extract the minute (0–59) of an ISO timestamp in a specific timezone. */
+export function getMinutesInTz(isoString: string, timeZone?: string): number {
+  const d = new Date(isoString);
+  if (!timeZone) return d.getMinutes();
+  const parts = new Intl.DateTimeFormat('en-US', {
+    minute: 'numeric',
+    hour12: false,
+    timeZone,
+  }).formatToParts(d);
+  const m = parts.find((p) => p.type === 'minute');
+  return parseInt(m?.value ?? '0', 10);
+}
+
+/** Get the clock time (HH:mm) of an ISO timestamp in a specific timezone. */
+export function getClockTimeInTz(isoString: string, timeZone?: string): string {
+  const h = getHoursInTz(isoString, timeZone);
+  const m = getMinutesInTz(isoString, timeZone);
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+/**
+ * Build an ISO timestamp for a clock-time (hours/minutes) on the same calendar
+ * date as `baseIso`, interpreted in the user's chosen `timeZone`.
+ *
+ * Why: `Date.setHours()` operates in the BROWSER's local timezone, not the
+ * user's chosen timezone. When those don't match (patient travels, browser
+ * misreports, fallback-to-UTC), times slide by hours and events land on the
+ * wrong diary day. This helper preserves the user's intent regardless of
+ * what timezone the browser reports.
+ *
+ * Iterates twice to handle DST transitions where the offset changes between
+ * the naive guess and the corrected instant.
+ */
+export function buildIsoForClockTimeInTz(
+  baseIso: string,
+  hours: number,
+  minutes: number,
+  timeZone?: string,
+): string {
+  if (!timeZone) {
+    const d = new Date(baseIso);
+    d.setHours(hours, minutes, 0, 0);
+    return d.toISOString();
+  }
+  const dateStr = getDateInTz(baseIso, timeZone); // "YYYY-MM-DD" in user's tz
+  const y = Number(dateStr.slice(0, 4));
+  const mo = Number(dateStr.slice(5, 7)) - 1;
+  const d = Number(dateStr.slice(8, 10));
+
+  // Iteratively converge on the UTC instant that reads as `dateStr hours:minutes` in `timeZone`.
+  let utcMs = Date.UTC(y, mo, d, hours, minutes, 0, 0);
+  for (let i = 0; i < 3; i++) {
+    const offsetMin = tzOffsetMinutes(utcMs, timeZone);
+    const next = Date.UTC(y, mo, d, hours, minutes, 0, 0) - offsetMin * 60_000;
+    if (next === utcMs) break;
+    utcMs = next;
+  }
+  return new Date(utcMs).toISOString();
+}
+
+/** Offset in minutes between `timeZone` and UTC at the given UTC instant. Positive when east of UTC. */
+function tzOffsetMinutes(utcMs: number, timeZone: string): number {
+  const date = new Date(utcMs);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(date);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '0';
+  const tzAsUtc = Date.UTC(
+    Number(get('year')),
+    Number(get('month')) - 1,
+    Number(get('day')),
+    Number(get('hour')) % 24,
+    Number(get('minute')),
+    Number(get('second')),
+  );
+  return Math.round((tzAsUtc - utcMs) / 60_000);
+}
+
 /** Extract YYYY-MM-DD of an ISO timestamp in a specific timezone. */
 export function getDateInTz(isoString: string, timeZone?: string): string {
   const d = new Date(isoString);
@@ -276,8 +357,12 @@ export function getDefaultTimeForDay(
 ): string {
   const dayDate = getDayDate(startDate, dayNumber);
   const timeOfDay = getTimeOfDayInTz(timeZone);
-  // Current time-of-day on the diary day's date
-  const defaultTime = new Date(dayDate + 'T' + timeOfDay);
+  // Current time-of-day on the diary day's date — built in user's timezone,
+  // not browser-local, so the resulting instant lands on the right calendar
+  // day for that user (e.g. UTC-stored TZ but Singapore browser).
+  const [hh, mm] = timeOfDay.split(':').map(Number);
+  const defaultIso = buildIsoForClockTimeInTz(dayDate + 'T12:00:00.000Z', hh, mm, timeZone);
+  const defaultTime = new Date(defaultIso);
 
   if (afterTimestamp) {
     const after = new Date(afterTimestamp);

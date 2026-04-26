@@ -1,44 +1,34 @@
 'use client';
 
-import { format, parseISO, addMinutes } from 'date-fns';
+import { addMinutes } from 'date-fns';
 import { Minus, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { buildIsoForClockTimeInTz, getClockTimeInTz, getHoursInTz, getMinutesInTz } from '@/lib/utils';
 
 interface TimePickerProps {
   value: string; // ISO string
   onChange: (isoString: string) => void;
   label?: string;
   variant?: 'default' | 'drink' | 'bedtime' | 'leak';
+  /** User's chosen timezone — drives display and clock-time interpretation. */
+  timeZone?: string;
 }
 
-/** Snap a Date to the nearest 15-minute mark */
-function snapTo15(date: Date): Date {
-  const snapped = new Date(date);
-  const minutes = snapped.getMinutes();
-  const remainder = minutes % 15;
-  if (remainder < 8) {
-    snapped.setMinutes(minutes - remainder, 0, 0);
-  } else {
-    snapped.setMinutes(minutes + (15 - remainder), 0, 0);
-  }
-  return snapped;
-}
-
-export default function TimePicker({ value, onChange, label, variant = 'default' }: TimePickerProps) {
+export default function TimePicker({ value, onChange, label, variant = 'default', timeZone }: TimePickerProps) {
   const tc = useTranslations('common');
   const isDrink = variant === 'drink';
   const isBedtime = variant === 'bedtime';
   const isLeak = variant === 'leak';
   const hasAccent = isDrink || isBedtime || isLeak;
-  const date = parseISO(value);
-  const timeValue = format(date, 'HH:mm');
+  // Display the time in the user's chosen timezone — not browser-local. If
+  // those don't match (patient travels, browser misreports, fallback-to-UTC),
+  // browser-local would silently misrepresent the entry.
+  const timeValue = getClockTimeInTz(value, timeZone);
 
-  // Manual input → save exact time the user typed
+  // Manual input → save exact time the user typed, interpreted in their tz.
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const [hours, minutes] = e.target.value.split(':').map(Number);
-    const updated = new Date(date);
-    updated.setHours(hours, minutes, 0, 0);
-    onChange(updated.toISOString());
+    onChange(buildIsoForClockTimeInTz(value, hours, minutes, timeZone));
   };
 
   // "Now" → exact current time
@@ -46,11 +36,20 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
     onChange(new Date().toISOString());
   };
 
-  // +/− 15 min → snap to nearest 15-min boundary first, then step
+  // +/− 15 min → snap then step. Operates on the UTC instant directly so it
+  // is timezone-agnostic.
   const handleIncrement = (delta: number) => {
-    const snapped = snapTo15(date);
-    const updated = addMinutes(snapped, delta);
-    onChange(updated.toISOString());
+    const h = getHoursInTz(value, timeZone);
+    const m = getMinutesInTz(value, timeZone);
+    // Snap to nearest 15
+    const remainder = m % 15;
+    const snappedM = remainder < 8 ? m - remainder : m + (15 - remainder);
+    const totalMin = h * 60 + snappedM + delta;
+    // Wrap into [0, 1440)
+    const wrapped = ((totalMin % 1440) + 1440) % 1440;
+    const newH = Math.floor(wrapped / 60);
+    const newM = wrapped % 60;
+    onChange(buildIsoForClockTimeInTz(value, newH, newM, timeZone));
   };
 
   // "X hours ago" — quick backfill for older users who don't want to nudge ±15 many times
@@ -62,10 +61,9 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
   // the "I forgot to mark bedtime last night, now I just woke up" case.
   // Boomers think in clock times ("10 last night"), not "9 hours ago".
   const handleLastNightAt = (hour24: number) => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    yesterday.setHours(hour24, 0, 0, 0);
-    onChange(yesterday.toISOString());
+    // Compute "yesterday" in the user's tz, then build the clock time on it.
+    const oneDayAgoIso = new Date(Date.now() - 86_400_000).toISOString();
+    onChange(buildIsoForClockTimeInTz(oneDayAgoIso, hour24, 0, timeZone));
   };
 
   return (

@@ -58,7 +58,7 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
         </p>
       </div>
 
-      <TimePicker value={time} onChange={setTime} />
+      <TimePicker value={time} onChange={setTime} timeZone={timeZone} />
 
       {isBeforePrevBedtime && (
         <p className="text-sm text-danger text-center font-medium">

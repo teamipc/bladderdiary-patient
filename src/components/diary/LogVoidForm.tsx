@@ -207,7 +207,6 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
-    savedRef.current = true;
     const data = {
       timestampIso: time,
       volumeMl: displayVolumeToMl(volume, volumeUnit),
@@ -220,10 +219,21 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
       wokeBy: isNocturnal ? wokeBy ?? null : null,
     };
     if (isEditing && editEntry) {
+      savedRef.current = true;
       updateVoid(editEntry.id, data);
-    } else {
-      addVoid(data);
+      onSave();
+      return;
     }
+    // Duplicate-minute drop must NEVER look like success — surface the warning
+    // and keep the form open so the patient can shift the time and try again.
+    const ok = addVoid(data);
+    if (!ok) {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      setTimeWarning(tv('duplicateMinute'));
+      warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
+      return;
+    }
+    savedRef.current = true;
     onSave();
   }, [volume, sensation, leak, time, note, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTimeEntry, isAfterBedtime, currentBedtime, tv, isNocturnal, wokeBy, locale, timeZone]);
 
@@ -460,7 +470,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               <h3 className="text-xl font-bold text-center mb-5 text-ipc-950 text-balance">
                 {t('whenWasThis')}
               </h3>
-              <TimePicker value={time} onChange={handleTimeChange} />
+              <TimePicker value={time} onChange={handleTimeChange} timeZone={timeZone} />
               {timeWarning && (
                 <div className="mt-3 px-4 py-2.5 rounded-2xl bg-danger-light border border-danger/20 animate-fade-slide-up">
                   <p className="text-sm font-medium text-danger text-center">{timeWarning}</p>
