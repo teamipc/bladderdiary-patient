@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
-import { ChevronRight, Users, BookOpen } from 'lucide-react';
+import { ChevronRight, BookOpen } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   getAllTopics,
@@ -73,28 +73,19 @@ export default async function LearnHub({
         </header>
 
         <section className="mb-10">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ipc-500 mb-3">
-            {t('hub.browseByAudience')}
-          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link
               href="/learn/for-men"
               className="block rounded-2xl bg-white border border-ipc-100 p-4 hover:border-ipc-300 hover:shadow-sm transition-all"
             >
-              <div className="flex items-center gap-2 mb-1.5">
-                <Users size={18} className="text-ipc-600" />
-                <h3 className="text-base font-semibold text-ipc-950">{t('audience.men')}</h3>
-              </div>
+              <h3 className="text-base font-semibold text-ipc-950 mb-1.5">{t('audience.men')}</h3>
               <p className="text-sm text-ipc-600 leading-relaxed">{t('audience.menDescription')}</p>
             </Link>
             <Link
               href="/learn/for-women"
               className="block rounded-2xl bg-white border border-ipc-100 p-4 hover:border-ipc-300 hover:shadow-sm transition-all"
             >
-              <div className="flex items-center gap-2 mb-1.5">
-                <Users size={18} className="text-ipc-600" />
-                <h3 className="text-base font-semibold text-ipc-950">{t('audience.women')}</h3>
-              </div>
+              <h3 className="text-base font-semibold text-ipc-950 mb-1.5">{t('audience.women')}</h3>
               <p className="text-sm text-ipc-600 leading-relaxed">{t('audience.womenDescription')}</p>
             </Link>
           </div>

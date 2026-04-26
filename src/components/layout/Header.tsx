@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname, Link } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Globe, BookOpen } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import Image from 'next/image';
 import { locales, type Locale } from '@/i18n/config';
 
@@ -74,13 +74,13 @@ export default function Header({ title }: HeaderProps) {
         <div className="flex items-center gap-1">
           <Link
             href="/learn"
-            className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-ipc-800 hover:bg-ipc-50 active:bg-ipc-100 transition-colors ${
-              pathname.startsWith('/learn') ? 'bg-ipc-50' : ''
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-ipc-100 active:bg-ipc-200 ${
+              pathname.startsWith('/learn')
+                ? 'bg-ipc-100 text-ipc-900'
+                : 'text-ipc-700 underline-offset-4 hover:underline'
             }`}
-            aria-label={tNav('learn')}
           >
-            <BookOpen className="w-5 h-5" />
-            <span className="text-xs font-medium hidden sm:inline">{tNav('learn')}</span>
+            {tNav('learn')}
           </Link>
 
           {/* Language switcher */}
