@@ -443,6 +443,27 @@ function addOneDayString(dateStr: string): string {
 }
 
 /**
+ * Advance a clock-time pick to the smallest calendar date in the user's tz
+ * that places it strictly after `afterIso`. Used by SetWakeTimeForm so a
+ * "12:00 AM" pick after a 10:30 PM bedtime resolves to the next morning
+ * instead of silently failing validation against the form's anchor date.
+ */
+export function advanceIsoToAfter(timeIso: string, afterIso: string, timeZone?: string): string {
+  if (timeIso > afterIso) return timeIso;
+  let dateStr = getDateInTz(timeIso, timeZone);
+  const h = getHoursInTz(timeIso, timeZone);
+  const m = getMinutesInTz(timeIso, timeZone);
+  // Bound the loop — at most we need to skip across DST + 1 day. Two iterations
+  // cover any IANA zone in practice.
+  for (let i = 0; i < 2; i++) {
+    dateStr = addOneDayString(dateStr);
+    const advanced = buildIsoForClockTimeInTz(`${dateStr}T12:00:00.000Z`, h, m, timeZone);
+    if (advanced > afterIso) return advanced;
+  }
+  return buildIsoForClockTimeInTz(`${dateStr}T12:00:00.000Z`, h, m, timeZone);
+}
+
+/**
  * Correct after-midnight times in day view.
  *
  * When a user picks a time like 1:00 AM for a bedtime or late-night event,
@@ -458,6 +479,17 @@ function addOneDayString(dateStr: string): string {
  * stops compensating — the event silently re-slots to the next diary day.
  * That's silent data loss in a clinical record. Pass `wakeTimeIso` so we
  * can keep at-or-after-wake picks on the current calendar day.
+ *
+ * Intent matters for picks BEFORE wake:
+ *   - `bedtime` (default): bump. The patient typed "1 AM" meaning
+ *     "going to bed at 1 AM tonight" — the bedtime should land on the next
+ *     calendar day.
+ *   - `event`: do NOT bump. The patient typed "1 AM" on a day-view form
+ *     while their wake is at 7 AM — they probably mean "1 AM today before
+ *     I woke up", which is a mistake the form should warn about. Bumping
+ *     would silently move the event to tomorrow and bypass validation.
+ *     Patients staying up past midnight should use the "Now" button
+ *     instead of typing a clock time.
  */
 export function correctAfterMidnight(
   timeIso: string,
@@ -465,6 +497,7 @@ export function correctAfterMidnight(
   startDate: string,
   timeZone?: string,
   wakeTimeIso?: string,
+  intent: 'bedtime' | 'event' = 'bedtime',
 ): string {
   const hour = getHoursInTz(timeIso, timeZone);
   if (hour > 5) return timeIso; // not an early-AM time — no correction needed
@@ -478,6 +511,10 @@ export function correctAfterMidnight(
   // started their morning. An at-or-after-wake pick is a morning event, not
   // a late-night one — leave the calendar date alone.
   if (wakeTimeIso && timeIso >= wakeTimeIso) return timeIso;
+
+  // For event forms (void/drink/leak), don't bump before-wake picks. Let
+  // the form's isBeforeWakeTime validation catch the mistake.
+  if (intent === 'event' && wakeTimeIso) return timeIso;
 
   // Bump to next calendar day, keeping the same clock time
   const corrected = addDays(parseISO(timeIso), 1);

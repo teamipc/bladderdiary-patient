@@ -48,7 +48,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso, timeZone));
     } else {
-      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone, wakeTimeEntry?.timestampIso));
+      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone, wakeTimeEntry?.timestampIso, 'event'));
     }
   }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone, wakeTimeEntry]);
 
