@@ -4,7 +4,7 @@ import { useMemo, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { Sun, Moon, Droplets, CheckCircle2, ChevronLeft, ChevronRight, Plus, RotateCcw, Check, CloudDrizzle } from 'lucide-react';
+import { Sun, Moon, Droplets, CheckCircle2, ChevronLeft, ChevronRight, Plus, RotateCcw, Check, CloudDrizzle, Pencil } from 'lucide-react';
 import TimelineEvent from './TimelineEvent';
 import DrinkIcon from '@/components/ui/DrinkIcon';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
@@ -385,26 +385,54 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           const lineComplete = step.complete;
           const stepNumber = step.label[1];
 
+          // Show a tiny pencil overlay on completed, non-current DAY dots so
+          // the user understands they can tap to look back and edit. Restricted
+          // to Day steps (D1/D2/D3) since Night phases are short and uncommon
+          // edit targets — keeps the arc readable for boomers.
+          const showEditHint = step.complete && !step.isCurrent && !isNight;
+
           const circleContent = journeyCompact ? (
-            <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${circleClass}`}>
-              {step.complete && !step.isCurrent ? (
-                <Check size={9} strokeWidth={3} />
-              ) : isNight ? (
-                <Moon size={8} strokeWidth={2.5} />
-              ) : (
-                <Sun size={9} strokeWidth={2.5} />
+            <div className="relative">
+              <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${circleClass}`}>
+                {step.complete && !step.isCurrent ? (
+                  <Check size={9} strokeWidth={3} />
+                ) : isNight ? (
+                  <Moon size={8} strokeWidth={2.5} />
+                ) : (
+                  <Sun size={9} strokeWidth={2.5} />
+                )}
+              </div>
+              {showEditHint && (
+                <span
+                  className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full flex items-center justify-center ${
+                    isNighttime ? 'bg-indigo-300/80' : 'bg-ipc-300'
+                  }`}
+                  aria-hidden="true"
+                >
+                  <Pencil size={5} strokeWidth={2.5} className="text-white" />
+                </span>
               )}
             </div>
           ) : (
             <div className="flex flex-col items-center gap-1">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center
-                transition-all ${circleClass}`}>
-                {step.complete && !step.isCurrent ? (
-                  <Check size={12} strokeWidth={3} />
-                ) : isNight ? (
-                  <Moon size={11} strokeWidth={2.5} />
-                ) : (
-                  <Sun size={12} strokeWidth={2.5} />
+              <div className="relative">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center
+                  transition-all ${circleClass}`}>
+                  {step.complete && !step.isCurrent ? (
+                    <Check size={12} strokeWidth={3} />
+                  ) : isNight ? (
+                    <Moon size={11} strokeWidth={2.5} />
+                  ) : (
+                    <Sun size={12} strokeWidth={2.5} />
+                  )}
+                </div>
+                {showEditHint && (
+                  <span
+                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-ipc-300 flex items-center justify-center"
+                    aria-hidden="true"
+                  >
+                    <Pencil size={7} strokeWidth={2.5} className="text-white" />
+                  </span>
                 )}
               </div>
               <span className={`text-[10px] font-semibold leading-none ${labelClass}`}>

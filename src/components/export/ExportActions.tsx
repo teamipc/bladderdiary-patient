@@ -25,6 +25,7 @@ function canShareFiles(): boolean {
 export default function ExportActions() {
   const store = useDiaryStore();
   const t = useTranslations('export');
+  const ts = useTranslations('summary');
   const locale = useLocale();
   const [exporting, setExporting] = useState<string | null>(null);
 
@@ -86,8 +87,10 @@ export default function ExportActions() {
   }, [store, shareSupported]);
 
   const hasData = store.hasData();
-  const pdfLabel = shareSupported ? t('sharePdf') : t('downloadPdf');
-  const csvLabel = shareSupported ? t('shareCsv') : t('downloadCsv');
+  // Alliance framing on the summary page: "Send to your healthcare team"
+  // (when sharing is supported) reads as collaboration, not data submission.
+  const pdfLabel = shareSupported ? ts('exportSendPdf') : ts('exportSavePdf');
+  const csvLabel = shareSupported ? ts('exportSendCsv') : ts('exportSaveCsv');
   const Icon = shareSupported ? Share2 : FileText;
 
   return (
