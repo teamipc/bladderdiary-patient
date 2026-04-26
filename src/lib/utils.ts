@@ -266,6 +266,37 @@ export function formatFullDayDate(dateStr: string, locale?: string): string {
 /* ------------------------------------------------------------------ */
 /*  Day boundary logic                                                 */
 /* ------------------------------------------------------------------ */
+/*
+ *  See docs/TIME_MODEL.md for the canonical reference.
+ *
+ *  getDayNumber assigns an ISO timestamp to diary day 1 / 2 / 3 by
+ *  running three layers in order:
+ *
+ *    1. Calendar diff in user-tz: dayNum = clamp(dateDiff + 1, 1, 3)
+ *    2. Bedtime-aware forward bump: events past Day N's bedtime move
+ *       to Day N+1 (handles late-night events on Day 1/2)
+ *    3. Early-AM pull-back: events at hours 0–5 on the calendar day
+ *       AFTER Day N pull back to Day N when prev-day bedtime is unset
+ *       OR the event is before that bedtime — handles the
+ *       "patient still awake past midnight" and night-shift cases
+ *
+ *  Form-side correctors (correctAfterMidnight, correctNightDate) take
+ *  the user's clock pick and resolve it to the calendar date that
+ *  matches the patient's intent BEFORE the timestamp reaches the store.
+ *  These must be kept in sync with getDayNumber's expectations: a form
+ *  helper that produces a timestamp Layer 3 will then move silently is
+ *  a data-loss bug.
+ *
+ *  Invariants every change must preserve:
+ *    - All date arithmetic happens in the user's stored timeZone, NOT
+ *      browser-local. Using Date.setHours / .getHours silently breaks
+ *      for any patient whose browser tz != stored tz.
+ *    - Day-view forms must thread the day's wake time through
+ *      correctAfterMidnight so early-rising patients aren't bumped.
+ *    - reassignMorningVoid must run after any change that could
+ *      affect FMV: wake/bedtime set/remove, void add/update/remove.
+ *      Without FMV on Day 2/3, the day cannot complete.
+ */
 
 /**
  * Get day number (1, 2, or 3) for a timestamp given the diary start date.
