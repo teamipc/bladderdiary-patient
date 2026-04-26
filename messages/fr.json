@@ -610,7 +610,7 @@
         "men": "Pour les hommes",
         "menDescription": "Articles sur la santé de la vessie, de la prostate et du plancher pelvien chez l'homme.",
         "women": "Pour les femmes",
-        "womenDescription": "Articles sur la santé urinaire et pelvienne des femmes, avec orientation vers des ressources spécialisées."
+        "womenDescription": "Articles sur la santé urinaire et pelvienne des femmes. Le journal mictionnel fonctionne pour tous les corps."
       },
       "forMen": {
         "title": "Santé pelvienne et urinaire de l'homme",
@@ -625,8 +625,9 @@
         "title": "Santé pelvienne et urinaire de la femme",
         "description": "Articles sur la santé urinaire et pelvienne des femmes.",
         "intro": "La santé urinaire et pelvienne des femmes couvre plusieurs conditions: incontinence à l'effort, urgences, infections urinaires récurrentes, prolapsus des organes pelviens, et les changements liés à la grossesse et à la ménopause. Les articles ci-dessous offrent des explications en langage simple et des conseils pratiques.",
-        "ctaTitle": "Vous cherchez un spécialiste en santé pelvienne féminine?",
-        "ctaDescription": "Notre journal de 3 jours est conçu pour la santé pelvienne masculine. Pour les femmes, nous recommandons de consulter un clinicien spécialisé en soins pelviens féminins ou un physiothérapeute en rééducation périnéale.",
+        "ctaTitle": "Le journal mictionnel fonctionne aussi pour vous",
+        "ctaDescription": "L'expertise clinique d'IPC porte sur l'éducation en santé pelvienne masculine, mais le journal mictionnel de 3 jours suit des schémas (fréquence, volume, urgence) qui s'appliquent à tous les corps. Pour des conditions pelviennes féminines spécifiques, vous pouvez aussi consulter un clinicien formé en soins pelviens féminins ou un physiothérapeute en rééducation périnéale.",
+        "ctaButton": "Commencer le journal de 3 jours",
         "noArticles": "Aucun article pour les femmes pour le moment. Revenez bientôt."
       },
       "topic": {
@@ -643,8 +644,8 @@
         "citations": "Citations",
         "ctaForMen": "Suivez vos symptômes avec notre journal mictionnel de 3 jours",
         "ctaStartDiary": "Commencer le journal",
-        "ctaForWomen": "Trouvez un spécialiste en santé pelvienne féminine",
-        "ctaFindSpecialist": "Voir les ressources"
+        "ctaForWomen": "Suivez vos symptômes avec notre journal mictionnel de 3 jours",
+        "ctaFindSpecialist": "Commencer le journal"
       },
       "glossary": {
         "title": "Glossaire",

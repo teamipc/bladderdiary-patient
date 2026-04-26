@@ -610,7 +610,7 @@
       "men": "For men",
       "menDescription": "Articles relevant to men's bladder, prostate, and pelvic health.",
       "women": "For women",
-      "womenDescription": "Articles for women's urinary and pelvic health, with referral to specialized resources."
+      "womenDescription": "Articles on women's urinary and pelvic health. The bladder diary works for any body."
     },
     "forMen": {
       "title": "Men's bladder and pelvic health",
@@ -625,8 +625,9 @@
       "title": "Women's pelvic and urinary health",
       "description": "Articles on women's urinary and pelvic health.",
       "intro": "Women's urinary and pelvic health spans many conditions: stress incontinence, urgency, recurrent UTIs, pelvic organ prolapse, and the changes that come with pregnancy and menopause. The articles below offer plain-language explanations and practical guidance.",
-      "ctaTitle": "Looking for a women's pelvic health specialist?",
-      "ctaDescription": "Our 3-day diary is built for men's pelvic health. For women, we recommend consulting a clinician specialized in female pelvic care or a pelvic floor physiotherapist.",
+      "ctaTitle": "The bladder diary works for you too",
+      "ctaDescription": "IPC's clinical expertise is in men's pelvic health education, but the 3-day bladder diary itself tracks patterns (frequency, volume, urgency) that apply to any body. For specific women's pelvic conditions, you can also see a clinician trained in female pelvic care or a pelvic floor physiotherapist.",
+      "ctaButton": "Start the 3-day diary",
       "noArticles": "No articles for women yet. Check back soon."
     },
     "topic": {
@@ -643,8 +644,8 @@
       "citations": "Citations",
       "ctaForMen": "Track your symptoms with our 3-day bladder diary",
       "ctaStartDiary": "Start the diary",
-      "ctaForWomen": "Find a women's pelvic health specialist",
-      "ctaFindSpecialist": "Browse resources"
+      "ctaForWomen": "Track your symptoms with our 3-day bladder diary",
+      "ctaFindSpecialist": "Start the diary"
     },
     "glossary": {
       "title": "Glossary",
