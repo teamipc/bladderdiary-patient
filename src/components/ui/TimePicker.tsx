@@ -1,6 +1,5 @@
 'use client';
 
-import { addMinutes } from 'date-fns';
 import { Minus, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { buildIsoForClockTimeInTz, getClockTimeInTz, getHoursInTz, getMinutesInTz } from '@/lib/utils';
@@ -52,18 +51,31 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
     onChange(buildIsoForClockTimeInTz(value, newH, newM, timeZone));
   };
 
-  // "X hours ago" — quick backfill for older users who don't want to nudge ±15 many times
+  // "X hours ago" — quick backfill for older users who don't want to nudge ±15 many times.
+  // Anchors the result to `value`'s calendar date (in user's tz), not to real-world
+  // today. A chip click on a non-today diary day (back-edits, future-day testing,
+  // diary started on a different real-world date) would otherwise emit an instant
+  // whose calendar date doesn't match the form's day — silently failing validation
+  // ("before Day N's bedtime") even though the displayed clock time looks fine.
   const handleHoursAgo = (hours: number) => {
-    onChange(addMinutes(new Date(), -60 * hours).toISOString());
+    const nowIso = new Date().toISOString();
+    const h = getHoursInTz(nowIso, timeZone);
+    const m = getMinutesInTz(nowIso, timeZone);
+    const totalMin = h * 60 + m - 60 * hours;
+    const wrapped = ((totalMin % 1440) + 1440) % 1440;
+    const newH = Math.floor(wrapped / 60);
+    const newM = wrapped % 60;
+    onChange(buildIsoForClockTimeInTz(value, newH, newM, timeZone));
   };
 
-  // Set to a specific clock time YESTERDAY. Used for bedtime backfill —
-  // the "I forgot to mark bedtime last night, now I just woke up" case.
-  // Boomers think in clock times ("10 last night"), not "9 hours ago".
+  // Set to a specific clock time. Labelled "last night" for bedtime backfill —
+  // "I forgot to mark bedtime last night, now I just woke up." Boomers think
+  // in clock times ("10 last night"), not "9 hours ago". Anchors to `value`'s
+  // date so the chip lands on the form's diary day in the user's tz, regardless
+  // of what real-world calendar date it currently is. The form's corrector
+  // (e.g. correctAfterMidnight) handles 12 AM → next-day bumping.
   const handleLastNightAt = (hour24: number) => {
-    // Compute "yesterday" in the user's tz, then build the clock time on it.
-    const oneDayAgoIso = new Date(Date.now() - 86_400_000).toISOString();
-    onChange(buildIsoForClockTimeInTz(oneDayAgoIso, hour24, 0, timeZone));
+    onChange(buildIsoForClockTimeInTz(value, hour24, 0, timeZone));
   };
 
   return (
