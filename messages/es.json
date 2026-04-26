@@ -360,6 +360,13 @@
     "helperShareTitle": "Recuérdame mi diario miccional",
     "helperShareText": "¡Hola! ¿Puedes recordarme mañana a las {time} que registre mi diario miccional? Día 1 hecho ({count} entradas), faltan 2 días. ¡Gracias!"
   },
+  "day2Reminder": {
+    "title": "Una mañana más. ¿Quiere un recordatorio?",
+    "subtitle": "Sugerimos alrededor de las {time}. Elija cómo:",
+    "calendar": "Calendario",
+    "email": "Correo",
+    "helper": "Acompañante"
+  },
   "toasts": {
     "wakeUpSaved": "Hora de despertar guardada",
     "peeSaved": "Orina guardada",

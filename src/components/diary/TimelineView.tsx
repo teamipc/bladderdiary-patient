@@ -6,6 +6,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Sun, Moon, Droplets, CheckCircle2, ChevronLeft, ChevronRight, Plus, RotateCcw, Check, CloudDrizzle, Pencil } from 'lucide-react';
 import TimelineEvent from './TimelineEvent';
+import Day2ReminderCard from './Day2ReminderCard';
 import DrinkIcon from '@/components/ui/DrinkIcon';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useDiaryStore } from '@/lib/store';
@@ -792,6 +793,9 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
               </p>
             </div>
           </div>
+          {/* Day 2: reminder check-in for users who skipped on Day 1 (no morningAnchor).
+              The card self-hides if anchor is already set, so Day-1 setters are unaffected. */}
+          {dayNumber === 2 && <Day2ReminderCard />}
           {dayNumber < 3 && nextDayAccessible && (
             <div className="space-y-3">
               <div className="px-4 py-3.5 rounded-2xl bg-bedtime/5 border border-bedtime/20">
