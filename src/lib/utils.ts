@@ -301,13 +301,20 @@ export function getDayNumber(
     }
   }
 
-  // Early-AM pull-back: events at 0:00–5:59 on the day after a diary day
-  // belong to that diary day if bedtime hasn't been set yet (user still awake).
+  // Early-AM pull-back: events at 0:00–5:59 on the calendar day after a
+  // diary day belong to that diary day when:
+  //   - the prev day's bedtime isn't set yet (user is still awake), OR
+  //   - the event timestamp is BEFORE the prev day's bedtime — the event
+  //     happened during that day's awake window even though it landed on the
+  //     next calendar date.
+  // The second clause matters whenever a patient sets bedtime later in the
+  // day (so events get re-evaluated against a now-existing bedtime), and
+  // for night-shift patients whose "morning" overlaps the next calendar day.
   const hour = getHoursInTz(timestampIso, timeZone);
   if (hour >= 0 && hour <= 5 && dayNum > 1) {
     const prevDay = dayNum - 1;
     const prevDayBedtime = bedtimes?.find((b) => b.dayNumber === prevDay);
-    if (!prevDayBedtime) {
+    if (!prevDayBedtime || timestampIso < prevDayBedtime.timestampIso) {
       dayNum = prevDay;
     }
   }
@@ -378,17 +385,30 @@ export function getDefaultTimeForDay(
 /**
  * Correct the date of a night-view timestamp so it falls between bedtime and wake-up.
  * PM times (hour >= 12) are placed on the bedtime's date; AM times on the next day.
+ *
+ * Date arithmetic happens in the user's timezone, not UTC. A naive
+ * `addDays`-in-UTC double-skips when the bedtime crosses midnight UTC
+ * (e.g. 22:00 EDT = 02:00 UTC the next day) — the morning-after timestamp
+ * lands 24 hours past the patient's intent. This silently moved overnight
+ * pees onto a different diary day for every US-tz patient.
  */
 export function correctNightDate(timeIso: string, bedtimeIso: string, timeZone?: string): string {
-  const bed = parseISO(bedtimeIso);
   const hour = getHoursInTz(timeIso, timeZone);
-  // PM → same date as bedtime; AM → day after bedtime
-  const anchor = hour >= 12 ? bed : addDays(bed, 1);
-  // Preserve the UTC hours/minutes from the original timestamp on the new anchor date
-  const orig = new Date(timeIso);
-  const corrected = new Date(anchor);
-  corrected.setUTCHours(orig.getUTCHours(), orig.getUTCMinutes(), orig.getUTCSeconds(), 0);
-  return corrected.toISOString();
+  const minute = getMinutesInTz(timeIso, timeZone);
+  // Get the bedtime's date in the USER's tz, then pick the date the corrected
+  // event should sit on (same day for PM picks, next day for AM picks).
+  const bedDate = getDateInTz(bedtimeIso, timeZone); // "YYYY-MM-DD"
+  const targetDate = hour >= 12 ? bedDate : addOneDayString(bedDate);
+  return buildIsoForClockTimeInTz(`${targetDate}T12:00:00.000Z`, hour, minute, timeZone);
+}
+
+/** Add one calendar day to a "YYYY-MM-DD" string. */
+function addOneDayString(dateStr: string): string {
+  const next = addDays(parseISO(dateStr + 'T12:00:00'), 1);
+  const y = next.getFullYear();
+  const m = String(next.getMonth() + 1).padStart(2, '0');
+  const d = String(next.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 /**
@@ -399,12 +419,21 @@ export function correctNightDate(timeIso: string, bedtimeIso: string, timeZone?:
  * actually falls on the next calendar day. This function detects early-AM
  * times (hours 0–5) that are still on the day's own date and bumps them
  * forward by one day so they sort correctly after the day's wake time.
+ *
+ * Early-rising patients break the simple bump: someone who woke at 4:17 AM
+ * and logs a 5:00 AM event means "5 AM this morning", not "5 AM tomorrow".
+ * If we bump anyway, the timestamp moves to the next calendar day, and once
+ * the patient sets their bedtime, the early-AM pull-back in `getDayNumber`
+ * stops compensating — the event silently re-slots to the next diary day.
+ * That's silent data loss in a clinical record. Pass `wakeTimeIso` so we
+ * can keep at-or-after-wake picks on the current calendar day.
  */
 export function correctAfterMidnight(
   timeIso: string,
   dayNumber: 1 | 2 | 3,
   startDate: string,
   timeZone?: string,
+  wakeTimeIso?: string,
 ): string {
   const hour = getHoursInTz(timeIso, timeZone);
   if (hour > 5) return timeIso; // not an early-AM time — no correction needed
@@ -413,6 +442,11 @@ export function correctAfterMidnight(
   const timeDate = getDateInTz(timeIso, timeZone);  // date portion of the time
 
   if (timeDate !== dayDate) return timeIso; // already on a different date — leave it
+
+  // Early-rising patient: a wake time on this day means the user has already
+  // started their morning. An at-or-after-wake pick is a morning event, not
+  // a late-night one — leave the calendar date alone.
+  if (wakeTimeIso && timeIso >= wakeTimeIso) return timeIso;
 
   // Bump to next calendar day, keeping the same clock time
   const corrected = addDays(parseISO(timeIso), 1);

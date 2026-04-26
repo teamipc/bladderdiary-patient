@@ -50,9 +50,9 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso, timeZone));
     } else {
-      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone));
+      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone, wakeTime?.timestampIso));
     }
-  }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone]);
+  }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone, wakeTime]);
 
   // L3: smart default — when adding a new drink, prefer the patient's most
   // recent prior drink as the pre-fill. Drink habits are highly repetitive

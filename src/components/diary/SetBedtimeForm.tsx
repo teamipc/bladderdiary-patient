@@ -38,12 +38,12 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
     return getDefaultTimeForDay(startDate, dayNumber, wakeTime?.timestampIso, timeZone);
   };
 
-  const [time, setTime] = useState(() => correctAfterMidnight(smartDefault(), dayNumber, startDate, timeZone));
+  const [time, setTime] = useState(() => correctAfterMidnight(smartDefault(), dayNumber, startDate, timeZone, wakeTime?.timestampIso));
 
   // Correct after-midnight times: 1 AM bedtime means next calendar day
   const handleTimeChange = useCallback((newTime: string) => {
-    setTime(correctAfterMidnight(newTime, dayNumber, startDate, timeZone));
-  }, [dayNumber, startDate, timeZone]);
+    setTime(correctAfterMidnight(newTime, dayNumber, startDate, timeZone, wakeTime?.timestampIso));
+  }, [dayNumber, startDate, timeZone, wakeTime]);
 
   // Bedtime must be after wake-up time (if one exists for this day)
   const isBeforeWakeUp = useMemo(() => {

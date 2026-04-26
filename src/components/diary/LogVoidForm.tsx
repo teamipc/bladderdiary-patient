@@ -48,9 +48,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso, timeZone));
     } else {
-      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone));
+      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone, wakeTimeEntry?.timestampIso));
     }
-  }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone]);
+  }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone, wakeTimeEntry]);
 
   // Smart default: when adding a NEW void, pre-fill the volume from the
   // patient's most recent prior void. Bladder voids are highly repetitive
