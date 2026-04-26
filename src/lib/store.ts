@@ -76,19 +76,20 @@ interface DiaryStore extends DiaryState {
   startDiary: () => void;
   setClinicCode: (code: string | null) => void;
 
-  // Void actions
-  addVoid: (v: Omit<VoidEntry, 'id'>) => void;
+  // Void actions — add* returns true on success, false if dropped as duplicate
+  // (UI must check the return so we never confirm a save that didn't happen).
+  addVoid: (v: Omit<VoidEntry, 'id'>) => boolean;
   updateVoid: (id: string, updates: Partial<VoidEntry>) => void;
   removeVoid: (id: string) => void;
   markMorningVoid: (id: string, dayNumber: number) => void;
 
   // Drink actions
-  addDrink: (d: Omit<DrinkEntry, 'id'>) => void;
+  addDrink: (d: Omit<DrinkEntry, 'id'>) => boolean;
   updateDrink: (id: string, updates: Partial<DrinkEntry>) => void;
   removeDrink: (id: string) => void;
 
   // Leak actions
-  addLeak: (l: Omit<LeakEntry, 'id'>) => void;
+  addLeak: (l: Omit<LeakEntry, 'id'>) => boolean;
   updateLeak: (id: string, updates: Partial<LeakEntry>) => void;
   removeLeak: (id: string) => void;
 
@@ -145,7 +146,8 @@ export const useDiaryStore = create<DiaryStore>()(
       setClinicCode: (code) => set({ clinicCode: code }),
 
       // ── Voids ──
-      addVoid: (v) =>
+      addVoid: (v) => {
+        let added = false;
         set((s) => {
           // Prevent duplicate: no two voids at the same minute
           const newMinute = v.timestampIso.slice(0, 16); // "YYYY-MM-DDTHH:MM"
@@ -154,18 +156,29 @@ export const useDiaryStore = create<DiaryStore>()(
           );
           if (hasDuplicate) return {};
 
+          added = true;
           const dayNum = getDayNumber(v.timestampIso, s.startDate, s.bedtimes, s.timeZone);
           // Add the void (always with FMV false — reassignMorningVoid will set it)
           const newVoids = [...s.voids, { ...v, id: generateId(), isFirstMorningVoid: false }];
           return { voids: reassignMorningVoid(newVoids, dayNum, s.startDate, s.bedtimes, s.wakeTimes, s.timeZone) };
-        }),
+        });
+        return added;
+      },
       updateVoid: (id, updates) =>
         set((s) => {
+          const before = s.voids.find((v) => v.id === id);
           const updatedVoids = s.voids.map((v) => (v.id === id ? { ...v, ...updates } : v));
           const updated = updatedVoids.find((v) => v.id === id);
-          if (!updated) return { voids: updatedVoids };
-          const dayNum = getDayNumber(updated.timestampIso, s.startDate, s.bedtimes, s.timeZone);
-          return { voids: reassignMorningVoid(updatedVoids, dayNum, s.startDate, s.bedtimes, s.wakeTimes, s.timeZone) };
+          if (!updated || !before) return { voids: updatedVoids };
+          const oldDay = getDayNumber(before.timestampIso, s.startDate, s.bedtimes, s.timeZone);
+          const newDay = getDayNumber(updated.timestampIso, s.startDate, s.bedtimes, s.timeZone);
+          // Recompute FMV for the new day; if the void moved across a day
+          // boundary, also recompute the old day so its stale FMV flag is cleared.
+          let voids = reassignMorningVoid(updatedVoids, newDay, s.startDate, s.bedtimes, s.wakeTimes, s.timeZone);
+          if (oldDay !== newDay) {
+            voids = reassignMorningVoid(voids, oldDay, s.startDate, s.bedtimes, s.wakeTimes, s.timeZone);
+          }
+          return { voids };
         }),
       removeVoid: (id) =>
         set((s) => {
@@ -187,7 +200,8 @@ export const useDiaryStore = create<DiaryStore>()(
         })),
 
       // ── Drinks ──
-      addDrink: (d) =>
+      addDrink: (d) => {
+        let added = false;
         set((s) => {
           // Prevent duplicate: no two drinks at the same minute
           const newMinute = d.timestampIso.slice(0, 16);
@@ -195,8 +209,11 @@ export const useDiaryStore = create<DiaryStore>()(
             (existing) => existing.timestampIso.slice(0, 16) === newMinute,
           );
           if (hasDuplicate) return {};
+          added = true;
           return { drinks: [...s.drinks, { ...d, id: generateId() }] };
-        }),
+        });
+        return added;
+      },
       updateDrink: (id, updates) =>
         set((s) => ({
           drinks: s.drinks.map((d) => (d.id === id ? { ...d, ...updates } : d)),
@@ -207,15 +224,19 @@ export const useDiaryStore = create<DiaryStore>()(
         })),
 
       // ── Leaks ──
-      addLeak: (l) =>
+      addLeak: (l) => {
+        let added = false;
         set((s) => {
           const newMinute = l.timestampIso.slice(0, 16);
           const hasDuplicate = (s.leaks ?? []).some(
             (existing) => existing.timestampIso.slice(0, 16) === newMinute,
           );
           if (hasDuplicate) return {};
+          added = true;
           return { leaks: [...(s.leaks ?? []), { ...l, id: generateId() }] };
-        }),
+        });
+        return added;
+      },
       updateLeak: (id, updates) =>
         set((s) => ({
           leaks: (s.leaks ?? []).map((l) => (l.id === id ? { ...l, ...updates } : l)),
@@ -226,17 +247,28 @@ export const useDiaryStore = create<DiaryStore>()(
         })),
 
       // ── Bedtimes ──
+      // Bedtime changes can shift voids across day boundaries via the
+      // bedtime-aware logic in getDayNumber, so we must recompute FMV for
+      // both the affected day and the next day after the bedtime change.
       setBedtime: (dayNumber, timestampIso) =>
         set((s) => {
           const existing = s.bedtimes.filter((b) => b.dayNumber !== dayNumber);
-          return {
-            bedtimes: [...existing, { id: generateId(), timestampIso, dayNumber }],
-          };
+          const newBedtimes = [...existing, { id: generateId(), timestampIso, dayNumber }];
+          let voids = reassignMorningVoid(s.voids, dayNumber, s.startDate, newBedtimes, s.wakeTimes, s.timeZone);
+          if (dayNumber < 3) {
+            voids = reassignMorningVoid(voids, dayNumber + 1, s.startDate, newBedtimes, s.wakeTimes, s.timeZone);
+          }
+          return { bedtimes: newBedtimes, voids };
         }),
       removeBedtime: (dayNumber) =>
-        set((s) => ({
-          bedtimes: s.bedtimes.filter((b) => b.dayNumber !== dayNumber),
-        })),
+        set((s) => {
+          const newBedtimes = s.bedtimes.filter((b) => b.dayNumber !== dayNumber);
+          let voids = reassignMorningVoid(s.voids, dayNumber, s.startDate, newBedtimes, s.wakeTimes, s.timeZone);
+          if (dayNumber < 3) {
+            voids = reassignMorningVoid(voids, dayNumber + 1, s.startDate, newBedtimes, s.wakeTimes, s.timeZone);
+          }
+          return { bedtimes: newBedtimes, voids };
+        }),
 
       // ── Wake times ──
       setWakeTime: (dayNumber, timestampIso) =>

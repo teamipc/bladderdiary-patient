@@ -197,7 +197,8 @@
     "beforePrevBedtime": "This time is before Day {dayNumber}'s bedtime ({time}). Pick a later time.",
     "beforeWakeUp": "This time is before wake-up ({time}). Daytime events must be after you woke up.",
     "afterWakeUp": "This time is after wake-up ({time}). Overnight events must be before you woke up.",
-    "afterBedtime": "This time is after bedtime ({time}). Go to the night view for overnight events."
+    "afterBedtime": "This time is after bedtime ({time}). Go to the night view for overnight events.",
+    "duplicateMinute": "Another entry is already logged at this minute. Pick a different time."
   },
   "timelineEvent": {
     "morningPee": "Morning pee",
@@ -338,10 +339,13 @@
     "wakeUpSaved": "Wake-up time saved",
     "peeSaved": "Pee saved",
     "peeUpdated": "Pee updated",
+    "peeDuplicate": "A pee is already logged at that time",
     "drinkSaved": "Drink saved",
     "drinkUpdated": "Drink updated",
+    "drinkDuplicate": "A drink is already logged at that time",
     "leakSaved": "Leak saved",
     "leakUpdated": "Leak updated",
+    "leakDuplicate": "A leak is already logged at that time",
     "bedtimeSaved": "Bedtime saved"
   },
   "notifications": {

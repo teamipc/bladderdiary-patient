@@ -86,7 +86,7 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
         </p>
       </div>
 
-      <TimePicker value={time} onChange={handleTimeChange} variant="bedtime" />
+      <TimePicker value={time} onChange={handleTimeChange} variant="bedtime" timeZone={timeZone} />
 
       {isBeforeWakeUp && (
         <p className="text-sm text-danger text-center font-medium">

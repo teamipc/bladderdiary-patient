@@ -176,7 +176,6 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
-    savedRef.current = true;
     const data = {
       timestampIso: time,
       volumeMl: displayVolumeToMl(volume, volumeUnit),
@@ -184,10 +183,19 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       note,
     };
     if (isEditing && editEntry) {
+      savedRef.current = true;
       updateDrink(editEntry.id, data);
-    } else {
-      addDrink(data);
+      onSave();
+      return;
     }
+    const ok = addDrink(data);
+    if (!ok) {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      setTimeWarning(tv('duplicateMinute'));
+      warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
+      return;
+    }
+    savedRef.current = true;
     onSave();
   }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime, tv]);
 
@@ -316,7 +324,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
               <h3 className="text-xl font-bold text-center mb-5 text-ipc-950 text-balance">
                 {t('whenWasThis')}
               </h3>
-              <TimePicker value={time} onChange={handleTimeChange} variant="drink" />
+              <TimePicker value={time} onChange={handleTimeChange} variant="drink" timeZone={timeZone} />
               {timeWarning && (
                 <div className="mt-3 px-4 py-2.5 rounded-2xl bg-danger-light border border-danger/20 animate-fade-slide-up">
                   <p className="text-sm font-medium text-danger text-center">{timeWarning}</p>

@@ -197,7 +197,8 @@
     "beforePrevBedtime": "Esta hora es antes de acostarse del día {dayNumber} ({time}). Elija una hora más tarde.",
     "beforeWakeUp": "Esta hora es antes de despertar ({time}). Las entradas del día deben ser después de despertar.",
     "afterWakeUp": "Esta hora es después de despertar ({time}). Las entradas nocturnas deben ser antes de despertar.",
-    "afterBedtime": "Esta hora es después de acostarse ({time}). Vaya a la vista nocturna para entradas de noche."
+    "afterBedtime": "Esta hora es después de acostarse ({time}). Vaya a la vista nocturna para entradas de noche.",
+    "duplicateMinute": "Ya hay otra entrada registrada en este minuto. Elija otra hora."
   },
   "timelineEvent": {
     "morningPee": "Primera orina",
@@ -338,10 +339,13 @@
     "wakeUpSaved": "Hora de despertar guardada",
     "peeSaved": "Orina guardada",
     "peeUpdated": "Orina actualizada",
+    "peeDuplicate": "Ya hay una orina registrada a esa hora",
     "drinkSaved": "Bebida guardada",
     "drinkUpdated": "Bebida actualizada",
+    "drinkDuplicate": "Ya hay una bebida registrada a esa hora",
     "leakSaved": "Escape guardado",
     "leakUpdated": "Escape actualizado",
+    "leakDuplicate": "Ya hay un escape registrado a esa hora",
     "bedtimeSaved": "Hora de acostarse guardada"
   },
   "notifications": {

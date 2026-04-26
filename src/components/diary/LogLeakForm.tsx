@@ -150,7 +150,6 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
       warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
       return;
     }
-    savedRef.current = true;
     const data = {
       timestampIso: time,
       trigger,
@@ -159,10 +158,19 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
       notes: notes || undefined,
     };
     if (isEditing && editEntry) {
+      savedRef.current = true;
       updateLeak(editEntry.id, data);
-    } else {
-      addLeak(data);
+      onSave();
+      return;
     }
+    const ok = addLeak(data);
+    if (!ok) {
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      setTimeWarning(tv('duplicateMinute'));
+      warningTimerRef.current = setTimeout(() => setTimeWarning(null), 4000);
+      return;
+    }
+    savedRef.current = true;
     onSave();
   }, [trigger, urgencyBeforeLeak, amount, time, notes, isEditing, editEntry, addLeak, updateLeak, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime, tv]);
 
@@ -358,7 +366,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                 {t('whenWasThis')}
               </h3>
 
-              <TimePicker value={time} onChange={handleTimeChange} variant="leak" />
+              <TimePicker value={time} onChange={handleTimeChange} variant="leak" timeZone={timeZone} />
 
               {timeWarning && (
                 <div className="mt-3 px-4 py-2.5 rounded-2xl bg-danger-light border border-danger/20 animate-fade-slide-up">
