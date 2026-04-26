@@ -385,11 +385,12 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               </p>
               <div className="flex justify-center gap-2 mb-2.5">
                 <button type="button" onClick={handleLeakToggle}
+                  aria-pressed={leak}
                   className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold transition-all active:scale-[0.95] ${
-                    leak ? 'bg-ipc-500/15 text-ipc-700 ring-1 ring-ipc-500/30' : 'bg-white text-ipc-700 border border-ipc-200/60'
+                    leak ? 'bg-leak/15 text-leak ring-1 ring-leak/40' : 'bg-white text-ipc-700 border border-ipc-200/60'
                   }`}>
                   <Droplets size={15} />
-                  {tc('log')}
+                  {leak ? tc('leakAdded') : tc('hadLeak')}
                 </button>
                 <button type="button" onClick={handleNoteToggle}
                   className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold transition-all active:scale-[0.95] ${
