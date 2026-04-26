@@ -50,9 +50,9 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso, timeZone));
     } else {
-      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone));
+      setTime(correctAfterMidnight(newTime, dayNumber as 1 | 2 | 3, startDate, timeZone, wakeTime?.timestampIso));
     }
-  }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone]);
+  }, [isNightView, prevDayBedtime, dayNumber, startDate, timeZone, wakeTime]);
 
   // Form state
   const [trigger, setTrigger] = useState<LeakTrigger | null>(editEntry?.trigger ?? null);
