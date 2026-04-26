@@ -60,9 +60,13 @@ export default function SummaryPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-4 pb-12 space-y-6">
-      {/* Back link */}
+      {/* Back link — when the diary is complete, return to Day 3 (the latest
+          filled day) instead of getCurrentDay(). The latter is a real-world
+          calendar diff and lands on Day 1 when a tester completes all three
+          days in one sitting (startDate === today), trapping them away from
+          the day they actually came from. */}
       <Link
-        href={`/diary/day/${getCurrentDay(startDate, timeZone)}`}
+        href={`/diary/day/${isComplete ? 3 : getCurrentDay(startDate, timeZone)}`}
         className="inline-flex items-center gap-1 text-ipc-600 hover:text-ipc-800 transition-colors"
       >
         <ChevronLeft size={20} />

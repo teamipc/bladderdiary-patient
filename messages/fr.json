@@ -360,6 +360,13 @@
     "helperShareTitle": "Rappelez-moi mon journal mictionnel",
     "helperShareText": "Bonjour ! Pouvez-vous me rappeler demain à {time} de remplir mon journal mictionnel ? Jour 1 terminé ({count} entrées), encore 2 jours. Merci !"
   },
+  "day2Reminder": {
+    "title": "Encore un matin. Voulez-vous un rappel ?",
+    "subtitle": "On suggère autour de {time}. Choisissez comment :",
+    "calendar": "Calendrier",
+    "email": "Courriel",
+    "helper": "Proche"
+  },
   "toasts": {
     "wakeUpSaved": "Heure de réveil enregistrée",
     "peeSaved": "Miction enregistrée",

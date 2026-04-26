@@ -360,6 +360,13 @@
     "helperShareTitle": "Remind me about my bladder diary",
     "helperShareText": "Hi! Can you remind me at {time} tomorrow to log my bladder diary? Day 1 is done ({count} entries), 2 days to go. Thanks!"
   },
+  "day2Reminder": {
+    "title": "One more morning. Want a reminder?",
+    "subtitle": "We'll suggest around {time}. Pick how:",
+    "calendar": "Calendar",
+    "email": "Email",
+    "helper": "Helper"
+  },
   "toasts": {
     "wakeUpSaved": "Wake-up time saved",
     "peeSaved": "Pee saved",
