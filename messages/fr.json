@@ -599,11 +599,11 @@
   },
     "learn": {
       "hub": {
-        "title": "Éducation des patients",
-        "description": "Articles sur la santé de la vessie, les symptômes urinaires et que faire à ce sujet. Écrits pour les patients, revus par des cliniciens.",
+        "title": "Comprendre son corps",
+        "description": "Nous avons tous un corps. Nous partageons ce que nous savons sur la santé de la vessie et les symptômes urinaires, pour mieux comprendre le nôtre.",
         "browseByAudience": "Parcourir par public",
-        "browseByTopic": "Parcourir par sujet",
-        "recentArticles": "Publié récemment",
+        "browseByTopic": "Sujets",
+        "recentArticles": "Récent",
         "noArticles": "Articles à venir. Revenez bientôt."
       },
       "audience": {
@@ -613,18 +613,18 @@
         "womenDescription": "Articles sur la santé urinaire et pelvienne des femmes, avec orientation vers des ressources spécialisées."
       },
       "forMen": {
-        "title": "Éducation des patients pour les hommes",
+        "title": "Santé pelvienne et urinaire de l'homme",
         "description": "Articles sur la santé de la vessie, de la prostate et du plancher pelvien chez l'homme. Suivez vos symptômes avec notre journal de 3 jours.",
-        "intro": "Les hommes connaissent des symptômes vésicaux et pelviens tout au long de la vie. Beaucoup de ces symptômes peuvent être traités une fois bien compris. Les articles ci-dessous couvrent les schémas les plus courants chez l'homme: levers nocturnes, urgences, jet faible et changements liés à la prostate. Chacun est revu par un clinicien spécialisé en santé pelvienne masculine. Pour suivre votre propre profil, utilisez notre journal mictionnel de 3 jours.",
+        "intro": "Les hommes connaissent des symptômes vésicaux et pelviens tout au long de la vie. La plupart peuvent être traités une fois bien compris. Les articles ci-dessous couvrent les schémas les plus courants: levers nocturnes, urgences, jet faible, changements liés à la prostate. Pour suivre votre propre profil, utilisez le journal mictionnel de 3 jours.",
         "ctaTitle": "Suivez vos symptômes en 3 jours",
         "ctaDescription": "Notre journal mictionnel est conçu spécifiquement pour la santé pelvienne masculine, selon la méthodologie IPC utilisée par les cliniciens.",
         "ctaButton": "Commencer le journal de 3 jours",
         "noArticles": "Aucun article pour les hommes pour le moment. Revenez bientôt."
       },
       "forWomen": {
-        "title": "Éducation des patients pour les femmes",
+        "title": "Santé pelvienne et urinaire de la femme",
         "description": "Articles sur la santé urinaire et pelvienne des femmes.",
-        "intro": "La santé urinaire et pelvienne des femmes couvre plusieurs conditions: incontinence à l'effort, urgences, infections urinaires récurrentes, prolapsus des organes pelviens, et les changements liés à la grossesse et à la ménopause. Les articles ci-dessous offrent des explications en langage simple et des conseils pratiques, tous revus par des cliniciens.",
+        "intro": "La santé urinaire et pelvienne des femmes couvre plusieurs conditions: incontinence à l'effort, urgences, infections urinaires récurrentes, prolapsus des organes pelviens, et les changements liés à la grossesse et à la ménopause. Les articles ci-dessous offrent des explications en langage simple et des conseils pratiques.",
         "ctaTitle": "Vous cherchez un spécialiste en santé pelvienne féminine?",
         "ctaDescription": "Notre journal de 3 jours est conçu pour la santé pelvienne masculine. Pour les femmes, nous recommandons de consulter un clinicien spécialisé en soins pelviens féminins ou un physiothérapeute en rééducation périnéale.",
         "noArticles": "Aucun article pour les femmes pour le moment. Revenez bientôt."
