@@ -9,7 +9,7 @@ import DrinkTypePicker from '@/components/diary/DrinkTypePicker';
 import Button from '@/components/ui/Button';
 import { VOLUME_CONFIG } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, getNightDefaultTime, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { DrinkType, DrinkEntry } from '@/lib/types';
 
 interface LogDrinkFormProps {
@@ -40,7 +40,11 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     if (editEntry) return editEntry.timestampIso;
     if (initialTime) return initialTime;
     if (isNightView && prevDayBedtime) {
-      return new Date(new Date(prevDayBedtime.timestampIso).getTime() + 5 * 60 * 1000).toISOString();
+      return getNightDefaultTime(
+        prevDayBedtime.timestampIso,
+        wakeTime?.timestampIso,
+        allDrinks.map((d) => d.timestampIso),
+      );
     }
     const after = wakeTime?.timestampIso ?? prevDayBedtime?.timestampIso;
     return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after, timeZone);

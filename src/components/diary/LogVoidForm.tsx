@@ -9,7 +9,7 @@ import Button from '@/components/ui/Button';
 import { VOLUME_CONFIG } from '@/lib/constants';
 import SensationPicker from '@/components/diary/SensationPicker';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, getNightDefaultTime, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { BladderSensation, VoidEntry, WokeBy } from '@/lib/types';
 
 interface LogVoidFormProps {
@@ -38,7 +38,13 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
     if (editEntry) return editEntry.timestampIso;
     if (initialTime) return initialTime;
     if (isNightView && prevDayBedtime) {
-      return new Date(new Date(prevDayBedtime.timestampIso).getTime() + 5 * 60 * 1000).toISOString();
+      // Anchor the picker near the most likely log time, not at bedtime+5min,
+      // to spare older users a long string of +15-min taps. See getNightDefaultTime.
+      return getNightDefaultTime(
+        prevDayBedtime.timestampIso,
+        wakeTimeEntry?.timestampIso,
+        allVoids.map((v) => v.timestampIso),
+      );
     }
     const after = wakeTimeEntry?.timestampIso ?? prevDayBedtime?.timestampIso;
     return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after, timeZone);

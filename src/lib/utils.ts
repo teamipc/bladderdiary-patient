@@ -414,6 +414,67 @@ export function getDefaultTimeForDay(
 }
 
 /**
+ * Smart default timestamp for a new night-view event (void, drink, or leak).
+ *
+ * Old behaviour was bedtime + 5 minutes. That sat the picker at "10:05 PM"
+ * the moment the user opened the form to backfill a 2 AM pee — at +15 per
+ * tap, that's ~16 forward taps to land on the actual time. For older,
+ * arthritic, or anxious users (the target patient here) every extra tap is
+ * friction and a chance to give up mid-entry.
+ *
+ * New behaviour:
+ *   - **First overnight event** → bedtime + 3 hours. Clinical literature on
+ *     nocturia puts the median first-overnight void at 2.5–4 hours after
+ *     sleep onset; 3 h is the rough centre and lands the picker close to
+ *     the most common log time, with the +/− chips and "Now" still
+ *     available for fine-tuning.
+ *   - **Subsequent overnight event** (one or more already logged in this
+ *     night window) → latest existing event + 90 minutes. Inter-void
+ *     intervals in nocturia patients cluster at ~1.5–3 h.
+ *
+ * If the resulting target lands at-or-after the day's wake-up time, we
+ * clamp to wake − 30 min so the default never crosses the wake boundary.
+ *
+ * Why a helper, not inline duplication: LogVoidForm, LogDrinkForm, and
+ * LogLeakForm all default the same way. One place to tune the offsets if
+ * we learn from real patient data later.
+ */
+export function getNightDefaultTime(
+  prevBedtimeIso: string,
+  wakeIso: string | undefined,
+  existingNightEventIsos: string[],
+): string {
+  const bedtime = new Date(prevBedtimeIso).getTime();
+  const wake = wakeIso ? new Date(wakeIso).getTime() : null;
+
+  // Latest existing event STRICTLY between bedtime and wake (or any post-bedtime
+  // event when wake is unset). We use this to step forward for subsequent voids.
+  const latestNightEvent = existingNightEventIsos
+    .map((iso) => new Date(iso).getTime())
+    .filter((t) => t > bedtime && (wake === null || t < wake))
+    .reduce<number | null>((max, t) => (max === null || t > max ? t : max), null);
+
+  let target: number;
+  if (latestNightEvent === null) {
+    target = bedtime + 3 * 60 * 60 * 1000; // 3 h after bedtime — see header
+  } else {
+    target = latestNightEvent + 90 * 60 * 1000; // 90 min after the most recent
+  }
+
+  // Never overshoot wake: keep some breathing room so the user isn't
+  // immediately confronted with an "after wake" validation warning.
+  if (wake !== null && target >= wake) {
+    target = wake - 30 * 60 * 1000;
+  }
+  // And never undershoot bedtime — defensive in case of arithmetic surprises.
+  if (target <= bedtime) {
+    target = bedtime + 5 * 60 * 1000;
+  }
+
+  return new Date(target).toISOString();
+}
+
+/**
  * Correct the date of a night-view timestamp so it falls between bedtime and wake-up.
  * PM times (hour >= 12) are placed on the bedtime's date; AM times on the next day.
  *

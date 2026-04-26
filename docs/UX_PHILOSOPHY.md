@@ -289,6 +289,103 @@ users who genuinely need a non-preset value; that's the long tail.
 - "Smart-default + chip" combo for the void form (currently smart-default is drinks-only).
 - The journey tracker takes ~80 px vertical above the day title — could collapse into a thin progress bar on Day 2/3 once the user knows the model.
 
+### 2026-04-26 — Backfill correctness, night-modal legibility, inclusive clinician copy
+
+**Problem.** A patient testing the app on Day 2 (date set on a future
+calendar date relative to "today") tapped the `1h ago / 2h ago / 3h ago`
+quick-add chips on the void log form. The picker displayed a sensible
+clock time (e.g. "8:01 AM") but the form refused to save with `This time
+is before Day 1's bedtime (10:00 PM)`. The same clock time entered via
+the manual `+/-` buttons saved without complaint. Same surface bug
+across day-view, night-view, and bedtime forms — the chips were
+semantically broken in any scenario where the diary day's calendar date
+did not match real-world today.
+
+A second screenshot from the night-view modal showed the +/-/Now box
+and time input rendered as a faint gray smudge against the deep-indigo
+night background — the surrounding `Xh ago` chips read as more
+prominent than the primary controls because they have a visible border
+without an opaque-white fill.
+
+A third issue: in the summary page, `forTeamBody` referenced "your
+doctor or nurse" — the IPC educational institution behind the app is
+predominantly physiotherapists and occupational therapists, and the
+phrasing alienated non-MD/RN healthcare practitioners. A separate copy
+line "This is yours to read first. Your team reads it second." felt
+preachy and added no information.
+
+A fourth issue: the night-view smart default time was `bedtime + 5
+minutes`, sitting the picker at 10:05 PM the moment a patient opened
+the form to backfill a 2 AM nocturia event — a long string of +15-min
+forward taps was the expected user action.
+
+**Commit.** [batch fix — see git log around 2026-04-26]
+
+**Changes — TimePicker chip semantics (correctness).**
+
+| # | Area | Before | After | Principle |
+|---|---|---|---|---|
+| C1 | `handleHoursAgo(n)` | `addMinutes(new Date(), -60n).toISOString()` — emits a real-time UTC instant | Reads current clock time in user's tz, subtracts n hours, builds the result on `value`'s calendar date via `buildIsoForClockTimeInTz` | §8 (clinical correctness); time-model invariant: chips must respect the form's diary day |
+| C2 | `handleLastNightAt(h)` | `buildIsoForClockTimeInTz(new Date(Date.now()-86400000), h, 0, tz)` — anchors to real-world yesterday | `buildIsoForClockTimeInTz(value, h, 0, tz)` — anchors to `value`'s date directly; `correctAfterMidnight` handles the "12 AM" wrap | Same — chip results must not depend on real-world calendar |
+| C3 | `handleSetNow` | `new Date().toISOString()` | Unchanged — "Now" semantically refers to real time, and validation correctly catches a wrong-day click | Don't break a working semantic |
+
+The +/- buttons and manual time-input typing already passed `value` into
+`buildIsoForClockTimeInTz`; the chips are now consistent with that
+contract. Documentation added to [TIME_MODEL.md](TIME_MODEL.md) under
+"TimePicker quick-add chips" explaining the rule.
+
+**Changes — night-view smart default (click-saving).**
+
+| # | Area | Before | After | Principle |
+|---|---|---|---|---|
+| D1 | First overnight event | `bedtime + 5 min` | `bedtime + 3 h` (median first-overnight-void window per nocturia literature) | Saves ~12 taps on the most common backfill scenario |
+| D2 | Subsequent overnight event | `bedtime + 5 min` (same) | `latestExistingNightEvent + 90 min` (typical inter-void interval in nocturia) | Saves ~6 taps on second/third logging in the same night |
+| D3 | Wake guard | None | Clamp target to `wake − 30 min` so the pre-fill never trips "after wake" | Avoids surprising the user with a validation warning on a default value |
+
+Implemented as a single helper `getNightDefaultTime` in `src/lib/utils.ts`
+used by `LogVoidForm`, `LogDrinkForm`, and `LogLeakForm` — one tuning
+point if real patient data tells us the clusters are different.
+
+**Changes — night-modal contrast (aesthetics + legibility).**
+
+| # | Area | Before | After | Principle |
+|---|---|---|---|---|
+| E1 | TimePicker buttons (+/-, Now), time input, and form note textareas in night view | `bg-white/50` rendered as flat gray on the deep-indigo sheet — primary controls read as less prominent than the secondary "Xh ago" chips | Added `.nighttime-bg .bg-white\/70 .bg-white\/50` override to globals.css remapping the fill to `rgba(99, 102, 241, 0.15)` (indigo glass, matching the existing language for `bg-ipc-100/30` and friends) | §3 (buttons must look like buttons); the existing night CSS already remaps every other ipc-/white- token — `bg-white/50` was the one missing piece |
+
+The fix is one CSS rule, scoped to `.nighttime-bg .bg-white\/70`, so it
+only fires inside the night-view bottom sheet. Day mode is untouched.
+The same override automatically improves contrast for the note
+textareas in `LogVoidForm`, `LogDrinkForm`, `LogLeakForm` because they
+all use the same `bg-white/50` fill.
+
+**Changes — inclusive clinician copy (en + es + fr).**
+
+| # | Area | Before | After | Principle |
+|---|---|---|---|---|
+| F1 | `summary.forTeamBody` | "Your doctor or nurse reads three days like a short story…" | "Your healthcare team reads three days like a short story…" (and equivalents in es/fr) | The IPC user base spans physiotherapists, occupational therapists, doctors, nurses — naming only doctors and nurses alienates the rest |
+| F2 | `summary.yoursFirst` | "This is yours to read first. Your team reads it second." | "Read it first, then share your report with your healthcare professional." | One-line, action-oriented, non-preachy |
+
+**What we did not change.**
+
+- `correctAfterMidnight`, `correctNightDate`, `getDayNumber` — the
+  chip bug was a TimePicker-side issue, not a corrector issue. The
+  correctors continue to work correctly downstream of any chip output.
+- The 3-chip-row layout in TimePicker — the chips themselves are the
+  one place in the picker that already had visible borders without
+  opaque fills, and the user explicitly called them out as the
+  "elegant" reference point we matched the +/-/Now contrast to.
+- The "Now" button semantics — see C3 above.
+
+**Decisions deferred (still open).**
+
+- Tune the 3 h / 90 min night-default offsets if real patient logging
+  data shows the typical first-overnight-void or inter-void interval
+  is meaningfully different from the literature.
+- Consider whether `handleSetNow` should also anchor to `value`'s date
+  if user research shows boomers expect "Now" to mean "now-on-the-day-
+  I'm-viewing" rather than "the actual current moment". Today's choice
+  preserves the literal semantic.
+
 ## When to revisit this document
 
 Add a new entry to the decisions log whenever a change:

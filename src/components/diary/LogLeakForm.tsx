@@ -8,7 +8,7 @@ import LeakTriggerPicker from '@/components/diary/LeakTriggerPicker';
 import Button from '@/components/ui/Button';
 import { LEAK_AMOUNT_OPTIONS } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
-import { formatTime, getDefaultTimeForDay, correctNightDate, correctAfterMidnight } from '@/lib/utils';
+import { formatTime, getDefaultTimeForDay, getNightDefaultTime, correctNightDate, correctAfterMidnight } from '@/lib/utils';
 import type { LeakTrigger, LeakAmount, LeakEntry } from '@/lib/types';
 
 interface LogLeakFormProps {
@@ -22,7 +22,7 @@ interface LogLeakFormProps {
 const TOTAL_STEPS = 3;
 
 export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogLeakFormProps) {
-  const { addLeak, updateLeak, getBedtimeForDay, getWakeTimeForDay, startDate, timeZone } = useDiaryStore();
+  const { addLeak, updateLeak, getBedtimeForDay, getWakeTimeForDay, startDate, timeZone, leaks: allLeaks } = useDiaryStore();
   const t = useTranslations('logLeak');
   const tc = useTranslations('common');
   const tv = useTranslations('validation');
@@ -39,7 +39,11 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     if (editEntry) return editEntry.timestampIso;
     if (initialTime) return initialTime;
     if (isNightView && prevDayBedtime) {
-      return new Date(new Date(prevDayBedtime.timestampIso).getTime() + 5 * 60 * 1000).toISOString();
+      return getNightDefaultTime(
+        prevDayBedtime.timestampIso,
+        wakeTime?.timestampIso,
+        (allLeaks ?? []).map((l) => l.timestampIso),
+      );
     }
     const after = wakeTime?.timestampIso ?? prevDayBedtime?.timestampIso;
     return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after, timeZone);

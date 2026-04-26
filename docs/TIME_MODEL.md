@@ -87,6 +87,58 @@ to the day after.
 not UTC. A US-tz bedtime of 22:00 EDT is 02:00 UTC the next calendar
 day; a UTC `addDays(bed, 1)` would land 24h past the patient's intent.
 
+## TimePicker quick-add chips ("1h ago" / "11 PM last night")
+
+The picker has shortcut chips for older users who'd rather tap a chip
+than nudge ±15 min repeatedly. Two chip handlers, one rule:
+
+> **Quick-add chips must anchor their result to `value`'s calendar date
+> in the user's tz, never to real-world `new Date()`.**
+
+Why: a patient may open the form on a diary day whose calendar date is
+earlier than today (back-edit) or later than today (testing, scheduled
+diary). If the chip emits an ISO from `addMinutes(new Date(), -60)`, the
+displayed clock time looks fine but the underlying ISO sits on the real-
+world calendar day. That landed before-Day-1-bedtime errors on a Day 2
+form whose Day 1 was today and whose Day 2 was tomorrow — same clock
+time the +/− buttons produce, but a different calendar day, so the
+"before previous bedtime" validation fired.
+
+The +/− buttons already use `buildIsoForClockTimeInTz(value, h, m, tz)`
+which preserves `value`'s date. Chips must do the same:
+
+- `handleHoursAgo(n)` — read current clock time in user's tz, subtract n
+  hours (with wrap), build ISO on `value`'s date.
+- `handleLastNightAt(h)` — build ISO on `value`'s date directly. The
+  form's `correctAfterMidnight` handles "12 AM" → next-day bumping.
+
+`handleSetNow` keeps `new Date().toISOString()` because "Now"
+semantically refers to real time; if the user is on the wrong day, the
+form's validation should — and does — catch the mismatch.
+
+## Night-view smart defaults (`getNightDefaultTime`)
+
+When the user opens a night-view log form (void, drink, or leak) without
+an explicit `initialTime`, the picker needs a sensible starting clock.
+The old default was bedtime + 5 min, which sat the picker at "10:05 PM"
+the moment a patient opened the form to backfill a 2 AM pee — a long
+chain of +15 forward taps for the most common backfill scenario.
+
+The current default (in `getNightDefaultTime`):
+
+- **First overnight event in this window** → bedtime + 3 hours.
+  Clinical literature on nocturia clusters first-overnight voids in the
+  2.5–4 h post-sleep-onset window; 3 h is the rough median.
+- **Subsequent overnight event** → latest existing event + 90 min.
+  Inter-void intervals in nocturia patients cluster at ~1.5–3 h.
+- **Wake guard** — if the target lands at-or-after wake, clamp to wake
+  − 30 min so the pre-fill never trips the form's "after wake" warning.
+- **Bedtime guard** — never undershoot bedtime (defensive against
+  arithmetic surprises).
+
+Tune the offset constants in `getNightDefaultTime` if real patient data
+shows the clusters elsewhere — that's the single tuning point.
+
 ## Wake-time and FMV gating
 
 Days 2 and 3 are "complete" when:
