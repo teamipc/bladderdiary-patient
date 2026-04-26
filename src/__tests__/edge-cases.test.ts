@@ -198,6 +198,93 @@ describe('TimePicker round-trip stability across many timezones', () => {
   }
 });
 
+describe('DST: winter (EST) and summer (EDT) round-trip cleanly', () => {
+  it('January 15 in America/New_York → 06:00 round-trips through EST (UTC-5)', () => {
+    const base = '2026-01-15T12:00:00.000Z';
+    const out = buildIsoForClockTimeInTz(base, 6, 0, NY);
+    // 06:00 EST = 11:00 UTC (UTC-5)
+    expect(out).toBe('2026-01-15T11:00:00.000Z');
+    expect(getClockTimeInTz(out, NY)).toBe('06:00');
+  });
+
+  it('July 15 in America/New_York → 06:00 round-trips through EDT (UTC-4)', () => {
+    const base = '2026-07-15T12:00:00.000Z';
+    const out = buildIsoForClockTimeInTz(base, 6, 0, NY);
+    // 06:00 EDT = 10:00 UTC (UTC-4)
+    expect(out).toBe('2026-07-15T10:00:00.000Z');
+    expect(getClockTimeInTz(out, NY)).toBe('06:00');
+  });
+
+  it('Spring-forward day (Mar 8 2026 in NY): 03:30 reads as 03:30', () => {
+    // Spring forward: 02:00 EST jumps to 03:00 EDT (02:30 doesn't exist)
+    // 03:30 EDT after the jump = 07:30 UTC
+    const base = '2026-03-08T12:00:00.000Z';
+    const out = buildIsoForClockTimeInTz(base, 3, 30, NY);
+    expect(out).toBe('2026-03-08T07:30:00.000Z');
+    expect(getClockTimeInTz(out, NY)).toBe('03:30');
+  });
+
+  it('Fall-back day (Nov 1 2026 in NY): 03:00 reads as 03:00 (after the rollback)', () => {
+    // Fall back: 02:00 EDT becomes 01:00 EST (01:30 happens twice)
+    // 03:00 EST after the rollback = 08:00 UTC
+    const base = '2026-11-01T12:00:00.000Z';
+    const out = buildIsoForClockTimeInTz(base, 3, 0, NY);
+    expect(out).toBe('2026-11-01T08:00:00.000Z');
+    expect(getClockTimeInTz(out, NY)).toBe('03:00');
+  });
+
+  it('full diary spanning DST: EST Day 1 → EDT Day 3 around Mar 8 2026', () => {
+    useDiaryStore.setState({ startDate: '2026-03-07', timeZone: NY });
+    const s = useDiaryStore.getState();
+    // Day 1 (Mar 7) — EST: bedtime 22:00 EST = 03:00 UTC Mar 8
+    s.setBedtime(1, buildIsoForClockTimeInTz('2026-03-07T12:00:00.000Z', 22, 0, NY));
+    // Day 2 (Mar 8) — DST starts at 02:00. Wake at 07:00 EDT = 11:00 UTC
+    s.setWakeTime(2, buildIsoForClockTimeInTz('2026-03-08T12:00:00.000Z', 7, 0, NY));
+    // Void at 08:00 EDT Mar 8 = 12:00 UTC
+    const v1 = buildIsoForClockTimeInTz('2026-03-08T12:00:00.000Z', 8, 0, NY);
+    expect(s.addVoid({ timestampIso: v1, volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false })).toBe(true);
+    expect(getDayNumber(v1, '2026-03-07', useDiaryStore.getState().bedtimes, NY)).toBe(2);
+
+    // Day 3 (Mar 9) — EDT
+    s.setBedtime(2, buildIsoForClockTimeInTz('2026-03-08T12:00:00.000Z', 22, 0, NY));
+    s.setWakeTime(3, buildIsoForClockTimeInTz('2026-03-09T12:00:00.000Z', 7, 0, NY));
+    const v2 = buildIsoForClockTimeInTz('2026-03-09T12:00:00.000Z', 8, 0, NY);
+    s.addVoid({ timestampIso: v2, volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false });
+    expect(getDayNumber(v2, '2026-03-07', useDiaryStore.getState().bedtimes, NY)).toBe(3);
+  });
+});
+
+describe('DST in Europe (London) and Australia (Sydney)', () => {
+  it('London BST (summer): 06:00 in July → UTC+1', () => {
+    const base = '2026-07-15T12:00:00.000Z';
+    const out = buildIsoForClockTimeInTz(base, 6, 0, 'Europe/London');
+    expect(out).toBe('2026-07-15T05:00:00.000Z');
+    expect(getClockTimeInTz(out, 'Europe/London')).toBe('06:00');
+  });
+
+  it('London GMT (winter): 06:00 in December → UTC+0', () => {
+    const base = '2026-12-15T12:00:00.000Z';
+    const out = buildIsoForClockTimeInTz(base, 6, 0, 'Europe/London');
+    expect(out).toBe('2026-12-15T06:00:00.000Z');
+    expect(getClockTimeInTz(out, 'Europe/London')).toBe('06:00');
+  });
+
+  it('Sydney AEDT (Southern summer): 06:00 in January → UTC+11', () => {
+    const base = '2026-01-15T12:00:00.000Z';
+    const out = buildIsoForClockTimeInTz(base, 6, 0, 'Australia/Sydney');
+    // 06:00 AEDT = 19:00 UTC the previous day
+    expect(out).toBe('2026-01-14T19:00:00.000Z');
+    expect(getClockTimeInTz(out, 'Australia/Sydney')).toBe('06:00');
+  });
+
+  it('Sydney AEST (Southern winter): 06:00 in July → UTC+10', () => {
+    const base = '2026-07-15T12:00:00.000Z';
+    const out = buildIsoForClockTimeInTz(base, 6, 0, 'Australia/Sydney');
+    expect(out).toBe('2026-07-14T20:00:00.000Z');
+    expect(getClockTimeInTz(out, 'Australia/Sydney')).toBe('06:00');
+  });
+});
+
 describe('Stored TZ != browser TZ — events still slot correctly', () => {
   it('user selected UTC, browser is Kolkata: 6 AM UTC void on Day 2 stays on Day 2', () => {
     useDiaryStore.setState({ timeZone: 'UTC' });
