@@ -31,6 +31,8 @@
     "termsOfUse": "Términos de uso",
     "addNote": "Agregar nota",
     "noteAdded": "Nota \u2713",
+    "hadLeak": "Tuve una fuga",
+    "leakAdded": "Fuga \u2713",
     "saveCheck": "Guardar \u2713",
     "updateCheck": "Actualizar \u2713",
     "stepOf": "Paso {current} de {total}",
