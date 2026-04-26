@@ -51,7 +51,8 @@
   "nav": {
     "home": "Inicio",
     "track": "Registro",
-    "diary": "Diario"
+    "diary": "Diario",
+    "learn": "Aprender"
   },
   "landing": {
     "welcomeBack": "¡Bienvenido de nuevo!",
@@ -595,5 +596,73 @@
     "contactCompany": "Integrated Pelvic Care Inc.",
     "contactEmail": "Email: legal@integratedpelviccare.com",
     "copyright": "\u00a9 {year} Integrated Pelvic Care Inc. Todos los derechos reservados."
+  },
+  "learn": {
+    "hub": {
+      "title": "Educaci\u00f3n del paciente",
+      "description": "Art\u00edculos sobre salud vesical, s\u00edntomas urinarios y qu\u00e9 hacer al respecto. Escritos para pacientes, revisados por m\u00e9dicos.",
+      "browseByAudience": "Explorar por p\u00fablico",
+      "browseByTopic": "Explorar por tema",
+      "recentArticles": "Publicado recientemente",
+      "noArticles": "Art\u00edculos pr\u00f3ximamente. Vuelve pronto."
+    },
+    "audience": {
+      "men": "Para hombres",
+      "menDescription": "Art\u00edculos sobre salud de la vejiga, pr\u00f3stata y suelo p\u00e9lvico en hombres.",
+      "women": "Para mujeres",
+      "womenDescription": "Art\u00edculos sobre salud urinaria y p\u00e9lvica de las mujeres, con derivaci\u00f3n a recursos especializados."
+    },
+    "forMen": {
+      "title": "Educaci\u00f3n del paciente para hombres",
+      "description": "Art\u00edculos sobre salud de la vejiga, pr\u00f3stata y suelo p\u00e9lvico en hombres. Registra tus s\u00edntomas con nuestro diario de 3 d\u00edas.",
+      "intro": "Los hombres experimentan s\u00edntomas vesicales y p\u00e9lvicos a lo largo de toda la vida. Muchos de estos s\u00edntomas son tratables una vez comprendidos. Los art\u00edculos siguientes cubren los patrones m\u00e1s comunes que vemos en hombres: levantarse de noche a orinar, urgencia, chorro d\u00e9bil y cambios relacionados con la pr\u00f3stata. Cada uno est\u00e1 revisado por un m\u00e9dico especializado en salud p\u00e9lvica masculina. Si quieres seguir tu propio patr\u00f3n, usa nuestro diario miccional de 3 d\u00edas.",
+      "ctaTitle": "Registra tus s\u00edntomas en 3 d\u00edas",
+      "ctaDescription": "Nuestro diario miccional est\u00e1 dise\u00f1ado espec\u00edficamente para la salud p\u00e9lvica masculina, siguiendo la metodolog\u00eda IPC usada por los cl\u00ednicos.",
+      "ctaButton": "Empezar el diario de 3 d\u00edas",
+      "noArticles": "A\u00fan no hay art\u00edculos para hombres. Vuelve pronto."
+    },
+    "forWomen": {
+      "title": "Educaci\u00f3n del paciente para mujeres",
+      "description": "Art\u00edculos sobre salud urinaria y p\u00e9lvica de las mujeres.",
+      "intro": "La salud urinaria y p\u00e9lvica de las mujeres abarca varias condiciones: incontinencia de esfuerzo, urgencia, infecciones urinarias recurrentes, prolapso de \u00f3rganos p\u00e9lvicos, y los cambios asociados al embarazo y la menopausia. Los art\u00edculos siguientes ofrecen explicaciones en lenguaje sencillo y orientaci\u00f3n pr\u00e1ctica, todos revisados por cl\u00ednicos.",
+      "ctaTitle": "\u00bfBuscas un especialista en salud p\u00e9lvica femenina?",
+      "ctaDescription": "Nuestro diario de 3 d\u00edas est\u00e1 construido para la salud p\u00e9lvica masculina. Para mujeres, recomendamos consultar a un cl\u00ednico especializado en cuidados p\u00e9lvicos femeninos o a un fisioterapeuta del suelo p\u00e9lvico.",
+      "noArticles": "A\u00fan no hay art\u00edculos para mujeres. Vuelve pronto."
+    },
+    "topic": {
+      "articlesInTopic": "Art\u00edculos sobre este tema",
+      "noArticles": "A\u00fan no hay art\u00edculos sobre este tema."
+    },
+    "article": {
+      "by": "Por",
+      "reviewedBy": "Revisado m\u00e9dicamente por",
+      "lastReviewed": "\u00daltima revisi\u00f3n",
+      "updated": "Actualizado",
+      "readingTime": "{minutes} min de lectura",
+      "relatedArticles": "Art\u00edculos relacionados",
+      "citations": "Citas",
+      "ctaForMen": "Registra tus s\u00edntomas con nuestro diario miccional de 3 d\u00edas",
+      "ctaStartDiary": "Empezar el diario",
+      "ctaForWomen": "Encuentra un especialista en salud p\u00e9lvica femenina",
+      "ctaFindSpecialist": "Ver recursos"
+    },
+    "glossary": {
+      "title": "Glosario",
+      "description": "Definiciones de t\u00e9rminos m\u00e9dicos usados en nuestros art\u00edculos.",
+      "noTerms": "A\u00fan no hay t\u00e9rminos."
+    },
+    "author": {
+      "affiliations": "Afiliaciones",
+      "articlesAuthored": "Art\u00edculos de {name}",
+      "articlesReviewed": "Art\u00edculos revisados m\u00e9dicamente por {name}",
+      "noArticles": "A\u00fan no hay art\u00edculos."
+    },
+    "disclaimer": "Este art\u00edculo es solo para fines educativos. No proporciona asesoramiento m\u00e9dico, diagn\u00f3stico ni tratamiento. Consulta siempre a un profesional de salud cualificado para cualquier condici\u00f3n m\u00e9dica.",
+    "breadcrumbs": {
+      "home": "Inicio",
+      "learn": "Aprender",
+      "glossary": "Glosario",
+      "authors": "Autores"
+    }
   }
 }

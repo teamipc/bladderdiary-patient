@@ -1,0 +1,160 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import {
+  getAllTopics,
+  getPillar,
+  getArticlesInTopic,
+  getAuthor,
+  buildAbsoluteUrl,
+} from '@/lib/content';
+import { locales, type Locale } from '@/i18n/config';
+import { RenderMdx } from '@/lib/mdx';
+import ArticleCard from '@/components/learn/ArticleCard';
+import AuthorByline from '@/components/learn/AuthorByline';
+import Breadcrumbs from '@/components/learn/Breadcrumbs';
+import Disclaimer from '@/components/learn/Disclaimer';
+import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+
+interface PageParams {
+  locale: string;
+  topic: string;
+}
+
+export async function generateStaticParams() {
+  const all: PageParams[] = [];
+  for (const locale of locales) {
+    for (const topic of getAllTopics(locale)) {
+      all.push({ locale, topic });
+    }
+  }
+  if (all.length === 0) {
+    return locales.map((locale) => ({ locale, topic: '__none__' }));
+  }
+  return all;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<PageParams>;
+}): Promise<Metadata> {
+  const { locale, topic } = await params;
+  const pillar = getPillar(locale as Locale, topic);
+  if (!pillar) return {};
+
+  const canonical =
+    locale === 'en' ? `/learn/${topic}` : `/${locale}/learn/${topic}`;
+
+  return {
+    title: pillar.frontmatter.title,
+    description: pillar.frontmatter.description,
+    alternates: { canonical },
+    openGraph: {
+      title: pillar.frontmatter.title,
+      description: pillar.frontmatter.description,
+      url: buildAbsoluteUrl(canonical),
+      type: 'article',
+      images: pillar.frontmatter.hero ? [{ url: pillar.frontmatter.hero }] : undefined,
+    },
+  };
+}
+
+export default async function PillarPage({
+  params,
+}: {
+  params: Promise<PageParams>;
+}) {
+  const { locale, topic } = await params;
+  setRequestLocale(locale);
+  const typedLocale = locale as Locale;
+  const t = await getTranslations({ locale, namespace: 'learn' });
+  const tBreadcrumbs = await getTranslations({ locale, namespace: 'learn.breadcrumbs' });
+
+  const pillar = getPillar(typedLocale, topic);
+  const clusterArticles = getArticlesInTopic(typedLocale, topic);
+
+  if (!pillar && clusterArticles.length === 0) notFound();
+
+  const author = pillar ? getAuthor(pillar.frontmatter.author) : null;
+  const reviewer = pillar?.frontmatter.medicallyReviewedBy
+    ? getAuthor(pillar.frontmatter.medicallyReviewedBy)
+    : null;
+
+  const breadcrumbs = [
+    { label: tBreadcrumbs('home'), href: '/' },
+    { label: tBreadcrumbs('learn'), href: '/learn' },
+    { label: pillar?.frontmatter.title ?? topic.replace(/-/g, ' ') },
+  ];
+
+  return (
+    <div className="bg-surface min-h-screen">
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        <Breadcrumbs items={breadcrumbs} />
+
+        {pillar ? (
+          <>
+            <BreadcrumbJsonLd
+              items={breadcrumbs.map((b) => ({
+                name: b.label,
+                url: b.href ?? pillar.urlPath,
+              }))}
+            />
+            <ArticleJsonLd article={pillar} author={author} reviewer={reviewer} />
+
+            <header className="mb-6">
+              <h1 className="text-3xl font-bold text-ipc-950 mb-3 text-balance leading-tight">
+                {pillar.frontmatter.title}
+              </h1>
+              <p className="text-lg text-ipc-700 leading-relaxed">
+                {pillar.frontmatter.description}
+              </p>
+            </header>
+
+            <div className="mb-6">
+              <AuthorByline
+                author={author}
+                reviewer={reviewer}
+                lastReviewedAt={pillar.frontmatter.lastReviewedAt}
+                updatedAt={pillar.frontmatter.updatedAt}
+                readingTimeMin={pillar.readingTimeMin}
+                labels={{
+                  by: t('article.by'),
+                  reviewedBy: t('article.reviewedBy'),
+                  lastReviewed: t('article.lastReviewed'),
+                  updated: t('article.updated'),
+                  readingTime: (n: number) => t('article.readingTime', { minutes: n }),
+                }}
+              />
+            </div>
+
+            <article className="mb-10">
+              <RenderMdx source={pillar.body} />
+            </article>
+          </>
+        ) : (
+          <header className="mb-8">
+            <h1 className="text-3xl font-bold text-ipc-950 mb-2 capitalize text-balance">
+              {topic.replace(/-/g, ' ')}
+            </h1>
+          </header>
+        )}
+
+        {clusterArticles.length > 0 && (
+          <section className="mb-10">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-ipc-500 mb-3">
+              {t('topic.articlesInTopic')}
+            </h2>
+            <div className="space-y-2">
+              {clusterArticles.map((a) => (
+                <ArticleCard key={a.urlPath} article={a} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <Disclaimer text={t('disclaimer')} />
+      </div>
+    </div>
+  );
+}

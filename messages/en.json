@@ -51,7 +51,8 @@
   "nav": {
     "home": "Home",
     "track": "Track",
-    "diary": "Diary"
+    "diary": "Diary",
+    "learn": "Learn"
   },
   "landing": {
     "welcomeBack": "Welcome back!",
@@ -595,5 +596,73 @@
     "contactCompany": "Integrated Pelvic Care Inc.",
     "contactEmail": "Email: legal@integratedpelviccare.com",
     "copyright": "\u00a9 {year} Integrated Pelvic Care Inc. All rights reserved."
+  },
+  "learn": {
+    "hub": {
+      "title": "Patient education",
+      "description": "Articles on bladder health, urinary symptoms, and what to do about them. Written for patients, reviewed by clinicians.",
+      "browseByAudience": "Browse by audience",
+      "browseByTopic": "Browse by topic",
+      "recentArticles": "Recently published",
+      "noArticles": "Articles coming soon. Check back shortly."
+    },
+    "audience": {
+      "men": "For men",
+      "menDescription": "Articles relevant to men's bladder, prostate, and pelvic health.",
+      "women": "For women",
+      "womenDescription": "Articles for women's urinary and pelvic health, with referral to specialized resources."
+    },
+    "forMen": {
+      "title": "Patient education for men",
+      "description": "Articles on men's bladder, prostate, and pelvic health. Track your symptoms with our 3-day diary.",
+      "intro": "Men experience bladder and pelvic symptoms across the lifespan. Many of these symptoms are treatable once understood. The articles below cover the most common patterns we see in men: nighttime urination, urgency, weak stream, and prostate-related changes. Each is reviewed by a clinician specialized in men's pelvic health. If you want to track your own pattern, use our 3-day bladder diary.",
+      "ctaTitle": "Track your symptoms in 3 days",
+      "ctaDescription": "Our bladder diary is built specifically for men's pelvic health, following the IPC methodology used by clinicians.",
+      "ctaButton": "Start the 3-day diary",
+      "noArticles": "No articles for men yet. Check back soon."
+    },
+    "forWomen": {
+      "title": "Patient education for women",
+      "description": "Articles on women's urinary and pelvic health.",
+      "intro": "Women's urinary and pelvic health spans many conditions: stress incontinence, urgency, recurrent UTIs, pelvic organ prolapse, and the changes that come with pregnancy and menopause. The articles below offer plain-language explanations and practical guidance, all reviewed by clinicians.",
+      "ctaTitle": "Looking for a women's pelvic health specialist?",
+      "ctaDescription": "Our 3-day diary is built for men's pelvic health. For women, we recommend consulting a clinician specialized in female pelvic care or a pelvic floor physiotherapist.",
+      "noArticles": "No articles for women yet. Check back soon."
+    },
+    "topic": {
+      "articlesInTopic": "Articles on this topic",
+      "noArticles": "No articles in this topic yet."
+    },
+    "article": {
+      "by": "By",
+      "reviewedBy": "Medically reviewed by",
+      "lastReviewed": "Last reviewed",
+      "updated": "Updated",
+      "readingTime": "{minutes} min read",
+      "relatedArticles": "Related articles",
+      "citations": "Citations",
+      "ctaForMen": "Track your symptoms with our 3-day bladder diary",
+      "ctaStartDiary": "Start the diary",
+      "ctaForWomen": "Find a women's pelvic health specialist",
+      "ctaFindSpecialist": "Browse resources"
+    },
+    "glossary": {
+      "title": "Glossary",
+      "description": "Definitions of medical terms used in our articles.",
+      "noTerms": "No glossary terms yet."
+    },
+    "author": {
+      "affiliations": "Affiliations",
+      "articlesAuthored": "Articles by {name}",
+      "articlesReviewed": "Articles medically reviewed by {name}",
+      "noArticles": "No articles yet."
+    },
+    "disclaimer": "This article is for educational purposes only. It does not provide medical advice, diagnosis, or treatment. Always consult a qualified health professional regarding any medical condition.",
+    "breadcrumbs": {
+      "home": "Home",
+      "learn": "Learn",
+      "glossary": "Glossary",
+      "authors": "Authors"
+    }
   }
 }
