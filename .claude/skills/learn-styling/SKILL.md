@@ -26,6 +26,62 @@ The shared typography scale is defined in the SEO workflow's memory at `feedback
 
 Content lives in `content/articles/en/<topic>/<slug>.mdx` — see `content/README.md` and `content/SKILL.md` for the file-system conventions and frontmatter spec (those files are the canonical source of truth for Site B; this skill is the visual layer).
 
+## Card template (BINDING — every article card on every surface)
+
+Two card types live on the patient `/learn` surfaces. Both are part of the canonical template; nothing should ship outside this shape.
+
+### Article cards (used in grids: hub recent, audience landings, topic pillars, future search)
+
+Component: `src/components/learn/ArticleCard.tsx` (single source of truth — every grid that shows article cards composes this component, never re-rolls its own).
+
+Required elements, top to bottom:
+
+| # | Element | Source | Required |
+|---|---|---|---|
+| 1 | Hero image | `frontmatter.hero` via `next/image`, `aspect-[3/2] rounded-xl overflow-hidden`. Fallback: `bg-gradient-to-br from-ipc-100 to-ipc-200`. | every card |
+| 2 | Title | `frontmatter.title`. `text-xl md:text-2xl font-semibold leading-tight tracking-tight text-ipc-950 group-hover:text-ipc-700`. | every card |
+| 3 | Description | `frontmatter.description`, `line-clamp-3`, `text-base text-ipc-700 leading-relaxed`. | every card |
+| 4 | Audience badge | When `frontmatter.audience.length === 1`: "For men" or "For women" pill. | conditional |
+| 5 | **Byline (avatar + name + date · reading time)** | Avatar from `authorInitials(frontmatter.author)`; name (fallback `'Bladder Diaries Team'`); `Published MMM d, YYYY · N min read` (with optional `· Updated MMM d` and `· Reviewed MMM d` per the Article meta byline section above). | **EVERY card — no "lite" variants** |
+
+**Byline DOM (binding shape — mirrors clinician site exactly):**
+
+```tsx
+<div className="flex items-center gap-2.5">
+  <div
+    aria-hidden
+    className="w-8 h-8 rounded-full bg-ipc-100 text-ipc-700 flex items-center justify-center text-xs font-semibold shrink-0"
+  >
+    {authorInitials(frontmatter.author)}
+  </div>
+  <div className="flex flex-col leading-tight">
+    <span className="text-sm font-medium text-ipc-900">
+      {frontmatter.author || 'Bladder Diaries Team'}
+    </span>
+    <span className="text-xs text-ipc-600 mt-0.5">
+      {bylineMeta /* "Published MMM d, YYYY · N min read", incl. Updated/Reviewed when newer */}
+    </span>
+  </div>
+</div>
+```
+
+When you change the byline shape, change it in BOTH apps' card components (clinician + patient) so the shared visual identity stays intact. Memory: `feedback_card_byline_standard`.
+
+### Topic cards (used on the hub to enter a pillar)
+
+Different element set — these are navigation cards into a topic, not article cards.
+
+Required elements:
+1. Topic name (pillar's `frontmatter.title`, fallback `topic.replace(/-/g, ' ')` capitalized)
+2. Topic description (pillar's `frontmatter.description`)
+3. `ChevronRight` icon (right-aligned)
+
+Outer chrome shared with article cards: `rounded-2xl bg-white border border-ipc-100 hover:border-ipc-300 hover:shadow-md transition-all`. Layout: `flex items-start justify-between gap-3 p-5`.
+
+### Card grouping (hub page only)
+
+Topic cards on `/learn` render under curated category headings sourced from `src/lib/topics.ts` (`TOPIC_GROUPS`). See that file for the canonical category taxonomy. Never expose a flat alphabetical topic dump — categories beat raw enumeration as the catalog grows.
+
 ## Standardized typography scale (BINDING — shared with bladderdiary)
 
 | Element | Mobile | Desktop |
