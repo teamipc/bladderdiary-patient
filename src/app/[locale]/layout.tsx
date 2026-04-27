@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/next';
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 import AppShell from '@/components/layout/AppShell';
+import { OrganizationJsonLd } from '@/components/seo/JsonLd';
 import { locales } from '@/i18n/config';
 
 const inter = Inter({
@@ -113,6 +114,7 @@ export default async function LocaleLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body className="bg-surface text-ipc-950 antialiased font-sans">
+        <OrganizationJsonLd />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AppShell>
             {children}

@@ -108,9 +108,37 @@ export function ArticleJsonLd({
     name: 'My Flow Check',
     url: SITE_URL,
     logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon-512.png` },
+    email: 'hello@myflowcheck.com',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'hello@myflowcheck.com',
+      availableLanguage: ['en', 'fr', 'es'],
+    },
   };
 
   return <JsonLd data={data} />;
+}
+
+export function OrganizationJsonLd() {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'My Flow Check',
+        url: SITE_URL,
+        logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon-512.png` },
+        email: 'hello@myflowcheck.com',
+        contactPoint: {
+          '@type': 'ContactPoint',
+          contactType: 'customer support',
+          email: 'hello@myflowcheck.com',
+          availableLanguage: ['en', 'fr', 'es'],
+        },
+      }}
+    />
+  );
 }
 
 export function PersonJsonLd({ author }: { author: Author }) {
