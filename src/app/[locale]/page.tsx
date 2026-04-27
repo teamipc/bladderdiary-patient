@@ -268,6 +268,18 @@ const jsonLd = {
     price: '0',
     priceCurrency: 'USD',
   },
+  publisher: {
+    '@type': 'Organization',
+    name: 'My Flow Check',
+    url: 'https://myflowcheck.com',
+    email: 'hello@myflowcheck.com',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'hello@myflowcheck.com',
+      availableLanguage: ['en', 'fr', 'es'],
+    },
+  },
 };
 
 export default function HomePage() {
