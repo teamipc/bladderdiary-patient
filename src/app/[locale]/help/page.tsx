@@ -94,10 +94,10 @@ export default async function HelpPage({
             <p className="text-sm text-ipc-500 leading-relaxed">
               {t('suggestionBody')}{' '}
               <a
-                href="mailto:info@ipc.health"
+                href="mailto:hello@myflowcheck.com"
                 className="text-ipc-600 font-semibold underline underline-offset-2"
               >
-                info@ipc.health
+                hello@myflowcheck.com
               </a>
             </p>
           </div>

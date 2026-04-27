@@ -212,7 +212,7 @@ export default async function PrivacyPolicyPage({
             </p>
             <div className="mt-2 p-3 rounded-xl bg-ipc-50 border border-ipc-100">
               <p className="font-semibold text-ipc-900">Integrated Pelvic Care Inc.</p>
-              <p className="text-ipc-600 mt-1">Email: privacy@integratedpelviccare.com</p>
+              <p className="text-ipc-600 mt-1">Email: hello@myflowcheck.com</p>
             </div>
           </section>
 
