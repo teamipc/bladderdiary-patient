@@ -9,6 +9,7 @@ import {
   getGlossaryEntries,
   buildAbsoluteUrl,
 } from '@/lib/content';
+import { TOPIC_GROUPS, getGroupedTopicSet } from '@/lib/topics';
 import type { Locale } from '@/i18n/config';
 import ArticleCard from '@/components/learn/ArticleCard';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
@@ -111,7 +112,7 @@ export default async function LearnHub({
           </div>
         </section>
 
-        {/* Topics */}
+        {/* Topics — curated groups */}
         <section>
           <h2 className="text-sm uppercase tracking-wider text-ipc-700 font-semibold mb-5">
             {t('hub.browseByTopic')}
@@ -119,8 +120,9 @@ export default async function LearnHub({
           {topics.length === 0 ? (
             <p className="text-base text-ipc-600 italic">{t('hub.noArticles')}</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {topics.map((topic) => {
+            (() => {
+              const topicSet = new Set(topics);
+              const renderTopicCard = (topic: string) => {
                 const pillar = getPillar(typedLocale, topic);
                 return (
                   <Link
@@ -129,9 +131,9 @@ export default async function LearnHub({
                     className="group flex items-start justify-between gap-3 rounded-2xl bg-white border border-ipc-100 p-5 hover:border-ipc-300 hover:shadow-md transition-all"
                   >
                     <div className="min-w-0">
-                      <h3 className="text-lg font-semibold text-ipc-950 capitalize group-hover:text-ipc-700 transition-colors mb-1">
+                      <h4 className="text-lg font-semibold text-ipc-950 capitalize group-hover:text-ipc-700 transition-colors mb-1">
                         {pillar?.frontmatter.title ?? topic.replace(/-/g, ' ')}
-                      </h3>
+                      </h4>
                       {pillar?.frontmatter.description && (
                         <p className="text-sm text-ipc-600 line-clamp-2 leading-relaxed">
                           {pillar.frontmatter.description}
@@ -141,8 +143,45 @@ export default async function LearnHub({
                     <ChevronRight size={18} className="text-ipc-400 shrink-0 mt-1 group-hover:text-ipc-600 transition-colors" />
                   </Link>
                 );
-              })}
-            </div>
+              };
+
+              const groupedSet = getGroupedTopicSet();
+              const ungrouped = topics.filter((t) => !groupedSet.has(t));
+
+              return (
+                <div className="space-y-10">
+                  {TOPIC_GROUPS.map((group) => {
+                    const groupTopics = group.topics.filter((t) => topicSet.has(t));
+                    if (groupTopics.length === 0) return null;
+                    return (
+                      <div key={group.key}>
+                        <h3 className="text-xl md:text-2xl font-semibold text-ipc-950 mb-1">
+                          {group.label}
+                        </h3>
+                        {group.description && (
+                          <p className="text-sm text-ipc-600 mb-4 leading-relaxed">
+                            {group.description}
+                          </p>
+                        )}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                          {groupTopics.map(renderTopicCard)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {ungrouped.length > 0 && (
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-semibold text-ipc-950 mb-4">
+                        More topics
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {ungrouped.map(renderTopicCard)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()
           )}
         </section>
 
