@@ -67,29 +67,42 @@ Required elements, top to bottom:
 
 When you change the byline shape, change it in BOTH apps' card components (clinician + patient) so the shared visual identity stays intact. Memory: `feedback_card_byline_standard`.
 
-### Topic cards (used on the hub to enter a pillar)
+### Topic navigation on the hub (text-link list, NOT cards)
 
-Different element set — these are navigation cards into a topic, not article cards.
+The hub does **not** use topic cards. Topic cards as a navigation pattern were retired in April 2026 because they were eating the fold and burying the editorial articles (parentdata.org-style critique: navigation should not outweigh content). On the hub, topics render as a dense text-link list under curated category headings sourced from `src/lib/topics.ts` (`TOPIC_GROUPS`).
 
-Required elements:
-1. Topic name (pillar's `frontmatter.title`, fallback `topic.replace(/-/g, ' ')` capitalized)
-2. Topic description (pillar's `frontmatter.description`)
-3. `ChevronRight` icon (right-aligned)
+Required shape per group:
+1. Group label as `<h3 class="text-base font-semibold text-ipc-950 mb-2">` (group's `label` from TOPIC_GROUPS)
+2. `<ul class="flex flex-wrap gap-x-5 gap-y-2">` of topic links
+3. Each topic link: plain styled text — `text-base text-ipc-700 hover:text-ipc-950 underline-offset-4 hover:underline capitalize`. No icons, no cards.
 
-Outer chrome shared with article cards: `rounded-2xl bg-white border border-ipc-100 hover:border-ipc-300 hover:shadow-md transition-all`. Layout: `flex items-start justify-between gap-3 p-5`.
+Topics not matched by any TOPIC_GROUP fall through to a "More topics" group (translation key `learn.hub.moreTopics`) so nothing is hidden.
 
-### Card grouping (hub page only)
+If you need to render a topic-pillar entry point elsewhere (e.g., on an audience landing page), use the same text-link list shape, not card chrome.
 
-Topic cards on `/learn` render under curated category headings sourced from `src/lib/topics.ts` (`TOPIC_GROUPS`). See that file for the canonical category taxonomy. Never expose a flat alphabetical topic dump — categories beat raw enumeration as the catalog grows.
+### Chip filter rail (hub only)
+
+Sits between the hero and the "Latest reading" articles section. The chips are **real `<Link>`s to real URLs**, never client-side filter state — this preserves crawlable internal-link equity from the hub to audience and topic pillars.
+
+Source of truth: `FEATURED_CHIPS` in `src/lib/topics.ts`. Chips with a `topic` field are filtered out at render-time when that topic folder has no published content, so the rail self-curates as the catalog grows.
+
+Visual:
+- Container: horizontal scroll on mobile (`overflow-x-auto`), wraps on desktop (`sm:flex-wrap`); hide native scrollbar
+- Chip (default): `inline-flex items-center h-9 px-4 rounded-full text-sm font-medium whitespace-nowrap bg-white border border-ipc-200 text-ipc-700 hover:border-ipc-400 hover:text-ipc-950`
+- Chip (active — current location, e.g. "All" on `/learn`): `bg-ipc-950 text-white` (no border)
+- Set `aria-current="page"` on the active chip
+- Keep the set short (6-8 chips). Full taxonomy is downstream in the topic list.
+
+i18n keys live under `learn.hub.chip*` and must exist in en/fr/es. Never hardcode chip labels in JSX.
 
 ## Standardized typography scale (BINDING — shared with bladderdiary)
 
 | Element | Mobile | Desktop |
 |---|---|---|
-| Hub page hero title | text-4xl | md:text-5xl lg:text-6xl, font-bold |
-| Hub page subtitle | text-lg | md:text-xl |
-| Audience-card title | text-xl | md:text-2xl, font-semibold |
-| Topic-card title | text-lg | text-lg, font-semibold |
+| Hub page hero title | text-3xl | md:text-4xl lg:text-5xl, font-bold |
+| Hub page subtitle | text-base | md:text-lg |
+| Topic group label (on hub) | text-base | text-base, font-semibold |
+| Chip label | text-sm | text-sm, font-medium |
 | Article-card title (in grid) | text-xl | md:text-2xl, font-semibold |
 | Article H1 (when article pages ship) | text-3xl | md:text-4xl lg:text-5xl, font-bold |
 | Article H2 (in body) | text-2xl | md:text-3xl, font-semibold |
@@ -104,11 +117,25 @@ These match the clinician site exactly. Memory: `feedback_typography_standard`.
 
 ## Layout rules for the hub page (`/learn`)
 
+Section order, top to bottom (BINDING):
+
+1. Breadcrumb
+2. Compact hero (H1 + one-line deck) — `pb-6 md:pb-8`, **not** the bigger `pb-12+` we had pre-redesign
+3. Chip filter rail (see "Chip filter rail" section above)
+4. **Latest reading** — `ArticleCard` grid (this is the page lead — first article hero must sit above the 800px fold on a 390px-wide mobile viewport)
+5. **Explore by topic** — text-link list under group headings (no cards)
+6. Glossary entry-point card (single)
+7. `<Disclaimer>` (mandatory YMYL)
+
+Other rules:
+
 - Outer container: `max-w-5xl mx-auto px-4 sm:px-6` for the hub (wider than articles since it shows multiple cards)
 - Article-detail pages: when built, use `max-w-2xl mx-auto px-4 sm:px-6` for body (matching clinician article column width)
 - Section gaps: `space-y-14` (generous breathing between hub sections)
-- Card style: `rounded-2xl bg-white border border-ipc-100 hover:border-ipc-300 hover:shadow-md transition-all`
-- Card grid: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5` for topic cards; `gap-6` for article cards
+- Card style (article card + glossary entry card only): `rounded-2xl bg-white border border-ipc-100 hover:border-ipc-300 hover:shadow-md transition-all`
+- Article-card grid: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6`
+- Recent-articles count: 9 (3 rows × 3 columns at desktop, fills the editorial grid). Sort by `publishedAt` desc.
+- Do NOT reintroduce a topic-card grid on the hub — see "Topic navigation on the hub" above for why.
 
 ## Article meta byline (BINDING — when article pages ship)
 

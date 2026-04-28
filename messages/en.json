@@ -600,11 +600,19 @@
   "learn": {
     "hub": {
       "title": "Understanding your body",
-      "description": "We all have a body. Sharing what we know about bladder health, urinary symptoms, and what to do about them, so we can all understand our own a bit better.",
-      "browseByAudience": "Browse by audience",
-      "browseByTopic": "Topics",
-      "recentArticles": "Recent",
-      "noArticles": "Articles coming soon. Check back shortly."
+      "description": "Plain-language reading on bladder health, urinary symptoms, and what actually helps.",
+      "browseByTopic": "Explore by topic",
+      "moreTopics": "More topics",
+      "recentArticles": "Latest reading",
+      "noArticles": "Articles coming soon. Check back shortly.",
+      "chipAll": "All",
+      "chipMensHealth": "Men's health",
+      "chipWomensHealth": "Women's health",
+      "chipBladderIrritants": "Bladder irritants",
+      "chipNighttime": "Nighttime",
+      "chipUrgency": "Urgency",
+      "chipTraining": "Bladder training",
+      "chipDailyLife": "Daily life"
     },
     "audience": {
       "men": "For men",
@@ -644,10 +652,9 @@
       "readingTime": "{minutes} min read",
       "relatedArticles": "Related articles",
       "citations": "Citations",
-      "ctaForMen": "Track your symptoms with our 3-day bladder diary",
-      "ctaStartDiary": "Start the diary",
-      "ctaForWomen": "Track your symptoms with our 3-day bladder diary",
-      "ctaFindSpecialist": "Start the diary"
+      "ctaTitle": "Track your bladder in 3 days",
+      "ctaDescription": "Three days of tracking. You see your own patterns. Your healthcare team gets the data they need to actually help you.",
+      "ctaStartDiary": "Start the 3-day diary"
     },
     "glossary": {
       "title": "Glossary",

@@ -600,11 +600,19 @@
   "learn": {
     "hub": {
       "title": "Conocer tu cuerpo",
-      "description": "Todos tenemos un cuerpo. Compartimos lo que sabemos sobre salud vesical y s\u00edntomas urinarios, para que todos podamos entender mejor el nuestro.",
-      "browseByAudience": "Explorar por p\u00fablico",
-      "browseByTopic": "Temas",
-      "recentArticles": "Reciente",
-      "noArticles": "Art\u00edculos pr\u00f3ximamente. Vuelve pronto."
+      "description": "Lecturas en lenguaje claro sobre la vejiga, los s\u00edntomas urinarios y lo que de verdad ayuda.",
+      "browseByTopic": "Explorar por tema",
+      "moreTopics": "Otros temas",
+      "recentArticles": "\u00daltimas lecturas",
+      "noArticles": "Art\u00edculos pr\u00f3ximamente. Vuelve pronto.",
+      "chipAll": "Todo",
+      "chipMensHealth": "Salud masculina",
+      "chipWomensHealth": "Salud femenina",
+      "chipBladderIrritants": "Irritantes de la vejiga",
+      "chipNighttime": "Por la noche",
+      "chipUrgency": "Urgencia",
+      "chipTraining": "Reeducaci\u00f3n vesical",
+      "chipDailyLife": "Vida diaria"
     },
     "audience": {
       "men": "Para hombres",
@@ -644,10 +652,9 @@
       "readingTime": "{minutes} min de lectura",
       "relatedArticles": "Art\u00edculos relacionados",
       "citations": "Citas",
-      "ctaForMen": "Registra tus s\u00edntomas con nuestro diario miccional de 3 d\u00edas",
-      "ctaStartDiary": "Empezar el diario",
-      "ctaForWomen": "Registra tus s\u00edntomas con nuestro diario miccional de 3 d\u00edas",
-      "ctaFindSpecialist": "Empezar el diario"
+      "ctaTitle": "Lleva el control de tu vejiga en 3 d\u00edas",
+      "ctaDescription": "Tres d\u00edas de seguimiento. T\u00fa ves tus propios patrones. Tu equipo de salud obtiene los datos que necesita para ayudarte de verdad.",
+      "ctaStartDiary": "Empezar el diario de 3 d\u00edas"
     },
     "glossary": {
       "title": "Glosario",

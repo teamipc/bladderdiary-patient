@@ -600,11 +600,19 @@
     "learn": {
       "hub": {
         "title": "Comprendre son corps",
-        "description": "Nous avons tous un corps. Nous partageons ce que nous savons sur la santé de la vessie et les symptômes urinaires, pour mieux comprendre le nôtre.",
-        "browseByAudience": "Parcourir par public",
-        "browseByTopic": "Sujets",
-        "recentArticles": "Récent",
-        "noArticles": "Articles à venir. Revenez bientôt."
+        "description": "Des lectures en langage clair sur la vessie, les symptômes urinaires, et ce qui aide vraiment.",
+        "browseByTopic": "Explorer par sujet",
+        "moreTopics": "Autres sujets",
+        "recentArticles": "Dernières lectures",
+        "noArticles": "Articles à venir. Revenez bientôt.",
+        "chipAll": "Tout",
+        "chipMensHealth": "Santé masculine",
+        "chipWomensHealth": "Santé féminine",
+        "chipBladderIrritants": "Irritants vésicaux",
+        "chipNighttime": "Pendant la nuit",
+        "chipUrgency": "Urgences",
+        "chipTraining": "Rééducation vésicale",
+        "chipDailyLife": "Au quotidien"
       },
       "audience": {
         "men": "Pour les hommes",
@@ -644,10 +652,9 @@
         "readingTime": "{minutes} min de lecture",
         "relatedArticles": "Articles connexes",
         "citations": "Citations",
-        "ctaForMen": "Suivez vos symptômes avec notre journal mictionnel de 3 jours",
-        "ctaStartDiary": "Commencer le journal",
-        "ctaForWomen": "Suivez vos symptômes avec notre journal mictionnel de 3 jours",
-        "ctaFindSpecialist": "Commencer le journal"
+        "ctaTitle": "Suivez votre vessie en 3 jours",
+        "ctaDescription": "Trois jours de suivi. Vous repérez vos propres tendances. Votre équipe soignante obtient les données dont elle a besoin pour vraiment vous aider.",
+        "ctaStartDiary": "Commencer le suivi de 3 jours"
       },
       "glossary": {
         "title": "Glossaire",
