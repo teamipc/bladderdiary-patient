@@ -788,3 +788,202 @@ input, select, textarea {
 .animate-night-pulse {
   animation: fadeSlideUp 0.4s ease-out both, nightPulse 1.8s ease-out 0.5s 2;
 }
+
+/* ==========================================================================
+   Learn article typography — parentdata.org-inspired editorial reading
+   experience. Mirrors the clinician site's `.journal-prose` (bladderdiary
+   /src/index.css) so a reader navigating between the two sites doesn't feel
+   a brand discontinuity. See .claude/skills/learn-styling/SKILL.md for the
+   binding rules.
+   Applied to <div class="learn-prose"> wrapping <RenderMdx>.
+   ========================================================================== */
+
+.learn-prose {
+  font-size: 1.0625rem;       /* ~17px — slightly larger than 16px default */
+  line-height: 1.75;
+  color: var(--color-ipc-900);
+}
+@media (min-width: 768px) {
+  .learn-prose {
+    font-size: 1.125rem;      /* ~18px on desktop */
+  }
+}
+
+/* Headings — generous top margin for clear section separation */
+.learn-prose > h2 {
+  font-size: 1.5rem;          /* text-2xl */
+  font-weight: 600;
+  color: var(--color-ipc-950);
+  margin-top: 3rem;           /* mt-12 — parentdata-style breathing */
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+@media (min-width: 768px) {
+  .learn-prose > h2 {
+    font-size: 1.875rem;      /* text-3xl on desktop */
+  }
+}
+
+.learn-prose > h3 {
+  font-size: 1.25rem;         /* text-xl */
+  font-weight: 600;
+  color: var(--color-ipc-950);
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.35;
+}
+
+/* Paragraphs */
+.learn-prose > p {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Italic-only paragraphs treated as image captions: smaller, subtler */
+.learn-prose > p:has(> em:only-child) {
+  font-size: 0.9375rem;
+  color: var(--color-ipc-700);
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.learn-prose > p > em:only-child {
+  font-style: italic;
+}
+
+/* Inline links — subtle underline, parentdata-style */
+.learn-prose a {
+  color: var(--color-ipc-700);
+  text-decoration: underline;
+  text-decoration-color: var(--color-ipc-300);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s, color 0.2s;
+}
+.learn-prose a:hover {
+  color: var(--color-ipc-900);
+  text-decoration-color: var(--color-ipc-600);
+}
+
+/* Auto-anchor links inside headings (rehype-autolink-headings wrap) — no
+   underline, inherit color so the heading reads as a heading, not a link. */
+.learn-prose > h2 > a,
+.learn-prose > h3 > a {
+  color: inherit;
+  text-decoration: none;
+}
+.learn-prose > h2 > a:hover,
+.learn-prose > h3 > a:hover {
+  color: var(--color-ipc-700);
+  text-decoration: none;
+}
+
+/* Lists */
+.learn-prose > ul,
+.learn-prose > ol {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+.learn-prose > ul > li {
+  list-style-type: disc;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.learn-prose > ol > li {
+  list-style-type: decimal;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.learn-prose > ul > li::marker,
+.learn-prose > ol > li::marker {
+  color: var(--color-ipc-400);
+}
+
+/* Blockquotes — used as callouts (Key insight / Decision rule / Warning). */
+.learn-prose > blockquote {
+  border-left: 4px solid var(--color-ipc-300);
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  margin-top: 1.75rem;
+  margin-bottom: 1.75rem;
+  color: var(--color-ipc-800);
+  font-style: italic;
+}
+.learn-prose > blockquote > p {
+  margin: 0.5rem 0;
+}
+.learn-prose > blockquote strong {
+  font-style: normal;
+  color: var(--color-ipc-950);
+}
+.learn-prose > blockquote > h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-style: normal;
+}
+.learn-prose > blockquote > h3 a {
+  color: var(--color-ipc-700);
+}
+
+/* Tables */
+.learn-prose > table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  margin-top: 1.75rem;
+  margin-bottom: 1.75rem;
+  display: block;
+  overflow-x: auto;
+}
+.learn-prose > table > thead,
+.learn-prose > table > tbody {
+  display: table;
+  width: 100%;
+}
+.learn-prose > table th {
+  font-weight: 600;
+  color: var(--color-ipc-950);
+  text-align: left;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 2px solid var(--color-ipc-200);
+}
+.learn-prose > table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-ipc-100);
+  vertical-align: top;
+}
+
+/* Inline images — full width of the reading column, rounded, subtle */
+.learn-prose img {
+  border-radius: 0.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  height: auto;
+}
+
+/* Inline code */
+.learn-prose code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  font-size: 0.9em;
+  background-color: var(--color-ipc-50);
+  color: var(--color-ipc-900);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Strong emphasis */
+.learn-prose strong {
+  font-weight: 600;
+  color: var(--color-ipc-950);
+}
+
+/* Horizontal rules — soft, low-contrast (use sparingly; H2 spacing preferred) */
+.learn-prose > hr {
+  border: 0;
+  border-top: 1px solid var(--color-ipc-100);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}

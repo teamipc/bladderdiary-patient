@@ -326,3 +326,30 @@ export const SITE_URL = 'https://myflowcheck.com';
 export function buildAbsoluteUrl(urlPath: string): string {
   return `${SITE_URL}${urlPath}`;
 }
+
+export function getArticleAlternates(article: Article): Record<string, string> {
+  const fm = article.frontmatter;
+  if (fm.pageType === 'glossary') return {};
+  const all = loadAllArticles();
+  const out: Record<string, string> = {};
+  for (const candidate of all) {
+    const cfm = candidate.frontmatter;
+    if (cfm.topic === fm.topic && cfm.slug === fm.slug) {
+      const path =
+        cfm.pageType === 'pillar'
+          ? `/learn/${cfm.topic}`
+          : `/learn/${cfm.topic}/${cfm.slug}`;
+      out[cfm.locale] = cfm.locale === defaultLocale ? path : `/${cfm.locale}${path}`;
+    }
+  }
+  return out;
+}
+
+export function countWords(body: string): number {
+  return body
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/[#>*_\-`[\]()!|]/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
