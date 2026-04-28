@@ -160,7 +160,8 @@ function parseArticleFile(filePath: string, locale: Locale, topic: string): Arti
 }
 
 function loadAllArticles(): Article[] {
-  if (cache.articles) return cache.articles;
+  // Skip in-memory cache in dev so MDX edits hot-reload without restarting the server
+  if (process.env.NODE_ENV === 'production' && cache.articles) return cache.articles;
   const all: Article[] = [];
 
   for (const locale of allLocales) {
@@ -219,7 +220,7 @@ function loadAllArticles(): Article[] {
 }
 
 function loadAllAuthors(): Author[] {
-  if (cache.authors) return cache.authors;
+  if (process.env.NODE_ENV === 'production' && cache.authors) return cache.authors;
   const list: Author[] = [];
   for (const file of safeReaddir(AUTHORS_ROOT)) {
     if (!file.endsWith('.json')) continue;
