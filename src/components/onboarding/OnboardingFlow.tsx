@@ -86,7 +86,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col items-center px-6 pt-6 pb-10 max-w-lg mx-auto w-full">
+      <div className="flex flex-col items-center px-6 pt-6 md:pt-12 pb-10 max-w-lg md:max-w-xl mx-auto w-full">
 
         {/* Step dots + plain-English label (wayfinding for older / non-tech users) */}
         <div className="flex flex-col items-center gap-1.5 mb-5">

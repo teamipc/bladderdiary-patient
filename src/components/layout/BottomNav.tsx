@@ -47,7 +47,7 @@ export default function BottomNav() {
 
   return (
     <nav className={`fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-ipc-100 safe-bottom transition-transform duration-300 ${hidden ? 'translate-y-full' : 'translate-y-0'}`}>
-      <div className="max-w-lg mx-auto flex">
+      <div className="max-w-md mx-auto flex">
         {/* Home tab */}
         <Link
           href="/"
