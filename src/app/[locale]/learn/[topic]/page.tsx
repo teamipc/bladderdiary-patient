@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
@@ -15,6 +16,7 @@ import AuthorByline from '@/components/learn/AuthorByline';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { formatBylineMeta } from '@/lib/authorByline';
 
 interface PageParams {
   locale: string;
@@ -102,33 +104,50 @@ export default async function PillarPage({
             />
             <ArticleJsonLd article={pillar} author={author} reviewer={reviewer} />
 
-            <header className="mb-6">
-              <h1 className="text-3xl font-bold text-ipc-950 mb-3 text-balance leading-tight">
+            <header className="mb-6 mt-2">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-ipc-950 mb-4 text-balance leading-tight tracking-tight">
                 {pillar.frontmatter.title}
               </h1>
-              <p className="text-lg text-ipc-700 leading-relaxed">
+              <p className="text-lg md:text-xl text-ipc-700 leading-relaxed">
                 {pillar.frontmatter.description}
               </p>
             </header>
 
-            <div className="mb-6">
+            <div className="mb-8">
               <AuthorByline
                 author={author}
                 reviewer={reviewer}
-                lastReviewedAt={pillar.frontmatter.lastReviewedAt}
-                updatedAt={pillar.frontmatter.updatedAt}
-                readingTimeMin={pillar.readingTimeMin}
-                labels={{
-                  by: t('article.by'),
-                  reviewedBy: t('article.reviewedBy'),
-                  lastReviewed: t('article.lastReviewed'),
-                  updated: t('article.updated'),
-                  readingTime: (n: number) => t('article.readingTime', { minutes: n }),
-                }}
+                metaLine={formatBylineMeta({
+                  publishedAt: pillar.frontmatter.publishedAt,
+                  updatedAt: pillar.frontmatter.updatedAt,
+                  lastReviewedAt: pillar.frontmatter.lastReviewedAt,
+                  readingTimeMin: pillar.readingTimeMin,
+                  locale: typedLocale,
+                  labels: {
+                    published: t('article.published'),
+                    updated: t('article.updated'),
+                    reviewed: t('article.reviewed'),
+                    readingTime: (n: number) => t('article.readingTime', { minutes: n }),
+                  },
+                })}
+                reviewedByLabel={t('article.reviewedBy')}
               />
             </div>
 
-            <article className="mb-10">
+            {pillar.frontmatter.hero && (
+              <div className="rounded-2xl overflow-hidden mb-10 bg-ipc-50">
+                <Image
+                  src={pillar.frontmatter.hero}
+                  alt={pillar.frontmatter.heroAlt ?? ''}
+                  width={1200}
+                  height={630}
+                  className="w-full h-auto"
+                  priority
+                />
+              </div>
+            )}
+
+            <article className="learn-prose mb-10">
               <RenderMdx source={pillar.body} />
             </article>
           </>
@@ -142,10 +161,10 @@ export default async function PillarPage({
 
         {clusterArticles.length > 0 && (
           <section className="mb-10">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ipc-500 mb-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-ipc-700 mb-5">
               {t('topic.articlesInTopic')}
             </h2>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {clusterArticles.map((a) => (
                 <ArticleCard key={a.urlPath} article={a} />
               ))}

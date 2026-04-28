@@ -1,5 +1,5 @@
 import type { Article, Author } from '@/lib/content';
-import { buildAbsoluteUrl, SITE_URL } from '@/lib/content';
+import { buildAbsoluteUrl, countWords, SITE_URL } from '@/lib/content';
 
 interface JsonLdProps {
   data: Record<string, unknown> | Record<string, unknown>[];
@@ -47,18 +47,31 @@ export function ArticleJsonLd({
 }) {
   const fm = article.frontmatter;
   const url = buildAbsoluteUrl(article.urlPath);
+  const isMedical = fm.pageType !== 'glossary';
 
   const data: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': fm.pageType === 'glossary' ? 'DefinedTerm' : 'MedicalWebPage',
+    '@type': isMedical ? 'MedicalWebPage' : 'DefinedTerm',
     headline: fm.title,
+    name: fm.title,
     description: fm.description,
     url,
     inLanguage: fm.locale,
     datePublished: fm.publishedAt || undefined,
     dateModified: fm.updatedAt || undefined,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    isAccessibleForFree: true,
+    wordCount: countWords(article.body),
+    timeRequired: `PT${article.readingTimeMin}M`,
   };
+
+  if (fm.keywords && fm.keywords.length > 0) {
+    data.keywords = fm.keywords.join(', ');
+  }
+
+  if (isMedical) {
+    data.articleSection = fm.topic.replace(/-/g, ' ');
+  }
 
   if (fm.lastReviewedAt) {
     data.lastReviewed = fm.lastReviewedAt;
@@ -72,7 +85,12 @@ export function ArticleJsonLd({
   }
 
   if (fm.hero) {
-    data.image = buildAbsoluteUrl(fm.hero);
+    data.image = {
+      '@type': 'ImageObject',
+      url: buildAbsoluteUrl(fm.hero),
+      width: 1200,
+      height: 630,
+    };
   }
 
   if (author) {

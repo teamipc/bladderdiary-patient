@@ -8,6 +8,7 @@ import {
   getClusterArticles,
   getAuthor,
   getRelatedArticles,
+  getArticleAlternates,
   buildAbsoluteUrl,
 } from '@/lib/content';
 import { locales, type Locale } from '@/i18n/config';
@@ -17,6 +18,7 @@ import AuthorByline from '@/components/learn/AuthorByline';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { formatBylineMeta } from '@/lib/authorByline';
 
 interface PageParams {
   locale: string;
@@ -46,25 +48,55 @@ export async function generateMetadata({
   const article = getArticle(locale as Locale, topic, slug);
   if (!article) return {};
 
+  const fm = article.frontmatter;
   const canonical =
     locale === 'en'
       ? `/learn/${topic}/${slug}`
       : `/${locale}/learn/${topic}/${slug}`;
 
+  const author = getAuthor(fm.author);
+  const alternates = getArticleAlternates(article);
+
   return {
-    title: article.frontmatter.title,
-    description: article.frontmatter.description,
-    alternates: { canonical },
+    title: fm.title,
+    description: fm.description,
+    keywords: fm.keywords,
+    authors: author ? [{ name: author.name }] : undefined,
+    alternates: {
+      canonical,
+      languages: Object.keys(alternates).length > 1 ? alternates : undefined,
+    },
     openGraph: {
-      title: article.frontmatter.title,
-      description: article.frontmatter.description,
+      title: fm.title,
+      description: fm.description,
       url: buildAbsoluteUrl(canonical),
       type: 'article',
-      publishedTime: article.frontmatter.publishedAt,
-      modifiedTime: article.frontmatter.updatedAt,
-      images: article.frontmatter.hero ? [{ url: article.frontmatter.hero }] : undefined,
+      publishedTime: fm.publishedAt,
+      modifiedTime: fm.updatedAt,
+      authors: author ? [author.name] : undefined,
+      tags: fm.keywords,
+      section: topic.replace(/-/g, ' '),
+      images: fm.hero
+        ? [
+            {
+              url: fm.hero,
+              width: 1200,
+              height: 630,
+              alt: fm.heroAlt ?? fm.title,
+            },
+          ]
+        : undefined,
+      locale: locale === 'fr' ? 'fr_FR' : locale === 'es' ? 'es_ES' : 'en_US',
     },
-    robots: article.frontmatter.noindex ? { index: false } : undefined,
+    twitter: {
+      card: 'summary_large_image',
+      title: fm.title,
+      description: fm.description,
+      images: fm.hero ? [fm.hero] : undefined,
+    },
+    robots: fm.noindex
+      ? { index: false, follow: false }
+      : { index: true, follow: true },
   };
 }
 
@@ -98,7 +130,7 @@ export default async function ArticlePage({
 
   return (
     <div className="bg-surface min-h-screen">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
         <Breadcrumbs items={breadcrumbs} />
         <BreadcrumbJsonLd
           items={breadcrumbs.map((b) => ({
@@ -108,44 +140,58 @@ export default async function ArticlePage({
         />
         <ArticleJsonLd article={article} author={author} reviewer={reviewer} />
 
-        {fm.hero && (
-          <div className="rounded-2xl overflow-hidden mb-6 bg-ipc-50">
-            <Image
-              src={fm.hero}
-              alt={fm.heroAlt ?? ''}
-              width={1200}
-              height={630}
-              className="w-full h-auto"
-              priority
-            />
-          </div>
-        )}
-
-        <header className="mb-6">
-          <h1 className="text-3xl font-bold text-ipc-950 mb-3 text-balance leading-tight">
+        <header className="mb-6 mt-2">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-ipc-950 mb-4 text-balance leading-tight tracking-tight">
             {fm.title}
           </h1>
-          <p className="text-lg text-ipc-700 leading-relaxed">{fm.description}</p>
+          <p className="text-lg md:text-xl text-ipc-700 leading-relaxed">
+            {fm.description}
+          </p>
         </header>
 
-        <div className="mb-6">
+        <div className="mb-8">
           <AuthorByline
             author={author}
             reviewer={reviewer}
-            lastReviewedAt={fm.lastReviewedAt}
-            updatedAt={fm.updatedAt}
-            readingTimeMin={article.readingTimeMin}
-            labels={{
-              by: t('article.by'),
-              reviewedBy: t('article.reviewedBy'),
-              lastReviewed: t('article.lastReviewed'),
-              updated: t('article.updated'),
-              readingTime: (n: number) => t('article.readingTime', { minutes: n }),
-            }}
+            metaLine={formatBylineMeta({
+              publishedAt: fm.publishedAt,
+              updatedAt: fm.updatedAt,
+              lastReviewedAt: fm.lastReviewedAt,
+              readingTimeMin: article.readingTimeMin,
+              locale: typedLocale,
+              labels: {
+                published: t('article.published'),
+                updated: t('article.updated'),
+                reviewed: t('article.reviewed'),
+                readingTime: (n: number) => t('article.readingTime', { minutes: n }),
+              },
+            })}
+            reviewedByLabel={t('article.reviewedBy')}
           />
         </div>
 
-        <article className="mb-10">
+        {fm.hero && (
+          <figure className="-mx-4 sm:mx-0 mb-10">
+            <div className="sm:rounded-2xl overflow-hidden bg-ipc-50">
+              <Image
+                src={fm.hero}
+                alt={fm.heroAlt ?? ''}
+                width={1200}
+                height={630}
+                className="w-full h-auto"
+                sizes="(min-width: 768px) 672px, 100vw"
+                priority
+              />
+            </div>
+            {fm.heroAlt && (
+              <figcaption className="text-xs text-ipc-600 italic text-center mt-2 px-4 sm:px-0">
+                {fm.heroAlt}
+              </figcaption>
+            )}
+          </figure>
+        )}
+
+        <article className="learn-prose mb-10">
           <RenderMdx source={article.body} />
         </article>
 
@@ -204,10 +250,10 @@ export default async function ArticlePage({
 
         {related.length > 0 && (
           <section className="mb-10">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ipc-500 mb-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-ipc-700 mb-5">
               {t('article.relatedArticles')}
             </h2>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {related.map((a) => (
                 <ArticleCard key={a.urlPath} article={a} />
               ))}

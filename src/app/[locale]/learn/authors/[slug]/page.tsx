@@ -140,10 +140,10 @@ export default async function AuthorPage({
 
         {authored.length > 0 && (
           <section className="mb-8">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ipc-500 mb-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-ipc-700 mb-5">
               {tAuthor('articlesAuthored', { name: author.name })}
             </h2>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {authored.map((a) => (
                 <ArticleCard key={a.urlPath} article={a} />
               ))}
@@ -153,10 +153,10 @@ export default async function AuthorPage({
 
         {reviewed.length > 0 && (
           <section className="mb-8">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ipc-500 mb-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-ipc-700 mb-5">
               {tAuthor('articlesReviewed', { name: author.name })}
             </h2>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {reviewed.map((a) => (
                 <ArticleCard key={a.urlPath} article={a} />
               ))}
