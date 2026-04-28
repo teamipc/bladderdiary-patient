@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   getArticle,
@@ -119,8 +120,6 @@ export default async function ArticlePage({
   const reviewer = fm.medicallyReviewedBy ? getAuthor(fm.medicallyReviewedBy) : null;
   const related = getRelatedArticles(article);
 
-  const audienceForCta = fm.audience.length === 1 ? fm.audience[0] : null;
-
   const breadcrumbs = [
     { label: tBreadcrumbs('home'), href: '/' },
     { label: tBreadcrumbs('learn'), href: '/learn' },
@@ -220,33 +219,22 @@ export default async function ArticlePage({
           </section>
         )}
 
-        {audienceForCta === 'men' && (
-          <section className="mb-8 rounded-2xl bg-ipc-50 border border-ipc-100 p-5">
-            <h2 className="text-base font-semibold text-ipc-950 mb-1">
-              {t('article.ctaForMen')}
-            </h2>
-            <Link
-              href="/"
-              className="inline-flex items-center mt-3 px-4 py-2 rounded-full bg-ipc-600 text-white font-semibold text-sm active:scale-[0.98] transition-transform"
-            >
-              {t('article.ctaStartDiary')}
-            </Link>
-          </section>
-        )}
-
-        {audienceForCta === 'women' && (
-          <section className="mb-8 rounded-2xl bg-ipc-50 border border-ipc-100 p-5">
-            <h2 className="text-base font-semibold text-ipc-950 mb-1">
-              {t('article.ctaForWomen')}
-            </h2>
-            <Link
-              href="/"
-              className="inline-flex items-center mt-3 px-4 py-2 rounded-full bg-ipc-600 text-white font-semibold text-sm active:scale-[0.98] transition-transform"
-            >
-              {t('article.ctaFindSpecialist')}
-            </Link>
-          </section>
-        )}
+        {/* Diary CTA — primary conversion on every article. The site exists to drive 3-day diary completions. */}
+        <section className="mb-10 rounded-2xl bg-gradient-to-br from-ipc-100 to-ipc-50 border border-ipc-200 p-6 sm:p-8 text-center">
+          <h2 className="text-xl md:text-2xl font-bold text-ipc-950 mb-2 leading-tight tracking-tight">
+            {t('article.ctaTitle')}
+          </h2>
+          <p className="text-base md:text-lg text-ipc-700 mb-5 max-w-md mx-auto leading-relaxed">
+            {t('article.ctaDescription')}
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-ipc-700 hover:bg-ipc-800 text-white font-semibold text-base shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
+          >
+            <span>{t('article.ctaStartDiary')}</span>
+            <ArrowRight size={18} aria-hidden />
+          </Link>
+        </section>
 
         {related.length > 0 && (
           <section className="mb-10">

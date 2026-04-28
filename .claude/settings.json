@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r 'select((.tool_input.file_path // \"\") | endswith(\"messages/en.json\")) | {hookSpecificOutput: {hookEventName: \"PostToolUse\", additionalContext: \"messages/en.json was just edited — sync the new or changed keys into messages/fr.json and messages/es.json using the i18n-sync skill (.claude/skills/i18n-sync/SKILL.md), keeping idiomatic locale-natural phrasing per the skill register rules (FR=vous, ES=tú).\"}}'"
+          }
+        ]
+      }
+    ]
+  }
+}

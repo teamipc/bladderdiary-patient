@@ -77,3 +77,35 @@ export function findGroupForTopic(topic: string): TopicGroup | undefined {
 export function getGroupedTopicSet(): Set<string> {
   return new Set(TOPIC_GROUPS.flatMap((g) => g.topics));
 }
+
+/**
+ * Curated chip rail shown on the /learn hub.
+ *
+ * Each chip is a real link to a real URL — chips are NOT client-side filter
+ * state. This preserves crawlable internal-link equity from the hub to the
+ * audience and topic pillars.
+ *
+ * Topic-bound chips (those with a `topic` field) only render when that topic
+ * folder has published content. As the catalog grows, edit this list to
+ * surface the highest-signal entry points (6-8 chips total is the sweet spot —
+ * the full taxonomy still lives in the "Explore by topic" list further down).
+ */
+export interface FeaturedChip {
+  /** i18n key under `learn.hub.<key>` */
+  key: string;
+  /** Locale-agnostic /learn route the chip links to */
+  href: string;
+  /** When set, the chip only renders if this topic folder exists in the catalog */
+  topic?: string;
+}
+
+export const FEATURED_CHIPS: FeaturedChip[] = [
+  { key: 'chipAll', href: '/learn' },
+  { key: 'chipMensHealth', href: '/learn/for-men' },
+  { key: 'chipWomensHealth', href: '/learn/for-women' },
+  { key: 'chipBladderIrritants', href: '/learn/bladder-irritants', topic: 'bladder-irritants' },
+  { key: 'chipNighttime', href: '/learn/nocturia', topic: 'nocturia' },
+  { key: 'chipUrgency', href: '/learn/urgency', topic: 'urgency' },
+  { key: 'chipTraining', href: '/learn/bladder-training', topic: 'bladder-training' },
+  { key: 'chipDailyLife', href: '/learn/hydration', topic: 'hydration' },
+];
