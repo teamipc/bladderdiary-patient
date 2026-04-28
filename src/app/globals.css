@@ -809,12 +809,14 @@ input, select, textarea {
   }
 }
 
-/* Headings — generous top margin for clear section separation */
+/* Headings — generous top margin for clear section separation.
+   H2 spacing matches the parentdata.org editorial cadence: 4.5rem above,
+   so each major section gets a real breath of whitespace before it. */
 .learn-prose > h2 {
   font-size: 1.5rem;          /* text-2xl */
   font-weight: 600;
   color: var(--color-ipc-950);
-  margin-top: 3rem;           /* mt-12 — parentdata-style breathing */
+  margin-top: 4.5rem;         /* mt-18 — generous parentdata-style breathing */
   margin-bottom: 0.75rem;
   letter-spacing: -0.01em;
   line-height: 1.3;
@@ -825,13 +827,16 @@ input, select, textarea {
   }
 }
 
+/* H3 — bolder + slightly larger so subsection headers (food categories,
+   FAQ questions) read as proper sub-headings instead of inline labels. */
 .learn-prose > h3 {
-  font-size: 1.25rem;         /* text-xl */
-  font-weight: 600;
+  font-size: 1.375rem;        /* ~22px — bumped from 1.25rem */
+  font-weight: 700;           /* bumped from 600 */
   color: var(--color-ipc-950);
-  margin-top: 2rem;
+  margin-top: 2.25rem;
   margin-bottom: 0.5rem;
-  line-height: 1.35;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
 }
 
 /* Paragraphs */
@@ -840,13 +845,16 @@ input, select, textarea {
   margin-bottom: 1.25rem;
 }
 
-/* Italic-only paragraphs treated as image captions: smaller, subtler */
+/* Italic-only paragraphs treated as image captions: 16px so older readers
+   can still read them comfortably, slightly desaturated from body color
+   so they read as supporting metadata rather than body content. */
 .learn-prose > p:has(> em:only-child) {
-  font-size: 0.9375rem;
-  color: var(--color-ipc-700);
+  font-size: 1rem;            /* bumped from 0.9375rem (15px) for legibility */
+  color: var(--color-ipc-600);
   text-align: center;
-  margin-top: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: 0.625rem;
+  margin-bottom: 2rem;
+  line-height: 1.55;
 }
 .learn-prose > p > em:only-child {
   font-style: italic;
@@ -961,6 +969,34 @@ input, select, textarea {
   margin-bottom: 0.5rem;
   width: 100%;
   height: auto;
+}
+
+/* Key-takeaways tinted highlight card.
+   When an article opens with `### Key takeaways` followed by a bullet list
+   (the convention seo-finalizer enforces), turn the H3 + list into a single
+   warm-tinted card with a left rule. Gives the TLDR the visual prominence
+   readers actually scan it for, instead of looking like generic blog bullets.
+   The selector is precise — H3 with id "key-takeaways" + adjacent UL. */
+.learn-prose > h3#key-takeaways {
+  background: var(--color-ipc-50);
+  border-left: 3px solid var(--color-ipc-300);
+  padding: 1.25rem 1.5rem 0.5rem 1.5rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  margin-top: 2.5rem;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+}
+.learn-prose > h3#key-takeaways + ul {
+  background: var(--color-ipc-50);
+  border-left: 3px solid var(--color-ipc-300);
+  padding: 0.25rem 1.5rem 1.25rem 2.75rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+.learn-prose > h3#key-takeaways + ul > li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Inline code */

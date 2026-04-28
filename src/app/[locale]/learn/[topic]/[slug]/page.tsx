@@ -171,7 +171,7 @@ export default async function ArticlePage({
         </div>
 
         {fm.hero && (
-          <figure className="-mx-4 sm:mx-0 mb-10">
+          <figure className="-mx-4 sm:-mx-12 md:-mx-16 mb-10">
             <div className="sm:rounded-2xl overflow-hidden bg-ipc-50">
               <Image
                 src={fm.hero}
@@ -179,12 +179,12 @@ export default async function ArticlePage({
                 width={1200}
                 height={630}
                 className="w-full h-auto"
-                sizes="(min-width: 768px) 672px, 100vw"
+                sizes="(min-width: 1024px) 800px, (min-width: 768px) 768px, 100vw"
                 priority
               />
             </div>
             {fm.heroAlt && (
-              <figcaption className="text-xs text-ipc-600 italic text-center mt-2 px-4 sm:px-0">
+              <figcaption className="text-base text-ipc-600 italic text-center mt-3 px-4 sm:px-12 md:px-16 leading-relaxed">
                 {fm.heroAlt}
               </figcaption>
             )}
