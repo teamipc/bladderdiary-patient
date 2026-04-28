@@ -4,7 +4,7 @@ export default function DiaryLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="max-w-lg mx-auto w-full px-4 pt-4">
+    <div className="max-w-xl mx-auto w-full px-4 pt-4">
       {children}
     </div>
   );

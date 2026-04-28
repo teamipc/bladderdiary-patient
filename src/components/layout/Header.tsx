@@ -53,7 +53,7 @@ export default function Header({ title }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 bg-surface/80 backdrop-blur-md border-b border-ipc-100">
-      <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-14">
+      <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14">
         <button
           type="button"
           onClick={handleHomeClick}

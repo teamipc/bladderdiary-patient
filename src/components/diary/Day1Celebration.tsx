@@ -87,7 +87,7 @@ export default function Day1Celebration({ open, eventCount, onClose }: Day1Celeb
       aria-modal="true"
       aria-labelledby="day1-celebration-title"
     >
-      <div className="flex-1 flex flex-col items-center px-5 pt-5 pb-4 max-w-lg mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center px-5 pt-5 pb-4 max-w-lg md:max-w-xl mx-auto w-full">
         <div className="animate-scale-in mb-3">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-ipc-400 to-ipc-600 flex items-center justify-center shadow-xl">
             <Check size={32} className="text-white" strokeWidth={3} />

@@ -48,7 +48,7 @@ export default function SummaryPage() {
 
   if (!isComplete) {
     return (
-      <div className="max-w-lg mx-auto px-4 pt-12 text-center">
+      <div className="max-w-2xl mx-auto px-4 pt-12 text-center">
         <div className="w-16 h-16 rounded-full bg-ipc-100 flex items-center justify-center mx-auto mb-4">
           <Lock size={28} className="text-ipc-400" />
         </div>
@@ -59,7 +59,7 @@ export default function SummaryPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-4 pb-12 space-y-6">
+    <div className="max-w-2xl mx-auto px-4 pt-4 pb-12 space-y-6">
       {/* Back link — when the diary is complete, return to Day 3 (the latest
           filled day) instead of getCurrentDay(). The latter is a real-world
           calendar diff and lands on Day 1 when a tester completes all three

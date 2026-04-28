@@ -79,7 +79,7 @@ function LandingContent() {
 
   if (diaryStarted) {
     return (
-      <div className="flex flex-col items-center px-6 pt-12 pb-12 max-w-lg mx-auto w-full">
+      <div className="flex flex-col items-center px-6 pt-12 md:pt-20 pb-12 max-w-lg md:max-w-xl mx-auto w-full">
         <div className="text-center mb-8 animate-fade-slide-up">
           <div className="w-20 h-20 rounded-2xl bg-ipc-100 flex items-center justify-center mx-auto mb-4">
             <Image src="/app-logo.png" alt="My Flow Check" width={52} height={52} />
@@ -145,20 +145,20 @@ function LandingContent() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center px-6 pt-8 pb-12 max-w-lg mx-auto w-full">
-      <div className="text-center mb-8 animate-fade-slide-up">
-        <div className="w-28 h-28 rounded-3xl bg-ipc-100 flex items-center justify-center mx-auto mb-5">
-          <Image src="/app-logo.png" alt="My Flow Check bladder diary tracker" width={72} height={72} />
+    <div className="flex flex-col items-center justify-center px-6 pt-8 md:pt-16 pb-12 max-w-lg md:max-w-2xl mx-auto w-full">
+      <div className="text-center mb-8 md:mb-10 animate-fade-slide-up">
+        <div className="w-28 h-28 md:w-32 md:h-32 rounded-3xl bg-ipc-100 flex items-center justify-center mx-auto mb-5 md:mb-6">
+          <Image src="/app-logo.png" alt="My Flow Check bladder diary tracker" width={72} height={72} className="md:w-20 md:h-20" />
         </div>
-        <h1 className="text-2xl font-bold text-ipc-950 mb-3 leading-tight text-balance">
+        <h1 className="text-2xl md:text-4xl font-bold text-ipc-950 mb-3 md:mb-4 leading-tight text-balance">
           {t('heroTitle')}
         </h1>
-        <p className="text-lg text-ipc-500 leading-relaxed">
+        <p className="text-lg md:text-xl text-ipc-500 leading-relaxed text-balance">
           {t('heroSubtitle')}
         </p>
       </div>
 
-      <div className="w-full animate-fade-slide-up stagger-3">
+      <div className="w-full md:max-w-md animate-fade-slide-up stagger-3">
         <Button onClick={() => { track('start_tracking'); setShowOnboarding(true); }} fullWidth size="lg">
           {t('startTracking')}
         </Button>

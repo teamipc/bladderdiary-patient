@@ -31,7 +31,7 @@ export default async function PrivacyPolicyPage({
 
   return (
     <div className="bg-surface min-h-dvh">
-      <div className="max-w-lg mx-auto px-4 py-6 pb-28">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-28">
         {/* Header */}
         <div className="flex items-center gap-2 mb-6">
           <Link
