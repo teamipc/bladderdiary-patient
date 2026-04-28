@@ -31,7 +31,7 @@ For each frontmatter field, follow the action below. **Do not ask** for fields m
 | `title` | EXTRACT or ASK | Use H1 from body if present. If user supplied a title separately, prefer that. Never invent. |
 | `description` | DRAFT, then CONFIRM | Write a 140 to 160 char meta description from the article's first paragraph plus value prop. Show user, ask "use this or rewrite?" |
 | `slug` | AUTO-FILL | Lowercase, hyphenated version of title, max ~60 chars. Strip stop words ("the", "and", "of") if title is long. |
-| `topic` | ASK if missing | If user did not say, ask: "Which topic does this belong to? (nocturia / urgency / bladder-training / bph / pelvic-floor / pelvic-organ-prolapse / other)". If "other", confirm new folder name before creating. |
+| `topic` | ASK if missing | If user did not say, ask: "Which topic does this belong to? (nocturia / urgency / bladder-training / bph / pelvic-floor / pelvic-organ-prolapse / other)". If "other", confirm new folder name before creating AND follow the full new-topic procedure in [README.md › Creating a new topic](./README.md#creating-a-new-topic) — including the `src/lib/topics.ts` registration step the intake skill won't do automatically. |
 | `pageType` | INFER, then CONFIRM | Default `cluster`. If user said "overview" / "pillar" / "main page for [topic]", set `pillar` and use `_pillar.mdx`. If short term-definition (<400 words, defines one concept), set `glossary`. |
 | `audience` | ASK if missing | "Is this for men, women, or both?" Infer from clinical content when obvious (BPH → men, prolapse → women), but always confirm. |
 | `locale` | DEFAULT to `en` | Only override if user explicitly specifies fr/es. |

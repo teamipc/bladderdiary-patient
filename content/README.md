@@ -63,6 +63,39 @@ The `/learn` hub itself is rendered from a TSX page that pulls a featured select
 
 ---
 
+## Asset folder layout (the `public/` mirror)
+
+MDX bodies reference images by URL, but the files live in the repo's top-level `public/` tree. Next.js serves anything under `public/` at the matching root URL, so the folder shape is determined by the served URL — same topic-folder discipline as `content/articles/`:
+
+```
+public/
+├── articles/
+│   ├── <topic>/
+│   │   ├── <slug>/                       cluster article assets
+│   │   │   ├── hero.jpg                  → /articles/<topic>/<slug>/hero.jpg
+│   │   │   └── <inline-image>.jpg        → /articles/<topic>/<slug>/<inline-image>.jpg
+│   │   └── <pillar-asset>.jpg            pillar assets sit one level up (URL: /articles/<topic>/...)
+├── glossary/
+│   └── <term>/                           glossary entry assets
+│       └── hero.jpg                      → /glossary/<term>/hero.jpg
+└── authors/
+    └── <slug>.jpg                        author photo (referenced by authors/<slug>.json's photoUrl)
+```
+
+**Path mapping rules:**
+
+| Article file | Asset folder | Body reference |
+|---|---|---|
+| `content/articles/en/<topic>/<slug>.mdx` | `public/articles/<topic>/<slug>/` | `/articles/<topic>/<slug>/<file>` |
+| `content/articles/en/<topic>/_pillar.mdx` | `public/articles/<topic>/` | `/articles/<topic>/<file>` |
+| `content/glossary/en/<term>.mdx` | `public/glossary/<term>/` | `/glossary/<term>/<file>` |
+
+The locale folder (`en`, `fr`, `es`) does NOT appear in the asset path — translated articles share the same image assets as their English source, so the folder is locale-independent.
+
+For weight + format conventions (hero target ≤ 400 KB, JPEG q80, etc.), see the SEO workflow's `/image-optimize` skill — it's idempotent and can be re-run on any oversized asset.
+
+---
+
 ## Page types
 
 There are three distinct types of content pages, each with a different role in the SEO architecture.
@@ -82,6 +115,40 @@ Example cluster around the nocturia pillar: `causes.mdx`, `when-to-worry.mdx`, `
 ### 3. Glossary entries (`glossary/{locale}/{term}.mdx`)
 
 Short term-definition pages, 200 to 400 words. Each targets a single "what is X" query. Links into relevant pillars and cluster articles. Cheap to write, high SEO ROI because they exactly match the search intent for definitional queries.
+
+---
+
+## Creating a new topic
+
+A topic folder is a long-term commitment. It only earns its own folder if it can sustain a pillar plus 2 to 3 cluster articles within roughly six months. One-off articles fold into an existing topic as clusters; bare definitions live in `glossary/`.
+
+### When a new topic is justified
+
+- The head keyword has non-trivial search volume (Keysearch ≥ 30 is the typical floor).
+- We can plausibly write a pillar (1,500+ words) plus 2 to 3 clusters covering distinct sub-questions.
+- It does not substantially overlap an existing topic — if it does, extend the existing topic instead of splitting authority across two folders.
+
+### When NOT to create a new topic
+
+- A single one-off cluster article: place it under the closest existing topic.
+- A definitional, term-only piece: write a glossary entry instead.
+- Any topic that overlaps existing scope: extend the existing topic's cluster set.
+
+### Procedure
+
+1. **Pick the folder name.** Lowercase, hyphenated, matches how patients actually search. Prefer the shortest indexable form (`bph`, not `benign-prostatic-hyperplasia` — patients search the abbreviation more). Examples already in use: `nocturia`, `bph`, `pelvic-floor`, `pelvic-organ-prolapse`.
+2. **Confirm with the user before creating.** A new topic folder is a multi-article commitment. The intake skill must surface the new-topic decision rather than create silently.
+3. **Create the folder** under `content/articles/en/`. Translation folders (`fr/`, `es/`) get created only when an actual translation lands — never proactively.
+4. **Add the topic to `src/lib/topics.ts`** under the most fitting `TopicGroup.topics` array. The build's `/learn` hub reads from this list, not from the folder tree — a topic missing here surfaces only via the "More topics" fallback. If no existing group fits, propose a new group and surface to the user before adding.
+5. **Write the pillar first if at all possible.** The pillar establishes the topic's frontmatter conventions and gives clusters a target to link up to. If you must ship a cluster before the pillar (rare), write a stub `_pillar.mdx` with `draft: true` so internal links from clusters resolve.
+6. **Plan 2 to 3 cluster articles before approving the pillar.** Single-article topics rank poorly. The cluster set should cover the head keyword's main long-tail questions surfaced by SERP / PAA research.
+
+### Files to touch outside `content/` (intake won't do this for you)
+
+- **`src/lib/topics.ts`** — canonical topic taxonomy (required; see step 4).
+- **`messages/{locale}.json`** — only if the topic needs custom hub or audience-landing copy.
+
+The article-intake skill never modifies these files automatically. It surfaces the requirement and the user wires them.
 
 ---
 
