@@ -1,0 +1,29 @@
+#!/bin/bash
+# Article guardrail — pre-commit hook (tracked, portable)
+# Blocks SEO-breaking changes (slug rename, topic rename, em-dash, etc.)
+# See /Users/zhen/SEO/.claude/skills/article-guardrail/SKILL.md
+#
+# Activated automatically on `npm install` via the `prepare` script in
+# package.json (which runs `git config core.hooksPath .githooks`). For a
+# fresh clone, run `npm install` once to activate, or run the config
+# command directly:
+#   git config core.hooksPath .githooks
+#
+# To bypass for a legitimate exception, run from this repo:
+#   python3 /Users/zhen/SEO/scripts/article_guardrail.py \
+#     --repo "$(git rev-parse --show-toplevel)" \
+#     --override-justification "<reason>"
+# Then the next `git commit` will pass (override is logged to
+# /Users/zhen/SEO/state/guardrail-overrides.jsonl for the audit trail).
+
+GUARDRAIL=/Users/zhen/SEO/scripts/article_guardrail.py
+
+if [ ! -f "$GUARDRAIL" ]; then
+  echo "[pre-commit] WARN: article_guardrail.py not found at $GUARDRAIL — skipping check."
+  echo "[pre-commit]       Set up the SEO workflow at /Users/zhen/SEO to enable protection."
+  exit 0
+fi
+
+exec python3 "$GUARDRAIL" \
+  --repo "$(git rev-parse --show-toplevel)" \
+  --pre-commit
