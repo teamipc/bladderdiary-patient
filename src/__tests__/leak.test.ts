@@ -79,6 +79,8 @@ function makeBaseState(overrides?: Partial<DiaryState>): DiaryState {
     diaryStarted: true,
     clinicCode: null,
     timeZone: 'UTC',
+    morningAnchor: null,
+    day1CelebrationShown: false,
     leaks: [],
     bedtimes: [bed(1, 1, 22, 0), bed(2, 2, 22, 0), bed(3, 3, 22, 0)],
     wakeTimes: [wake(1, 1, 7, 0), wake(2, 2, 7, 0), wake(3, 3, 7, 0)],

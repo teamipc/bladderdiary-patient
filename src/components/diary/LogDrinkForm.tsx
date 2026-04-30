@@ -227,7 +227,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
           <button type="button" onClick={() => goToStep(step - 1)}
             className="inline-flex items-center gap-1 pl-2 pr-3 h-8 rounded-full bg-drink/10 border border-drink/20 text-drink active:scale-[0.95] active:bg-drink/20 transition-all"
             aria-label={tc('previousStep')}>
-            <ChevronLeft size={18} strokeWidth={2.5} />
+            <ChevronLeft size={18} strokeWidth={2.5} className="rtl:scale-x-[-1]" />
             <span className="text-sm font-semibold">{tc('back')}</span>
           </button>
         </div>
@@ -349,7 +349,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
         <div className="sticky bottom-0 -mx-5 mt-6 px-5 pt-5 pb-2 bg-gradient-to-t from-white via-white/95 to-white/0">
           <Button onClick={() => goToStep(step + 1)} fullWidth size="lg" variant={isNightView ? 'night' : 'drink'} disabled={volume <= 0}>
             {tc('next')}
-            <ChevronRight size={18} className="ml-1" />
+            <ChevronRight size={18} className="ms-1 rtl:scale-x-[-1]" />
           </Button>
         </div>
       )}

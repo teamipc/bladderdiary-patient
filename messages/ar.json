@@ -312,10 +312,8 @@
     "voids": "{count} تبولات",
     "wake": "استيقاظ {time}",
     "bed": "نوم {time}",
-    "voidLeaks": "{count} تسرب أثناء التبول",
-    "voidLeaksPlural": "{count} تسربات أثناء التبول",
-    "leaks": "{count} تسرب",
-    "leaksPlural": "{count} تسربات",
+    "voidLeaks": "{count, plural, =0 {لا تسربات أثناء التبول} one {تسرب واحد أثناء التبول} two {تسربان أثناء التبول} few {# تسربات أثناء التبول} many {# تسربا أثناء التبول} other {# تسرب أثناء التبول}}",
+    "leaks": "{count, plural, =0 {لا تسربات} one {تسرب واحد} two {تسربان} few {# تسربات} many {# تسربا} other {# تسرب}}",
     "noEntries": "لا توجد إدخالات مسجّلة"
   },
   "nextStep": {

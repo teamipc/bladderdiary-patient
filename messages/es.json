@@ -312,10 +312,8 @@
     "voids": "{count} orinas",
     "wake": "Despertar {time}",
     "bed": "Acostarse {time}",
-    "voidLeaks": "{count} escape",
-    "voidLeaksPlural": "{count} escapes",
-    "leaks": "{count} escape",
-    "leaksPlural": "{count} escapes",
+    "voidLeaks": "{count, plural, =0 {sin escapes} one {# escape} other {# escapes}}",
+    "leaks": "{count, plural, =0 {sin escapes} one {# escape} other {# escapes}}",
     "noEntries": "Sin registros"
   },
   "nextStep": {

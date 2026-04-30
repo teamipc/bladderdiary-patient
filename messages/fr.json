@@ -312,10 +312,8 @@
     "voids": "{count} mictions",
     "wake": "Réveil {time}",
     "bed": "Coucher {time}",
-    "voidLeaks": "{count} fuite",
-    "voidLeaksPlural": "{count} fuites",
-    "leaks": "{count} fuite",
-    "leaksPlural": "{count} fuites",
+    "voidLeaks": "{count, plural, =0 {aucune fuite} one {# fuite} other {# fuites}}",
+    "leaks": "{count, plural, =0 {aucune fuite} one {# fuite} other {# fuites}}",
     "noEntries": "Aucune entrée enregistrée"
   },
   "nextStep": {

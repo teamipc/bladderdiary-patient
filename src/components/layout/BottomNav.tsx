@@ -123,7 +123,7 @@ export default function BottomNav() {
             text-ipc-700 cursor-not-allowed">
             <div className="w-8 h-8 flex items-center justify-center relative">
               <BarChart3 size={22} />
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full
+              <div className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full
                 bg-ipc-200 flex items-center justify-center">
                 <Lock size={9} className="text-ipc-700" />
               </div>

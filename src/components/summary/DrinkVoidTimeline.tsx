@@ -68,9 +68,9 @@ export default function DrinkVoidTimeline({ dayNumber }: DrinkVoidTimelineProps)
         {drinks.map((d, i) => (
           <div
             key={d.id}
-            className="absolute top-0 -translate-x-1/2 w-7 h-7 rounded-full bg-drink/15 border border-drink/40 flex items-center justify-center animate-fade-slide-up opacity-0"
+            className="timeline-dot absolute top-0 w-7 h-7 rounded-full bg-drink/15 border border-drink/40 flex items-center justify-center animate-fade-slide-up opacity-0"
             style={{
-              left: `${positionPercent(d.timestampIso)}%`,
+              insetInlineStart: `${positionPercent(d.timestampIso)}%`,
               animationDelay: `${i * 90 + dayNumber * 200}ms`,
               animationFillMode: 'forwards',
             }}
@@ -89,9 +89,9 @@ export default function DrinkVoidTimeline({ dayNumber }: DrinkVoidTimelineProps)
         {voids.map((v, i) => (
           <div
             key={v.id}
-            className="absolute top-1 -translate-x-1/2 w-7 h-7 rounded-full bg-void/15 border border-void/40 flex items-center justify-center animate-fade-slide-up opacity-0"
+            className="timeline-dot absolute top-1 w-7 h-7 rounded-full bg-void/15 border border-void/40 flex items-center justify-center animate-fade-slide-up opacity-0"
             style={{
-              left: `${positionPercent(v.timestampIso)}%`,
+              insetInlineStart: `${positionPercent(v.timestampIso)}%`,
               animationDelay: `${i * 90 + dayNumber * 200 + 150}ms`,
               animationFillMode: 'forwards',
             }}

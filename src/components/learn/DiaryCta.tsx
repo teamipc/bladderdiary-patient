@@ -23,7 +23,7 @@ export default async function DiaryCta({ title, body }: DiaryCtaProps) {
         className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-ipc-700 hover:bg-ipc-800 text-white no-underline font-semibold text-sm sm:text-base shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
       >
         <span>{t('ctaStartDiary')}</span>
-        <ArrowRight size={16} aria-hidden />
+        <ArrowRight size={16} aria-hidden className="rtl:scale-x-[-1]" />
       </Link>
     </aside>
   );

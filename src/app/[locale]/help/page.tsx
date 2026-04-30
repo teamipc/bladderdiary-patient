@@ -50,7 +50,7 @@ export default async function HelpPage({
             href="/summary"
             className="inline-flex items-center gap-1 text-ipc-600 hover:text-ipc-800 transition-colors mb-3"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={20} className="rtl:scale-x-[-1]" />
             <span className="text-base font-medium">{tc('back')}</span>
           </Link>
           <h1 className="text-xl font-bold text-ipc-900 text-balance">
@@ -70,7 +70,7 @@ export default async function HelpPage({
                 <ChevronLeft
                   size={18}
                   className="text-ipc-400 transition-transform -rotate-90
-                    group-open:rotate-[-270deg] shrink-0 ml-2"
+                    group-open:rotate-[-270deg] shrink-0 ml-2 rtl:scale-x-[-1]"
                 />
               </summary>
               <div className="px-5 pb-4 text-base text-ipc-700 leading-relaxed">

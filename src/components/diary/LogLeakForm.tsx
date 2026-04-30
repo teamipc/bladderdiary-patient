@@ -216,7 +216,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               active:scale-[0.95] active:bg-leak/20 transition-all"
             aria-label={tc('previousStep')}
           >
-            <ChevronLeft size={18} strokeWidth={2.5} />
+            <ChevronLeft size={18} strokeWidth={2.5} className="rtl:scale-x-[-1]" />
             <span className="text-sm font-semibold">{tc('back')}</span>
           </button>
         </div>
@@ -401,7 +401,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
             disabled={step === 1 ? !trigger : urgencyBeforeLeak === null}
           >
             {tc('next')}
-            <ChevronRight size={18} className="ml-1" />
+            <ChevronRight size={18} className="ms-1 rtl:scale-x-[-1]" />
           </Button>
         </div>
       )}

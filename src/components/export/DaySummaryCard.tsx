@@ -91,13 +91,13 @@ export default function DaySummaryCard({ dayNumber }: DaySummaryCardProps) {
             )}
             {leaks > 0 && (
               <div className="flex items-center gap-1.5 text-danger">
-                <span className="font-medium">{leaks > 1 ? t('voidLeaksPlural', { count: leaks }) : t('voidLeaks', { count: leaks })}</span>
+                <span className="font-medium">{t('voidLeaks', { count: leaks })}</span>
               </div>
             )}
             {standaloneLeaks.length > 0 && (
               <div className="flex items-center gap-1.5 text-leak">
                 <CloudDrizzle size={14} />
-                <span className="font-medium">{standaloneLeaks.length > 1 ? t('leaksPlural', { count: standaloneLeaks.length }) : t('leaks', { count: standaloneLeaks.length })}</span>
+                <span className="font-medium">{t('leaks', { count: standaloneLeaks.length })}</span>
               </div>
             )}
           </div>

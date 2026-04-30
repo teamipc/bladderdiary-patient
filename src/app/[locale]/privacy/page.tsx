@@ -38,7 +38,7 @@ export default async function PrivacyPolicyPage({
             href="/"
             className="flex items-center gap-1 text-ipc-600 hover:text-ipc-800 transition-colors"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={20} className="rtl:scale-x-[-1]" />
             <span className="text-base font-medium">{t('back')}</span>
           </Link>
         </div>

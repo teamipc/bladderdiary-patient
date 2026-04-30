@@ -481,13 +481,13 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 }`}
               aria-label={t('goTo', { label: prevStep.label })}
             >
-              <ChevronLeft size={24} strokeWidth={2.5} />
+              <ChevronLeft size={24} strokeWidth={2.5} className="rtl:scale-x-[-1]" />
             </Link>
           ) : (
             <div className={`w-10 h-10 flex items-center justify-center rounded-full ${
               isNighttime ? 'text-indigo-500/30' : 'text-ipc-200'
             }`}>
-              <ChevronLeft size={24} strokeWidth={2.5} />
+              <ChevronLeft size={24} strokeWidth={2.5} className="rtl:scale-x-[-1]" />
             </div>
           )
         ) : (
@@ -531,7 +531,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 }`}
               aria-label={t('goTo', { label: nextStep.label })}
             >
-              <ChevronRight size={24} strokeWidth={2.5} />
+              <ChevronRight size={24} strokeWidth={2.5} className="rtl:scale-x-[-1]" />
             </Link>
           ) : (
             <div
@@ -539,7 +539,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 isNighttime ? 'text-indigo-500/30' : 'text-ipc-200'
               }`}
             >
-              <ChevronRight size={24} strokeWidth={2.5} />
+              <ChevronRight size={24} strokeWidth={2.5} className="rtl:scale-x-[-1]" />
             </div>
           )
         ) : isDayComplete && dayNumber === 3 ? (
@@ -549,7 +549,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
               active:scale-[0.9] text-ipc-600 hover:bg-ipc-100"
             aria-label={t('viewResults')}
           >
-            <ChevronRight size={24} strokeWidth={2.5} />
+            <ChevronRight size={24} strokeWidth={2.5} className="rtl:scale-x-[-1]" />
           </Link>
         ) : (
           <div className="w-10 h-10" />
@@ -631,7 +631,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                   <button type="button" onClick={() => onLogVoid()}
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold text-base active:scale-[0.97] transition-all bg-ipc-500 text-white animate-cta-guide">
                     {t('addFirstPeeButton')}
-                    <ChevronRight size={18} />
+                    <ChevronRight size={18} className="rtl:scale-x-[-1]" />
                   </button>
                 )
               )}
@@ -823,7 +823,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-2xl bg-ipc-100/70 border border-ipc-200/70 text-ipc-700 font-semibold text-base active:scale-[0.97] transition-all"
               >
                 {t('noOvernightContinueButton', { dayNumber: dayNumber + 1 })}
-                <ChevronRight size={18} />
+                <ChevronRight size={18} className="rtl:scale-x-[-1]" />
               </Link>
             </div>
           )}
@@ -833,7 +833,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
               className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-ipc-500 text-white font-semibold text-base active:scale-[0.97] transition-all animate-cta-guide"
             >
               {t('viewResults')}
-              <ChevronRight size={18} />
+              <ChevronRight size={18} className="rtl:scale-x-[-1]" />
             </Link>
           )}
         </div>

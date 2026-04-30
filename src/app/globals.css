@@ -895,6 +895,17 @@ input, select, textarea {
   text-decoration: none;
 }
 
+/* Timeline dots — center on the inline-start anchor in both LTR and RTL.
+   Inline style sets `inset-inline-start: <pct>%`; we then translate
+   half the dot's own width back toward the start edge. The translateX
+   sign flips in RTL so the dot stays centered on its time anchor. */
+.timeline-dot {
+  transform: translateX(-50%);
+}
+[dir="rtl"] .timeline-dot {
+  transform: translateX(50%);
+}
+
 /* Lists */
 .learn-prose > ul,
 .learn-prose > ol {

@@ -136,7 +136,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 disabled={!isAgeValid}
               >
                 {tc('next')}
-                <ChevronRight size={18} className="ml-1 inline" />
+                <ChevronRight size={18} className="ms-1 inline rtl:scale-x-[-1]" />
               </Button>
             </div>
           </div>
@@ -187,7 +187,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 size="lg"
               >
                 {tc('next')}
-                <ChevronRight size={18} className="ml-1 inline" />
+                <ChevronRight size={18} className="ms-1 inline rtl:scale-x-[-1]" />
               </Button>
               <button
                 type="button"
@@ -196,7 +196,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   text-sm font-semibold text-ipc-700 bg-white border border-ipc-200
                   hover:bg-ipc-50 active:scale-[0.97] transition-all"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={16} className="rtl:scale-x-[-1]" />
                 {tc('back')}
               </button>
             </div>
@@ -221,7 +221,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="pl-10 pr-4 py-3 text-base font-semibold text-ipc-950
+                  className="ps-10 pe-4 py-3 text-base font-semibold text-ipc-950
                     bg-white/60 border-2 border-ipc-200/50 rounded-2xl
                     outline-none focus:border-ipc-500/60 focus:ring-2 focus:ring-ipc-200/30
                     transition-all"
@@ -246,7 +246,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </div>
 
             {/* 3-day preview (compact) */}
-            <div className="bg-white/60 border border-ipc-100 rounded-2xl px-3 py-2.5 mb-5 text-left">
+            <div className="bg-white/60 border border-ipc-100 rounded-2xl px-3 py-2.5 mb-5 text-start">
               <p className="text-[10px] font-semibold text-ipc-400 uppercase tracking-wide mb-1.5">{t('trackingPeriodLabel')}</p>
               <div className="space-y-1">
                 <div className="flex items-center gap-2.5 px-2 py-1.5 bg-ipc-50/60 rounded-lg">
@@ -279,7 +279,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   text-sm font-semibold text-ipc-700 bg-white border border-ipc-200
                   hover:bg-ipc-50 active:scale-[0.97] transition-all"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={16} className="rtl:scale-x-[-1]" />
                 {tc('back')}
               </button>
             </div>
@@ -295,7 +295,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               key={tz}
               type="button"
               onClick={() => { setTimeZone(tz); setShowTzPicker(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-left ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-start ${
                 tz === timeZone
                   ? 'bg-ipc-50 border border-ipc-200'
                   : 'hover:bg-ipc-50/50'

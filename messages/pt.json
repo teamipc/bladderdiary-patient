@@ -312,10 +312,8 @@
     "voids": "{count} chichis",
     "wake": "Acordar {time}",
     "bed": "Deitar {time}",
-    "voidLeaks": "{count} perda",
-    "voidLeaksPlural": "{count} perdas",
-    "leaks": "{count} perda",
-    "leaksPlural": "{count} perdas",
+    "voidLeaks": "{count, plural, =0 {sem perdas} one {# perda} other {# perdas}}",
+    "leaks": "{count, plural, =0 {sem perdas} one {# perda} other {# perdas}}",
     "noEntries": "Sem entradas registadas"
   },
   "nextStep": {

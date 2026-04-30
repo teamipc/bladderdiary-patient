@@ -231,7 +231,7 @@ export default async function ArticlePage({
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-ipc-700 hover:bg-ipc-800 text-white font-semibold text-base shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
           >
             <span>{t('article.ctaStartDiary')}</span>
-            <ArrowRight size={18} aria-hidden />
+            <ArrowRight size={18} aria-hidden className="rtl:scale-x-[-1]" />
           </Link>
         </section>
 

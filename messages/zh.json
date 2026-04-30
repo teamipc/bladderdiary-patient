@@ -312,10 +312,8 @@
     "voids": "{count} 次排尿",
     "wake": "起床 {time}",
     "bed": "就寝 {time}",
-    "voidLeaks": "{count} 次排尿伴漏尿",
-    "voidLeaksPlural": "{count} 次排尿伴漏尿",
-    "leaks": "{count} 次漏尿",
-    "leaksPlural": "{count} 次漏尿",
+    "voidLeaks": "{count, plural, =0 {无排尿伴漏尿} other {# 次排尿伴漏尿}}",
+    "leaks": "{count, plural, =0 {无漏尿} other {# 次漏尿}}",
     "noEntries": "没有任何记录"
   },
   "nextStep": {

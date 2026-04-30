@@ -21,7 +21,7 @@ export default function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
               ) : (
                 <span className={isLast ? 'text-ipc-700 font-medium' : ''}>{item.label}</span>
               )}
-              {!isLast && <ChevronRight size={12} className="text-ipc-300" aria-hidden />}
+              {!isLast && <ChevronRight size={12} className="text-ipc-300 rtl:scale-x-[-1]" aria-hidden />}
             </li>
           );
         })}

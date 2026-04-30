@@ -69,7 +69,7 @@ export default function SummaryPage() {
         href={`/diary/day/${isComplete ? 3 : getCurrentDay(startDate, timeZone)}`}
         className="inline-flex items-center gap-1 text-ipc-600 hover:text-ipc-800 transition-colors"
       >
-        <ChevronLeft size={20} />
+        <ChevronLeft size={20} className="rtl:scale-x-[-1]" />
         <span className="text-sm font-medium">{t('backToTracking')}</span>
       </Link>
 

@@ -190,7 +190,7 @@ export default async function LearnHub({
                   <p className="text-sm text-ipc-600 mt-0.5">{t('glossary.description')}</p>
                 </div>
               </div>
-              <ChevronRight size={20} className="text-ipc-400 shrink-0 ms-3 group-hover:text-ipc-600 transition-colors" />
+              <ChevronRight size={20} className="text-ipc-400 shrink-0 ms-3 group-hover:text-ipc-600 transition-colors rtl:scale-x-[-1]" />
             </Link>
           </section>
         )}
