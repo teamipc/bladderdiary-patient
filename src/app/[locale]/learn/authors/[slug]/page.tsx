@@ -42,8 +42,7 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const author = getAuthor(slug);
   if (!author) return {};
-  const canonical =
-    locale === 'en' ? `/learn/authors/${slug}` : `/${locale}/learn/authors/${slug}`;
+  const canonical = `/${locale}/learn/authors/${slug}`;
 
   return {
     title: author.name,

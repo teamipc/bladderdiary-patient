@@ -1,44 +1,63 @@
 import type { MetadataRoute } from 'next';
-import { locales, defaultLocale, type Locale } from '@/i18n/config';
+import { locales, type Locale } from '@/i18n/config';
+import { HREFLANG, localizedPath } from '@/i18n/seo';
 import {
   getAllArticles,
   getAllTopics,
   getAllAuthors,
-  getGlossaryEntries,
 } from '@/lib/content';
 
 export const dynamic = 'force-static';
 
 const BASE_URL = 'https://myflowcheck.com';
 
-const corePages = [
-  { path: '/', changeFrequency: 'monthly' as const, priority: 1 },
-  { path: '/privacy', changeFrequency: 'yearly' as const, priority: 0.3 },
-  { path: '/terms', changeFrequency: 'yearly' as const, priority: 0.3 },
-  { path: '/help', changeFrequency: 'yearly' as const, priority: 0.3 },
-  { path: '/learn', changeFrequency: 'weekly' as const, priority: 0.9 },
-  { path: '/learn/for-men', changeFrequency: 'weekly' as const, priority: 0.8 },
-  { path: '/learn/for-women', changeFrequency: 'weekly' as const, priority: 0.8 },
-  { path: '/learn/glossary', changeFrequency: 'monthly' as const, priority: 0.6 },
+interface CorePage {
+  path: string;
+  changeFrequency: 'monthly' | 'weekly' | 'yearly';
+  priority: number;
+}
+
+const corePages: CorePage[] = [
+  { path: '/', changeFrequency: 'monthly', priority: 1 },
+  { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
+  { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
+  { path: '/help', changeFrequency: 'yearly', priority: 0.3 },
+  { path: '/learn', changeFrequency: 'weekly', priority: 0.9 },
+  { path: '/learn/for-men', changeFrequency: 'weekly', priority: 0.8 },
+  { path: '/learn/for-women', changeFrequency: 'weekly', priority: 0.8 },
+  { path: '/learn/glossary', changeFrequency: 'monthly', priority: 0.6 },
 ];
 
-function buildUrl(locale: Locale, path: string): string {
-  if (locale === defaultLocale) {
-    return `${BASE_URL}${path}`;
+function absolute(path: string): string {
+  return `${BASE_URL}${path}`;
+}
+
+function buildLanguagesMap(
+  path: string,
+  perLocaleOverrides?: Partial<Record<Locale, string>>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const locale of locales) {
+    const localePath = perLocaleOverrides?.[locale] ?? localizedPath(locale, path);
+    out[HREFLANG[locale]] = absolute(localePath);
   }
-  return `${BASE_URL}/${locale}${path === '/' ? '' : path}`;
+  out['x-default'] = absolute(localizedPath('en', path));
+  return out;
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];
+  const lastMod = new Date();
 
   for (const page of corePages) {
+    const languages = buildLanguagesMap(page.path);
     for (const locale of locales) {
       entries.push({
-        url: buildUrl(locale as Locale, page.path),
-        lastModified: new Date(),
+        url: absolute(localizedPath(locale, page.path)),
+        lastModified: lastMod,
         changeFrequency: page.changeFrequency,
         priority: page.priority,
+        alternates: { languages },
       });
     }
   }
@@ -47,40 +66,44 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const typedLocale = locale as Locale;
 
     for (const topic of getAllTopics(typedLocale)) {
+      const path = `/learn/${topic}`;
       entries.push({
-        url: buildUrl(typedLocale, `/learn/${topic}`),
-        lastModified: new Date(),
+        url: absolute(localizedPath(typedLocale, path)),
+        lastModified: lastMod,
         changeFrequency: 'monthly',
         priority: 0.7,
+        alternates: { languages: buildLanguagesMap(path) },
       });
     }
 
     for (const article of getAllArticles(typedLocale)) {
       const fm = article.frontmatter;
       if (fm.noindex) continue;
-      let path: string;
       if (fm.pageType === 'pillar') continue;
-      if (fm.pageType === 'glossary') {
-        path = `/learn/glossary/${fm.slug}`;
-      } else {
-        path = `/learn/${fm.topic}/${fm.slug}`;
-      }
+      const path =
+        fm.pageType === 'glossary'
+          ? `/learn/glossary/${fm.slug}`
+          : `/learn/${fm.topic}/${fm.slug}`;
       entries.push({
-        url: buildUrl(typedLocale, path),
-        lastModified: fm.updatedAt ? new Date(fm.updatedAt) : new Date(),
+        url: absolute(localizedPath(typedLocale, path)),
+        lastModified: fm.updatedAt ? new Date(fm.updatedAt) : lastMod,
         changeFrequency: 'monthly',
         priority: fm.pageType === 'glossary' ? 0.5 : 0.6,
+        alternates: { languages: buildLanguagesMap(path) },
       });
     }
   }
 
   for (const author of getAllAuthors()) {
+    const path = `/learn/authors/${author.slug}`;
+    const languages = buildLanguagesMap(path);
     for (const locale of locales) {
       entries.push({
-        url: buildUrl(locale as Locale, `/learn/authors/${author.slug}`),
-        lastModified: new Date(),
+        url: absolute(localizedPath(locale as Locale, path)),
+        lastModified: lastMod,
         changeFrequency: 'yearly',
         priority: 0.4,
+        alternates: { languages },
       });
     }
   }

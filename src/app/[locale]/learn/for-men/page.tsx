@@ -16,7 +16,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'learn.forMen' });
-  const canonical = locale === 'en' ? '/learn/for-men' : `/${locale}/learn/for-men`;
+  const canonical = `/${locale}/learn/for-men`;
 
   return {
     title: t('title'),
@@ -46,7 +46,7 @@ export default async function ForMenLanding({
   const tBreadcrumbs = await getTranslations({ locale, namespace: 'learn.breadcrumbs' });
   const typedLocale = locale as Locale;
   const articles = getArticlesForAudience(typedLocale, 'men');
-  const canonical = locale === 'en' ? '/learn/for-men' : `/${locale}/learn/for-men`;
+  const canonical = `/${locale}/learn/for-men`;
 
   return (
     <div className="bg-surface min-h-screen">

@@ -39,8 +39,7 @@ export async function generateMetadata({
   const { locale, term } = await params;
   const entry = getGlossaryEntry(locale as Locale, term);
   if (!entry) return {};
-  const canonical =
-    locale === 'en' ? `/learn/glossary/${term}` : `/${locale}/learn/glossary/${term}`;
+  const canonical = `/${locale}/learn/glossary/${term}`;
 
   return {
     title: entry.frontmatter.title,

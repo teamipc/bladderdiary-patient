@@ -80,8 +80,7 @@ function isMdxFile(name: string): boolean {
 const RESERVED_TOPICS = new Set(['for-men', 'for-women', 'glossary', 'authors']);
 
 function buildUrlPath(locale: Locale, segments: string[]): string {
-  const prefix = locale === defaultLocale ? '' : `/${locale}`;
-  return `${prefix}/${segments.join('/')}`;
+  return `/${locale}/${segments.join('/')}`;
 }
 
 function parseArticleFile(filePath: string, locale: Locale, topic: string): Article | null {
@@ -340,7 +339,7 @@ export function getArticleAlternates(article: Article): Record<string, string> {
         cfm.pageType === 'pillar'
           ? `/learn/${cfm.topic}`
           : `/learn/${cfm.topic}/${cfm.slug}`;
-      out[cfm.locale] = cfm.locale === defaultLocale ? path : `/${cfm.locale}${path}`;
+      out[cfm.locale] = `/${cfm.locale}${path}`;
     }
   }
   return out;

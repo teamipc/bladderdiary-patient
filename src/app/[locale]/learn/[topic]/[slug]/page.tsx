@@ -51,10 +51,7 @@ export async function generateMetadata({
   if (!article) return {};
 
   const fm = article.frontmatter;
-  const canonical =
-    locale === 'en'
-      ? `/learn/${topic}/${slug}`
-      : `/${locale}/learn/${topic}/${slug}`;
+  const canonical = `/${locale}/learn/${topic}/${slug}`;
 
   const author = getAuthor(fm.author);
   const alternates = getArticleAlternates(article);

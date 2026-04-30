@@ -37,10 +37,8 @@ export const LOCALE_LABEL: Record<Locale, string> = {
 };
 
 export function localizedPath(locale: Locale, path: string): string {
-  if (locale === defaultLocale) {
-    return path === '' ? '/' : path;
-  }
-  return path === '' || path === '/' ? `/${locale}` : `/${locale}${path}`;
+  if (path === '' || path === '/') return `/${locale}`;
+  return `/${locale}${path}`;
 }
 
 export function buildHreflangMap(path: string): Record<string, string> {

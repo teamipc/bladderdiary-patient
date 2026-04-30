@@ -46,8 +46,7 @@ export async function generateMetadata({
   const pillar = getPillar(locale as Locale, topic);
   if (!pillar) return {};
 
-  const canonical =
-    locale === 'en' ? `/learn/${topic}` : `/${locale}/learn/${topic}`;
+  const canonical = `/${locale}/learn/${topic}`;
 
   return {
     title: pillar.frontmatter.title,
