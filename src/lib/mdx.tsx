@@ -7,6 +7,7 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import remarkGfm from 'remark-gfm';
 import { imageSize } from 'image-size';
 import { Link } from '@/i18n/navigation';
+import DiaryCta from '@/components/learn/DiaryCta';
 
 // Markdown image renderer.
 //
@@ -88,6 +89,7 @@ const components = {
     <h3 className="scroll-mt-24" {...props} />
   ),
   img: MdxImage,
+  DiaryCta,
 };
 
 export function RenderMdx({ source }: { source: string }) {

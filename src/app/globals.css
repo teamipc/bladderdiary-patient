@@ -860,18 +860,26 @@ input, select, textarea {
   font-style: italic;
 }
 
-/* Inline links — subtle underline, parentdata-style */
-.learn-prose a {
-  color: var(--color-ipc-700);
-  text-decoration: underline;
-  text-decoration-color: var(--color-ipc-300);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  transition: text-decoration-color 0.2s, color 0.2s;
-}
-.learn-prose a:hover {
-  color: var(--color-ipc-900);
-  text-decoration-color: var(--color-ipc-600);
+/* Inline links — subtle underline, parentdata-style.
+   Wrapped in @layer components so Tailwind utilities (e.g. text-white
+   on the <DiaryCta> button inside the article body) win the cascade.
+   In Tailwind v4 with `@import "tailwindcss"`, unwrapped rules in
+   globals.css land AFTER the utilities layer and override them — even
+   highly-specific selectors like .text-white. The components layer is
+   the right home for these defaults. */
+@layer components {
+  .learn-prose a {
+    color: var(--color-ipc-700);
+    text-decoration: underline;
+    text-decoration-color: var(--color-ipc-300);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.2s, color 0.2s;
+  }
+  .learn-prose a:hover {
+    color: var(--color-ipc-900);
+    text-decoration-color: var(--color-ipc-600);
+  }
 }
 
 /* Auto-anchor links inside headings (rehype-autolink-headings wrap) — no
