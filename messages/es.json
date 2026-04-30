@@ -428,7 +428,10 @@
     "switchLanguage": "Idioma",
     "en": "English",
     "fr": "Français",
-    "es": "Español"
+    "es": "Español",
+    "pt": "Português",
+    "zh": "中文",
+    "ar": "العربية"
   },
   "privacy": {
     "metaTitle": "Política de privacidad",

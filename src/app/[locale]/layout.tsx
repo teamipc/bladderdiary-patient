@@ -7,7 +7,8 @@ import { Analytics } from '@vercel/analytics/next';
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 import AppShell from '@/components/layout/AppShell';
 import { OrganizationJsonLd } from '@/components/seo/JsonLd';
-import { locales } from '@/i18n/config';
+import { locales, type Locale } from '@/i18n/config';
+import { LOCALE_DIR, OG_LOCALE, buildHreflangMap } from '@/i18n/seo';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -37,11 +38,7 @@ export async function generateMetadata({
     description: t.description,
     alternates: {
       canonical: `/${locale}`,
-      languages: {
-        en: '/en',
-        fr: '/fr',
-        es: '/es',
-      },
+      languages: buildHreflangMap('/'),
     },
     openGraph: {
       title: t.title,
@@ -56,7 +53,7 @@ export async function generateMetadata({
           alt: t.ogImageAlt,
         },
       ],
-      locale: locale === 'fr' ? 'fr_FR' : locale === 'es' ? 'es_ES' : 'en_US',
+      locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.en,
       type: 'website',
     },
     twitter: {
@@ -107,9 +104,10 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale);
   const messages = await getMessages();
+  const dir = LOCALE_DIR[locale as Locale] ?? 'ltr';
 
   return (
-    <html lang={locale} className={inter.variable}>
+    <html lang={locale} dir={dir} className={inter.variable}>
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>

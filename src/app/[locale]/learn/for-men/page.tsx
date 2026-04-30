@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getArticlesForAudience, buildAbsoluteUrl } from '@/lib/content';
 import type { Locale } from '@/i18n/config';
+import { buildHreflangMap } from '@/i18n/seo';
 import ArticleCard from '@/components/learn/ArticleCard';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
@@ -22,11 +23,7 @@ export async function generateMetadata({
     description: t('description'),
     alternates: {
       canonical,
-      languages: {
-        en: '/learn/for-men',
-        fr: '/fr/learn/for-men',
-        es: '/es/learn/for-men',
-      },
+      languages: buildHreflangMap('/learn/for-men'),
     },
     openGraph: {
       title: t('title'),

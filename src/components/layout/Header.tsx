@@ -6,12 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Globe } from 'lucide-react';
 import Image from 'next/image';
 import { locales, type Locale } from '@/i18n/config';
-
-const LOCALE_LABELS: Record<Locale, string> = {
-  en: 'English',
-  fr: 'Français',
-  es: 'Español',
-};
+import { LOCALE_LABEL } from '@/i18n/seo';
 
 interface HeaderProps {
   title?: string;
@@ -110,7 +105,7 @@ export default function Header({ title }: HeaderProps) {
                         : 'text-ipc-600 hover:bg-ipc-50'
                     }`}
                   >
-                    {LOCALE_LABELS[locale]}
+                    {LOCALE_LABEL[locale]}
                   </button>
                 ))}
               </div>

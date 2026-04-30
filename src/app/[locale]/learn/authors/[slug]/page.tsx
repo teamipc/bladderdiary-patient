@@ -10,6 +10,7 @@ import {
   buildAbsoluteUrl,
 } from '@/lib/content';
 import { locales, type Locale } from '@/i18n/config';
+import { buildHreflangMap } from '@/i18n/seo';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import ArticleCard from '@/components/learn/ArticleCard';
 import Disclaimer from '@/components/learn/Disclaimer';
@@ -47,7 +48,7 @@ export async function generateMetadata({
   return {
     title: author.name,
     description: author.bio,
-    alternates: { canonical },
+    alternates: { canonical, languages: buildHreflangMap(`/learn/authors/${slug}`) },
     openGraph: {
       title: author.name,
       description: author.bio,

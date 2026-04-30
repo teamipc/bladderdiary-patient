@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getGlossaryEntries, buildAbsoluteUrl } from '@/lib/content';
 import type { Locale } from '@/i18n/config';
+import { buildHreflangMap } from '@/i18n/seo';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
 
@@ -18,7 +19,7 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
-    alternates: { canonical },
+    alternates: { canonical, languages: buildHreflangMap('/learn/glossary') },
     openGraph: {
       title: t('title'),
       description: t('description'),

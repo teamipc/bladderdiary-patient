@@ -11,6 +11,7 @@ import {
 } from '@/lib/content';
 import { TOPIC_GROUPS, getGroupedTopicSet, FEATURED_CHIPS } from '@/lib/topics';
 import type { Locale } from '@/i18n/config';
+import { buildHreflangMap } from '@/i18n/seo';
 import ArticleCard from '@/components/learn/ArticleCard';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
@@ -29,11 +30,7 @@ export async function generateMetadata({
     description: t('description'),
     alternates: {
       canonical,
-      languages: {
-        en: '/learn',
-        fr: '/fr/learn',
-        es: '/es/learn',
-      },
+      languages: buildHreflangMap('/learn'),
     },
     openGraph: {
       title: t('title'),

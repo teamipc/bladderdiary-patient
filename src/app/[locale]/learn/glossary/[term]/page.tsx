@@ -7,6 +7,7 @@ import {
   buildAbsoluteUrl,
 } from '@/lib/content';
 import { locales, type Locale } from '@/i18n/config';
+import { buildHreflangMap } from '@/i18n/seo';
 import { RenderMdx } from '@/lib/mdx';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
@@ -44,7 +45,7 @@ export async function generateMetadata({
   return {
     title: entry.frontmatter.title,
     description: entry.frontmatter.description,
-    alternates: { canonical },
+    alternates: { canonical, languages: buildHreflangMap(`/learn/glossary/${term}`) },
     openGraph: {
       title: entry.frontmatter.title,
       description: entry.frontmatter.description,

@@ -17,8 +17,17 @@ function parseIsoAsUtc(iso: string): Date | null {
   return isNaN(date.getTime()) ? null : date;
 }
 
+const LOCALE_TAG: Record<Locale, string> = {
+  en: 'en-US',
+  fr: 'fr-FR',
+  es: 'es-ES',
+  pt: 'pt-PT',
+  zh: 'zh-CN',
+  ar: 'ar-SA',
+};
+
 function localeTag(locale: Locale): string {
-  return locale === 'fr' ? 'fr-FR' : locale === 'es' ? 'es-ES' : 'en-US';
+  return LOCALE_TAG[locale] ?? 'en-US';
 }
 
 export function formatDate(iso: string | undefined, locale: Locale): string {

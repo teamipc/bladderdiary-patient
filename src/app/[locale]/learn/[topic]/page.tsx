@@ -10,6 +10,7 @@ import {
   buildAbsoluteUrl,
 } from '@/lib/content';
 import { locales, type Locale } from '@/i18n/config';
+import { buildHreflangMap } from '@/i18n/seo';
 import { RenderMdx } from '@/lib/mdx';
 import ArticleCard from '@/components/learn/ArticleCard';
 import AuthorByline from '@/components/learn/AuthorByline';
@@ -51,7 +52,7 @@ export async function generateMetadata({
   return {
     title: pillar.frontmatter.title,
     description: pillar.frontmatter.description,
-    alternates: { canonical },
+    alternates: { canonical, languages: buildHreflangMap(`/learn/${topic}`) },
     openGraph: {
       title: pillar.frontmatter.title,
       description: pillar.frontmatter.description,

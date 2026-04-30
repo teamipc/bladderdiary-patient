@@ -13,6 +13,7 @@ import {
   buildAbsoluteUrl,
 } from '@/lib/content';
 import { locales, type Locale } from '@/i18n/config';
+import { OG_LOCALE, buildArticleHreflangMap } from '@/i18n/seo';
 import { RenderMdx } from '@/lib/mdx';
 import ArticleCard from '@/components/learn/ArticleCard';
 import AuthorByline from '@/components/learn/AuthorByline';
@@ -57,6 +58,7 @@ export async function generateMetadata({
 
   const author = getAuthor(fm.author);
   const alternates = getArticleAlternates(article);
+  const hreflangMap = buildArticleHreflangMap(alternates);
 
   return {
     title: fm.title,
@@ -65,7 +67,7 @@ export async function generateMetadata({
     authors: author ? [{ name: author.name }] : undefined,
     alternates: {
       canonical,
-      languages: Object.keys(alternates).length > 1 ? alternates : undefined,
+      languages: Object.keys(hreflangMap).length > 1 ? hreflangMap : undefined,
     },
     openGraph: {
       title: fm.title,
@@ -87,7 +89,7 @@ export async function generateMetadata({
             },
           ]
         : undefined,
-      locale: locale === 'fr' ? 'fr_FR' : locale === 'es' ? 'es_ES' : 'en_US',
+      locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.en,
     },
     twitter: {
       card: 'summary_large_image',

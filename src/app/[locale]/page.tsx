@@ -277,7 +277,7 @@ const jsonLd = {
       '@type': 'ContactPoint',
       contactType: 'customer support',
       email: 'hello@myflowcheck.com',
-      availableLanguage: ['en', 'fr', 'es'],
+      availableLanguage: ['en', 'fr', 'es', 'pt', 'zh', 'ar'],
     },
   },
 };
