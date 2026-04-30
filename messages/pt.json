@@ -690,7 +690,21 @@
         "caffeine": "Cafeína"
       },
       "moreTopicsLabel": "Mais tópicos",
-      "moreTopicsDescription": "Outros tópicos do catálogo."
+      "moreTopicsDescription": "Outros tópicos do catálogo.",
+      "viewAllArticles": "Ver todos os artigos",
+      "viewArchive": "Percorrer o arquivo completo"
+    },
+    "archive": {
+      "metaTitle": "Todos os artigos",
+      "metaDescription": "Todos os artigos da biblioteca Aprender sobre saúde da bexiga, sintomas urinários, pavimento pélvico, e o que ajuda mesmo.",
+      "heading": "Todos os artigos",
+      "lede": "Todos os artigos que publicámos, dos mais recentes para os mais antigos. Usa o explorador de temas na página principal para filtrar por interesse, ou percorre aqui a biblioteca completa.",
+      "breadcrumb": "Todos os artigos"
+    },
+    "pagination": {
+      "label": "Paginação",
+      "prev": "Anterior",
+      "next": "Seguinte"
     },
     "audience": {
       "men": "Para homens",

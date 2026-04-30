@@ -23,7 +23,7 @@ const LOCALE_TAG: Record<Locale, string> = {
   es: 'es-ES',
   pt: 'pt-PT',
   zh: 'zh-CN',
-  ar: 'ar-SA',
+  ar: 'ar-SA-u-nu-latn',
 };
 
 function localeTag(locale: Locale): string {

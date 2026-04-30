@@ -690,7 +690,21 @@
         "caffeine": "Cafe\u00edna"
       },
       "moreTopicsLabel": "M\u00e1s temas",
-      "moreTopicsDescription": "Otros temas del cat\u00e1logo."
+      "moreTopicsDescription": "Otros temas del cat\u00e1logo.",
+      "viewAllArticles": "Ver todos los art\u00edculos",
+      "viewArchive": "Recorre el archivo completo"
+    },
+    "archive": {
+      "metaTitle": "Todos los art\u00edculos",
+      "metaDescription": "Todos los art\u00edculos de la biblioteca Aprender sobre salud vesical, s\u00edntomas urinarios, suelo p\u00e9lvico y lo que de verdad ayuda.",
+      "heading": "Todos los art\u00edculos",
+      "lede": "Todos los art\u00edculos que hemos publicado, los m\u00e1s recientes primero. Filtra por inter\u00e9s desde el explorador de temas del hub principal, o recorre aqu\u00ed la biblioteca completa.",
+      "breadcrumb": "Todos los art\u00edculos"
+    },
+    "pagination": {
+      "label": "Paginaci\u00f3n",
+      "prev": "Anterior",
+      "next": "Siguiente"
     },
     "audience": {
       "men": "Para hombres",

@@ -3,8 +3,8 @@ import { Link } from '@/i18n/navigation';
 import { ChevronRight, BookOpen } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
+  getAllArticles,
   getAllTopics,
-  getClusterArticles,
   getPillar,
   getGlossaryEntries,
   buildAbsoluteUrl,
@@ -54,12 +54,16 @@ export default async function LearnHub({
 
   const topics = getAllTopics(typedLocale);
   const topicSet = new Set(topics);
-  const recent = getClusterArticles(typedLocale)
+  const allReadable = getAllArticles(typedLocale).filter(
+    (a) => a.frontmatter.pageType !== 'glossary',
+  );
+  const sorted = allReadable
     .slice()
     .sort((a, b) =>
       (b.frontmatter.publishedAt || '').localeCompare(a.frontmatter.publishedAt || ''),
-    )
-    .slice(0, 9);
+    );
+  const recent = sorted.slice(0, 9);
+  const hasMore = sorted.length > recent.length;
   const glossaryCount = getGlossaryEntries(typedLocale).length;
 
   const chips = FEATURED_CHIPS.filter((c) => !c.topic || topicSet.has(c.topic));
@@ -134,6 +138,15 @@ export default async function LearnHub({
               {recent.map((a) => (
                 <ArticleCard key={a.urlPath} article={a} />
               ))}
+            </div>
+            <div className="mt-6 flex justify-center">
+              <Link
+                href="/learn/articles"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-ipc-300 text-ipc-800 hover:border-ipc-500 hover:text-ipc-950 font-medium text-sm transition-colors"
+              >
+                <span>{hasMore ? t('hub.viewAllArticles') : t('hub.viewArchive')}</span>
+                <ChevronRight size={16} aria-hidden className="rtl:scale-x-[-1]" />
+              </Link>
             </div>
           </section>
         )}

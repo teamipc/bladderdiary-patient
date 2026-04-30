@@ -690,7 +690,21 @@
         "caffeine": "Caffeine"
       },
       "moreTopicsLabel": "More topics",
-      "moreTopicsDescription": "Other topics in the catalog."
+      "moreTopicsDescription": "Other topics in the catalog.",
+      "viewAllArticles": "View all articles",
+      "viewArchive": "Browse the full archive"
+    },
+    "archive": {
+      "metaTitle": "All articles",
+      "metaDescription": "Every article in the Learn library on bladder health, urinary symptoms, pelvic floor, and what actually helps.",
+      "heading": "All articles",
+      "lede": "Every article we've published, newest first. Use the topic browser on the main hub to filter by interest, or page through the full library here.",
+      "breadcrumb": "All articles"
+    },
+    "pagination": {
+      "label": "Pagination",
+      "prev": "Previous",
+      "next": "Next"
     },
     "audience": {
       "men": "For men",

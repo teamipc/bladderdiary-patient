@@ -690,7 +690,21 @@
           "caffeine": "Caféine"
         },
         "moreTopicsLabel": "Autres sujets",
-        "moreTopicsDescription": "D'autres sujets dans le catalogue."
+        "moreTopicsDescription": "D'autres sujets dans le catalogue.",
+        "viewAllArticles": "Voir tous les articles",
+        "viewArchive": "Parcourir toutes les archives"
+      },
+      "archive": {
+        "metaTitle": "Tous les articles",
+        "metaDescription": "Tous les articles de la rubrique Apprendre sur la santé vésicale, les symptômes urinaires, le plancher pelvien et ce qui aide vraiment.",
+        "heading": "Tous les articles",
+        "lede": "Tous les articles publiés, du plus récent au plus ancien. Utilisez le navigateur de sujets sur la page principale pour filtrer par centre d'intérêt, ou parcourez ici toute la bibliothèque.",
+        "breadcrumb": "Tous les articles"
+      },
+      "pagination": {
+        "label": "Pagination",
+        "prev": "Précédent",
+        "next": "Suivant"
       },
       "audience": {
         "men": "Pour les hommes",
