@@ -427,6 +427,14 @@
     "haveSuggestion": "Vous avez une suggestion ?",
     "suggestionBody": "Nous serions ravis d'entendre vos idées pour améliorer l'application. Envoyez-nous un email à"
   },
+  "privacyNotice": {
+    "title": "Vos données restent sur votre téléphone.",
+    "body": "Nous ne suivons pas qui vous êtes, ni ce que vous notez. Nous collectons des statistiques d'utilisation anonymes pour continuer à améliorer l'application.",
+    "cta": "Compris",
+    "learnMore": "Comment nous gérons vos données",
+    "ariaLabel": "Avis de confidentialité",
+    "dismissAria": "Fermer"
+  },
   "footer": {
     "contactTitle": "Une question ou un retour ?",
     "contactBody": "Nous serions ravis d'avoir de vos nouvelles.",

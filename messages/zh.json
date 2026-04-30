@@ -427,6 +427,14 @@
     "haveSuggestion": "有建议吗?",
     "suggestionBody": "我们很想听你的改进想法。请发邮件给我们:"
   },
+  "privacyNotice": {
+    "title": "你的数据保留在你的手机上。",
+    "body": "我们不会追踪你是谁,也不会查看你记录的内容。我们仅收集匿名使用统计,用于持续改进应用。",
+    "cta": "知道了",
+    "learnMore": "我们如何处理你的数据",
+    "ariaLabel": "隐私提示",
+    "dismissAria": "关闭"
+  },
   "footer": {
     "contactTitle": "有问题或反馈?",
     "contactBody": "我们很想听听你的想法。",
