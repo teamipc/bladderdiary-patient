@@ -93,13 +93,13 @@ export default function Header({ title }: HeaderProps) {
             </button>
 
             {open && (
-              <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-ipc-100 py-1 min-w-[140px] z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="absolute end-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-ipc-100 py-1 min-w-[140px] z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                 {locales.map((locale) => (
                   <button
                     key={locale}
                     type="button"
                     onClick={() => switchLocale(locale)}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                    className={`w-full text-start px-4 py-2.5 text-sm transition-colors ${
                       locale === currentLocale
                         ? 'bg-ipc-50 text-ipc-700 font-semibold'
                         : 'text-ipc-600 hover:bg-ipc-50'

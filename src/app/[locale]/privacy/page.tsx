@@ -66,7 +66,7 @@ export default async function PrivacyPolicyPage({
             <p>
               {t('section1Text')}
             </p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section1Item1')}</li>
               <li>{t('section1Item2')}</li>
               <li>{t('section1Item3')}</li>
@@ -80,7 +80,7 @@ export default async function PrivacyPolicyPage({
             <p>
               {t('section2Text')}
             </p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t.rich('section2Item1', { strong: (chunks) => <strong>{chunks}</strong> })}</li>
               <li>{t.rich('section2Item2', { strong: (chunks) => <strong>{chunks}</strong> })}</li>
               <li>{t.rich('section2Item3', { strong: (chunks) => <strong>{chunks}</strong> })}</li>
@@ -94,7 +94,7 @@ export default async function PrivacyPolicyPage({
             <p>
               {t('section3Text')}
             </p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t.rich('section3Item1', { strong: (chunks) => <strong>{chunks}</strong> })}</li>
               <li>{t('section3Item2')}</li>
               <li>{t('section3Item3')}</li>
@@ -107,7 +107,7 @@ export default async function PrivacyPolicyPage({
             <p>
               {t('section4Text')}
             </p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section4Item1')}</li>
               <li>{t('section4Item2')}</li>
               <li>{t('section4Item3')}</li>
@@ -121,7 +121,7 @@ export default async function PrivacyPolicyPage({
             <p>
               {t.rich('section5Text', { strong: (chunks) => <strong>{chunks}</strong> })}
             </p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section5Item1')}</li>
               <li>{t('section5Item2')}</li>
               <li>{t('section5Item3')}</li>
@@ -139,7 +139,7 @@ export default async function PrivacyPolicyPage({
             <p>
               {t('section6Text')}
             </p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section6Item1')}</li>
               <li>{t('section6Item2')}</li>
               <li>{t('section6Item3')}</li>
@@ -168,7 +168,7 @@ export default async function PrivacyPolicyPage({
             <p>
               {t('section9Text')}
             </p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t.rich('section9Item1', { strong: (chunks) => <strong>{chunks}</strong> })}</li>
               <li>{t.rich('section9Item2', { strong: (chunks) => <strong>{chunks}</strong> })}</li>
               <li>{t.rich('section9Item3', { strong: (chunks) => <strong>{chunks}</strong> })}</li>
@@ -181,7 +181,7 @@ export default async function PrivacyPolicyPage({
             <p>
               {t('section10Text')}
             </p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section10Item1')}</li>
               <li>{t('section10Item2')}</li>
               <li>{t('section10Item3')}</li>

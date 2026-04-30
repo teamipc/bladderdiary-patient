@@ -429,6 +429,16 @@
     "haveSuggestion": "لديك اقتراح؟",
     "suggestionBody": "يسعدنا الاستماع إلى أفكارك لتحسين التطبيق. أرسل لنا بريداً إلكترونياً على"
   },
+  "footer": {
+    "contactTitle": "أسئلة أو ملاحظات؟",
+    "contactBody": "يسعدنا الاستماع منك.",
+    "emailLabel": "راسلنا على",
+    "rights": "© {year} Integrated Pelvic Care Inc. جميع الحقوق محفوظة.",
+    "privacy": "الخصوصية",
+    "terms": "الشروط",
+    "help": "المساعدة",
+    "navAriaLabel": "تذييل الصفحة"
+  },
   "language": {
     "switchLanguage": "اللغة",
     "en": "English",

@@ -429,6 +429,16 @@
     "haveSuggestion": "有建议吗?",
     "suggestionBody": "我们很想听你的改进想法。请发邮件给我们:"
   },
+  "footer": {
+    "contactTitle": "有问题或反馈?",
+    "contactBody": "我们很想听听你的想法。",
+    "emailLabel": "写信给我们",
+    "rights": "© {year} Integrated Pelvic Care Inc. 保留所有权利。",
+    "privacy": "隐私",
+    "terms": "条款",
+    "help": "帮助",
+    "navAriaLabel": "页脚"
+  },
   "language": {
     "switchLanguage": "语言",
     "en": "English",

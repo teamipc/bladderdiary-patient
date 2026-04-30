@@ -429,6 +429,16 @@
     "haveSuggestion": "Have a suggestion?",
     "suggestionBody": "We'd love to hear your ideas for improving the app. Send us an email at"
   },
+  "footer": {
+    "contactTitle": "Questions or feedback?",
+    "contactBody": "We'd love to hear from you.",
+    "emailLabel": "Email us at",
+    "rights": "© {year} Integrated Pelvic Care Inc. All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "help": "Help",
+    "navAriaLabel": "Footer"
+  },
   "language": {
     "switchLanguage": "Language",
     "en": "English",

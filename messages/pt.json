@@ -429,6 +429,16 @@
     "haveSuggestion": "Tens uma sugestão?",
     "suggestionBody": "Adoraríamos ouvir as tuas ideias para melhorar a aplicação. Envia-nos um email para"
   },
+  "footer": {
+    "contactTitle": "Dúvidas ou comentários?",
+    "contactBody": "Adoraríamos ouvir-te.",
+    "emailLabel": "Escreve-nos para",
+    "rights": "© {year} Integrated Pelvic Care Inc. Todos os direitos reservados.",
+    "privacy": "Privacidade",
+    "terms": "Termos",
+    "help": "Ajuda",
+    "navAriaLabel": "Rodapé"
+  },
   "language": {
     "switchLanguage": "Idioma",
     "en": "English",

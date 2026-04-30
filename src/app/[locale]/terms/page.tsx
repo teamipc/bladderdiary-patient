@@ -92,7 +92,7 @@ export default async function TermsOfUsePage({
               {t('section3Disclaimer')}
             </p>
             <p>{t('section3Text')}</p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t.rich('section3Item1', richStrong)}</li>
               <li>{t.rich('section3Item2', richStrong)}</li>
               <li>{t.rich('section3Item3', richStrong)}</li>
@@ -118,7 +118,7 @@ export default async function TermsOfUsePage({
               {t('section5Title')}
             </h2>
             <p>{t('section5Text')}</p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section5Item1')}</li>
               <li>{t('section5Item2')}</li>
               <li>{t('section5Item3')}</li>
@@ -137,7 +137,7 @@ export default async function TermsOfUsePage({
             </h2>
             <p>{t.rich('section6Text', richPrivacyLink)}</p>
             <p className="mt-2">{t('section6Acknowledge')}</p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section6Item1')}</li>
               <li>{t('section6Item2')}</li>
               <li>{t('section6Item3')}</li>
@@ -151,7 +151,7 @@ export default async function TermsOfUsePage({
               {t('section7Title')}
             </h2>
             <p>{t('section7Text')}</p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section7Item1')}</li>
               <li>{t('section7Item2')}</li>
               <li>{t('section7Item3')}</li>
@@ -165,7 +165,7 @@ export default async function TermsOfUsePage({
               {t('section8Title')}
             </h2>
             <p>{t('section8Text')}</p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section8Item1')}</li>
               <li>{t('section8Item2')}</li>
               <li>{t('section8Item3')}</li>
@@ -184,7 +184,7 @@ export default async function TermsOfUsePage({
               <p>{t('section9Disclaimer1')}</p>
               <p>{t('section9Disclaimer2')}</p>
               <p>{t('section9Disclaimer3')}</p>
-              <ul className="list-disc ml-5 space-y-1">
+              <ul className="list-disc ms-5 space-y-1">
                 <li>{t('section9DamageItem1')}</li>
                 <li>{t('section9DamageItem2')}</li>
                 <li>{t('section9DamageItem3')}</li>
@@ -204,7 +204,7 @@ export default async function TermsOfUsePage({
               {t('section10Title')}
             </h2>
             <p>{t('section10Text')}</p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section10Item1')}</li>
               <li>{t('section10Item2')}</li>
               <li>{t('section10Item3')}</li>
@@ -220,7 +220,7 @@ export default async function TermsOfUsePage({
               {t('section11Title')}
             </h2>
             <p>{t('section11Text')}</p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section11Item1')}</li>
               <li>{t('section11Item2')}</li>
               <li>{t('section11Item3')}</li>
@@ -235,7 +235,7 @@ export default async function TermsOfUsePage({
               {t('section12Title')}
             </h2>
             <p>{t('section12Text')}</p>
-            <ul className="list-disc ml-5 mt-2 space-y-1">
+            <ul className="list-disc ms-5 mt-2 space-y-1">
               <li>{t('section12Item1')}</li>
               <li>{t('section12Item2')}</li>
               <li>{t('section12Item3')}</li>

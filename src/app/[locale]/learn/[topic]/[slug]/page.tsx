@@ -198,7 +198,7 @@ export default async function ArticlePage({
             <h2 className="text-sm font-semibold uppercase tracking-wide text-ipc-500 mb-3">
               {t('article.citations')}
             </h2>
-            <ol className="list-decimal pl-5 space-y-2 text-sm text-ipc-700">
+            <ol className="list-decimal ps-5 space-y-2 text-sm text-ipc-700">
               {fm.citations.map((c, i) => (
                 <li key={i}>
                   <a

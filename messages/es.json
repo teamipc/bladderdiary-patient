@@ -429,6 +429,16 @@
     "haveSuggestion": "¿Tiene una sugerencia?",
     "suggestionBody": "Nos encantaría escuchar sus ideas para mejorar la aplicación. Envíenos un email a"
   },
+  "footer": {
+    "contactTitle": "¿Preguntas o comentarios?",
+    "contactBody": "Nos encantaría saber de ti.",
+    "emailLabel": "Escríbenos a",
+    "rights": "© {year} Integrated Pelvic Care Inc. Todos los derechos reservados.",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "help": "Ayuda",
+    "navAriaLabel": "Pie de página"
+  },
   "language": {
     "switchLanguage": "Idioma",
     "en": "English",
