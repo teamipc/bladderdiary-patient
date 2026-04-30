@@ -254,7 +254,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
               className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                 s === step ? 'bg-ipc-500 scale-125' : s < step ? 'bg-ipc-300' : 'bg-ipc-200/60'
               }`}
-              aria-label={`Step ${s}`} />
+              aria-label={tc('stepAriaLabel', { n: s })} />
           ))}
         </div>
         <span className="text-[11px] font-semibold tracking-wide text-ipc-700 uppercase">

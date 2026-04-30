@@ -36,6 +36,7 @@
     "saveCheck": "Enregistrer \u2713",
     "updateCheck": "Modifier \u2713",
     "stepOf": "Étape {current} sur {total}",
+    "stepAriaLabel": "Étape {n}",
     "review": "Vous enregistrez :",
     "close": "Fermer",
     "help": "Aide",
@@ -254,6 +255,8 @@
     "large": "Beaucoup"
   },
   "summary": {
+    "drinkAtAria": "Boisson à {time}",
+    "peeAtAria": "Miction à {time}",
     "backToTracking": "Retour au suivi",
     "yourDiary": "Votre journal",
     "trackingOverview": "Aperçu de vos 3 jours de suivi",
@@ -300,7 +303,9 @@
     "shareCsv": "Partager le CSV",
     "downloadCsv": "Télécharger le CSV",
     "generating": "Génération...",
-    "noDataYet": "Commencez à ajouter des entrées pour activer l'export"
+    "noDataYet": "Commencez à ajouter des entrées pour activer l'export",
+    "pdfError": "Erreur PDF : {msg}",
+    "csvError": "Une erreur est survenue lors de la génération du CSV. Veuillez réessayer."
   },
   "daySummary": {
     "drinks": "{count} boissons",
@@ -615,7 +620,61 @@
         "chipNighttime": "Pendant la nuit",
         "chipUrgency": "Urgences",
         "chipTraining": "Rééducation vésicale",
-        "chipDailyLife": "Au quotidien"
+        "chipDailyLife": "Au quotidien",
+        "topicGroups": {
+          "bladder-symptoms": {
+            "label": "Symptômes vésicaux",
+            "description": "Urgences, fréquence, fuites : les symptômes que la plupart des gens remarquent en premier."
+          },
+          "nighttime": {
+            "label": "Mictions nocturnes",
+            "description": "Pourquoi vous vous levez la nuit, et ce qui aide vraiment."
+          },
+          "mens-health": {
+            "label": "Santé urinaire de l'homme",
+            "description": "Prostate, HBP et soins après une chirurgie de la prostate."
+          },
+          "womens-health": {
+            "label": "Santé pelvienne de la femme",
+            "description": "Plancher pelvien, prolapsus, grossesse, post-partum et ménopause."
+          },
+          "bladder-training": {
+            "label": "Rééducation et habitudes",
+            "description": "Approches comportementales, rééducation vésicale et exercices du plancher pelvien."
+          },
+          "daily-life": {
+            "label": "Vie quotidienne et nutrition",
+            "description": "Hydratation, alimentation et habitudes qui influencent votre vessie."
+          }
+        },
+        "topicNames": {
+          "bladder-irritants": "Irritants vésicaux",
+          "bladder-training": "Rééducation vésicale",
+          "post-prostatectomy": "Après une chirurgie de la prostate",
+          "oab": "Vessie hyperactive",
+          "urgency": "Urgence mictionnelle",
+          "frequency": "Fréquence mictionnelle",
+          "urge-incontinence": "Incontinence d'urgence",
+          "stress-incontinence": "Incontinence d'effort",
+          "mixed-incontinence": "Incontinence mixte",
+          "nocturia": "Nycturie",
+          "sleep-and-bladder": "Sommeil et vessie",
+          "bph": "Hypertrophie de la prostate (HBP)",
+          "prostate-health": "Santé de la prostate",
+          "pelvic-floor": "Plancher pelvien",
+          "pelvic-organ-prolapse": "Prolapsus pelvien",
+          "postpartum": "Post-partum",
+          "menopause": "Ménopause",
+          "pregnancy": "Grossesse",
+          "behavioral-therapy": "Thérapie comportementale",
+          "pelvic-floor-exercises": "Exercices du plancher pelvien",
+          "hydration": "Hydratation",
+          "diet": "Alimentation",
+          "lifestyle": "Mode de vie",
+          "caffeine": "Caféine"
+        },
+        "moreTopicsLabel": "Autres sujets",
+        "moreTopicsDescription": "D'autres sujets dans le catalogue."
       },
       "audience": {
         "men": "Pour les hommes",

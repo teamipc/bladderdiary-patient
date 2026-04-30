@@ -69,13 +69,16 @@ export default async function LearnHub({
 
   const renderTopicLink = (topic: string) => {
     const pillar = getPillar(typedLocale, topic);
+    const fallbackName = t.has(`hub.topicNames.${topic}`)
+      ? t(`hub.topicNames.${topic}`)
+      : topic.replace(/-/g, ' ');
     return (
       <li key={topic}>
         <Link
           href={`/learn/${topic}`}
           className="text-base text-ipc-700 hover:text-ipc-950 underline-offset-4 hover:underline capitalize"
         >
-          {pillar?.frontmatter.title ?? topic.replace(/-/g, ' ')}
+          {pillar?.frontmatter.title ?? fallbackName}
         </Link>
       </li>
     );
@@ -150,7 +153,7 @@ export default async function LearnHub({
                 return (
                   <div key={group.key}>
                     <h3 className="text-base font-semibold text-ipc-950 mb-2">
-                      {group.label}
+                      {t(`hub.topicGroups.${group.key}.label`)}
                     </h3>
                     <ul className="flex flex-wrap gap-x-5 gap-y-2">
                       {groupTopics.map(renderTopicLink)}

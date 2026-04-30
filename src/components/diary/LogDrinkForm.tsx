@@ -214,7 +214,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
               className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                 s === step ? 'bg-drink scale-125' : s < step ? 'bg-drink/50' : 'bg-drink/20'
               }`}
-              aria-label={`Step ${s}`} />
+              aria-label={tc('stepAriaLabel', { n: s })} />
           ))}
         </div>
         <span className="text-[11px] font-semibold tracking-wide text-drink/70 uppercase">

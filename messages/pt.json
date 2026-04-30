@@ -36,6 +36,7 @@
     "saveCheck": "Guardar ✓",
     "updateCheck": "Atualizar ✓",
     "stepOf": "Passo {current} de {total}",
+    "stepAriaLabel": "Passo {n}",
     "review": "Estás a guardar:",
     "close": "Fechar",
     "help": "Ajuda",
@@ -254,6 +255,8 @@
     "large": "Muito"
   },
   "summary": {
+    "drinkAtAria": "Bebida às {time}",
+    "peeAtAria": "Chichi às {time}",
     "backToTracking": "Voltar ao registo",
     "yourDiary": "O teu diário",
     "trackingOverview": "Resumo dos teus 3 dias de registo",
@@ -300,7 +303,9 @@
     "shareCsv": "Partilhar CSV",
     "downloadCsv": "Transferir CSV",
     "generating": "A gerar...",
-    "noDataYet": "Começa a adicionar entradas para ativar a exportação"
+    "noDataYet": "Começa a adicionar entradas para ativar a exportação",
+    "pdfError": "Erro no PDF: {msg}",
+    "csvError": "Algo correu mal ao gerar o CSV. Tenta novamente."
   },
   "daySummary": {
     "drinks": "{count} bebidas",
@@ -615,7 +620,61 @@
       "chipNighttime": "Durante a noite",
       "chipUrgency": "Urgência",
       "chipTraining": "Treino vesical",
-      "chipDailyLife": "Dia a dia"
+      "chipDailyLife": "Dia a dia",
+      "topicGroups": {
+        "bladder-symptoms": {
+          "label": "Sintomas vesicais",
+          "description": "Urgência, frequência, perdas e os sintomas que a maioria nota primeiro."
+        },
+        "nighttime": {
+          "label": "Micção noturna",
+          "description": "Porque acordas para urinar, e o que ajuda de facto."
+        },
+        "mens-health": {
+          "label": "Saúde urinária masculina",
+          "description": "Próstata, HBP e cuidados após prostatectomia."
+        },
+        "womens-health": {
+          "label": "Saúde pélvica feminina",
+          "description": "Pavimento pélvico, prolapsos, gravidez, pós-parto e menopausa."
+        },
+        "bladder-training": {
+          "label": "Treino vesical e hábitos",
+          "description": "Abordagens comportamentais, reeducação e exercícios do pavimento pélvico."
+        },
+        "daily-life": {
+          "label": "Vida diária e alimentação",
+          "description": "Hidratação, dieta e hábitos que afetam a bexiga."
+        }
+      },
+      "topicNames": {
+        "bladder-irritants": "Irritantes da bexiga",
+        "bladder-training": "Treino vesical",
+        "post-prostatectomy": "Depois da cirurgia da próstata",
+        "oab": "Bexiga hiperativa",
+        "urgency": "Urgência",
+        "frequency": "Frequência urinária",
+        "urge-incontinence": "Incontinência de urgência",
+        "stress-incontinence": "Incontinência de esforço",
+        "mixed-incontinence": "Incontinência mista",
+        "nocturia": "Noctúria",
+        "sleep-and-bladder": "Sono e bexiga",
+        "bph": "Próstata aumentada (HBP)",
+        "prostate-health": "Saúde da próstata",
+        "pelvic-floor": "Pavimento pélvico",
+        "pelvic-organ-prolapse": "Prolapso de órgãos pélvicos",
+        "postpartum": "Pós-parto",
+        "menopause": "Menopausa",
+        "pregnancy": "Gravidez",
+        "behavioral-therapy": "Terapia comportamental",
+        "pelvic-floor-exercises": "Exercícios do pavimento pélvico",
+        "hydration": "Hidratação",
+        "diet": "Alimentação",
+        "lifestyle": "Estilo de vida",
+        "caffeine": "Cafeína"
+      },
+      "moreTopicsLabel": "Mais tópicos",
+      "moreTopicsDescription": "Outros tópicos do catálogo."
     },
     "audience": {
       "men": "Para homens",

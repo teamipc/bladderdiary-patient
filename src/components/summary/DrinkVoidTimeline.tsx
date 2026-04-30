@@ -74,7 +74,7 @@ export default function DrinkVoidTimeline({ dayNumber }: DrinkVoidTimelineProps)
               animationDelay: `${i * 90 + dayNumber * 200}ms`,
               animationFillMode: 'forwards',
             }}
-            aria-label={`Drink at ${formatTime(d.timestampIso, locale, timeZone)}`}
+            aria-label={ts('drinkAtAria', { time: formatTime(d.timestampIso, locale, timeZone) })}
           >
             <Coffee size={14} className="text-drink" />
           </div>
@@ -95,7 +95,7 @@ export default function DrinkVoidTimeline({ dayNumber }: DrinkVoidTimelineProps)
               animationDelay: `${i * 90 + dayNumber * 200 + 150}ms`,
               animationFillMode: 'forwards',
             }}
-            aria-label={`Pee at ${formatTime(v.timestampIso, locale, timeZone)}`}
+            aria-label={ts('peeAtAria', { time: formatTime(v.timestampIso, locale, timeZone) })}
           >
             <Droplet size={14} className="text-void" />
           </div>

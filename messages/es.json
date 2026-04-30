@@ -36,6 +36,7 @@
     "saveCheck": "Guardar \u2713",
     "updateCheck": "Actualizar \u2713",
     "stepOf": "Paso {current} de {total}",
+    "stepAriaLabel": "Paso {n}",
     "review": "Está guardando:",
     "close": "Cerrar",
     "help": "Ayuda",
@@ -254,6 +255,8 @@
     "large": "Mucho"
   },
   "summary": {
+    "drinkAtAria": "Bebida a las {time}",
+    "peeAtAria": "Orinada a las {time}",
     "backToTracking": "Volver al seguimiento",
     "yourDiary": "Su diario",
     "trackingOverview": "Resumen de sus 3 días de seguimiento",
@@ -300,7 +303,9 @@
     "shareCsv": "Compartir CSV",
     "downloadCsv": "Descargar CSV",
     "generating": "Generando...",
-    "noDataYet": "Comience a agregar entradas para activar la exportación"
+    "noDataYet": "Comience a agregar entradas para activar la exportación",
+    "pdfError": "Error de PDF: {msg}",
+    "csvError": "Hubo un problema al generar el CSV. Inténtalo de nuevo."
   },
   "daySummary": {
     "drinks": "{count} bebidas",
@@ -615,7 +620,61 @@
       "chipNighttime": "Por la noche",
       "chipUrgency": "Urgencia",
       "chipTraining": "Reeducaci\u00f3n vesical",
-      "chipDailyLife": "Vida diaria"
+      "chipDailyLife": "Vida diaria",
+      "topicGroups": {
+        "bladder-symptoms": {
+          "label": "S\u00edntomas vesicales",
+          "description": "Urgencia, frecuencia, fugas y los s\u00edntomas que la mayor\u00eda notamos primero."
+        },
+        "nighttime": {
+          "label": "Micci\u00f3n nocturna",
+          "description": "Por qu\u00e9 te despiertas para orinar, y qu\u00e9 ayuda de verdad."
+        },
+        "mens-health": {
+          "label": "Salud urinaria masculina",
+          "description": "Pr\u00f3stata, HBP y cuidados despu\u00e9s de una prostatectom\u00eda."
+        },
+        "womens-health": {
+          "label": "Salud p\u00e9lvica femenina",
+          "description": "Suelo p\u00e9lvico, prolapsos, embarazo, posparto y menopausia."
+        },
+        "bladder-training": {
+          "label": "Reeducaci\u00f3n y h\u00e1bitos vesicales",
+          "description": "Enfoques conductuales, reentrenamiento y ejercicios del suelo p\u00e9lvico."
+        },
+        "daily-life": {
+          "label": "Vida diaria y alimentaci\u00f3n",
+          "description": "Hidrataci\u00f3n, dieta y h\u00e1bitos que afectan a la vejiga."
+        }
+      },
+      "topicNames": {
+        "bladder-irritants": "Irritantes de la vejiga",
+        "bladder-training": "Entrenamiento vesical",
+        "post-prostatectomy": "Despu\u00e9s de la cirug\u00eda de pr\u00f3stata",
+        "oab": "Vejiga hiperactiva",
+        "urgency": "Urgencia",
+        "frequency": "Frecuencia urinaria",
+        "urge-incontinence": "Incontinencia de urgencia",
+        "stress-incontinence": "Incontinencia de esfuerzo",
+        "mixed-incontinence": "Incontinencia mixta",
+        "nocturia": "Nocturia",
+        "sleep-and-bladder": "Sue\u00f1o y vejiga",
+        "bph": "Pr\u00f3stata agrandada (HBP)",
+        "prostate-health": "Salud de la pr\u00f3stata",
+        "pelvic-floor": "Suelo p\u00e9lvico",
+        "pelvic-organ-prolapse": "Prolapso de \u00f3rganos p\u00e9lvicos",
+        "postpartum": "Posparto",
+        "menopause": "Menopausia",
+        "pregnancy": "Embarazo",
+        "behavioral-therapy": "Terapia conductual",
+        "pelvic-floor-exercises": "Ejercicios del suelo p\u00e9lvico",
+        "hydration": "Hidrataci\u00f3n",
+        "diet": "Alimentaci\u00f3n",
+        "lifestyle": "Estilo de vida",
+        "caffeine": "Cafe\u00edna"
+      },
+      "moreTopicsLabel": "M\u00e1s temas",
+      "moreTopicsDescription": "Otros temas del cat\u00e1logo."
     },
     "audience": {
       "men": "Para hombres",

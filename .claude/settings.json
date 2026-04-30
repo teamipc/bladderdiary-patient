@@ -11,6 +11,10 @@
           {
             "type": "command",
             "command": "jq -r 'select((.tool_input.file_path // \"\") | test(\"content/articles/en/.+\\\\.mdx$\")) | {hookSpecificOutput: {hookEventName: \"PostToolUse\", additionalContext: \"An English article under content/articles/en/ was just created or modified — mirror it into content/articles/{fr,es,pt,zh,ar}/ using the article-translate skill (.claude/skills/article-translate/SKILL.md). Preserve the slug verbatim across locales (hreflang depends on it). Translate frontmatter title/description/heroAlt/keywords; keep citations[] verbatim; preserve all MDX components and inline citation markers.\"}}'"
+          },
+          {
+            "type": "command",
+            "command": ".claude/scripts/i18n-leak-check.sh"
           }
         ]
       }

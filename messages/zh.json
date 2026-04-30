@@ -36,6 +36,7 @@
     "saveCheck": "保存 ✓",
     "updateCheck": "更新 ✓",
     "stepOf": "第 {current} 步,共 {total} 步",
+    "stepAriaLabel": "第 {n} 步",
     "review": "你正在保存:",
     "close": "关闭",
     "help": "帮助",
@@ -254,6 +255,8 @@
     "large": "多"
   },
   "summary": {
+    "drinkAtAria": "{time} 饮水",
+    "peeAtAria": "{time} 排尿",
     "backToTracking": "返回追踪",
     "yourDiary": "你的日记",
     "trackingOverview": "你的 3 天追踪概览",
@@ -300,7 +303,9 @@
     "shareCsv": "分享 CSV",
     "downloadCsv": "下载 CSV",
     "generating": "正在生成…",
-    "noDataYet": "添加记录后才能导出"
+    "noDataYet": "添加记录后才能导出",
+    "pdfError": "PDF 错误:{msg}",
+    "csvError": "生成 CSV 时出错。请重试。"
   },
   "daySummary": {
     "drinks": "{count} 次喝水",
@@ -615,7 +620,61 @@
       "chipNighttime": "夜间",
       "chipUrgency": "尿急",
       "chipTraining": "膀胱训练",
-      "chipDailyLife": "日常生活"
+      "chipDailyLife": "日常生活",
+      "topicGroups": {
+        "bladder-symptoms": {
+          "label": "膀胱症状",
+          "description": "尿急、尿频、漏尿,这些是大多数人最先注意到的症状。"
+        },
+        "nighttime": {
+          "label": "夜间排尿",
+          "description": "为什么你夜里会起来排尿,以及真正有帮助的方法。"
+        },
+        "mens-health": {
+          "label": "男性泌尿健康",
+          "description": "前列腺问题、前列腺增生(BPH)和前列腺术后护理。"
+        },
+        "womens-health": {
+          "label": "女性盆底健康",
+          "description": "盆底、脏器脱垂、怀孕、产后和更年期。"
+        },
+        "bladder-training": {
+          "label": "膀胱训练与习惯",
+          "description": "行为方法、再训练和盆底练习。"
+        },
+        "daily-life": {
+          "label": "日常生活与饮食",
+          "description": "影响膀胱的水分、饮食和生活习惯。"
+        }
+      },
+      "topicNames": {
+        "bladder-irritants": "膀胱刺激物",
+        "bladder-training": "膀胱训练",
+        "post-prostatectomy": "前列腺术后",
+        "oab": "膀胱过度活动症",
+        "urgency": "尿急",
+        "frequency": "尿频",
+        "urge-incontinence": "急迫性尿失禁",
+        "stress-incontinence": "压力性尿失禁",
+        "mixed-incontinence": "混合性尿失禁",
+        "nocturia": "夜尿症",
+        "sleep-and-bladder": "睡眠与膀胱",
+        "bph": "前列腺增生 (BPH)",
+        "prostate-health": "前列腺健康",
+        "pelvic-floor": "盆底",
+        "pelvic-organ-prolapse": "盆腔器官脱垂",
+        "postpartum": "产后",
+        "menopause": "更年期",
+        "pregnancy": "怀孕",
+        "behavioral-therapy": "行为治疗",
+        "pelvic-floor-exercises": "盆底锻炼",
+        "hydration": "水分摄入",
+        "diet": "饮食",
+        "lifestyle": "生活方式",
+        "caffeine": "咖啡因"
+      },
+      "moreTopicsLabel": "更多主题",
+      "moreTopicsDescription": "目录中的其他主题。"
     },
     "audience": {
       "men": "男性专区",

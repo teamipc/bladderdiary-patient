@@ -83,10 +83,14 @@ export default async function PillarPage({
     ? getAuthor(pillar.frontmatter.medicallyReviewedBy)
     : null;
 
+  const topicNameKey = `hub.topicNames.${topic}`;
+  const fallbackTopicName = t.has(topicNameKey)
+    ? t(topicNameKey)
+    : topic.replace(/-/g, ' ');
   const breadcrumbs = [
     { label: tBreadcrumbs('home'), href: '/' },
     { label: tBreadcrumbs('learn'), href: '/learn' },
-    { label: pillar?.frontmatter.title ?? topic.replace(/-/g, ' ') },
+    { label: pillar?.frontmatter.title ?? fallbackTopicName },
   ];
 
   return (

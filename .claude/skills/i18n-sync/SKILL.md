@@ -158,6 +158,36 @@ These travel verbatim across locales — translate the surrounding human-readabl
 - **Email addresses, URLs, file paths** in copy.
 - **Date format strings** if any are template-literal (e.g. `"YYYY-MM-DD"` stays as-is).
 
+## Common leak sites (audit BEFORE shipping)
+
+User-visible English routinely leaks from these patterns. When you write or review code that touches these places, route the strings through `messages/en.json` and use `t()`. Then this skill mirrors them.
+
+- **`src/lib/*.ts` constants with `label` / `description` / `title` fields** — anything Latin-letter that ends up rendered. The schema can stay; the human-readable label belongs in messages, keyed by the schema's `value`/`key` field. Example: `TOPIC_GROUPS[i].key` is the i18n lookup key (`learn.hub.topicGroups.<key>.label`); the constant array no longer carries `label` strings.
+- **`?? "Some English"` fallbacks** in TSX. If the primary value is missing, fall back to a translated key, not a hardcoded string. Pattern: `t.has(key) ? t(key) : someNeutralFallback` (the neutral fallback should be locale-agnostic — a slug or empty, never English prose).
+- **`.replace(/-/g, ' ')` on slugs** rendered to users. Slugs are English; humanizing them just by replacing hyphens leaves English. Provide a `topicNames.<slug>` (or equivalent) i18n key.
+- **`aria-label` / `title` / `placeholder` / `alt` on components** with template-literal English. Wrap in `t()`.
+- **`alert(...)` / `confirm(...)` / `console.error` user-visible strings.** `alert()` is end-user; route through `t()`. `console.error` for dev-only is fine.
+- **Toast / notification / share-sheet copy** generated outside React (e.g. inside `navigator.share({ title: 'My Flow Check — Bladder Diary' })`). The brand line is OK; surrounding prose isn't.
+- **JSON-LD / schema.org strings** that are user-visible (article body excerpts, breadcrumb names). These should already come from translated frontmatter or messages.
+- **Email / ICS / share templates** built in code (subject lines, body templates).
+
+The article-translate skill handles MDX prose. This skill handles everything else.
+
+## Audit script (manual, optional)
+
+When the user says "make sure everything is translated" or there's a suspicion of leaks, run:
+
+```bash
+# Find likely hardcoded English template literals in components/lib
+grep -rn 'aria-label=`[A-Z]' src/components src/app 2>/dev/null
+grep -rn '?? "[A-Z]' src 2>/dev/null
+grep -rn "alert('[A-Z]\|alert(\`[A-Z]" src 2>/dev/null
+# Find label/description fields in lib (schema constants):
+grep -rn "label: '[A-Z]\|label: \"[A-Z]\|description: '[A-Z]\|description: \"[A-Z]" src/lib 2>/dev/null
+```
+
+Triage each hit: if it's user-visible, route through messages and use t(); if it's dev-only or a brand name, leave it.
+
 ## What NOT to do (scope guard)
 
 - **Don't translate articles** (`content/articles/**/*.mdx`). Article translation is the `article-translate` skill's job.

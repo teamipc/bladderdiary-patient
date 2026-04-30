@@ -12,17 +12,17 @@
  */
 
 export interface TopicGroup {
+  /**
+   * Stable key. Maps to i18n at `learn.hub.topicGroups.<key>.{label,description}`.
+   * Never display this raw — always render via t().
+   */
   key: string;
-  label: string;
-  description?: string;
   topics: string[];
 }
 
 export const TOPIC_GROUPS: TopicGroup[] = [
   {
     key: 'bladder-symptoms',
-    label: 'Bladder symptoms',
-    description: 'Urgency, frequency, leaks, and the symptoms most patients notice first.',
     topics: [
       'oab',
       'urgency',
@@ -34,20 +34,14 @@ export const TOPIC_GROUPS: TopicGroup[] = [
   },
   {
     key: 'nighttime',
-    label: 'Nighttime urination',
-    description: 'Why you wake up to pee, and what actually helps.',
     topics: ['nocturia', 'sleep-and-bladder'],
   },
   {
     key: 'mens-health',
-    label: "Men's urinary health",
-    description: 'Prostate concerns, BPH, and post-prostatectomy care.',
     topics: ['bph', 'post-prostatectomy', 'prostate-health'],
   },
   {
     key: 'womens-health',
-    label: "Women's pelvic health",
-    description: 'Pelvic floor, prolapse, pregnancy, postpartum, and menopause.',
     topics: [
       'pelvic-floor',
       'pelvic-organ-prolapse',
@@ -58,14 +52,10 @@ export const TOPIC_GROUPS: TopicGroup[] = [
   },
   {
     key: 'bladder-training',
-    label: 'Bladder training & habits',
-    description: 'Behavioral approaches, retraining, and pelvic floor exercises.',
     topics: ['bladder-training', 'behavioral-therapy', 'pelvic-floor-exercises'],
   },
   {
     key: 'daily-life',
-    label: 'Daily life & nutrition',
-    description: 'Hydration, diet, and habits that affect your bladder.',
     topics: ['hydration', 'diet', 'lifestyle', 'caffeine'],
   },
 ];

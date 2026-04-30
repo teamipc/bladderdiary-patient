@@ -197,7 +197,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                     ? 'bg-leak/50'
                     : 'bg-leak/20'
               }`}
-              aria-label={`Step ${s}`}
+              aria-label={tc('stepAriaLabel', { n: s })}
             />
           ))}
         </div>

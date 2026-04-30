@@ -54,7 +54,7 @@ export default function ExportActions() {
       if (err instanceof Error && err.name === 'AbortError') return;
       console.error('PDF export failed:', err);
       const msg = err instanceof Error ? err.message : String(err);
-      alert(`PDF error: ${msg}`);
+      alert(t('pdfError', { msg }));
     } finally {
       setTimeout(() => setExporting(null), 1000);
     }
@@ -80,7 +80,7 @@ export default function ExportActions() {
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
       console.error('CSV export failed:', err);
-      alert('Something went wrong generating the CSV. Please try again.');
+      alert(t('csvError'));
     } finally {
       setTimeout(() => setExporting(null), 1000);
     }

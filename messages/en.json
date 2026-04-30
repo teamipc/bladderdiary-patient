@@ -36,6 +36,7 @@
     "saveCheck": "Save \u2713",
     "updateCheck": "Update \u2713",
     "stepOf": "Step {current} of {total}",
+    "stepAriaLabel": "Step {n}",
     "review": "You are saving:",
     "close": "Close",
     "help": "Help",
@@ -254,6 +255,8 @@
     "large": "Large"
   },
   "summary": {
+    "drinkAtAria": "Drink at {time}",
+    "peeAtAria": "Pee at {time}",
     "backToTracking": "Back to tracking",
     "yourDiary": "Your Diary",
     "trackingOverview": "Your 3-day tracking overview",
@@ -300,7 +303,9 @@
     "shareCsv": "Share CSV",
     "downloadCsv": "Download CSV",
     "generating": "Generating...",
-    "noDataYet": "Start adding entries to enable export"
+    "noDataYet": "Start adding entries to enable export",
+    "pdfError": "PDF error: {msg}",
+    "csvError": "Something went wrong generating the CSV. Please try again."
   },
   "daySummary": {
     "drinks": "{count} drinks",
@@ -615,7 +620,61 @@
       "chipNighttime": "Nighttime",
       "chipUrgency": "Urgency",
       "chipTraining": "Bladder training",
-      "chipDailyLife": "Daily life"
+      "chipDailyLife": "Daily life",
+      "topicGroups": {
+        "bladder-symptoms": {
+          "label": "Bladder symptoms",
+          "description": "Urgency, frequency, leaks, and the symptoms most patients notice first."
+        },
+        "nighttime": {
+          "label": "Nighttime urination",
+          "description": "Why you wake up to pee, and what actually helps."
+        },
+        "mens-health": {
+          "label": "Men's urinary health",
+          "description": "Prostate concerns, BPH, and post-prostatectomy care."
+        },
+        "womens-health": {
+          "label": "Women's pelvic health",
+          "description": "Pelvic floor, prolapse, pregnancy, postpartum, and menopause."
+        },
+        "bladder-training": {
+          "label": "Bladder training and habits",
+          "description": "Behavioral approaches, retraining, and pelvic floor exercises."
+        },
+        "daily-life": {
+          "label": "Daily life and nutrition",
+          "description": "Hydration, diet, and habits that affect your bladder."
+        }
+      },
+      "topicNames": {
+        "bladder-irritants": "Bladder irritants",
+        "bladder-training": "Bladder training",
+        "post-prostatectomy": "After prostate surgery",
+        "oab": "Overactive bladder",
+        "urgency": "Urgency",
+        "frequency": "Frequency",
+        "urge-incontinence": "Urge incontinence",
+        "stress-incontinence": "Stress incontinence",
+        "mixed-incontinence": "Mixed incontinence",
+        "nocturia": "Nighttime urination",
+        "sleep-and-bladder": "Sleep and the bladder",
+        "bph": "Enlarged prostate (BPH)",
+        "prostate-health": "Prostate health",
+        "pelvic-floor": "Pelvic floor",
+        "pelvic-organ-prolapse": "Pelvic organ prolapse",
+        "postpartum": "Postpartum",
+        "menopause": "Menopause",
+        "pregnancy": "Pregnancy",
+        "behavioral-therapy": "Behavioral therapy",
+        "pelvic-floor-exercises": "Pelvic floor exercises",
+        "hydration": "Hydration",
+        "diet": "Diet",
+        "lifestyle": "Lifestyle",
+        "caffeine": "Caffeine"
+      },
+      "moreTopicsLabel": "More topics",
+      "moreTopicsDescription": "Other topics in the catalog."
     },
     "audience": {
       "men": "For men",

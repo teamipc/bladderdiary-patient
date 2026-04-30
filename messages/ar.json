@@ -36,6 +36,7 @@
     "saveCheck": "حفظ ✓",
     "updateCheck": "تعديل ✓",
     "stepOf": "الخطوة {current} من {total}",
+    "stepAriaLabel": "الخطوة {n}",
     "review": "أنت تحفظ:",
     "close": "إغلاق",
     "help": "مساعدة",
@@ -254,6 +255,8 @@
     "large": "كثير"
   },
   "summary": {
+    "drinkAtAria": "شرب في {time}",
+    "peeAtAria": "تبول في {time}",
     "backToTracking": "العودة إلى التتبع",
     "yourDiary": "مفكرتك",
     "trackingOverview": "نظرة عامة على تتبع 3 أيام",
@@ -300,7 +303,9 @@
     "shareCsv": "مشاركة CSV",
     "downloadCsv": "تنزيل CSV",
     "generating": "جارٍ الإنشاء...",
-    "noDataYet": "ابدأ بإضافة إدخالات لتفعيل التصدير"
+    "noDataYet": "ابدأ بإضافة إدخالات لتفعيل التصدير",
+    "pdfError": "خطأ في PDF: {msg}",
+    "csvError": "حدث خطأ أثناء إنشاء ملف CSV. يرجى المحاولة مرة أخرى."
   },
   "daySummary": {
     "drinks": "{count} مشروبات",
@@ -615,7 +620,61 @@
       "chipNighttime": "الليل",
       "chipUrgency": "الإلحاح",
       "chipTraining": "تدريب المثانة",
-      "chipDailyLife": "الحياة اليومية"
+      "chipDailyLife": "الحياة اليومية",
+      "topicGroups": {
+        "bladder-symptoms": {
+          "label": "أعراض المثانة",
+          "description": "الإلحاح، التكرار، التسرب، والأعراض التي يلاحظها معظم المرضى أولاً."
+        },
+        "nighttime": {
+          "label": "التبول الليلي",
+          "description": "لماذا تستيقظ للتبول، وما الذي يساعد فعلاً."
+        },
+        "mens-health": {
+          "label": "الصحة البولية للرجال",
+          "description": "مخاوف البروستاتا، تضخم البروستاتا الحميد (BPH)، والرعاية بعد استئصال البروستاتا."
+        },
+        "womens-health": {
+          "label": "الصحة الحوضية للنساء",
+          "description": "قاع الحوض، الهبوط، الحمل، ما بعد الولادة، وانقطاع الطمث."
+        },
+        "bladder-training": {
+          "label": "تدريب المثانة والعادات",
+          "description": "الأساليب السلوكية، إعادة التدريب، وتمارين قاع الحوض."
+        },
+        "daily-life": {
+          "label": "الحياة اليومية والتغذية",
+          "description": "الترطيب، النظام الغذائي، والعادات التي تؤثر على مثانتك."
+        }
+      },
+      "topicNames": {
+        "bladder-irritants": "مهيجات المثانة",
+        "bladder-training": "تدريب المثانة",
+        "post-prostatectomy": "بعد جراحة البروستاتا",
+        "oab": "فرط نشاط المثانة",
+        "urgency": "إلحاح التبول",
+        "frequency": "تكرار التبول",
+        "urge-incontinence": "السلس الإلحاحي",
+        "stress-incontinence": "السلس الإجهادي",
+        "mixed-incontinence": "السلس المختلط",
+        "nocturia": "التبول الليلي",
+        "sleep-and-bladder": "النوم والمثانة",
+        "bph": "تضخم البروستاتا الحميد (BPH)",
+        "prostate-health": "صحة البروستاتا",
+        "pelvic-floor": "قاع الحوض",
+        "pelvic-organ-prolapse": "هبوط أعضاء الحوض",
+        "postpartum": "ما بعد الولادة",
+        "menopause": "انقطاع الطمث",
+        "pregnancy": "الحمل",
+        "behavioral-therapy": "العلاج السلوكي",
+        "pelvic-floor-exercises": "تمارين قاع الحوض",
+        "hydration": "الترطيب",
+        "diet": "النظام الغذائي",
+        "lifestyle": "نمط الحياة",
+        "caffeine": "الكافيين"
+      },
+      "moreTopicsLabel": "مواضيع أخرى",
+      "moreTopicsDescription": "مواضيع إضافية في الفهرس."
     },
     "audience": {
       "men": "للرجال",
