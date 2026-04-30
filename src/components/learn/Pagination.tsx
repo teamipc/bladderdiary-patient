@@ -1,5 +1,4 @@
 import { Link } from '@/i18n/navigation';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
 interface PaginationProps {
@@ -31,48 +30,36 @@ export default async function Pagination({ currentPage, totalPages, basePath }: 
 
   if (totalPages <= 1) return null;
 
-  const prevHref = currentPage > 1 ? buildHref(basePath, currentPage - 1) : null;
-  const nextHref = currentPage < totalPages ? buildHref(basePath, currentPage + 1) : null;
   const items = pageWindow(currentPage, totalPages);
 
-  const baseLinkClass =
-    'inline-flex items-center justify-center min-w-9 h-9 px-3 rounded-full text-sm font-medium transition-colors';
-  const inactiveClass = `${baseLinkClass} bg-white border border-ipc-200 text-ipc-700 hover:border-ipc-400 hover:text-ipc-950`;
-  const activeClass = `${baseLinkClass} bg-ipc-950 text-white border border-ipc-950`;
-  const disabledClass = `${baseLinkClass} bg-white border border-ipc-100 text-ipc-300 cursor-default`;
-
   return (
-    <nav aria-label={t('label')} className="mt-8 flex flex-wrap items-center justify-center gap-2">
-      {prevHref ? (
-        <Link href={prevHref} rel="prev" className={inactiveClass} aria-label={t('prev')}>
-          <ChevronLeft size={16} aria-hidden className="rtl:scale-x-[-1]" />
-          <span className="ms-1">{t('prev')}</span>
-        </Link>
-      ) : (
-        <span aria-hidden className={disabledClass}>
-          <ChevronLeft size={16} className="rtl:scale-x-[-1]" />
-          <span className="ms-1">{t('prev')}</span>
-        </span>
-      )}
-
-      <ol className="flex flex-wrap items-center gap-2">
+    <nav aria-label={t('label')} className="mt-12 flex justify-center">
+      <ol className="flex items-baseline gap-6 sm:gap-8">
         {items.map((item, idx) => {
           if (item === 'ellipsis') {
             return (
-              <li key={`e${idx}`} aria-hidden className="px-1 text-ipc-500">
+              <li key={`e${idx}`} aria-hidden className="text-ipc-500 text-base">
                 …
               </li>
             );
           }
           const isActive = item === currentPage;
+          const rel = item === currentPage - 1 ? 'prev' : item === currentPage + 1 ? 'next' : undefined;
           return (
             <li key={item}>
               {isActive ? (
-                <span aria-current="page" className={activeClass}>
+                <span
+                  aria-current="page"
+                  className="text-base font-semibold text-ipc-950 border-b-2 border-ipc-950 pb-1"
+                >
                   {item}
                 </span>
               ) : (
-                <Link href={buildHref(basePath, item)} className={inactiveClass}>
+                <Link
+                  href={buildHref(basePath, item)}
+                  rel={rel}
+                  className="text-base text-ipc-700 hover:text-ipc-950 transition-colors"
+                >
                   {item}
                 </Link>
               )}
@@ -80,18 +67,6 @@ export default async function Pagination({ currentPage, totalPages, basePath }: 
           );
         })}
       </ol>
-
-      {nextHref ? (
-        <Link href={nextHref} rel="next" className={inactiveClass} aria-label={t('next')}>
-          <span className="me-1">{t('next')}</span>
-          <ChevronRight size={16} aria-hidden className="rtl:scale-x-[-1]" />
-        </Link>
-      ) : (
-        <span aria-hidden className={disabledClass}>
-          <span className="me-1">{t('next')}</span>
-          <ChevronRight size={16} className="rtl:scale-x-[-1]" />
-        </span>
-      )}
     </nav>
   );
 }

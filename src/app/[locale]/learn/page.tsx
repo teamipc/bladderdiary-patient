@@ -54,16 +54,12 @@ export default async function LearnHub({
 
   const topics = getAllTopics(typedLocale);
   const topicSet = new Set(topics);
-  const allReadable = getAllArticles(typedLocale).filter(
-    (a) => a.frontmatter.pageType !== 'glossary',
-  );
-  const sorted = allReadable
-    .slice()
+  const recent = getAllArticles(typedLocale)
+    .filter((a) => a.frontmatter.pageType !== 'glossary')
     .sort((a, b) =>
       (b.frontmatter.publishedAt || '').localeCompare(a.frontmatter.publishedAt || ''),
-    );
-  const recent = sorted.slice(0, 9);
-  const hasMore = sorted.length > recent.length;
+    )
+    .slice(0, 9);
   const glossaryCount = getGlossaryEntries(typedLocale).length;
 
   const chips = FEATURED_CHIPS.filter((c) => !c.topic || topicSet.has(c.topic));
@@ -131,22 +127,21 @@ export default async function LearnHub({
         {/* Latest reading — the page lead */}
         {recent.length > 0 && (
           <section>
-            <h2 className="text-sm uppercase tracking-wider text-ipc-700 font-semibold mb-5">
-              {t('hub.recentArticles')}
-            </h2>
+            <div className="flex items-baseline justify-between gap-4 mb-5">
+              <h2 className="text-sm uppercase tracking-wider text-ipc-700 font-semibold">
+                {t('hub.recentArticles')}
+              </h2>
+              <Link
+                href="/learn/articles"
+                className="text-sm font-medium text-ipc-700 hover:text-ipc-950 underline-offset-4 hover:underline whitespace-nowrap"
+              >
+                {t('hub.seeAll')}
+              </Link>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {recent.map((a) => (
                 <ArticleCard key={a.urlPath} article={a} />
               ))}
-            </div>
-            <div className="mt-6 flex justify-center">
-              <Link
-                href="/learn/articles"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-ipc-300 text-ipc-800 hover:border-ipc-500 hover:text-ipc-950 font-medium text-sm transition-colors"
-              >
-                <span>{hasMore ? t('hub.viewAllArticles') : t('hub.viewArchive')}</span>
-                <ChevronRight size={16} aria-hidden className="rtl:scale-x-[-1]" />
-              </Link>
             </div>
           </section>
         )}

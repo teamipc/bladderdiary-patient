@@ -691,8 +691,7 @@
       },
       "moreTopicsLabel": "Mais tópicos",
       "moreTopicsDescription": "Outros tópicos do catálogo.",
-      "viewAllArticles": "Ver todos os artigos",
-      "viewArchive": "Percorrer o arquivo completo"
+      "seeAll": "Ver tudo"
     },
     "archive": {
       "metaTitle": "Todos os artigos",

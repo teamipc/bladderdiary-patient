@@ -691,8 +691,7 @@
         },
         "moreTopicsLabel": "Autres sujets",
         "moreTopicsDescription": "D'autres sujets dans le catalogue.",
-        "viewAllArticles": "Voir tous les articles",
-        "viewArchive": "Parcourir toutes les archives"
+        "seeAll": "Voir tout"
       },
       "archive": {
         "metaTitle": "Tous les articles",

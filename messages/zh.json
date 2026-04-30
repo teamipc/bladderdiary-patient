@@ -691,8 +691,7 @@
       },
       "moreTopicsLabel": "更多主题",
       "moreTopicsDescription": "目录中的其他主题。",
-      "viewAllArticles": "查看全部文章",
-      "viewArchive": "浏览完整文章库"
+      "seeAll": "查看全部"
     },
     "archive": {
       "metaTitle": "全部文章",

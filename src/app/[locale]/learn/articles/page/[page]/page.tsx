@@ -14,7 +14,8 @@ export async function generateStaticParams() {
   const params: { locale: string; page: string }[] = [];
   for (const locale of locales) {
     const total = getArchivePages(locale as Locale);
-    for (let p = 2; p <= total; p += 1) {
+    const max = Math.max(total, 2);
+    for (let p = 2; p <= max; p += 1) {
       params.push({ locale, page: String(p) });
     }
   }

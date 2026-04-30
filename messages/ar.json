@@ -691,8 +691,7 @@
       },
       "moreTopicsLabel": "مواضيع أخرى",
       "moreTopicsDescription": "مواضيع إضافية في الفهرس.",
-      "viewAllArticles": "عرض كل المقالات",
-      "viewArchive": "تصفّح الأرشيف الكامل"
+      "seeAll": "عرض الكل"
     },
     "archive": {
       "metaTitle": "كل المقالات",

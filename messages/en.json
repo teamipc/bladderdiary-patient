@@ -691,8 +691,7 @@
       },
       "moreTopicsLabel": "More topics",
       "moreTopicsDescription": "Other topics in the catalog.",
-      "viewAllArticles": "View all articles",
-      "viewArchive": "Browse the full archive"
+      "seeAll": "See all"
     },
     "archive": {
       "metaTitle": "All articles",

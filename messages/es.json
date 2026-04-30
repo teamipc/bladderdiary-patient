@@ -691,8 +691,7 @@
       },
       "moreTopicsLabel": "M\u00e1s temas",
       "moreTopicsDescription": "Otros temas del cat\u00e1logo.",
-      "viewAllArticles": "Ver todos los art\u00edculos",
-      "viewArchive": "Recorre el archivo completo"
+      "seeAll": "Ver todo"
     },
     "archive": {
       "metaTitle": "Todos los art\u00edculos",
