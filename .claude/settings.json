@@ -18,6 +18,17 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if ! out=$(.claude/scripts/article-i18n-completeness.sh 2>&1); then jq -nc --arg msg \"$out\" '{decision:\"block\", reason:(\"Cannot end turn: \" + $msg + \"\\nRun the article-translate skill (.claude/skills/article-translate/SKILL.md) to mirror missing locales before stopping.\")}'; fi"
+          }
+        ]
+      }
     ]
   }
 }

@@ -14,6 +14,20 @@ This skill **only** handles `pageType` values that are user-facing prose: `clust
 - **Auto** (primary): the `PostToolUse` hook in `.claude/settings.json` fires after any `Edit` or `Write` whose path matches `content/articles/en/**/*.mdx`. Claude sees an injected reminder pointing here, then runs the workflow below in the same turn — usually as a parallel fan-out of subagents (one per target locale).
 - **Manual**: when the user asks to translate an article, mirror articles to other locales, or names an MDX path.
 
+### Forcing function (don't skip the fan-out)
+
+Two guardrails block the model from ending a turn or committing while EN articles lack siblings in every locale declared in `src/i18n/config.ts`:
+
+- **Stop hook** (`.claude/settings.json`): runs `.claude/scripts/article-i18n-completeness.sh` when the agent ends turn. If any locale sibling is missing, the hook returns `decision: "block"` with the list of missing files — the agent is forced to keep going and run this skill before stopping.
+- **Pre-commit hook** (`.githooks/pre-commit`): same script, hard-fails the commit. The model cannot ship a partially-translated state.
+
+If you legitimately want an EN-only WIP article (e.g. authoring a draft you haven't decided to publish), move the file out of `content/articles/en/` until it is ready. Files inside that directory are treated as "shippable" and must have all locales.
+
+You can run the check ad-hoc:
+```
+bash .claude/scripts/article-i18n-completeness.sh
+```
+
 ## Files
 
 | Locale | Code | Source | Output path |

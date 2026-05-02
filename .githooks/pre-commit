@@ -16,14 +16,28 @@
 # Then the next `git commit` will pass (override is logged to
 # /Users/zhen/SEO/state/guardrail-overrides.jsonl for the audit trail).
 
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# Local guardrail: every content/articles/en/**/*.mdx must have siblings in
+# all non-English locales declared in src/i18n/config.ts. Hard-blocks commits
+# that would leave the patient app in a partially-translated state.
+I18N_CHECK="$REPO_ROOT/.claude/scripts/article-i18n-completeness.sh"
+if [ -x "$I18N_CHECK" ]; then
+  if ! "$I18N_CHECK"; then
+    echo "[pre-commit] Article i18n completeness check failed — see above. Aborting commit." >&2
+    exit 1
+  fi
+fi
+
+# External SEO guardrail (slug rename, topic rename, em-dash, etc.).
 GUARDRAIL=/Users/zhen/SEO/scripts/article_guardrail.py
 
 if [ ! -f "$GUARDRAIL" ]; then
-  echo "[pre-commit] WARN: article_guardrail.py not found at $GUARDRAIL — skipping check."
+  echo "[pre-commit] WARN: article_guardrail.py not found at $GUARDRAIL — skipping SEO check."
   echo "[pre-commit]       Set up the SEO workflow at /Users/zhen/SEO to enable protection."
   exit 0
 fi
 
 exec python3 "$GUARDRAIL" \
-  --repo "$(git rev-parse --show-toplevel)" \
+  --repo "$REPO_ROOT" \
   --pre-commit
