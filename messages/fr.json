@@ -745,7 +745,8 @@
         "citations": "Citations",
         "ctaTitle": "Suivez votre vessie en 3 jours",
         "ctaDescription": "Trois jours de suivi. Vous repérez vos propres tendances. Votre équipe soignante obtient les données dont elle a besoin pour vraiment vous aider.",
-        "ctaStartDiary": "Commencer le suivi de 3 jours"
+        "ctaStartDiary": "Commencer le suivi de 3 jours",
+        "ctaDownloadPdf": "Télécharger le PDF"
       },
       "glossary": {
         "title": "Glossaire",

@@ -8,6 +8,7 @@ import remarkGfm from 'remark-gfm';
 import { imageSize } from 'image-size';
 import { Link } from '@/i18n/navigation';
 import DiaryCta from '@/components/learn/DiaryCta';
+import DownloadCta from '@/components/learn/DownloadCta';
 
 // Markdown image renderer.
 //
@@ -90,6 +91,7 @@ const components = {
   ),
   img: MdxImage,
   DiaryCta,
+  DownloadCta,
 };
 
 export function RenderMdx({ source }: { source: string }) {

@@ -745,7 +745,8 @@
       "citations": "Citations",
       "ctaTitle": "Track your bladder in 3 days",
       "ctaDescription": "Three days of tracking. You see your own patterns. Your healthcare team gets the data they need to actually help you.",
-      "ctaStartDiary": "Start the 3-day diary"
+      "ctaStartDiary": "Start the 3-day diary",
+      "ctaDownloadPdf": "Download PDF"
     },
     "glossary": {
       "title": "Glossary",
