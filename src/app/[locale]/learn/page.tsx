@@ -15,6 +15,7 @@ import { buildHreflangMap } from '@/i18n/seo';
 import ArticleCard from '@/components/learn/ArticleCard';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
+import { CollectionPageJsonLd } from '@/components/seo/JsonLd';
 
 export async function generateMetadata({
   params,
@@ -86,6 +87,12 @@ export default async function LearnHub({
 
   return (
     <div className="bg-surface min-h-screen">
+      <CollectionPageJsonLd
+        name={t('hub.title')}
+        description={t('hub.description')}
+        url={`/${locale}/learn`}
+        itemUrls={recent.map((a) => a.urlPath)}
+      />
       <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-6">
         <Breadcrumbs items={[{ label: tBreadcrumbs('home'), href: '/' }, { label: tBreadcrumbs('learn') }]} />
       </div>

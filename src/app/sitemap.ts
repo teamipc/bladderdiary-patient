@@ -23,6 +23,7 @@ const corePages: CorePage[] = [
   { path: '/terms', changeFrequency: 'yearly', priority: 0.3 },
   { path: '/help', changeFrequency: 'yearly', priority: 0.3 },
   { path: '/learn', changeFrequency: 'weekly', priority: 0.9 },
+  { path: '/learn/articles', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/learn/for-men', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/learn/for-women', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/learn/glossary', changeFrequency: 'monthly', priority: 0.6 },

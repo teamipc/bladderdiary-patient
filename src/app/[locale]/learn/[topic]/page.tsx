@@ -16,8 +16,10 @@ import ArticleCard from '@/components/learn/ArticleCard';
 import AuthorByline from '@/components/learn/AuthorByline';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
-import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import Pagination from '@/components/learn/Pagination';
+import { ArticleJsonLd, BreadcrumbJsonLd, CollectionPageJsonLd } from '@/components/seo/JsonLd';
 import { formatBylineMeta } from '@/lib/authorByline';
+import { TOPIC_PAGE_SIZE } from '@/lib/topicPagination';
 
 interface PageParams {
   locale: string;
@@ -74,9 +76,14 @@ export default async function PillarPage({
   const tBreadcrumbs = await getTranslations({ locale, namespace: 'learn.breadcrumbs' });
 
   const pillar = getPillar(typedLocale, topic);
-  const clusterArticles = getArticlesInTopic(typedLocale, topic);
+  const allClusterArticles = getArticlesInTopic(typedLocale, topic).sort((a, b) =>
+    (b.frontmatter.publishedAt || '').localeCompare(a.frontmatter.publishedAt || ''),
+  );
 
-  if (!pillar && clusterArticles.length === 0) notFound();
+  if (!pillar && allClusterArticles.length === 0) notFound();
+
+  const totalPages = Math.max(1, Math.ceil(allClusterArticles.length / TOPIC_PAGE_SIZE));
+  const clusterArticles = allClusterArticles.slice(0, TOPIC_PAGE_SIZE);
 
   const author = pillar ? getAuthor(pillar.frontmatter.author) : null;
   const reviewer = pillar?.frontmatter.medicallyReviewedBy
@@ -165,6 +172,12 @@ export default async function PillarPage({
 
         {clusterArticles.length > 0 && (
           <section className="mb-10">
+            <CollectionPageJsonLd
+              name={pillar?.frontmatter.title ?? fallbackTopicName}
+              description={pillar?.frontmatter.description ?? fallbackTopicName}
+              url={`/${locale}/learn/${topic}`}
+              itemUrls={allClusterArticles.map((a) => a.urlPath)}
+            />
             <h2 className="text-sm font-semibold uppercase tracking-wider text-ipc-700 mb-5">
               {t('topic.articlesInTopic')}
             </h2>
@@ -173,6 +186,11 @@ export default async function PillarPage({
                 <ArticleCard key={a.urlPath} article={a} />
               ))}
             </div>
+            <Pagination
+              currentPage={1}
+              totalPages={totalPages}
+              basePath={`/learn/${topic}`}
+            />
           </section>
         )}
 

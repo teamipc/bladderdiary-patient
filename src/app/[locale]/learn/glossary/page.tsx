@@ -6,6 +6,7 @@ import type { Locale } from '@/i18n/config';
 import { buildHreflangMap } from '@/i18n/seo';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
+import { CollectionPageJsonLd } from '@/components/seo/JsonLd';
 
 export async function generateMetadata({
   params,
@@ -47,6 +48,12 @@ export default async function GlossaryIndex({
 
   return (
     <div className="bg-surface min-h-screen">
+      <CollectionPageJsonLd
+        name={tGloss('title')}
+        description={tGloss('description')}
+        url={`/${locale}/learn/glossary`}
+        itemUrls={entries.map((e) => e.urlPath)}
+      />
       <div className="max-w-2xl mx-auto px-4 py-6">
         <Breadcrumbs
           items={[

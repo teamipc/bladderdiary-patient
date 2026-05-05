@@ -110,6 +110,12 @@ export default async function LocaleLayout({
     <html lang={locale} dir={dir} className={inter.variable}>
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="My Flow Check — Learn"
+          href={`/${locale}/feed.xml`}
+        />
       </head>
       <body className="bg-surface text-ipc-950 antialiased font-sans">
         <OrganizationJsonLd />
