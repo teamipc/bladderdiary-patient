@@ -29,6 +29,17 @@ if [ -x "$I18N_CHECK" ]; then
   fi
 fi
 
+# MDX compile check on every staged .mdx — catches syntax issues that
+# next build only surfaces at prerender time (e.g. JSX comments inside
+# lists) before they merge and freeze production.
+MDX_CHECK="$REPO_ROOT/.claude/scripts/mdx-compile-check.mjs"
+if [ -f "$MDX_CHECK" ]; then
+  if ! node "$MDX_CHECK"; then
+    echo "[pre-commit] MDX compile check failed — see above. Aborting commit." >&2
+    exit 1
+  fi
+fi
+
 # External SEO guardrail (slug rename, topic rename, em-dash, etc.).
 GUARDRAIL=/Users/zhen/SEO/scripts/article_guardrail.py
 
