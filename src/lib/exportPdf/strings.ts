@@ -1,0 +1,307 @@
+import { format, parseISO } from 'date-fns';
+import { enUS, fr, es } from 'date-fns/locale';
+import type { Locale as DateFnsLocale } from 'date-fns';
+import type { DrinkType, LeakTrigger } from '../types';
+
+const DATE_LOCALES: Record<string, DateFnsLocale> = { en: enUS, fr, es };
+
+export function getDateLocale(locale: string): DateFnsLocale {
+  return DATE_LOCALES[locale] || enUS;
+}
+
+export interface PdfStrings {
+  appName: string;
+  reportSubtitle: string;
+  startDate: string;
+  age: string;
+  clinicCode: string;
+  generated: string;
+  clinicalMetrics: string;
+  metric: string;
+  night1Day2: string;
+  night2Day3: string;
+  overall: string;
+  nocturnalVol: string;
+  totalIntake: string;
+  totalOutput: string;
+  voidCount: string;
+  voidLeakCount: string;
+  standaloneLeaks: string;
+  continence: string;
+  continent: string;
+  incontinent: string;
+  dailySummary: string;
+  fluidIntake: string;
+  voidVolume: string;
+  drinkCount: string;
+  voidLeaks: string;
+  wakeTime: string;
+  bedtime: string;
+  day: (n: number) => string;
+  wake: string;
+  bed: string;
+  fluidIn: string;
+  voided: string;
+  sens: string;
+  leak: string;
+  intake: string;
+  output: string;
+  voids: string;
+  leaks: string;
+  voidWord: string;
+  standaloneWord: string;
+  threeDayTitle: string;
+  started: string;
+  name: string;
+  time: string;
+  drinks: string;
+  urine: string;
+  sensationLegend: string;
+  clinicalAnalysis: string;
+  dailyFluidBalance: string;
+  fluidIntakeLabel: string;
+  voidedOutput: string;
+  freqVolChart: string;
+  freqVolDesc: string;
+  voidLeakLegend: string;
+  standaloneLeakLegend: string;
+  urgencyDistribution: string;
+  notRecorded: string;
+  footerTagline: string;
+  footerDisclaimer: string;
+  page: (n: number, total: number) => string;
+  yes: string;
+  morningPee: string;
+  doubleVoid: string;
+  sensLabels: Record<number, string>;
+  drinkLabels: Record<string, string>;
+  leakTriggerLabels: Record<string, string>;
+}
+
+const PDF_STRINGS: Record<string, PdfStrings> = {
+  en: {
+    appName: 'My Flow Check',
+    reportSubtitle: '3-Day Bladder Diary Report',
+    startDate: 'Start date',
+    age: 'Age',
+    clinicCode: 'Clinic code',
+    generated: 'Generated',
+    clinicalMetrics: 'Clinical Metrics',
+    metric: 'Metric',
+    night1Day2: 'Night 1 / Day 2',
+    night2Day3: 'Night 2 / Day 3',
+    overall: 'Overall',
+    nocturnalVol: 'Nocturnal Vol',
+    totalIntake: 'Total Intake',
+    totalOutput: 'Total Output',
+    voidCount: 'Void Count',
+    voidLeakCount: 'Void Leak Count',
+    standaloneLeaks: 'Standalone Leaks',
+    continence: 'Continence',
+    continent: 'Continent',
+    incontinent: 'Incontinent',
+    dailySummary: 'Daily Summary',
+    fluidIntake: 'Fluid Intake',
+    voidVolume: 'Void Volume',
+    drinkCount: 'Drink Count',
+    voidLeaks: 'Void Leaks',
+    wakeTime: 'Wake Time',
+    bedtime: 'Bedtime',
+    day: (n) => `Day ${n}`,
+    wake: 'Wake',
+    bed: 'Bed',
+    fluidIn: 'Fluid In',
+    voided: 'Voided',
+    sens: 'Sens',
+    leak: 'Leak',
+    intake: 'Intake',
+    output: 'Output',
+    voids: 'voids',
+    leaks: 'Leaks',
+    voidWord: 'void',
+    standaloneWord: 'standalone',
+    threeDayTitle: '3-Day Bladder Diary',
+    started: 'Started',
+    name: 'Name',
+    time: 'TIME',
+    drinks: 'Drinks',
+    urine: 'Urine',
+    sensationLegend: 'Bladder sensation codes:  0 = No urge (went just in case)  |  1 = Mild (normal desire)  |  2 = Moderate (urgency, but passed)  |  3 = Strong (barely made it)  |  4 = Leaked (couldn\'t make it)',
+    clinicalAnalysis: 'Clinical Analysis',
+    dailyFluidBalance: 'Daily Fluid Balance',
+    fluidIntakeLabel: 'Fluid Intake',
+    voidedOutput: 'Voided Output',
+    freqVolChart: 'Frequency-Volume Chart',
+    freqVolDesc: 'Each dot = one void, positioned by time of day. Red circle = leak. Dashed line = MVV.',
+    voidLeakLegend: '= Void leak',
+    standaloneLeakLegend: '= Standalone leak',
+    urgencyDistribution: 'Urgency Distribution',
+    notRecorded: 'Not recorded',
+    footerTagline: 'IPC — Integrated Pelvic Care believes that better data leads to better care.',
+    footerDisclaimer: 'This report is for informational purposes only and does not replace medical advice. Always consult your health professional.',
+    page: (n, total) => `Page ${n} / ${total}`,
+    yes: 'Yes',
+    morningPee: 'FMV',
+    doubleVoid: 'DV',
+    sensLabels: { 0: 'No urge', 1: 'Mild', 2: 'Moderate', 3: 'Strong', 4: 'Leaked' },
+    drinkLabels: { water: 'Water', coffee: 'Coffee', tea: 'Tea', juice: 'Juice', carbonated: 'Soda', alcohol: 'Alcohol', milk: 'Milk', other: 'Other' },
+    leakTriggerLabels: { cough: 'Coughing', sneeze: 'Sneezing', laugh: 'Laughing', lifting: 'Lifting', exercise: 'Exercise', toilet_way: 'On the way', other: 'Other', not_sure: 'Not sure' },
+  },
+  fr: {
+    appName: 'My Flow Check',
+    reportSubtitle: 'Journal urinaire de 3 jours',
+    startDate: 'Date de début',
+    age: 'Âge',
+    clinicCode: 'Code clinique',
+    generated: 'Généré le',
+    clinicalMetrics: 'Mesures cliniques',
+    metric: 'Mesure',
+    night1Day2: 'Nuit 1 / Jour 2',
+    night2Day3: 'Nuit 2 / Jour 3',
+    overall: 'Total',
+    nocturnalVol: 'Vol. nocturne',
+    totalIntake: 'Apport total',
+    totalOutput: 'Volume total',
+    voidCount: 'Nb de mictions',
+    voidLeakCount: 'Escapes lors de miction',
+    standaloneLeaks: 'Escapes isolés',
+    continence: 'Continence',
+    continent: 'Continent',
+    incontinent: 'Incontinent',
+    dailySummary: 'Résumé quotidien',
+    fluidIntake: 'Apport liquidien',
+    voidVolume: 'Volume uriné',
+    drinkCount: 'Nb de boissons',
+    voidLeaks: 'Escapes lors de miction',
+    wakeTime: 'Réveil',
+    bedtime: 'Coucher',
+    day: (n) => `Jour ${n}`,
+    wake: 'Réveil',
+    bed: 'Coucher',
+    fluidIn: 'Boissons',
+    voided: 'Uriné',
+    sens: 'Envie',
+    leak: 'Escape',
+    intake: 'Apport',
+    output: 'Uriné',
+    voids: 'mictions',
+    leaks: 'Escapes',
+    voidWord: 'miction',
+    standaloneWord: 'isolé',
+    threeDayTitle: 'Journal urinaire de 3 jours',
+    started: 'Début',
+    name: 'Nom',
+    time: 'HEURE',
+    drinks: 'Boissons',
+    urine: 'Urine',
+    sensationLegend: 'Codes d\'envie :  0 = Aucune envie (précaution)  |  1 = Légère (normale)  |  2 = Modérée (envie passée)  |  3 = Forte (de justesse)  |  4 = Escape (pas eu le temps)',
+    clinicalAnalysis: 'Analyse clinique',
+    dailyFluidBalance: 'Bilan liquidien quotidien',
+    fluidIntakeLabel: 'Apport liquidien',
+    voidedOutput: 'Volume uriné',
+    freqVolChart: 'Graphique fréquence-volume',
+    freqVolDesc: 'Chaque point = une miction, positionnée par heure. Cercle rouge = escape. Ligne pointillée = VMM.',
+    voidLeakLegend: '= Escape lors de miction',
+    standaloneLeakLegend: '= Escape isolé',
+    urgencyDistribution: 'Distribution de l\'envie',
+    notRecorded: 'Non enregistré',
+    footerTagline: 'IPC — Integrated Pelvic Care croit que de meilleures données mènent à de meilleurs soins.',
+    footerDisclaimer: 'Ce rapport est fourni à titre informatif et ne remplace pas un avis médical. Consultez toujours votre professionnel de santé.',
+    page: (n, total) => `Page ${n} / ${total}`,
+    yes: 'Oui',
+    morningPee: 'PMU',
+    doubleVoid: 'DV',
+    sensLabels: { 0: 'Aucune envie', 1: 'Légère', 2: 'Modérée', 3: 'Forte', 4: 'Escape' },
+    drinkLabels: { water: 'Eau', coffee: 'Café', tea: 'Thé', juice: 'Jus', carbonated: 'Boisson gazeuse', alcohol: 'Alcool', milk: 'Lait', other: 'Autre' },
+    leakTriggerLabels: { cough: 'Toux', sneeze: 'Éternuement', laugh: 'Rire', lifting: 'Port de charge', exercise: 'Exercice', toilet_way: 'En chemin', other: 'Autre', not_sure: 'Pas sûr' },
+  },
+  es: {
+    appName: 'My Flow Check',
+    reportSubtitle: 'Diario urinario de 3 días',
+    startDate: 'Fecha de inicio',
+    age: 'Edad',
+    clinicCode: 'Código de clínica',
+    generated: 'Generado el',
+    clinicalMetrics: 'Medidas clínicas',
+    metric: 'Medida',
+    night1Day2: 'Noche 1 / Día 2',
+    night2Day3: 'Noche 2 / Día 3',
+    overall: 'Total',
+    nocturnalVol: 'Vol. nocturno',
+    totalIntake: 'Ingesta total',
+    totalOutput: 'Volumen total',
+    voidCount: 'N.º de micciones',
+    voidLeakCount: 'Escapes al orinar',
+    standaloneLeaks: 'Escapes aislados',
+    continence: 'Continencia',
+    continent: 'Continente',
+    incontinent: 'Incontinente',
+    dailySummary: 'Resumen diario',
+    fluidIntake: 'Ingesta de líquidos',
+    voidVolume: 'Volumen orinado',
+    drinkCount: 'N.º de bebidas',
+    voidLeaks: 'Escapes al orinar',
+    wakeTime: 'Despertar',
+    bedtime: 'Acostarse',
+    day: (n) => `Día ${n}`,
+    wake: 'Despertar',
+    bed: 'Acostarse',
+    fluidIn: 'Bebidas',
+    voided: 'Orinado',
+    sens: 'Ganas',
+    leak: 'Escape',
+    intake: 'Ingesta',
+    output: 'Orinado',
+    voids: 'micciones',
+    leaks: 'Escapes',
+    voidWord: 'micción',
+    standaloneWord: 'aislado',
+    threeDayTitle: 'Diario urinario de 3 días',
+    started: 'Inicio',
+    name: 'Nombre',
+    time: 'HORA',
+    drinks: 'Bebidas',
+    urine: 'Orina',
+    sensationLegend: 'Códigos de ganas:  0 = Sin ganas (por precaución)  |  1 = Leve (normal)  |  2 = Moderada (ganas pasaron)  |  3 = Fuerte (por poco)  |  4 = Escape (no llegó a tiempo)',
+    clinicalAnalysis: 'Análisis clínico',
+    dailyFluidBalance: 'Balance de líquidos diario',
+    fluidIntakeLabel: 'Ingesta de líquidos',
+    voidedOutput: 'Volumen orinado',
+    freqVolChart: 'Gráfico frecuencia-volumen',
+    freqVolDesc: 'Cada punto = una micción, posicionada por hora. Círculo rojo = escape. Línea punteada = VMM.',
+    voidLeakLegend: '= Escape al orinar',
+    standaloneLeakLegend: '= Escape aislado',
+    urgencyDistribution: 'Distribución de ganas',
+    notRecorded: 'No registrado',
+    footerTagline: 'IPC — Integrated Pelvic Care cree que mejores datos llevan a mejor atención.',
+    footerDisclaimer: 'Este informe es solo informativo y no reemplaza el consejo médico. Consulte siempre a su profesional de salud.',
+    page: (n, total) => `Página ${n} / ${total}`,
+    yes: 'Sí',
+    morningPee: 'PMO',
+    doubleVoid: 'DV',
+    sensLabels: { 0: 'Sin ganas', 1: 'Leve', 2: 'Moderada', 3: 'Fuerte', 4: 'Escape' },
+    drinkLabels: { water: 'Agua', coffee: 'Café', tea: 'Té', juice: 'Jugo', carbonated: 'Refresco', alcohol: 'Alcohol', milk: 'Leche', other: 'Otro' },
+    leakTriggerLabels: { cough: 'Tos', sneeze: 'Estornudo', laugh: 'Risa', lifting: 'Levantar peso', exercise: 'Ejercicio', toilet_way: 'De camino', other: 'Otro', not_sure: 'No sé' },
+  },
+};
+
+export function getPdfStrings(locale: string): PdfStrings {
+  return PDF_STRINGS[locale] || PDF_STRINGS.en;
+}
+
+/** Get translated drink label for PDF. */
+export function pdfDrinkLabel(type: DrinkType, locale: string): string {
+  const s = getPdfStrings(locale);
+  return s.drinkLabels[type] ?? getPdfStrings('en').drinkLabels[type] ?? 'Other';
+}
+
+/** Get translated leak trigger label for PDF. */
+export function pdfLeakTriggerLabel(trigger: LeakTrigger, locale: string): string {
+  const s = getPdfStrings(locale);
+  return s.leakTriggerLabels[trigger] ?? getPdfStrings('en').leakTriggerLabels[trigger] ?? 'Other';
+}
+
+/** Format a date string for human-readable PDF pages using the correct locale. */
+export function pdfFormatDate(isoString: string, pattern: string, locale: string): string {
+  return format(parseISO(isoString), pattern, { locale: getDateLocale(locale) });
+}
