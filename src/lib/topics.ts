@@ -27,6 +27,7 @@ export const TOPIC_GROUPS: TopicGroup[] = [
       'oab',
       'urgency',
       'frequency',
+      'voiding',
       'urge-incontinence',
       'stress-incontinence',
       'mixed-incontinence',
