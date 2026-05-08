@@ -5,6 +5,15 @@
     "description": "Suivez vos habitudes urinaires et vos boissons sur 3 jours. Un outil simple pour vous et votre professionnel de santé.",
     "ogImageAlt": "My Flow Check, un suivi urinaire sur 3 jours"
   },
+  "notFound": {
+    "metaTitle": "Page introuvable",
+    "metaDescription": "La page que vous cherchiez n'est pas ici. Utilisez les liens ci-dessous pour trouver ce dont vous avez besoin.",
+    "heading": "Nous n'avons pas trouvé cette page",
+    "body": "La page que vous cherchiez a peut-être été déplacée, ou le lien contient peut-être une faute. Essayez plutôt l'un de ceux-ci.",
+    "homeLink": "Aller à la page d'accueil",
+    "learnLink": "Parcourir la rubrique Apprendre",
+    "diaryLink": "Commencer le journal urinaire de 3 jours"
+  },
   "common": {
     "back": "Retour",
     "cancel": "Annuler",
@@ -698,7 +707,10 @@
         "metaDescription": "Tous les articles de la rubrique Apprendre sur la santé vésicale, les symptômes urinaires, le plancher pelvien et ce qui aide vraiment.",
         "heading": "Tous les articles",
         "lede": "Tous les articles publiés, du plus récent au plus ancien. Utilisez le navigateur de sujets sur la page principale pour filtrer par centre d'intérêt, ou parcourez ici toute la bibliothèque.",
-        "breadcrumb": "Tous les articles"
+        "breadcrumb": "Tous les articles",
+        "searchLabel": "Rechercher dans les articles",
+        "searchPlaceholder": "Essayez : nycturie, urgenturie, prostate, fuites",
+        "noMatches": "Aucun article ne correspond à cette recherche. Essayez un autre mot."
       },
       "pagination": {
         "label": "Pagination",

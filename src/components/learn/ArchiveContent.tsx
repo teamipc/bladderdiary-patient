@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { getAllArticles } from '@/lib/content';
 import type { Locale } from '@/i18n/config';
 import ArticleCard from '@/components/learn/ArticleCard';
+import ArchiveSearch from '@/components/learn/ArchiveSearch';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Pagination from '@/components/learn/Pagination';
 
@@ -60,11 +61,35 @@ export default async function ArchiveContent({ locale, page }: Props) {
           <p className="text-base text-ipc-600 italic">{t('hub.noArticles')}</p>
         ) : (
           <>
+            <ArchiveSearch
+              label={t('archive.searchLabel')}
+              placeholder={t('archive.searchPlaceholder')}
+            />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.map((a) => (
-                <ArticleCard key={a.urlPath} article={a} />
-              ))}
+              {articles.map((a) => {
+                const fm = a.frontmatter;
+                const haystack = [
+                  fm.title,
+                  fm.description,
+                  fm.topic.replace(/-/g, ' '),
+                  ...(fm.keywords ?? []),
+                ]
+                  .join(' ')
+                  .toLowerCase();
+                return (
+                  <div key={a.urlPath} data-search-text={haystack}>
+                    <ArticleCard article={a} />
+                  </div>
+                );
+              })}
             </div>
+            <p
+              id="archive-no-matches"
+              hidden
+              className="text-base text-ipc-600 italic mt-8"
+            >
+              {t('archive.noMatches')}
+            </p>
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

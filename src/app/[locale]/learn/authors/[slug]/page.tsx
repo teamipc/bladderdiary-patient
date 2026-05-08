@@ -44,6 +44,7 @@ export async function generateMetadata({
   if (!author) return {};
   const canonical = `/${locale}/learn/authors/${slug}`;
 
+  const ogImage = author.photoUrl ?? '/opengraph-image.png';
   return {
     title: author.name,
     description: author.bio,
@@ -53,6 +54,20 @@ export async function generateMetadata({
       description: author.bio,
       url: buildAbsoluteUrl(canonical),
       type: 'profile',
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: author.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: author.name,
+      description: author.bio,
+      images: [ogImage],
     },
   };
 }

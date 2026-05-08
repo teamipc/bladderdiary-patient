@@ -19,7 +19,7 @@ import ArticleCard from '@/components/learn/ArticleCard';
 import AuthorByline from '@/components/learn/AuthorByline';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
-import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { ArticleJsonLd, BreadcrumbJsonLd, FaqJsonLd } from '@/components/seo/JsonLd';
 import { formatBylineMeta } from '@/lib/authorByline';
 
 interface PageParams {
@@ -137,6 +137,7 @@ export default async function ArticlePage({
           }))}
         />
         <ArticleJsonLd article={article} author={author} reviewer={reviewer} />
+        {fm.faq && fm.faq.length > 0 && <FaqJsonLd items={fm.faq} />}
 
         <header className="mb-6 mt-2">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-ipc-950 mb-4 text-balance leading-tight tracking-tight">

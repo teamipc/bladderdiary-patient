@@ -5,6 +5,7 @@ import {
   getAllArticles,
   getAllTopics,
   getAllAuthors,
+  getArticleAlternates,
 } from '@/lib/content';
 
 export const dynamic = 'force-static';
@@ -85,12 +86,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
         fm.pageType === 'glossary'
           ? `/learn/glossary/${fm.slug}`
           : `/learn/${fm.topic}/${fm.slug}`;
+      const alternates = getArticleAlternates(article);
+      const overrides = Object.fromEntries(
+        Object.entries(alternates).filter(([l]) => locales.includes(l as Locale)),
+      ) as Partial<Record<Locale, string>>;
+      const onlyLocales = Object.keys(overrides) as Locale[];
+      const languages: Record<string, string> = {};
+      for (const l of onlyLocales) {
+        languages[HREFLANG[l]] = absolute(overrides[l]!);
+      }
+      if (overrides.en) {
+        languages['x-default'] = absolute(overrides.en);
+      }
       entries.push({
         url: absolute(localizedPath(typedLocale, path)),
         lastModified: fm.updatedAt ? new Date(fm.updatedAt) : lastMod,
         changeFrequency: 'monthly',
         priority: fm.pageType === 'glossary' ? 0.5 : 0.6,
-        alternates: { languages: buildLanguagesMap(path) },
+        alternates: onlyLocales.length > 1 ? { languages } : undefined,
       });
     }
   }

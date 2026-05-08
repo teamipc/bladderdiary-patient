@@ -4,10 +4,11 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import {
   getGlossaryEntry,
   getGlossaryEntries,
+  getArticleAlternates,
   buildAbsoluteUrl,
 } from '@/lib/content';
 import { locales, type Locale } from '@/i18n/config';
-import { buildHreflangMap } from '@/i18n/seo';
+import { buildArticleHreflangMap } from '@/i18n/seo';
 import { RenderMdx } from '@/lib/mdx';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
@@ -40,16 +41,35 @@ export async function generateMetadata({
   const entry = getGlossaryEntry(locale as Locale, term);
   if (!entry) return {};
   const canonical = `/${locale}/learn/glossary/${term}`;
+  const alternates = getArticleAlternates(entry);
+  const hreflangMap = buildArticleHreflangMap(alternates);
 
   return {
     title: entry.frontmatter.title,
     description: entry.frontmatter.description,
-    alternates: { canonical, languages: buildHreflangMap(`/learn/glossary/${term}`) },
+    alternates: {
+      canonical,
+      languages: Object.keys(hreflangMap).length > 1 ? hreflangMap : undefined,
+    },
     openGraph: {
       title: entry.frontmatter.title,
       description: entry.frontmatter.description,
       url: buildAbsoluteUrl(canonical),
       type: 'article',
+      images: [
+        {
+          url: '/opengraph-image.png',
+          width: 1200,
+          height: 630,
+          alt: entry.frontmatter.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: entry.frontmatter.title,
+      description: entry.frontmatter.description,
+      images: ['/opengraph-image.png'],
     },
   };
 }

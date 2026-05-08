@@ -5,6 +5,15 @@
     "description": "Track when you drink, when you pee, and the patterns behind it in 3 days. A simple bladder diary tool to help you and your health professional.",
     "ogImageAlt": "My Flow Check, a 3-day bladder diary tracker"
   },
+  "notFound": {
+    "metaTitle": "Page not found",
+    "metaDescription": "The page you were looking for is not here. Use the links below to find what you need.",
+    "heading": "We couldn't find that page",
+    "body": "The page you were looking for might have moved, or the link might have a typo. Try one of these instead.",
+    "homeLink": "Go to the home page",
+    "learnLink": "Browse the Learn library",
+    "diaryLink": "Start the 3-day bladder diary"
+  },
   "common": {
     "back": "Back",
     "cancel": "Cancel",
@@ -698,7 +707,10 @@
       "metaDescription": "Every article in the Learn library on bladder health, urinary symptoms, pelvic floor, and what actually helps.",
       "heading": "All articles",
       "lede": "Every article we've published, newest first. Use the topic browser on the main hub to filter by interest, or page through the full library here.",
-      "breadcrumb": "All articles"
+      "breadcrumb": "All articles",
+      "searchLabel": "Search articles",
+      "searchPlaceholder": "Try: nocturia, urgency, prostate, leaking",
+      "noMatches": "No articles match that search. Try a different word."
     },
     "pagination": {
       "label": "Pagination",

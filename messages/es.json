@@ -5,6 +5,15 @@
     "description": "Registre sus bebidas, sus idas al baño y descubra patrones en 3 días. Una herramienta simple para usted y su profesional de salud.",
     "ogImageAlt": "My Flow Check, un registro urinario de 3 días"
   },
+  "notFound": {
+    "metaTitle": "Página no encontrada",
+    "metaDescription": "La página que buscabas no está aquí. Usa los enlaces de abajo para encontrar lo que necesitas.",
+    "heading": "No encontramos esa página",
+    "body": "La página que buscabas puede haberse movido, o el enlace puede tener un error. Prueba con uno de estos.",
+    "homeLink": "Ir a la página principal",
+    "learnLink": "Explorar la biblioteca Aprender",
+    "diaryLink": "Empezar el diario urinario de 3 días"
+  },
   "common": {
     "back": "Atrás",
     "cancel": "Cancelar",
@@ -698,7 +707,10 @@
       "metaDescription": "Todos los art\u00edculos de la biblioteca Aprender sobre salud vesical, s\u00edntomas urinarios, suelo p\u00e9lvico y lo que de verdad ayuda.",
       "heading": "Todos los art\u00edculos",
       "lede": "Todos los art\u00edculos que hemos publicado, los m\u00e1s recientes primero. Filtra por inter\u00e9s desde el explorador de temas del hub principal, o recorre aqu\u00ed la biblioteca completa.",
-      "breadcrumb": "Todos los art\u00edculos"
+      "breadcrumb": "Todos los art\u00edculos",
+      "searchLabel": "Buscar art\u00edculos",
+      "searchPlaceholder": "Prueba: nicturia, urgencia, pr\u00f3stata, escapes",
+      "noMatches": "Ning\u00fan art\u00edculo coincide con esa b\u00fasqueda. Prueba con otra palabra."
     },
     "pagination": {
       "label": "Paginaci\u00f3n",

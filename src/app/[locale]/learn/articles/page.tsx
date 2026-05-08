@@ -24,6 +24,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: t('metaDescription'),
       url: buildAbsoluteUrl(canonicalPath),
       type: 'website',
+      images: [
+        {
+          url: '/opengraph-image.png',
+          width: 1200,
+          height: 630,
+          alt: t('metaTitle'),
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('metaTitle'),
+      description: t('metaDescription'),
+      images: ['/opengraph-image.png'],
     },
   };
 }

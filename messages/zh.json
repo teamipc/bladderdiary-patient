@@ -5,6 +5,15 @@
     "description": "在 3 天里记录你的喝水时间、排尿时间和背后的规律。一个简单的膀胱日记工具,帮助你和医生。",
     "ogImageAlt": "My Flow Check,3 天膀胱日记追踪工具"
   },
+  "notFound": {
+    "metaTitle": "找不到页面",
+    "metaDescription": "你要找的页面不在这里。用下面的链接找到你需要的内容。",
+    "heading": "没找到那个页面",
+    "body": "你要找的页面可能已经搬走了,或者链接可能拼错了。试试下面这些。",
+    "homeLink": "回到主页",
+    "learnLink": "浏览了解栏目",
+    "diaryLink": "开始 3 天膀胱日记"
+  },
   "common": {
     "back": "返回",
     "cancel": "取消",
@@ -698,7 +707,10 @@
       "metaDescription": "了解栏目里关于膀胱健康、泌尿症状、盆底,以及什么真的有用的全部文章。",
       "heading": "全部文章",
       "lede": "我们发布过的全部文章,最新的在前。可以在主页用主题浏览器按兴趣筛选,或者在这里翻阅完整文章库。",
-      "breadcrumb": "全部文章"
+      "breadcrumb": "全部文章",
+      "searchLabel": "搜索文章",
+      "searchPlaceholder": "试试:夜尿、尿急、前列腺、漏尿",
+      "noMatches": "没有匹配的文章。换个词试试。"
     },
     "pagination": {
       "label": "分页",

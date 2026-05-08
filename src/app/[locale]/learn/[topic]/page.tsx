@@ -17,7 +17,7 @@ import AuthorByline from '@/components/learn/AuthorByline';
 import Breadcrumbs from '@/components/learn/Breadcrumbs';
 import Disclaimer from '@/components/learn/Disclaimer';
 import Pagination from '@/components/learn/Pagination';
-import { ArticleJsonLd, BreadcrumbJsonLd, CollectionPageJsonLd } from '@/components/seo/JsonLd';
+import { ArticleJsonLd, BreadcrumbJsonLd, CollectionPageJsonLd, FaqJsonLd } from '@/components/seo/JsonLd';
 import { formatBylineMeta } from '@/lib/authorByline';
 import { TOPIC_PAGE_SIZE } from '@/lib/topicPagination';
 
@@ -50,16 +50,30 @@ export async function generateMetadata({
 
   const canonical = `/${locale}/learn/${topic}`;
 
+  const fm = pillar.frontmatter;
+  const ogImages = fm.hero
+    ? [{ url: fm.hero, width: 1200, height: 630, alt: fm.heroAlt ?? fm.title }]
+    : undefined;
+
   return {
-    title: pillar.frontmatter.title,
-    description: pillar.frontmatter.description,
+    title: fm.title,
+    description: fm.description,
+    keywords: fm.keywords,
     alternates: { canonical, languages: buildHreflangMap(`/learn/${topic}`) },
     openGraph: {
-      title: pillar.frontmatter.title,
-      description: pillar.frontmatter.description,
+      title: fm.title,
+      description: fm.description,
       url: buildAbsoluteUrl(canonical),
       type: 'article',
-      images: pillar.frontmatter.hero ? [{ url: pillar.frontmatter.hero }] : undefined,
+      publishedTime: fm.publishedAt,
+      modifiedTime: fm.updatedAt,
+      images: ogImages,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: fm.title,
+      description: fm.description,
+      images: fm.hero ? [fm.hero] : undefined,
     },
   };
 }
@@ -114,6 +128,9 @@ export default async function PillarPage({
               }))}
             />
             <ArticleJsonLd article={pillar} author={author} reviewer={reviewer} />
+            {pillar.frontmatter.faq && pillar.frontmatter.faq.length > 0 && (
+              <FaqJsonLd items={pillar.frontmatter.faq} />
+            )}
 
             <header className="mb-6 mt-2">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-ipc-950 mb-4 text-balance leading-tight tracking-tight">

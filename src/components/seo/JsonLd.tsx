@@ -159,6 +159,54 @@ export function OrganizationJsonLd() {
   );
 }
 
+export function WebSiteJsonLd({ locale }: { locale: string }) {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'My Flow Check',
+        url: SITE_URL,
+        inLanguage: locale,
+        publisher: {
+          '@type': 'Organization',
+          name: 'My Flow Check',
+          url: SITE_URL,
+          logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon-512.png` },
+        },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${SITE_URL}/${locale}/learn/articles?q={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      }}
+    />
+  );
+}
+
+export function FaqJsonLd({ items }: { items: Array<{ question: string; answer: string }> }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: items.map((it) => ({
+          '@type': 'Question',
+          name: it.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: it.answer,
+          },
+        })),
+      }}
+    />
+  );
+}
+
 export function PersonJsonLd({ author }: { author: Author }) {
   return (
     <JsonLd

@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/next';
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 import AppShell from '@/components/layout/AppShell';
-import { OrganizationJsonLd } from '@/components/seo/JsonLd';
+import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
 import { locales, type Locale } from '@/i18n/config';
 import { LOCALE_DIR, OG_LOCALE, buildHreflangMap } from '@/i18n/seo';
 
@@ -119,6 +119,7 @@ export default async function LocaleLayout({
       </head>
       <body className="bg-surface text-ipc-950 antialiased font-sans">
         <OrganizationJsonLd />
+        <WebSiteJsonLd locale={locale} />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AppShell>
             {children}

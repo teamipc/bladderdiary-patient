@@ -19,6 +19,11 @@ export interface Citation {
   year: number;
 }
 
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface ArticleFrontmatter {
   title: string;
   description: string;
@@ -33,6 +38,7 @@ export interface ArticleFrontmatter {
   medicallyReviewedBy?: string;
   lastReviewedAt?: string;
   citations?: Citation[];
+  faq?: FaqItem[];
   keywords?: string[];
   hero?: string;
   heroAlt?: string;
@@ -140,6 +146,7 @@ function parseArticleFile(filePath: string, locale: Locale, topic: string): Arti
     medicallyReviewedBy: fm.medicallyReviewedBy,
     lastReviewedAt: fm.lastReviewedAt,
     citations: fm.citations,
+    faq: fm.faq,
     keywords: fm.keywords,
     hero: fm.hero,
     heroAlt: fm.heroAlt,
@@ -329,12 +336,16 @@ export function buildAbsoluteUrl(urlPath: string): string {
 
 export function getArticleAlternates(article: Article): Record<string, string> {
   const fm = article.frontmatter;
-  if (fm.pageType === 'glossary') return {};
   const all = loadAllArticles();
   const out: Record<string, string> = {};
   for (const candidate of all) {
     const cfm = candidate.frontmatter;
-    if (cfm.topic === fm.topic && cfm.slug === fm.slug) {
+    if (cfm.pageType !== fm.pageType) continue;
+    if (cfm.pageType === 'glossary') {
+      if (cfm.slug === fm.slug) {
+        out[cfm.locale] = `/${cfm.locale}/learn/glossary/${cfm.slug}`;
+      }
+    } else if (cfm.topic === fm.topic && cfm.slug === fm.slug) {
       const path =
         cfm.pageType === 'pillar'
           ? `/learn/${cfm.topic}`

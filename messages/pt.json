@@ -5,6 +5,15 @@
     "description": "Regista quando bebes, quando urinas, e os padrões por trás disso em 3 dias. Uma ferramenta simples para ti e para o teu profissional de saúde.",
     "ogImageAlt": "My Flow Check, um diário da bexiga de 3 dias"
   },
+  "notFound": {
+    "metaTitle": "Página não encontrada",
+    "metaDescription": "A página que procuravas não está aqui. Usa as ligações em baixo para encontrar o que precisas.",
+    "heading": "Não encontrámos essa página",
+    "body": "A página que procuravas pode ter sido movida, ou a ligação pode ter um erro. Experimenta uma destas em vez disso.",
+    "homeLink": "Ir para a página inicial",
+    "learnLink": "Explorar a biblioteca Aprender",
+    "diaryLink": "Começar o diário da bexiga em 3 dias"
+  },
   "common": {
     "back": "Voltar",
     "cancel": "Cancelar",
@@ -698,7 +707,10 @@
       "metaDescription": "Todos os artigos da biblioteca Aprender sobre saúde da bexiga, sintomas urinários, pavimento pélvico, e o que ajuda mesmo.",
       "heading": "Todos os artigos",
       "lede": "Todos os artigos que publicámos, dos mais recentes para os mais antigos. Usa o explorador de temas na página principal para filtrar por interesse, ou percorre aqui a biblioteca completa.",
-      "breadcrumb": "Todos os artigos"
+      "breadcrumb": "Todos os artigos",
+      "searchLabel": "Pesquisar artigos",
+      "searchPlaceholder": "Experimenta: nictúria, urgência, próstata, perdas",
+      "noMatches": "Nenhum artigo corresponde a esta pesquisa. Experimenta outra palavra."
     },
     "pagination": {
       "label": "Paginação",
