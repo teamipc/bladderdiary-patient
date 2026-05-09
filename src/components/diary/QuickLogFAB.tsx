@@ -61,6 +61,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
           <div className="flex flex-col items-end gap-3 animate-fade-slide-up">
             <button
               type="button"
+              data-testid="fab-action-drink"
               onClick={() => handleAction('drink')}
               className="flex items-center justify-between gap-3 min-w-[8rem] ps-4 pe-3 py-2.5 rounded-full bg-drink
                 text-white shadow-lg active:scale-[0.95] transition-transform"
@@ -73,6 +74,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
 
             <button
               type="button"
+              data-testid="fab-action-leak"
               onClick={() => handleAction('leak')}
               className="flex items-center justify-between gap-3 min-w-[8rem] ps-4 pe-3 py-2.5 rounded-full bg-leak
                 text-white shadow-lg active:scale-[0.95] transition-transform"
@@ -85,6 +87,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
 
             <button
               type="button"
+              data-testid="fab-action-void"
               onClick={() => handleAction('void')}
               className="flex items-center justify-between gap-3 min-w-[8rem] ps-4 pe-3 py-2.5 rounded-full bg-void
                 text-white shadow-lg active:scale-[0.95] transition-transform"
@@ -101,6 +104,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
         <div className="flex flex-col items-center gap-1">
           <button
             type="button"
+            data-testid="fab-toggle"
             onClick={() => setExpanded((prev) => !prev)}
             className={`w-16 h-16 rounded-full flex items-center justify-center
               transition-all active:scale-[0.9] ${

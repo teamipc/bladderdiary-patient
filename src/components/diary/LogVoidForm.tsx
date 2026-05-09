@@ -484,7 +484,7 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 </div>
               )}
               <div className="flex justify-center mt-6">
-                <Button onClick={handleSave} size="lg" variant={isNightView ? 'night' : 'primary'} disabled={volume <= 0}>
+                <Button onClick={handleSave} size="lg" variant={isNightView ? 'night' : 'primary'} disabled={volume <= 0} data-testid="void-save">
                   {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>

@@ -33,6 +33,8 @@ export default function LeakTriggerPicker({ value, onChange }: LeakTriggerPicker
             <button
               key={lt.value}
               type="button"
+              data-testid={`leak-trigger-${lt.value}`}
+              aria-pressed={selected}
               onClick={() => onChange(selected ? null : lt.value)}
               className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl min-h-[76px]
                 transition-all active:scale-[0.95] ${
