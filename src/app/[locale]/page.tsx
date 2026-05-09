@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import Button from '@/components/ui/Button';
-import { useDiaryStore } from '@/lib/store';
+import { useDiaryStore, useStoreHydrated } from '@/lib/store';
 import { Lock, PlayCircle, RotateCcw, Download, Ellipsis } from 'lucide-react';
 
 /** iOS share icon — rectangle with arrow pointing up (matches the real Safari icon). */
@@ -37,6 +37,7 @@ function LandingContent() {
   const t = useTranslations('landing');
   const tc = useTranslations('common');
   const { diaryStarted, startDate, timeZone, startDiary, setStartDate, setAge, setVolumeUnit, setTimeZone, setClinicCode, resetDiary } = useDiaryStore();
+  const hydrated = useStoreHydrated();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const { canPrompt, isIos, isInstalled, promptInstall } = usePwaInstall();
@@ -76,6 +77,18 @@ function LandingContent() {
     setShowResetConfirm(false);
     setShowOnboarding(false);
   };
+
+  // Wait for persist rehydration before deciding which view to render.
+  // Without this gate, a returning patient sees the "start tracking" hero
+  // for one render frame before the store hydrates and we swap to "Welcome
+  // back" — visible flicker, especially on slower devices.
+  if (!hydrated) {
+    return (
+      <div className="flex items-center justify-center py-24 bg-surface">
+        <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
+      </div>
+    );
+  }
 
   if (diaryStarted) {
     return (
