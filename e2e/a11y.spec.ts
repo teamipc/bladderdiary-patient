@@ -23,12 +23,20 @@ import { buildSeedState, STORE_KEY } from './helpers/fixtures';
 type Locale = 'en' | 'fr' | 'es' | 'pt' | 'zh' | 'ar';
 const LOCALES: Locale[] = ['en', 'fr', 'es', 'pt', 'zh', 'ar'];
 
+interface A11yNodeDetail {
+  target: string[];
+  html: string;
+  summary: string;
+}
+
 interface A11yViolation {
   id: string;
   impact: 'minor' | 'moderate' | 'serious' | 'critical' | null;
   description: string;
   helpUrl: string;
   nodeCount: number;
+  /** First few node details so a developer can act without a re-run. */
+  nodeSamples?: A11yNodeDetail[];
 }
 
 interface A11yPageResult {
@@ -98,6 +106,12 @@ test('a11y', async ({ page, browser }, testInfo) => {
     { key: STORE_KEY, value: seed },
   );
 
+  // Disable CSS animations so the summary's staggered fade-slide-up
+  // sections (delays up to 1.2s, opacity 0 → 1) finish instantly.
+  // Without this, axe samples mid-animation and reports false-positive
+  // contrast violations on partially-transparent text.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+
   try {
     for (const locale of LOCALES) {
       // ── Homepage ──
@@ -118,6 +132,11 @@ test('a11y', async ({ page, browser }, testInfo) => {
             description: v.description,
             helpUrl: v.helpUrl,
             nodeCount: v.nodes.length,
+            nodeSamples: v.nodes.slice(0, 3).map((n) => ({
+              target: n.target as string[],
+              html: n.html.slice(0, 240),
+              summary: (n.failureSummary ?? '').slice(0, 320),
+            })),
           })),
         };
         for (const v of homeScan.violations) {
@@ -157,6 +176,11 @@ test('a11y', async ({ page, browser }, testInfo) => {
               description: v.description,
               helpUrl: v.helpUrl,
               nodeCount: v.nodes.length,
+              nodeSamples: v.nodes.slice(0, 3).map((n) => ({
+                target: n.target as string[],
+                html: n.html.slice(0, 240),
+                summary: (n.failureSummary ?? '').slice(0, 320),
+              })),
             })),
           };
           for (const v of summaryScan.violations) {
