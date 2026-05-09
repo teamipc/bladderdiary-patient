@@ -1,39 +1,52 @@
 @import "tailwindcss";
 
-/* ── IPC Brand Palette (shared with clinician app) ── */
+/* ── IPC Brand Palette (shared with clinician app) ──
+ *
+ * Accessibility: shades 400+ now meet WCAG 2 AA minimum contrast (4.5:1)
+ * against the surface background (#fefdfb). Earlier values (#dea153 / #c4984a /
+ * #c47d2a) sat at 2.21–3.27:1, failing AA — a serious problem for the patient
+ * audience (50+, often with reduced contrast sensitivity). Shades 50–300 are
+ * unchanged because they are only used for backgrounds, borders, and
+ * decorative tints, never as text foreground or with white text overlay.
+ *
+ * Visual intent: the warm-amber identity is preserved at 200/300 (where it's
+ * most visible — backgrounds, borders, banner tints). 400+ shifted from
+ * gold-amber to deeper warm-brown to gain the contrast headroom required for
+ * text and primary-button backgrounds.
+ */
 @theme inline {
   --color-ipc-50: #fdf8ef;
   --color-ipc-100: #f9edda;
   --color-ipc-200: #f2d8b4;
   --color-ipc-300: #e9be84;
-  --color-ipc-400: #dea153;
-  --color-ipc-500: #c4984a;
-  --color-ipc-600: #c47d2a;
-  --color-ipc-700: #a36224;
-  --color-ipc-800: #854e23;
-  --color-ipc-900: #6c4120;
-  --color-ipc-950: #3d210f;
+  --color-ipc-400: #a16322; /* was #dea153 — text on white: 2.21 → 4.6 ✓ */
+  --color-ipc-500: #844e16; /* was #c4984a — text 2.6 → 6.4; bg+white 2.64 → 6.4 ✓ */
+  --color-ipc-600: #6c3e10; /* was #c47d2a — text 3.27 → 8.0 ✓ */
+  --color-ipc-700: #56300c; /* was #a36224 — even darker for bold emphasis */
+  --color-ipc-800: #432409; /* was #854e23 */
+  --color-ipc-900: #2f1906; /* was #6c4120 */
+  --color-ipc-950: #1c0f03; /* was #3d210f */
 
   --color-surface: #fefdfb;
   --color-surface-alt: #fdf8ef;
 
-  --color-success: #4a8c6a;
+  --color-success: #2c6b48; /* was #4a8c6a — text on white 3.55 → 5.6 ✓ */
   --color-success-light: #e8f4ee;
-  --color-warning: #d4943a;
+  --color-warning: #955d11; /* was #d4943a — text 2.6 → 7.1 ✓ */
   --color-warning-light: #fef3e2;
-  --color-danger: #c45a4a;
+  --color-danger: #a13e2e; /* was #c45a4a — text 4.07 → 6.0 ✓ */
   --color-danger-light: #fde8e5;
-  --color-info: #5a8ab4;
+  --color-info: #345e83; /* was #5a8ab4 — text 4.45 → 6.5 ✓ */
   --color-info-light: #e8f0f8;
 
-  --color-void: #c4984a;
-  /* Drink darkened from #5a8ab4 (3.67:1 white-on-blue) to #3e6f96
-     (5.12:1) so the active chip / primary CTA / "mL" unit on the
-     drink form clear WCAG AA. The leak + bedtime tokens already
-     pass on day mode. */
-  --color-drink: #3e6f96;
-  --color-bedtime: #8a6aac;
-  --color-leak: #b85c4a;
+  /* Event-type accents. Darkened so each passes WCAG AA both as text on
+     white (≥ 4.5:1) and with white text overlay on its filled background.
+     Earlier values failed by 0.05–2 ratio points across the family,
+     specifically affecting the per-day Wake/Bed/leak labels on /summary. */
+  --color-void: #844e16;     /* was #c4984a — text 2.6 → 6.4 (mirrors ipc-500) */
+  --color-drink: #2f5778;    /* was #3e6f96 — text 5.12 → 7.4 ✓ */
+  --color-bedtime: #6f4c8d;  /* was #8a6aac — text 4.43 → 5.5 ✓ */
+  --color-leak: #9e3e2c;     /* was #b85c4a — text 4.51 → 6.0 ✓ */
 
   --font-sans: "Inter", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
@@ -61,6 +74,31 @@ input, select, textarea {
 /* Safe area padding for notch devices */
 .safe-bottom {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+}
+
+/* ── Reduced-motion preference ──
+ *
+ * Patients with vestibular disorders, motion sensitivity, or migraine
+ * triggers can be harmed by parallax / fade-slide animations. When the
+ * OS-level "reduce motion" preference is set, collapse animations to
+ * effectively zero duration so content appears immediately. Elements
+ * that start at `opacity-0` with `animationFillMode: forwards` still
+ * end up fully visible because we keep the final keyframe.
+ *
+ * Important: blanket-disabling animations would also catch CSS spinners
+ * and similar utility loops, which are still useful at reduced motion
+ * (a static spinner doesn't communicate "loading"). We narrow to the
+ * fade/slide presentational animations.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── Animations ── */

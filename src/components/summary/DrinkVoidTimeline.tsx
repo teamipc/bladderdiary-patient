@@ -58,7 +58,11 @@ export default function DrinkVoidTimeline({ dayNumber }: DrinkVoidTimelineProps)
         <span className="text-sm font-bold text-ipc-950">{tc('day', { number: dayNumber })}</span>
         <div className="text-xs text-ipc-500 flex items-center gap-2">
           <span>{formatTime(startIso, locale, timeZone)}</span>
-          <span className="opacity-50">{ts('timelineRange')}</span>
+          {/* "to" connector — was opacity-50 on text-ipc-500 which produced an
+             effective color of ~#c2a78b on white (2.28:1, fails WCAG AA).
+             aria-hidden because the surrounding times convey the range; the
+             literal word adds nothing for screen readers. */}
+          <span className="text-ipc-400" aria-hidden="true">{ts('timelineRange')}</span>
           <span>{formatTime(endIso, locale, timeZone)}</span>
         </div>
       </div>
@@ -68,6 +72,7 @@ export default function DrinkVoidTimeline({ dayNumber }: DrinkVoidTimelineProps)
         {drinks.map((d, i) => (
           <div
             key={d.id}
+            role="img"
             className="timeline-dot absolute top-0 w-7 h-7 rounded-full bg-drink/15 border border-drink/40 flex items-center justify-center animate-fade-slide-up opacity-0"
             style={{
               insetInlineStart: `${positionPercent(d.timestampIso)}%`,
@@ -89,6 +94,7 @@ export default function DrinkVoidTimeline({ dayNumber }: DrinkVoidTimelineProps)
         {voids.map((v, i) => (
           <div
             key={v.id}
+            role="img"
             className="timeline-dot absolute top-1 w-7 h-7 rounded-full bg-void/15 border border-void/40 flex items-center justify-center animate-fade-slide-up opacity-0"
             style={{
               insetInlineStart: `${positionPercent(v.timestampIso)}%`,
