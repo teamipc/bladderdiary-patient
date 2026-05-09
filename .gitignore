@@ -40,3 +40,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .incoming/
+
+# Playwright e2e — generated artifacts (screenshots, downloaded PDFs/CSVs,
+# trace files, daily logs, per-spec findings JSON). All deterministic
+# outputs of the daily walkthrough run; not source.
+/test-results/
+/playwright-report/
+
+# Claude worktree cache
+/.claude/worktrees/
