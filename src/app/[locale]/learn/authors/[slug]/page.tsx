@@ -144,8 +144,8 @@ export default async function AuthorPage({
               {tAuthor('articlesAuthored', { name: author.name })}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {authored.map((a) => (
-                <ArticleCard key={a.urlPath} article={a} />
+              {authored.map((a, i) => (
+                <ArticleCard key={a.urlPath} article={a} priority={i === 0} />
               ))}
             </div>
           </section>

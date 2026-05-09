@@ -5,7 +5,13 @@ import { getAuthor, type Article } from '@/lib/content';
 import { type Locale } from '@/i18n/config';
 import { authorInitials, formatBylineMeta } from '@/lib/authorByline';
 
-export default async function ArticleCard({ article }: { article: Article }) {
+export default async function ArticleCard({
+  article,
+  priority,
+}: {
+  article: Article;
+  priority?: boolean;
+}) {
   const fm = article.frontmatter;
   const locale = (await getLocale()) as Locale;
   const t = await getTranslations({ locale, namespace: 'learn' });
@@ -34,8 +40,9 @@ export default async function ArticleCard({ article }: { article: Article }) {
         {fm.hero && (
           <Image
             src={fm.hero}
-            alt={fm.heroAlt ?? ''}
+            alt={fm.heroAlt || fm.title}
             fill
+            priority={priority}
             className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           />

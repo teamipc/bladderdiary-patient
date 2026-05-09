@@ -121,8 +121,8 @@ export default async function TopicPagedPage({
             {t('topic.articlesInTopic')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {articles.map((a) => (
-              <ArticleCard key={a.urlPath} article={a} />
+            {articles.map((a, i) => (
+              <ArticleCard key={a.urlPath} article={a} priority={i === 0} />
             ))}
           </div>
           <Pagination

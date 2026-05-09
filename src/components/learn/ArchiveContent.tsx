@@ -61,8 +61,8 @@ export default async function ArchiveContent({ locale, page }: Props) {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.map((a) => (
-                <ArticleCard key={a.urlPath} article={a} />
+              {articles.map((a, i) => (
+                <ArticleCard key={a.urlPath} article={a} priority={i === 0} />
               ))}
             </div>
             <Pagination

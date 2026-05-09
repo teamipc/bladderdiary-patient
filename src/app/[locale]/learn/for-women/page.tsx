@@ -91,8 +91,8 @@ export default async function ForWomenLanding({
             <p className="text-sm text-ipc-500 italic">{tForWomen('noArticles')}</p>
           ) : (
             <div className="space-y-2">
-              {articles.map((a) => (
-                <ArticleCard key={a.urlPath} article={a} />
+              {articles.map((a, i) => (
+                <ArticleCard key={a.urlPath} article={a} priority={i === 0} />
               ))}
             </div>
           )}

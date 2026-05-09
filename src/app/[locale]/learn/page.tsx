@@ -146,8 +146,8 @@ export default async function LearnHub({
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recent.map((a) => (
-                <ArticleCard key={a.urlPath} article={a} />
+              {recent.map((a, i) => (
+                <ArticleCard key={a.urlPath} article={a} priority={i === 0} />
               ))}
             </div>
           </section>
