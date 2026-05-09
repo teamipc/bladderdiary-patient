@@ -102,7 +102,7 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
       )}
 
       <div className="flex justify-center">
-        <Button onClick={handleSave} size="md" disabled={isInvalid}>
+        <Button onClick={handleSave} size="md" disabled={isInvalid} data-testid="wake-save">
           {existing ? t('updateWakeUpButton') : t('saveWakeUp')}
         </Button>
       </div>

@@ -113,7 +113,7 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
       )}
 
       <div className="flex justify-center">
-        <Button onClick={handleSave} size="md" variant="bedtime" disabled={isInvalid}>
+        <Button onClick={handleSave} size="md" variant="bedtime" disabled={isInvalid} data-testid="bedtime-save">
           {existing ? t('updateBedtimeButton') : t('saveBedtime')}
         </Button>
       </div>

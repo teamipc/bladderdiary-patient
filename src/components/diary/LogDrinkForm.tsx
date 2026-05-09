@@ -335,7 +335,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                 </div>
               )}
               <div className="flex justify-center mt-6">
-                <Button onClick={handleSave} size="lg" variant={isNightView ? 'night' : 'drink'} disabled={volume <= 0}>
+                <Button onClick={handleSave} size="lg" variant={isNightView ? 'night' : 'drink'} disabled={volume <= 0} data-testid="drink-save">
                   {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>

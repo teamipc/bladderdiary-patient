@@ -325,6 +325,8 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               <div className="flex gap-2">
                 <button
                   type="button"
+                  data-testid="leak-urgency-yes"
+                  aria-pressed={urgencyBeforeLeak === true}
                   onClick={() => setUrgencyBeforeLeak(true)}
                   className={`px-6 py-2.5 rounded-xl text-base font-semibold transition-all active:scale-[0.95] min-h-[44px] ${
                     urgencyBeforeLeak === true
@@ -336,6 +338,8 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
                 </button>
                 <button
                   type="button"
+                  data-testid="leak-urgency-no"
+                  aria-pressed={urgencyBeforeLeak === false}
                   onClick={() => setUrgencyBeforeLeak(false)}
                   className={`px-6 py-2.5 rounded-xl text-base font-semibold transition-all active:scale-[0.95] min-h-[44px] ${
                     urgencyBeforeLeak === false
@@ -381,7 +385,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
               )}
 
               <div className="flex justify-center mt-6">
-                <Button onClick={handleSave} size="lg" variant={isNightView ? 'night' : 'leak'} disabled={!trigger || urgencyBeforeLeak === null}>
+                <Button onClick={handleSave} size="lg" variant={isNightView ? 'night' : 'leak'} disabled={!trigger || urgencyBeforeLeak === null} data-testid="leak-save">
                   {isEditing ? tc('updateCheck') : tc('saveCheck')}
                 </Button>
               </div>
