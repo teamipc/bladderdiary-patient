@@ -7,7 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true"
+    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
+    "e2e:walkthrough": "playwright test --config=playwright.config.ts && node scripts/update-walkthrough-findings.mjs",
+    "e2e:walkthrough:headed": "HEADED=1 playwright test --config=playwright.config.ts --headed",
+    "e2e:walkthrough:daily": "bash scripts/daily-walkthrough.sh",
+    "e2e:walkthrough:locales": "playwright test --project=en --project=fr --project=es --project=pt --project=zh --project=ar --config=playwright.config.ts",
+    "e2e:walkthrough:deep": "playwright test --project=deep-flow --config=playwright.config.ts",
+    "e2e:walkthrough:a11y": "playwright test --project=a11y --config=playwright.config.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.0",
@@ -29,6 +35,8 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -39,6 +47,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "jsdom": "^27.0.1",
+    "pdf-parse": "^2.4.5",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.4"
