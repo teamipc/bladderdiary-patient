@@ -6,6 +6,7 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { format } from 'date-fns';
@@ -344,3 +345,51 @@ export const useDiaryStore = create<DiaryStore>()(
 );
 
 export default useDiaryStore;
+
+/**
+ * Returns whether the persist middleware has finished rehydrating from
+ * localStorage. Use this to gate any rendering decision that depends on
+ * persisted state (e.g. "is the diary started?", "is day 3 bedtime set?")
+ * so the component does not flash the initial-state UI before hydration
+ * completes.
+ *
+ * Why this is needed
+ * ------------------
+ * Zustand's persist middleware applies the rehydrated state via a queued
+ * microtask, not synchronously during store creation. With Next.js's App
+ * Router (server-rendered HTML → client hydration), this means the FIRST
+ * client render of any page that reads from the store sees the initial
+ * (empty) state. A `useEffect` that fires conditional logic on that first
+ * pass — e.g. the summary page's `if (!diaryStarted) router.replace('/')`
+ * — runs before the persisted state lands, and the redirect fires even
+ * though localStorage has a complete diary.
+ *
+ * Real-world symptom: a patient deep-links or refreshes /summary → flash
+ * of the empty/locked state → unwanted redirect to "/" → confusing.
+ *
+ * This hook follows the canonical pattern from the Zustand docs
+ * (https://docs.pmnd.rs/zustand/integrations/persisting-store-data#hashydrated):
+ * it subscribes to onHydrate (set false) and onFinishHydration (set true),
+ * and re-checks the current state in the same effect to cover the case
+ * where hydration finished between the initial useState and the effect
+ * tick.
+ */
+export function useStoreHydrated(): boolean {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    // Re-check synchronously: hydration may have already completed between
+    // the component's first render and this effect.
+    setHydrated(useDiaryStore.persist.hasHydrated());
+
+    const unsubHydrate = useDiaryStore.persist.onHydrate(() => setHydrated(false));
+    const unsubFinish = useDiaryStore.persist.onFinishHydration(() => setHydrated(true));
+
+    return () => {
+      unsubHydrate();
+      unsubFinish();
+    };
+  }, []);
+
+  return hydrated;
+}

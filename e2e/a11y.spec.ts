@@ -138,15 +138,13 @@ test('a11y', async ({ page, browser }, testInfo) => {
 
       // ── Summary (seeded) ──
       try {
-        // Visit diary first (no redirect race) then SPA-link to summary.
-        await page.goto(`/${locale}/diary/day/1`, { waitUntil: 'domcontentloaded', timeout: 15_000 });
+        // Direct goto — useStoreHydrated() in /summary defers the
+        // redirect-on-empty-state until persist rehydration finishes, so
+        // we can deep-link safely.
+        await page.goto(`/${locale}/summary`, { waitUntil: 'domcontentloaded', timeout: 15_000 });
         await page.waitForTimeout(800);
-        const summaryLink = page.locator('a[href$="/summary"]').first();
-        if (await summaryLink.isVisible({ timeout: 5_000 }).catch(() => false)) {
-          await summaryLink.click({ timeout: 3_000 });
-          await page.waitForURL(/\/summary/, { timeout: 8_000 }).catch(() => {});
-          await page.waitForTimeout(500);
 
+        if (page.url().includes('/summary')) {
           const summaryScan = await new AxeBuilder({ page })
             .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
             .analyze();

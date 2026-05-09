@@ -63,6 +63,10 @@ interface DeepFlowResult {
     day1RealLog: PhaseResult;
     persistence: PhaseResult;
     edit: PhaseResult;
+    /** Direct deep-link to /summary with seeded state — regression test for
+     *  the Zustand persist hydration race. With useStoreHydrated() in place
+     *  the page must NOT redirect to "/" before localStorage rehydrates. */
+    deepLinkSummary: PhaseResult;
     summary: PhaseResult;
     pdfContent: PhaseResult;
     csvContent: PhaseResult;
@@ -82,6 +86,7 @@ function emptyResult(): DeepFlowResult {
       day1RealLog: { status: 'SKIPPED' },
       persistence: { status: 'SKIPPED' },
       edit: { status: 'SKIPPED' },
+      deepLinkSummary: { status: 'SKIPPED' },
       summary: { status: 'SKIPPED' },
       pdfContent: { status: 'SKIPPED' },
       csvContent: { status: 'SKIPPED' },
@@ -307,7 +312,65 @@ test('deep-flow', async ({ page }, testInfo) => {
     });
 
     // ─────────────────────────────────────────────────────────────────
-    // Phase 5+6: Seed days 2+3, navigate to summary, verify metrics
+    // Phase 5: Deep-link regression — direct goto /summary with seeded state
+    //
+    // Before the useStoreHydrated() fix, a direct goto to /summary fired
+    // the redirect-to-"/" useEffect on the empty initial state BEFORE
+    // Zustand persist async-rehydrated, bouncing the patient even when
+    // localStorage held a complete diary. This phase asserts that, with
+    // the fix in place, the URL stays on /summary and the hero renders.
+    //
+    // If this phase ever regresses (URL ends on "/"), the hydration gate
+    // has been removed or weakened and the latent bug is back.
+    // ─────────────────────────────────────────────────────────────────
+    await runPhase(result, 'deepLinkSummary', 'high', async () => {
+      const seed = buildSeedState({
+        timeZone: 'America/New_York',
+        volumeUnit: 'mL',
+      });
+      // Fresh isolated context so no prior page state confounds the check.
+      const browser = page.context().browser();
+      if (!browser) throw new Error('No browser handle available');
+      const ctx = await browser.newContext({
+        viewport: { width: 390, height: 844 },
+        deviceScaleFactor: 3,
+        isMobile: true,
+        hasTouch: true,
+        baseURL: testInfo.project.use.baseURL,
+      });
+      try {
+        await ctx.addInitScript(
+          ({ key, value }) => {
+            try {
+              window.localStorage.setItem(key, JSON.stringify(value));
+            } catch {
+              /* ignore */
+            }
+          },
+          { key: STORE_KEY, value: seed },
+        );
+        const probe = await ctx.newPage();
+        // Direct deep-link — the canonical "patient pastes URL or refreshes" flow.
+        await probe.goto(`/${locale}/summary`, {
+          waitUntil: 'domcontentloaded',
+          timeout: 15_000,
+        });
+        // Allow generous time for any redirect + hydration both to settle.
+        await probe.waitForTimeout(2_000);
+        if (!probe.url().includes('/summary')) {
+          throw new Error(`Deep-link redirect race regressed — landed at: ${probe.url()}`);
+        }
+        // Hero must render (hydration completed AND isComplete=true).
+        await expect(
+          probe.getByRole('heading', { name: labels.summaryHeroTitle(locale), exact: false }),
+        ).toBeVisible({ timeout: 10_000 });
+      } finally {
+        await ctx.close();
+      }
+    });
+
+    // ─────────────────────────────────────────────────────────────────
+    // Phase 6+7: Seed days 2+3, navigate to summary, verify metrics
     // ─────────────────────────────────────────────────────────────────
     const summaryOk = await runPhase(result, 'summary', 'high', async () => {
       // Replace state with a complete 3-day fixture for deterministic
@@ -328,15 +391,15 @@ test('deep-flow', async ({ page }, testInfo) => {
         { key: STORE_KEY, value: seed },
       );
 
-      // Navigate to /diary/day/1 (no redirect race), let hydration settle,
-      // then SPA-click into /summary via the BottomNav.
-      await page.goto(`/${locale}/diary/day/1`, { waitUntil: 'domcontentloaded', timeout: 15_000 });
-      await page.waitForTimeout(800);
-
-      const summaryLink = page.locator('a[href$="/summary"]').first();
-      await summaryLink.waitFor({ state: 'visible', timeout: 8_000 });
-      await summaryLink.click({ timeout: 3_000 });
-      await page.waitForURL(/\/summary/, { timeout: 8_000 });
+      // Direct goto — the useStoreHydrated() gate in /summary defers the
+      // redirect-on-empty-state until persist rehydration completes, so
+      // there's no race to lose. (Pre-fix, this navigation always lost
+      // the race and bounced to "/"; the deepLinkSummary phase covers that
+      // regression explicitly.)
+      await page.goto(`/${locale}/summary`, {
+        waitUntil: 'domcontentloaded',
+        timeout: 15_000,
+      });
 
       // Hero must be visible
       await expect(

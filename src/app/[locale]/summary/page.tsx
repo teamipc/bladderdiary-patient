@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { track } from '@vercel/analytics';
-import { useDiaryStore } from '@/lib/store';
+import { useDiaryStore, useStoreHydrated } from '@/lib/store';
 import DaySummaryCard from '@/components/export/DaySummaryCard';
 import ExportActions from '@/components/export/ExportActions';
 import DrinkVoidTimeline from '@/components/summary/DrinkVoidTimeline';
@@ -19,7 +19,12 @@ export default function SummaryPage() {
   const router = useRouter();
   const t = useTranslations('summary');
   const { diaryStarted, startDate, timeZone, getBedtimeForDay, getVoidsForDay, getDrinksForDay } = useDiaryStore();
-  const isComplete = diaryStarted && !!getBedtimeForDay(3);
+  // Don't make any rendering or redirect decision until persist has finished
+  // rehydrating from localStorage — otherwise a deep-link / refresh of
+  // /summary fires the redirect-to-"/" useEffect on the empty initial state
+  // and bounces the patient even when localStorage holds a complete diary.
+  const hydrated = useStoreHydrated();
+  const isComplete = hydrated && diaryStarted && !!getBedtimeForDay(3);
 
   // Data consistency check
   const dataWarnings: string[] = [];
@@ -33,8 +38,10 @@ export default function SummaryPage() {
   }
 
   useEffect(() => {
+    // Wait until hydration completes before deciding to redirect.
+    if (!hydrated) return;
     if (!diaryStarted) router.replace('/');
-  }, [diaryStarted, router]);
+  }, [hydrated, diaryStarted, router]);
 
   const tracked = useRef(false);
   useEffect(() => {
@@ -43,6 +50,17 @@ export default function SummaryPage() {
       track('view_results');
     }
   }, [isComplete]);
+
+  // Until hydration finishes, show a non-committal loading state matching
+  // the Suspense fallback used in landing. This avoids a flash of either
+  // the locked state or the redirect.
+  if (!hydrated) {
+    return (
+      <div className="flex items-center justify-center py-24 bg-surface">
+        <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
+      </div>
+    );
+  }
 
   if (!diaryStarted) return null;
 
