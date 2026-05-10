@@ -30,7 +30,16 @@ export async function generateMetadata({
       description: t('description'),
       url: buildAbsoluteUrl(canonical),
       type: 'website',
+      images: [
+        {
+          url: '/og/for-women.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'An older woman in soft window light, bladder-health articles for women',
+        },
+      ],
     },
+    twitter: { card: 'summary_large_image', images: ['/og/for-women.jpg'] },
   };
 }
 

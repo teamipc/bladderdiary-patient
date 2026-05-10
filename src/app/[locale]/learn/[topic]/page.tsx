@@ -159,7 +159,7 @@ export default async function PillarPage({
             )}
 
             <article className="learn-prose mb-10">
-              <RenderMdx source={pillar.body} />
+              <RenderMdx source={pillar.body} locale={typedLocale} currentSlug={pillar.frontmatter.slug} />
             </article>
           </>
         ) : (
