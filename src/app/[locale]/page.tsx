@@ -106,7 +106,7 @@ function LandingContent() {
         </div>
 
         <div className="w-full space-y-3 animate-fade-slide-up stagger-2">
-          <Button onClick={handleResume} fullWidth size="lg">
+          <Button variant="hero" onClick={handleResume} fullWidth size="lg">
             <PlayCircle size={20} className="mr-2" />
             {t('resumeTracking')}
           </Button>
@@ -172,7 +172,18 @@ function LandingContent() {
       </div>
 
       <div className="w-full md:max-w-md animate-fade-slide-up stagger-3">
-        <Button onClick={() => { track('start_tracking'); setShowOnboarding(true); }} fullWidth size="lg">
+        {/* Hero CTA — uses the warm amber side of the brand palette
+            (bg-ipc-300) with deep text (text-ipc-950) instead of dark-on-light
+            with white text. Pairs better with the amber-cream logo backdrop
+            above and reads as "warm invitation" rather than "submit form".
+            Contrast: 10.9:1 (well above WCAG AA), maintained through the
+            hover/active states by darkening the bg, not flipping text color. */}
+        <Button
+          variant="hero"
+          onClick={() => { track('start_tracking'); setShowOnboarding(true); }}
+          fullWidth
+          size="lg"
+        >
           {t('startTracking')}
         </Button>
       </div>

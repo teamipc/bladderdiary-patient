@@ -2,30 +2,31 @@
 
 /* ── IPC Brand Palette (shared with clinician app) ──
  *
- * Accessibility: shades 400+ now meet WCAG 2 AA minimum contrast (4.5:1)
- * against the surface background (#fefdfb). Earlier values (#dea153 / #c4984a /
- * #c47d2a) sat at 2.21–3.27:1, failing AA — a serious problem for the patient
- * audience (50+, often with reduced contrast sensitivity). Shades 50–300 are
- * unchanged because they are only used for backgrounds, borders, and
- * decorative tints, never as text foreground or with white text overlay.
+ * Accessibility: shades 400+ all meet WCAG 2 AA (4.5:1) as text on the
+ * surface background (#fefdfb), AND with white text overlay on filled
+ * backgrounds. The original palette (#dea153 / #c4984a / #c47d2a) sat at
+ * 2.21–3.27:1 — failing AA for a population (50+) that frequently has
+ * reduced contrast sensitivity.
  *
- * Visual intent: the warm-amber identity is preserved at 200/300 (where it's
- * most visible — backgrounds, borders, banner tints). 400+ shifted from
- * gold-amber to deeper warm-brown to gain the contrast headroom required for
- * text and primary-button backgrounds.
+ * Visual intent: pull luminance down for text-safety while keeping the
+ * warm amber/gold hue. Shades 50–300 are unchanged (decorative tints
+ * only). 400–500 retain enough yellow-orange chroma to read as warm
+ * amber-brown rather than neutral muddy brown — the brand stays warm,
+ * just one or two stops lower in luminance than the original gold.
  */
 @theme inline {
   --color-ipc-50: #fdf8ef;
   --color-ipc-100: #f9edda;
   --color-ipc-200: #f2d8b4;
   --color-ipc-300: #e9be84;
-  --color-ipc-400: #a16322; /* was #dea153 — text on white: 2.21 → 4.6 ✓ */
-  --color-ipc-500: #844e16; /* was #c4984a — text 2.6 → 6.4; bg+white 2.64 → 6.4 ✓ */
-  --color-ipc-600: #6c3e10; /* was #c47d2a — text 3.27 → 8.0 ✓ */
-  --color-ipc-700: #56300c; /* was #a36224 — even darker for bold emphasis */
-  --color-ipc-800: #432409; /* was #854e23 */
-  --color-ipc-900: #2f1906; /* was #6c4120 */
-  --color-ipc-950: #1c0f03; /* was #3d210f */
+  /* Text/CTA shades — amber-warm tones that still clear AA on white. */
+  --color-ipc-400: #a8651b; /* warm amber-brown — text on white 4.55 ✓ */
+  --color-ipc-500: #955a14; /* brand amber — text 5.4 ✓; bg+white 5.4 ✓ */
+  --color-ipc-600: #7c4710; /* deeper amber — text 7.0 ✓ */
+  --color-ipc-700: #62380c; /* dark amber-brown — text 9.0 ✓ */
+  --color-ipc-800: #4a2808; /* near-black brown */
+  --color-ipc-900: #321c05;
+  --color-ipc-950: #1d0f02;
 
   --color-surface: #fefdfb;
   --color-surface-alt: #fdf8ef;

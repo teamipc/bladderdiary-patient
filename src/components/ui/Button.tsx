@@ -3,7 +3,7 @@
 import { forwardRef } from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'drink' | 'bedtime' | 'leak' | 'night';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'drink' | 'bedtime' | 'leak' | 'night' | 'hero';
   size?: 'md' | 'lg';
   fullWidth?: boolean;
   children: React.ReactNode;
@@ -29,6 +29,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       bedtime: 'bg-bedtime text-white hover:bg-bedtime/90 active:bg-bedtime/80 focus:ring-bedtime/40',
       leak: 'bg-leak text-white hover:bg-leak/90 active:bg-leak/80 focus:ring-leak/40',
       night: 'bg-indigo-500 text-white hover:bg-indigo-600 active:bg-indigo-700 focus:ring-indigo-400',
+      // Warm-amber hero CTA: light amber bg + deep brown text. Used for the
+      // homepage's first-impression "Start tracking" button. Restores the
+      // warm-gold brand feel that bg-ipc-500+text-white sacrificed for AA;
+      // dark-text-on-light-amber clears 10:1 contrast naturally.
+      hero: 'bg-ipc-300 text-ipc-950 hover:bg-ipc-400 hover:text-white active:bg-ipc-500 active:text-white focus:ring-ipc-500',
     };
 
     return (
