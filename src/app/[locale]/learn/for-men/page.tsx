@@ -30,7 +30,16 @@ export async function generateMetadata({
       description: t('description'),
       url: buildAbsoluteUrl(canonical),
       type: 'website',
+      images: [
+        {
+          url: '/og/for-men.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'An older man looking thoughtfully out a window, bladder-health articles for men',
+        },
+      ],
     },
+    twitter: { card: 'summary_large_image', images: ['/og/for-men.jpg'] },
   };
 }
 

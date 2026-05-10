@@ -9,6 +9,9 @@ import { imageSize } from 'image-size';
 import { Link } from '@/i18n/navigation';
 import DiaryCta from '@/components/learn/DiaryCta';
 import DownloadCta from '@/components/learn/DownloadCta';
+import remarkAutoLinkGlossary from './remarkAutoLinkGlossary';
+import { GLOSSARY_TERMS_BY_LOCALE } from './glossaryTerms';
+import type { Locale } from '@/i18n/config';
 
 // Markdown image renderer.
 //
@@ -94,14 +97,36 @@ const components = {
   DownloadCta,
 };
 
-export function RenderMdx({ source }: { source: string }) {
+export function RenderMdx({
+  source,
+  locale,
+  currentSlug,
+}: {
+  source: string;
+  /**
+   * Locale for auto-linking glossary terms. Required so the auto-link plugin
+   * picks the right per-locale term phrases and generates locale-prefixed
+   * URLs (`/<locale>/learn/glossary/<slug>`).
+   */
+  locale: Locale;
+  /**
+   * Slug of the article being rendered. Used by the glossary auto-link plugin
+   * to skip self-linking when rendering a glossary entry whose slug matches a
+   * known term (e.g. don't link "nocturia" inside the nocturia entry).
+   */
+  currentSlug?: string;
+}) {
+  const terms = GLOSSARY_TERMS_BY_LOCALE[locale] ?? GLOSSARY_TERMS_BY_LOCALE.en;
   return (
     <MDXRemote
       source={source}
       components={components}
       options={{
         mdxOptions: {
-          remarkPlugins: [remarkGfm],
+          remarkPlugins: [
+            remarkGfm,
+            [remarkAutoLinkGlossary, { locale, currentSlug, terms }],
+          ],
           rehypePlugins: [
             rehypeSlug,
             [

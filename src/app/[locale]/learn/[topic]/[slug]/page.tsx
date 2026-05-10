@@ -190,7 +190,7 @@ export default async function ArticlePage({
         )}
 
         <article className="learn-prose mb-10">
-          <RenderMdx source={article.body} />
+          <RenderMdx source={article.body} locale={typedLocale} currentSlug={slug} />
         </article>
 
         {fm.citations && fm.citations.length > 0 && (

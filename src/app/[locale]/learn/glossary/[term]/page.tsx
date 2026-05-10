@@ -97,7 +97,7 @@ export default async function GlossaryTermPage({
         </header>
 
         <article className="mb-10">
-          <RenderMdx source={entry.body} />
+          <RenderMdx source={entry.body} locale={typedLocale} currentSlug={term} />
         </article>
 
         <Disclaimer text={t('disclaimer')} />

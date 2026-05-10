@@ -1,6 +1,53 @@
 import type { Article, Author } from '@/lib/content';
 import { buildAbsoluteUrl, countWords, SITE_URL } from '@/lib/content';
 
+/**
+ * Topic → schema.org entity that the article is "about". Lets Google connect
+ * an article to a known medical condition / procedure / test in its Knowledge
+ * Graph instead of inferring from keywords. Keys are frontmatter `topic`
+ * values; values are the schema.org @type and canonical name.
+ */
+const TOPIC_ABOUT: Record<string, { '@type': string; name: string; alternateName?: string; code?: { '@type': 'MedicalCode'; code: string; codingSystem: string } }> = {
+  bph: {
+    '@type': 'MedicalCondition',
+    name: 'Benign prostatic hyperplasia',
+    alternateName: 'BPH',
+    code: { '@type': 'MedicalCode', code: 'N40', codingSystem: 'ICD-10' },
+  },
+  nocturia: {
+    '@type': 'MedicalCondition',
+    name: 'Nocturia',
+    code: { '@type': 'MedicalCode', code: 'R35.1', codingSystem: 'ICD-10' },
+  },
+  frequency: {
+    '@type': 'MedicalCondition',
+    name: 'Urinary frequency',
+    code: { '@type': 'MedicalCode', code: 'R35.0', codingSystem: 'ICD-10' },
+  },
+  voiding: {
+    '@type': 'MedicalCondition',
+    name: 'Lower urinary tract symptoms',
+    alternateName: 'LUTS',
+  },
+  'post-prostatectomy': {
+    '@type': 'MedicalCondition',
+    name: 'Post-prostatectomy urinary incontinence',
+  },
+  'bladder-training': {
+    '@type': 'MedicalProcedure',
+    name: 'Bladder training',
+  },
+  'bladder-diary': {
+    '@type': 'MedicalTest',
+    name: 'Bladder diary',
+    alternateName: 'Frequency volume chart',
+  },
+  'bladder-irritants': {
+    '@type': 'MedicalCondition',
+    name: 'Bladder irritation',
+  },
+};
+
 interface JsonLdProps {
   data: Record<string, unknown> | Record<string, unknown>[];
 }
@@ -80,6 +127,10 @@ export function ArticleJsonLd({
       '@type': 'MedicalAudience',
       audienceType: 'Patient',
     };
+    const aboutEntity = TOPIC_ABOUT[fm.topic];
+    if (aboutEntity) {
+      data.about = [aboutEntity];
+    }
   }
 
   if (fm.lastReviewedAt) {
