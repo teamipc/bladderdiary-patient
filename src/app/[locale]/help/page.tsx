@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { ChevronLeft, Mail } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { FaqPageJsonLd } from '@/components/seo/JsonLd';
+import { buildHreflangMap } from '@/i18n/seo';
 
 export async function generateMetadata({
   params,
@@ -16,6 +18,7 @@ export async function generateMetadata({
     description: t('description'),
     alternates: {
       canonical: `/${locale}/help`,
+      languages: buildHreflangMap('/help'),
     },
   };
 }
@@ -44,6 +47,10 @@ export default async function HelpPage({
 
   return (
     <div className="bg-surface">
+      <FaqPageJsonLd
+        url={`/${locale}/help`}
+        items={faqItems.map((item) => ({ question: item.q, answer: item.a }))}
+      />
       <div className="max-w-2xl mx-auto px-4 py-6">
         <div className="mb-6">
           <Link

@@ -427,6 +427,20 @@
     "haveSuggestion": "¿Tiene una sugerencia?",
     "suggestionBody": "Nos encantaría escuchar sus ideas para mejorar la aplicación. Envíenos un email a"
   },
+  "howto": {
+    "name": "Cómo hacer un diario miccional de 3 días",
+    "description": "Una forma sencilla y de nivel clínico de registrar tus bebidas, tus visitas al baño, tu hora de despertarte y de acostarte durante tres días, y después compartir los resultados con tu profesional de salud.",
+    "step1Name": "Elige tres días en los que sigas tu rutina habitual",
+    "step1Text": "Escoge tres días seguidos en los que tu rutina sea típica. El diario cubre desde tu primera micción de la mañana hasta la hora de acostarte del tercer día.",
+    "step2Name": "Registra cada bebida con la hora y la cantidad",
+    "step2Text": "Cada vez que tomes agua, café, té, refresco o cualquier otra bebida, toca el botón de bebida y anota cuánto bebiste. Usa la misma unidad de principio a fin.",
+    "step3Name": "Registra cada micción con la hora y el volumen",
+    "step3Text": "Cada vez que vayas al baño, mide el volumen y anótalo. Un vaso medidor o un recipiente con marcas en mL u oz lo hace fácil en casa.",
+    "step4Name": "Marca tu despertar y tu hora de dormir cada día",
+    "step4Text": "Anota la hora a la que te despiertas y la hora a la que te vas a la cama. Esos dos marcadores son la base de los cálculos diarios que verá tu clínico.",
+    "step5Name": "Exporta y comparte con tu clínico",
+    "step5Text": "Al terminar el día 3, exporta tu diario como PDF o CSV desde la pantalla de resumen y llévalo a tu cita. Tus datos no salen de tu dispositivo hasta que decides compartirlos."
+  },
   "privacyNotice": {
     "title": "Tus datos se quedan en tu teléfono.",
     "body": "No rastreamos quién eres ni lo que registras. Solo recopilamos estadísticas de uso anónimas para seguir mejorando.",

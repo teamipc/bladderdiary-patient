@@ -427,6 +427,20 @@
     "haveSuggestion": "Have a suggestion?",
     "suggestionBody": "We'd love to hear your ideas for improving the app. Send us an email at"
   },
+  "howto": {
+    "name": "How to complete a 3-day bladder diary",
+    "description": "A simple, clinician-grade way to log drinks, bathroom trips, wake-up, and bedtime over three days, then share the results with your health professional.",
+    "step1Name": "Pick three days you can be consistent",
+    "step1Text": "Choose three days in a row when your routine is typical. The diary tracks from your first morning pee through bedtime on the third day.",
+    "step2Name": "Log every drink with the time and amount",
+    "step2Text": "Whenever you drink water, coffee, tea, soda, or anything else, tap the drink button and enter how much you drank. Use the same units throughout.",
+    "step3Name": "Log every pee with the time and volume",
+    "step3Text": "Each time you go to the bathroom, measure the volume and log it. A measuring cup or container with mL or oz markings makes this easy at home.",
+    "step4Name": "Mark wake-up and bedtime each day",
+    "step4Text": "Record when you wake up and when you go to bed. These two markers anchor the day-by-day calculations your clinician will look at.",
+    "step5Name": "Export and share with your clinician",
+    "step5Text": "After day 3, export your diary as a PDF or CSV from the summary screen and bring it to your appointment. Your data never leaves your device until you share it."
+  },
   "privacyNotice": {
     "title": "Your data stays on your phone.",
     "body": "We don't track who you are or what you log. We collect anonymous usage stats to keep improving.",
