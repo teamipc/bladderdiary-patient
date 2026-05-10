@@ -5,10 +5,24 @@ import { Link } from '@/i18n/navigation';
 interface DiaryCtaProps {
   title?: string;
   body?: string;
+  /**
+   * Slug of the article hosting this CTA, threaded into utm_content so
+   * Vercel Analytics can attribute conversions to specific articles.
+   */
+  utmContent?: string;
 }
 
-export default async function DiaryCta({ title, body }: DiaryCtaProps) {
+export default async function DiaryCta({ title, body, utmContent }: DiaryCtaProps) {
   const t = await getTranslations('learn.article');
+  const href = {
+    pathname: '/',
+    query: {
+      utm_source: 'learn',
+      utm_medium: 'article-cta',
+      utm_campaign: 'start-diary',
+      ...(utmContent ? { utm_content: utmContent } : {}),
+    },
+  } as const;
 
   return (
     <aside className="not-prose my-9 sm:my-10 rounded-2xl bg-gradient-to-br from-ipc-100 to-ipc-50 border border-ipc-200 p-5 sm:p-6">
@@ -19,7 +33,7 @@ export default async function DiaryCta({ title, body }: DiaryCtaProps) {
         {body ?? t('ctaDescription')}
       </p>
       <Link
-        href="/"
+        href={href}
         className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-ipc-700 hover:bg-ipc-800 text-white no-underline font-semibold text-sm sm:text-base shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
       >
         <span>{t('ctaStartDiary')}</span>

@@ -8,6 +8,7 @@ export function generateStaticParams() {
 }
 
 const MAX_ITEMS = 30;
+const CONTENT_EXCERPT_CHARS = 1800;
 
 function escapeXml(s: string): string {
   return s
@@ -16,6 +17,60 @@ function escapeXml(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function inlineMd(text: string): string {
+  return escapeHtml(text)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+}
+
+/**
+ * Strip MDX components and convert a leading excerpt of an article body to
+ * basic HTML for RSS `<content:encoded>`. Aimed at giving feed readers real
+ * preview content without shipping a full MDX-to-HTML pipeline.
+ */
+function bodyToRssHtml(md: string): string {
+  let body = md
+    .replace(/<[A-Z]\w*[^>]*\/>/g, '')
+    .replace(/<[A-Z]\w*[^>]*>[\s\S]*?<\/[A-Z]\w*>/g, '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .trim();
+
+  let truncated = false;
+  if (body.length > CONTENT_EXCERPT_CHARS) {
+    const cut = body.slice(0, CONTENT_EXCERPT_CHARS);
+    const lastPara = cut.lastIndexOf('\n\n');
+    body = (lastPara > CONTENT_EXCERPT_CHARS / 2 ? cut.slice(0, lastPara) : cut);
+    truncated = true;
+  }
+
+  const html = body
+    .split(/\n\n+/)
+    .map((block) => {
+      const trimmed = block.trim();
+      if (!trimmed) return '';
+      if (trimmed.startsWith('## ')) return `<h3>${inlineMd(trimmed.slice(3))}</h3>`;
+      if (trimmed.startsWith('### ')) return `<h4>${inlineMd(trimmed.slice(4))}</h4>`;
+      if (/^[-*] /m.test(trimmed) && trimmed.split('\n').every((l) => /^[-*] /.test(l) || !l.trim())) {
+        const items = trimmed
+          .split('\n')
+          .filter((l) => l.trim())
+          .map((l) => `<li>${inlineMd(l.replace(/^[-*] /, ''))}</li>`)
+          .join('');
+        return `<ul>${items}</ul>`;
+      }
+      return `<p>${inlineMd(trimmed)}</p>`;
+    })
+    .filter(Boolean)
+    .join('\n');
+
+  return html + (truncated ? '\n<p>...</p>' : '');
 }
 
 function rfc2822(date: string | undefined): string {
@@ -59,19 +114,21 @@ export async function GET(
       const authorTag = author
         ? `<dc:creator>${escapeXml(author.name)}</dc:creator>`
         : '';
+      const contentHtml = bodyToRssHtml(a.body);
       return `    <item>
       <title>${escapeXml(fm.title)}</title>
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${rfc2822(fm.publishedAt)}</pubDate>
       <description>${escapeXml(fm.description)}</description>
+      <content:encoded><![CDATA[${contentHtml}]]></content:encoded>
       ${authorTag}
     </item>`;
     })
     .join('\n');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>${escapeXml(channelTitle)}</title>
     <link>${channelLink}</link>

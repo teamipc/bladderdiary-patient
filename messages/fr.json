@@ -427,6 +427,20 @@
     "haveSuggestion": "Vous avez une suggestion ?",
     "suggestionBody": "Nous serions ravis d'entendre vos idées pour améliorer l'application. Envoyez-nous un email à"
   },
+  "howto": {
+    "name": "Comment remplir un journal mictionnel de 3 jours",
+    "description": "Une façon simple et de qualité clinique de noter vos boissons, vos passages aux toilettes, votre réveil et votre coucher pendant trois jours, puis de partager les résultats avec votre professionnel de santé.",
+    "step1Name": "Choisissez trois jours réguliers",
+    "step1Text": "Prenez trois jours consécutifs où votre routine est habituelle. Le journal couvre la période depuis votre première miction du matin jusqu'au coucher du troisième jour.",
+    "step2Name": "Notez chaque boisson avec l'heure et la quantité",
+    "step2Text": "Chaque fois que vous buvez de l'eau, du café, du thé, un soda ou autre chose, appuyez sur le bouton boisson et indiquez la quantité. Utilisez la même unité du début à la fin.",
+    "step3Name": "Notez chaque miction avec l'heure et le volume",
+    "step3Text": "À chaque passage aux toilettes, mesurez le volume et notez-le. Un verre doseur ou un récipient gradué en mL ou oz facilite la mesure à la maison.",
+    "step4Name": "Marquez le réveil et le coucher chaque jour",
+    "step4Text": "Notez l'heure à laquelle vous vous réveillez et celle à laquelle vous vous couchez. Ces deux repères servent de base aux calculs jour par jour que votre clinicien examinera.",
+    "step5Name": "Exportez et partagez avec votre clinicien",
+    "step5Text": "Après le jour 3, exportez votre journal en PDF ou CSV depuis l'écran de résumé et apportez-le à votre rendez-vous. Vos données ne quittent votre appareil que lorsque vous décidez de les partager."
+  },
   "privacyNotice": {
     "title": "Vos données restent sur votre téléphone.",
     "body": "Nous ne suivons pas qui vous êtes, ni ce que vous notez. Nous collectons des statistiques d'utilisation anonymes pour continuer à améliorer l'application.",

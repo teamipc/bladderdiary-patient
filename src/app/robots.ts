@@ -7,7 +7,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
+      disallow: ['/*/diary/', '/*/diary', '/*/summary/', '/*/summary', '/api/'],
     },
     sitemap: 'https://myflowcheck.com/sitemap.xml',
+    host: 'https://myflowcheck.com',
   };
 }

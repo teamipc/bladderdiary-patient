@@ -5,7 +5,6 @@ import { useTranslations, useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
 import { useDiaryStore } from '@/lib/store';
 import { downloadCsv, generateCsvBlob } from '@/lib/exportCsv';
-import { generatePdf, generatePdfBlob } from '@/lib/exportPdf';
 import { FileText, FileSpreadsheet, Share2 } from 'lucide-react';
 import { track } from '@vercel/analytics';
 
@@ -36,6 +35,11 @@ export default function ExportActions() {
   const handlePdf = useCallback(async () => {
     setExporting('pdf');
     try {
+      // Dynamic-import: jsPDF + jspdf-autotable are ~80KB gzipped and only
+      // needed when the patient finishes day 3 and exports. Keeping them out
+      // of the main bundle improves initial-load performance for everyone
+      // who never reaches the export step.
+      const { generatePdf, generatePdfBlob } = await import('@/lib/exportPdf');
       if (shareSupported) {
         const { blob, filename } = generatePdfBlob(store, locale);
         track('pdf_generated', { method: 'share' });

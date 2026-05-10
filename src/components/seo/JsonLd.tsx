@@ -51,7 +51,7 @@ export function ArticleJsonLd({
 
   const data: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': isMedical ? 'MedicalWebPage' : 'DefinedTerm',
+    '@type': isMedical ? ['MedicalWebPage', 'Article'] : 'DefinedTerm',
     headline: fm.title,
     name: fm.title,
     description: fm.description,
@@ -61,6 +61,7 @@ export function ArticleJsonLd({
     dateModified: fm.updatedAt || undefined,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     isAccessibleForFree: true,
+    isFamilyFriendly: true,
     wordCount: countWords(article.body),
     timeRequired: `PT${article.readingTimeMin}M`,
   };
@@ -71,6 +72,14 @@ export function ArticleJsonLd({
 
   if (isMedical) {
     data.articleSection = fm.topic.replace(/-/g, ' ');
+    data.specialty = {
+      '@type': 'MedicalSpecialty',
+      name: 'Urology',
+    };
+    data.medicalAudience = {
+      '@type': 'MedicalAudience',
+      audienceType: 'Patient',
+    };
   }
 
   if (fm.lastReviewedAt) {
@@ -203,6 +212,133 @@ export function CollectionPageJsonLd({
             position: i + 1,
             url: buildAbsoluteUrl(u),
           })),
+        },
+      }}
+    />
+  );
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export function FaqPageJsonLd({ items, url }: { items: FaqItem[]; url?: string }) {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        ...(url ? { url: buildAbsoluteUrl(url), mainEntityOfPage: buildAbsoluteUrl(url) } : {}),
+        mainEntity: items.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer,
+          },
+        })),
+      }}
+    />
+  );
+}
+
+export interface HowToStep {
+  name: string;
+  text: string;
+  url?: string;
+}
+
+export function HowToJsonLd({
+  name,
+  description,
+  steps,
+  totalTime,
+  image,
+  url,
+  inLanguage,
+}: {
+  name: string;
+  description: string;
+  steps: HowToStep[];
+  totalTime?: string;
+  image?: string;
+  url?: string;
+  inLanguage?: string;
+}) {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name,
+        description,
+        ...(url ? { url: buildAbsoluteUrl(url), mainEntityOfPage: buildAbsoluteUrl(url) } : {}),
+        ...(image ? { image: buildAbsoluteUrl(image) } : {}),
+        ...(totalTime ? { totalTime } : {}),
+        ...(inLanguage ? { inLanguage } : {}),
+        supply: [{ '@type': 'HowToSupply', name: 'A measuring cup or container with mL/oz markings' }],
+        tool: [{ '@type': 'HowToTool', name: 'My Flow Check (web app)' }],
+        step: steps.map((s, i) => ({
+          '@type': 'HowToStep',
+          position: i + 1,
+          name: s.name,
+          text: s.text,
+          ...(s.url ? { url: buildAbsoluteUrl(s.url) } : {}),
+        })),
+      }}
+    />
+  );
+}
+
+export function WebSiteJsonLd({ inLanguage }: { inLanguage?: string }) {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'My Flow Check',
+        alternateName: 'My Flow Check Bladder Diary',
+        url: SITE_URL,
+        ...(inLanguage ? { inLanguage } : {}),
+        publisher: {
+          '@type': 'Organization',
+          name: 'My Flow Check',
+          url: SITE_URL,
+          logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon-512.png` },
+        },
+      }}
+    />
+  );
+}
+
+export function SoftwareApplicationJsonLd({ inLanguage }: { inLanguage?: string }) {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': ['SoftwareApplication', 'MedicalWebPage'],
+        name: 'My Flow Check Bladder Diary',
+        url: SITE_URL,
+        applicationCategory: 'HealthApplication',
+        operatingSystem: 'Web, iOS, Android',
+        ...(inLanguage ? { inLanguage } : {}),
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        isAccessibleForFree: true,
+        browserRequirements: 'Requires JavaScript',
+        featureList: [
+          '3-day bladder diary tracking',
+          'Drink and void logging',
+          'Bedtime and wake tracking',
+          'PDF and CSV export for clinicians',
+          'Six-language support',
+          'Offline capable (PWA)',
+          'No account required',
+        ],
+        publisher: {
+          '@type': 'Organization',
+          name: 'My Flow Check',
+          url: SITE_URL,
         },
       }}
     />

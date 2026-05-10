@@ -427,6 +427,20 @@
     "haveSuggestion": "Tens uma sugestão?",
     "suggestionBody": "Adoraríamos ouvir as tuas ideias para melhorar a aplicação. Envia-nos um email para"
   },
+  "howto": {
+    "name": "Como preencher um diário miccional de 3 dias",
+    "description": "Uma forma simples e com qualidade clínica de registar bebidas, idas à casa de banho, hora de acordar e hora de deitar durante três dias, e depois partilhar os resultados com o teu profissional de saúde.",
+    "step1Name": "Escolhe três dias com a tua rotina habitual",
+    "step1Text": "Seleciona três dias seguidos em que a tua rotina seja típica. O diário começa na primeira micção da manhã e termina à hora de deitar do terceiro dia.",
+    "step2Name": "Regista cada bebida com a hora e a quantidade",
+    "step2Text": "Sempre que beberes água, café, chá, refrigerante ou outra bebida, toca no botão de bebida e indica a quantidade. Usa a mesma unidade do início ao fim.",
+    "step3Name": "Regista cada micção com a hora e o volume",
+    "step3Text": "Sempre que fores à casa de banho, mede o volume e regista-o. Um copo medidor ou um recipiente com marcações em mL ou oz facilita a medição em casa.",
+    "step4Name": "Marca a hora de acordar e de deitar todos os dias",
+    "step4Text": "Anota a hora a que acordas e a que te deitas. Estes dois marcadores são a base dos cálculos diários que o teu clínico vai analisar.",
+    "step5Name": "Exporta e partilha com o teu clínico",
+    "step5Text": "Depois do dia 3, exporta o diário em PDF ou CSV a partir do ecrã de resumo e leva-o à tua consulta. Os dados não saem do dispositivo até decidires partilhá-los."
+  },
   "privacyNotice": {
     "title": "Os teus dados ficam no teu telemóvel.",
     "body": "Não seguimos quem és nem o que registas. Apenas recolhemos estatísticas de utilização anónimas para continuar a melhorar.",
