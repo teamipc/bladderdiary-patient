@@ -336,9 +336,22 @@ input, select, textarea {
 .nighttime-bg .bg-white\/70 .bg-ipc-500:active {
   background-color: rgb(79, 70, 229) !important; /* indigo-600 */
 }
+/* SensationPicker active chip uses /90 — collapse to fully-opaque indigo
+   in night so it reads consistent with the other active chips. Standalone
+   rule (not joined to the bg-ipc-500 group above) because Lightning CSS
+   silently drops alpha-suffixed selectors when merged into a group. */
+.nighttime-bg .bg-white\/70 .bg-ipc-500\/90 {
+  background-color: rgb(79, 70, 229) !important;
+}
 .nighttime-bg .bg-white\/70 .border-ipc-500,
 .nighttime-bg .bg-white\/70 .border-ipc-600 {
   border-color: rgb(79, 70, 229) !important;
+}
+/* The wake-cause buttons use ring-2 ring-ipc-500 (no opacity) as their
+   selection halo — without this, the bg repaints to indigo but the ring
+   stays native gold, leaving a confusing gold halo on an indigo button. */
+.nighttime-bg .bg-white\/70 .ring-ipc-500 {
+  --tw-ring-color: rgb(79, 70, 229) !important; /* indigo-600, matches bg */
 }
 
 /* Tinted overlays — recap cards, pulsed selection states, light fills */
@@ -380,6 +393,11 @@ input, select, textarea {
 .nighttime-bg .bg-white\/70 .border-ipc-200,
 .nighttime-bg .bg-white\/70 .border-ipc-200\/40,
 .nighttime-bg .bg-white\/70 .border-ipc-200\/50 {
+  border-color: rgba(165, 180, 252, 0.28) !important;
+}
+/* Wake-cause buttons' unselected border uses /60. Standalone rule because
+   Lightning CSS drops alpha-suffixed selectors when merged into a group. */
+.nighttime-bg .bg-white\/70 .border-ipc-200\/60 {
   border-color: rgba(165, 180, 252, 0.28) !important;
 }
 .nighttime-bg .bg-white\/70 .border-ipc-300 {
