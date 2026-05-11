@@ -21,7 +21,14 @@ function canShareFiles(): boolean {
   }
 }
 
-export default function ExportActions() {
+interface ExportActionsProps {
+  /** Show only the primary PDF button — used for the top-of-page reward CTA. */
+  pdfOnly?: boolean;
+  /** Run a one-pass Pavlovian shimmer across the PDF button on mount. */
+  shimmer?: boolean;
+}
+
+export default function ExportActions({ pdfOnly = false, shimmer = false }: ExportActionsProps = {}) {
   const store = useDiaryStore();
   const t = useTranslations('export');
   const ts = useTranslations('summary');
@@ -104,20 +111,23 @@ export default function ExportActions() {
         fullWidth
         variant="primary"
         disabled={!hasData || exporting === 'pdf'}
+        className={shimmer ? 'animate-cta-shimmer' : ''}
       >
         <Icon size={20} />
         {exporting === 'pdf' ? t('generating') : pdfLabel}
       </Button>
 
-      <Button
-        onClick={handleCsv}
-        fullWidth
-        variant="secondary"
-        disabled={!hasData || exporting === 'csv'}
-      >
-        {shareSupported ? <Share2 size={20} /> : <FileSpreadsheet size={20} />}
-        {exporting === 'csv' ? t('generating') : csvLabel}
-      </Button>
+      {!pdfOnly && (
+        <Button
+          onClick={handleCsv}
+          fullWidth
+          variant="secondary"
+          disabled={!hasData || exporting === 'csv'}
+        >
+          {shareSupported ? <Share2 size={20} /> : <FileSpreadsheet size={20} />}
+          {exporting === 'csv' ? t('generating') : csvLabel}
+        </Button>
+      )}
 
       {!hasData && (
         <p className="text-center text-sm text-ipc-400 mt-2">

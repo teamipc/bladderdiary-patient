@@ -7,24 +7,33 @@ import { useDiaryStore, useStoreHydrated } from '@/lib/store';
 import DaySummaryCard from '@/components/export/DaySummaryCard';
 import ExportActions from '@/components/export/ExportActions';
 import DrinkVoidTimeline from '@/components/summary/DrinkVoidTimeline';
-import SummaryObservations from '@/components/summary/SummaryObservations';
+import SummaryObservations, { keyToCopy as observationToCopy } from '@/components/summary/SummaryObservations';
 import Button from '@/components/ui/Button';
-import { HelpCircle, Lock, AlertTriangle, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { HelpCircle, Lock, AlertTriangle, ChevronLeft, CheckCircle2, Sparkles } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { getCurrentDay } from '@/lib/utils';
+import { generateObservations } from '@/lib/observations';
 import Image from 'next/image';
 import IpcInfoModal from '@/components/ui/IpcInfoModal';
 
 export default function SummaryPage() {
   const router = useRouter();
   const t = useTranslations('summary');
-  const { diaryStarted, startDate, timeZone, getBedtimeForDay, getVoidsForDay, getDrinksForDay } = useDiaryStore();
+  const store = useDiaryStore();
+  const { diaryStarted, startDate, timeZone, voids, drinks, getBedtimeForDay, getVoidsForDay, getDrinksForDay } = store;
   // Don't make any rendering or redirect decision until persist has finished
   // rehydrating from localStorage — otherwise a deep-link / refresh of
   // /summary fires the redirect-to-"/" useEffect on the empty initial state
   // and bounces the patient even when localStorage holds a complete diary.
   const hydrated = useStoreHydrated();
   const isComplete = hydrated && diaryStarted && !!getBedtimeForDay(3);
+
+  // Pavlovian rewards at the top: effort visualization + one-line standout.
+  // Both computed only when the diary is complete (we never render this
+  // section before isComplete is true).
+  const voidCount = voids.length;
+  const drinkCount = drinks.length;
+  const topObservation = isComplete ? generateObservations(store)[0] : undefined;
 
   // Data consistency check
   const dataWarnings: string[] = [];
@@ -107,9 +116,82 @@ export default function SummaryPage() {
         <p className="text-base text-ipc-600 mt-2 text-balance px-4">
           {t('heroSubtitle')}
         </p>
+        {/* Identity-framed reinforcement, just under the achievement line.
+            Closes the loop "you finished" → "you're the kind of person who
+            finishes," which is the lever for the share action below. */}
+        <p className="text-sm font-medium text-ipc-700 mt-3 italic text-balance px-6">
+          {t('identityFrame')}
+        </p>
         <p className="text-sm text-ipc-500 mt-3 text-balance px-6 italic">
           {t('yoursFirst')}
         </p>
+      </section>
+
+      {/* EFFORT STATS — three numbers under the hero making the work visible.
+          Effort-justification: seeing the count primes value-for-effort and
+          softens the ask of sharing the report below. */}
+      <section
+        className="grid grid-cols-3 gap-2 animate-fade-slide-up opacity-0"
+        style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
+      >
+        <div className="rounded-2xl bg-ipc-50 border border-ipc-100 px-2 py-3 text-center">
+          <p className="text-2xl font-bold text-ipc-950 tabular-nums leading-none">{voidCount}</p>
+          <p className="text-[10px] uppercase tracking-wide text-ipc-600 mt-1.5 font-semibold leading-tight">
+            {t('statBathroomTrips')}
+          </p>
+        </div>
+        <div className="rounded-2xl bg-ipc-50 border border-ipc-100 px-2 py-3 text-center">
+          <p className="text-2xl font-bold text-ipc-950 tabular-nums leading-none">{drinkCount}</p>
+          <p className="text-[10px] uppercase tracking-wide text-ipc-600 mt-1.5 font-semibold leading-tight">
+            {t('statDrinks')}
+          </p>
+        </div>
+        <div className="rounded-2xl bg-ipc-50 border border-ipc-100 px-2 py-3 text-center">
+          <p className="text-2xl font-bold text-ipc-950 tabular-nums leading-none">
+            3<span className="text-sm font-medium text-ipc-500 ms-1">{t('statOutOf3')}</span>
+          </p>
+          <p className="text-[10px] uppercase tracking-wide text-ipc-600 mt-1.5 font-semibold leading-tight">
+            {t('statDaysComplete')}
+          </p>
+        </div>
+      </section>
+
+      {/* TOP STANDOUT — the strongest pattern from the patient's own data,
+          rendered as a single warm line at the top. Self-reference effect:
+          information about ME drives engagement orders of magnitude more
+          than generic copy. Duplicates are filtered out of the full
+          observations card below via omitKeys. */}
+      {topObservation && (
+        <section
+          className="rounded-2xl bg-ipc-50 border border-ipc-100 p-4 animate-fade-slide-up opacity-0"
+          style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-ipc-500/15 flex items-center justify-center shrink-0 mt-0.5">
+              <Sparkles size={16} className="text-ipc-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] uppercase tracking-wide text-ipc-600 font-semibold mb-1">
+                {t('topStandoutLabel')}
+              </p>
+              <p className="text-sm text-ipc-800 leading-relaxed">
+                {observationToCopy(topObservation, t)}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* TOP CTA — the primary share action mirrored here so the patient
+          doesn't have to scroll a long page to find it. Single PDF button
+          (no CSV) keeps the moment focused; the full export panel still
+          appears at the bottom under "For your team". Shimmer fires once
+          on mount to draw the eye to the share action without nagging. */}
+      <section
+        className="animate-fade-slide-up opacity-0"
+        style={{ animationDelay: '220ms', animationFillMode: 'forwards' }}
+      >
+        <ExportActions pdfOnly shimmer />
       </section>
 
       {/* Data warning if entries are missing */}
@@ -144,12 +226,14 @@ export default function SummaryPage() {
         </div>
       </section>
 
-      {/* OBSERVATIONS — gentle, plain-English */}
+      {/* OBSERVATIONS — gentle, plain-English. The top-standout already
+          surfaced the strongest observation, so omit its key here to avoid
+          repeating the same line at the top and the middle of the page. */}
       <section
         className="animate-fade-slide-up opacity-0"
         style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}
       >
-        <SummaryObservations />
+        <SummaryObservations omitKeys={topObservation ? [topObservation.key] : []} />
       </section>
 
       {/* REFLECTION — one warm prompt, no input */}

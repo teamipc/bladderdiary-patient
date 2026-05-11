@@ -10,12 +10,18 @@
 import { useTranslations } from 'next-intl';
 import { useDiaryStore } from '@/lib/store';
 import { generateObservations } from '@/lib/observations';
+import type { ObservationKey } from '@/lib/observations';
 import { Sparkles } from 'lucide-react';
 
-export default function SummaryObservations() {
+interface SummaryObservationsProps {
+  /** Observation keys to skip (used when one is already shown as the top standout). */
+  omitKeys?: ObservationKey[];
+}
+
+export default function SummaryObservations({ omitKeys = [] }: SummaryObservationsProps = {}) {
   const t = useTranslations('summary');
   const state = useDiaryStore();
-  const observations = generateObservations(state);
+  const observations = generateObservations(state).filter((o) => !omitKeys.includes(o.key));
 
   if (observations.length === 0) return null;
 
@@ -40,7 +46,7 @@ export default function SummaryObservations() {
   );
 }
 
-function keyToCopy(o: ReturnType<typeof generateObservations>[number], t: ReturnType<typeof useTranslations<'summary'>>): string {
+export function keyToCopy(o: ReturnType<typeof generateObservations>[number], t: ReturnType<typeof useTranslations<'summary'>>): string {
   switch (o.key) {
     case 'caffeineToBathroom': return t('obsCaffeine');
     case 'eveningFluids': return t('obsEveningFluids');

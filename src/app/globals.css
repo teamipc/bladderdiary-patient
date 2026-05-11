@@ -165,6 +165,22 @@ input, select, textarea {
 .stagger-4 { animation-delay: 0.2s; }
 .stagger-5 { animation-delay: 0.25s; }
 
+/* Pavlovian shimmer for the top "send PDF" CTA — a soft white ring pulse
+   that pings outward once, about a second after the page settles. Draws
+   the eye to the share action without nagging. Box-shadow pattern mirrors
+   the working .animate-cta-guide rule below — a pseudo-element-based sweep
+   was being stripped by Lightning CSS, so this single-rule shape is the
+   reliable equivalent. Respects prefers-reduced-motion via the blanket
+   rule above. */
+@keyframes ctaShimmer {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7), 0 2px 12px rgba(149, 90, 20, 0.25); }
+  45%  { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0), 0 2px 12px rgba(149, 90, 20, 0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 0 0 rgba(149, 90, 20, 0); }
+}
+.animate-cta-shimmer {
+  animation: ctaShimmer 1500ms ease-out 800ms 1 both;
+}
+
 /* Bottom sheet backdrop */
 .backdrop-dim {
   background: rgba(0, 0, 0, 0.4);
