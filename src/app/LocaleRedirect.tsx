@@ -27,8 +27,15 @@ export default function LocaleRedirect() {
   }, [router]);
 
   return (
-    <div className="flex items-center justify-center py-24 bg-surface">
-      <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
-    </div>
+    <>
+      {/* Crawler / no-JS fallback: client useEffect above handles JS users
+          with locale preference; this kicks in for everyone else. */}
+      <noscript>
+        <meta httpEquiv="refresh" content="0;url=/en" />
+      </noscript>
+      <div className="flex items-center justify-center py-24 bg-surface">
+        <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
+      </div>
+    </>
   );
 }

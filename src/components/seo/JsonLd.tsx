@@ -159,6 +159,7 @@ export function ArticleJsonLd({
       name: author.name,
       jobTitle: author.credentials,
       url: buildAbsoluteUrl(`/learn/authors/${author.slug}`),
+      ...(author.linkedIn ? { sameAs: [author.linkedIn] } : {}),
     };
   }
 
@@ -168,6 +169,7 @@ export function ArticleJsonLd({
       name: reviewer.name,
       jobTitle: reviewer.credentials,
       url: buildAbsoluteUrl(`/learn/authors/${reviewer.slug}`),
+      ...(reviewer.linkedIn ? { sameAs: [reviewer.linkedIn] } : {}),
     };
   }
 
