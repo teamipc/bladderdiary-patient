@@ -9,11 +9,18 @@
  * Language: simple, friendly, non-clinical — aimed at general
  * users (not health professionals).
  *
- * Reminder schedule (local time):
+ * Reminder schedule (in the patient's stored timezone — falls back to browser-local if no tz stored):
  * - 8:00 AM: Morning — first pee reminder
  * - 2:00 PM: Afternoon — general check-in
  * - 9:00 PM: Evening — bedtime reminder
+ *
+ * The reminder hour is interpreted in the user's stored timeZone (passed from
+ * the Zustand store), not the browser's local timezone. This ensures a patient
+ * who set their diary in Singapore gets an 8 AM SGT reminder even when the
+ * browser is running in a different timezone.
  */
+
+import { buildIsoForClockTimeInTz, getDateInTz } from './utils';
 
 export type PermissionStatus = 'granted' | 'denied' | 'default' | 'unsupported';
 
@@ -85,25 +92,28 @@ function showNotification(title: string, body: string): void {
   }
 }
 
-function getNextOccurrence(hour: number, minute: number): Date {
-  const now = new Date();
-  const next = new Date();
-  next.setHours(hour, minute, 0, 0);
-
-  if (next <= now) {
-    next.setDate(next.getDate() + 1);
+function getNextOccurrence(hour: number, minute: number, timeZone?: string): Date {
+  const nowIso = new Date().toISOString();
+  const todayInTz = getDateInTz(nowIso, timeZone);
+  let nextIso = buildIsoForClockTimeInTz(`${todayInTz}T12:00:00.000Z`, hour, minute, timeZone);
+  if (new Date(nextIso).getTime() <= Date.now()) {
+    const tomorrowIso = new Date(
+      Date.parse(todayInTz + 'T00:00:00.000Z') + 86_400_000,
+    ).toISOString();
+    const tomorrowInTz = getDateInTz(tomorrowIso, timeZone);
+    nextIso = buildIsoForClockTimeInTz(`${tomorrowInTz}T12:00:00.000Z`, hour, minute, timeZone);
   }
-  return next;
+  return new Date(nextIso);
 }
 
-export function scheduleReminders(): void {
+export function scheduleReminders(timeZone?: string): void {
   cancelReminders();
 
   if (getNotificationPermission() !== 'granted') return;
 
   for (const reminder of DAILY_REMINDERS) {
     const scheduleNext = () => {
-      const nextTime = getNextOccurrence(reminder.hour, reminder.minute);
+      const nextTime = getNextOccurrence(reminder.hour, reminder.minute, timeZone);
       const delay = nextTime.getTime() - Date.now();
 
       const timer = setTimeout(() => {
@@ -129,12 +139,10 @@ export function cancelReminders(): void {
 /**
  * Schedule a one-time "diary complete" notification for day 4.
  */
-export function scheduleDiaryCompleteReminder(startDate: string): void {
-  const start = new Date(startDate + 'T09:00:00');
-  const day4 = new Date(start);
-  day4.setDate(day4.getDate() + 3);
-
-  const delay = day4.getTime() - Date.now();
+export function scheduleDiaryCompleteReminder(startDate: string, timeZone?: string): void {
+  const startIso = buildIsoForClockTimeInTz(`${startDate}T12:00:00.000Z`, 9, 0, timeZone);
+  const day4Ms = new Date(startIso).getTime() + 3 * 86_400_000;
+  const delay = day4Ms - Date.now();
   if (delay <= 0) return;
 
   const timer = setTimeout(() => {
