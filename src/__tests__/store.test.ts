@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import 'fake-indexeddb/auto';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { format } from 'date-fns';
 import { useDiaryStore, migrateBladderDiaryState } from '@/lib/store';
 
@@ -403,5 +404,75 @@ describe('migrateBladderDiaryState', () => {
     expect(result.timeZone).toBe('America/New_York');
     expect(result.morningAnchor).toBeNull();
     expect(result.day1CelebrationShown).toBe(false);
+  });
+});
+
+// ──────────────────────────────────────────────
+// migrateBladderDiaryState — v2 → v3 backend swap
+// ──────────────────────────────────────────────
+describe('migrateBladderDiaryState — v2 → v3 backend swap', () => {
+  const STORE_KEY = 'bladder-diary-patient';
+
+  afterEach(async () => {
+    const { del: idbDel } = await import('idb-keyval');
+    try { await idbDel(STORE_KEY); } catch {}
+    try { localStorage.removeItem(STORE_KEY); } catch {}
+  });
+
+  it('v2 snapshot: preserves all fields — backend swap is a no-op for state shape', () => {
+    const v2 = {
+      age: 65,
+      startDate: '2026-01-01',
+      timeZone: 'America/New_York',
+      voids: [{ id: 'v1', timestampIso: '2026-01-01T10:00:00.000Z', volumeMl: 200, sensation: 2, leak: false, note: '', isFirstMorningVoid: false }],
+      drinks: [],
+      leaks: [],
+      bedtimes: [],
+      wakeTimes: [{ id: 'w1', timestampIso: '2026-01-01T07:00:00.000Z', dayNumber: 1 }],
+      morningAnchor: 'wake',
+      day1CelebrationShown: true,
+    };
+    const result = migrateBladderDiaryState(v2, 2) as unknown as Record<string, unknown>;
+    expect(result.age).toBe(65);
+    expect(result.timeZone).toBe('America/New_York');
+    expect(result.morningAnchor).toBe('wake');
+    expect(result.day1CelebrationShown).toBe(true);
+    expect((result.voids as unknown[]).length).toBe(1);
+    expect((result.wakeTimes as unknown[]).length).toBe(1);
+  });
+
+  it('v2 localStorage blob is migrated to IndexedDB on first adapter read; localStorage is cleared', async () => {
+    const { get: idbGet, del: idbDelKey } = await import('idb-keyval');
+
+    // Clear IDB first — importing store.ts causes the persist middleware to write
+    // the initial state to IDB as a side effect of module initialization.
+    await idbDelKey(STORE_KEY);
+
+    const v2Blob = JSON.stringify({
+      state: { age: 65, startDate: '2026-01-01', voids: [], drinks: [], leaks: [], bedtimes: [], wakeTimes: [], volumeUnit: 'mL', diaryStarted: true, clinicCode: null, timeZone: 'America/New_York', morningAnchor: 'wake', day1CelebrationShown: true },
+      version: 2
+    });
+    localStorage.setItem(STORE_KEY, v2Blob);
+
+    // Confirm IDB is now empty (migration path should trigger)
+    expect(await idbGet(STORE_KEY)).toBeUndefined();
+
+    // Drive the adapter
+    const { createIndexedDbStorage } = await import('@/lib/storage/indexedDbAdapter');
+    const storage = createIndexedDbStorage();
+    const read = await storage.getItem(STORE_KEY);
+
+    // The localStorage value was returned (this is what hydration would receive)
+    expect(read).toBe(v2Blob);
+    // localStorage has been cleared
+    expect(localStorage.getItem(STORE_KEY)).toBeNull();
+    // IDB now holds the value
+    expect(await idbGet(STORE_KEY)).toBe(v2Blob);
+
+    // Second read goes straight from IDB
+    const read2 = await storage.getItem(STORE_KEY);
+    expect(read2).toBe(v2Blob);
+    // localStorage stays clear
+    expect(localStorage.getItem(STORE_KEY)).toBeNull();
   });
 });
