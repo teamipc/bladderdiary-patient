@@ -5,7 +5,14 @@ import type { BedtimeEntry } from './types';
 /*  Intl locale mapping                                                */
 /* ------------------------------------------------------------------ */
 
-const INTL_LOCALES: Record<string, string> = { en: 'en-US', fr: 'fr-FR', es: 'es-ES' };
+const INTL_LOCALES: Record<string, string> = {
+  en: 'en-US',
+  fr: 'fr-FR',
+  es: 'es-ES',
+  pt: 'pt-PT',
+  zh: 'zh-CN',
+  ar: 'ar-SA',
+};
 
 function toIntlLocale(locale?: string): string {
   return (locale && INTL_LOCALES[locale]) || 'en-US';

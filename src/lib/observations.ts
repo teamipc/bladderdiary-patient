@@ -15,6 +15,7 @@
  * three locales (en/fr/es) read naturally.
  */
 
+import { getDayNumber, getHoursInTz } from './utils';
 import type { DiaryState, VoidEntry, DrinkEntry, DrinkType } from './types';
 
 export type ObservationKey =
@@ -89,7 +90,7 @@ export function generateObservations(state: DiaryState): Observation[] {
     const buckets: Record<string, number> = {};
     let total = 0;
     for (const d of drinks) {
-      const hr = getHourInTz(d.timestampIso, state.timeZone);
+      const hr = getHoursInTz(d.timestampIso, state.timeZone);
       const b = hourBucket(hr);
       buckets[b] = (buckets[b] ?? 0) + d.volumeMl;
       total += d.volumeMl;
@@ -145,50 +146,12 @@ export function generateObservations(state: DiaryState): Observation[] {
   return out.slice(0, 2);
 }
 
-/** Lightweight tz hour extraction without pulling utils.ts circular dep. */
-function getHourInTz(iso: string, tz?: string): number {
-  if (!tz) return new Date(iso).getHours();
-  const parts = new Intl.DateTimeFormat('en-US', {
-    hour: 'numeric',
-    hour12: false,
-    timeZone: tz,
-  }).formatToParts(new Date(iso));
-  const h = parseInt(parts.find((p) => p.type === 'hour')?.value ?? '0', 10);
-  return h === 24 ? 0 : h;
-}
-
 /**
- * Quick day-attribution check using the same model as getDayNumber but
- * inline-friendly. We re-derive instead of importing to keep this module
- * dependency-light.
+ * Delegates day-attribution to the canonical utils.getDayNumber, which
+ * handles all three layers: calendar diff, bedtime-aware bump, and early-AM
+ * pull-back. This replaces the previous inline re-implementation that lacked
+ * the bedtime cross-check in the early-AM guard.
  */
 function isVoidOnDay(v: VoidEntry, dayNumber: 1 | 2 | 3, state: DiaryState): boolean {
-  const startMs = Date.parse(state.startDate + 'T00:00:00');
-  const eventMs = Date.parse(getDateInTz(v.timestampIso, state.timeZone) + 'T00:00:00');
-  const diff = Math.round((eventMs - startMs) / 86_400_000);
-  let dayNum = Math.max(1, Math.min(3, diff + 1));
-  // Bedtime-aware bump
-  if (dayNum < 3) {
-    const dayBed = state.bedtimes.find((b) => b.dayNumber === dayNum);
-    if (dayBed && v.timestampIso > dayBed.timestampIso) dayNum = Math.min(3, dayNum + 1);
-  }
-  // Early-AM pull-back (matches utils.getDayNumber)
-  const hour = getHourInTz(v.timestampIso, state.timeZone);
-  if (hour <= 5 && dayNum > 1) {
-    const prevDay = dayNum - 1;
-    const prevBed = state.bedtimes.find((b) => b.dayNumber === prevDay);
-    if (!prevBed || v.timestampIso < prevBed.timestampIso) dayNum = prevDay;
-  }
-  return dayNum === dayNumber;
-}
-
-function getDateInTz(iso: string, tz?: string): string {
-  const d = new Date(iso);
-  if (!tz) {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    year: 'numeric', month: '2-digit', day: '2-digit', timeZone: tz,
-  }).formatToParts(d);
-  return `${parts.find((p) => p.type === 'year')?.value}-${parts.find((p) => p.type === 'month')?.value}-${parts.find((p) => p.type === 'day')?.value}`;
+  return getDayNumber(v.timestampIso, state.startDate, state.bedtimes, state.timeZone) === dayNumber;
 }

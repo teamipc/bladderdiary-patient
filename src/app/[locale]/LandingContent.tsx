@@ -58,8 +58,8 @@ function LandingContent() {
 
     const permission = await requestNotificationPermission();
     if (permission === 'granted') {
-      scheduleReminders();
-      scheduleDiaryCompleteReminder(selectedDate);
+      scheduleReminders(tz);
+      scheduleDiaryCompleteReminder(selectedDate, tz);
     }
 
     router.push('/diary/day/1');
