@@ -8,9 +8,10 @@
 
 import { useEffect, useState } from 'react';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { format } from 'date-fns';
 import { generateId, getDayNumber, detectTimeZone } from './utils';
+import { createIndexedDbStorage } from './storage/indexedDbAdapter';
 import type {
   VoidEntry,
   DrinkEntry,
@@ -131,6 +132,12 @@ export const migrateBladderDiaryState = (
     // v1 had no morning anchor / Day 1 celebration flag
     obj.morningAnchor = null;
     obj.day1CelebrationShown = false;
+  }
+  if (version < 3) {
+    // v2 → v3: backend swap from localStorage to IndexedDB. No state-shape change.
+    // The adapter handles the storage-layer migration transparently (see
+    // src/lib/storage/indexedDbAdapter.ts). This branch exists as a marker so a
+    // future v4 migration knows where the IDB transition landed.
   }
   // Defensive: any persisted state predating an array field should hydrate
   // with []. Touches every array field on DiaryState so future v* bumps
@@ -350,8 +357,9 @@ export const useDiaryStore = create<DiaryStore>()(
     }),
     {
       name: 'bladder-diary-patient',
-      version: 2,
+      version: 3,
       migrate: migrateBladderDiaryState,
+      storage: createJSONStorage(() => createIndexedDbStorage()),
     },
   ),
 );
