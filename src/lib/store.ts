@@ -1,6 +1,9 @@
 /**
  * Global state store for the patient bladder diary.
- * Uses Zustand with localStorage persistence.
+ * Uses Zustand with IndexedDB persistence (via `idb-keyval`). Same Same-Origin
+ * Policy sandbox as localStorage — device-local only, no network. On first
+ * hydrate after v2→v3, the adapter copies any legacy `localStorage` value
+ * over to IndexedDB and clears it. See `src/lib/storage/indexedDbAdapter.ts`.
  * Pattern mirrors the clinician app's useDiaryStore.
  */
 
@@ -368,7 +371,7 @@ export default useDiaryStore;
 
 /**
  * Returns whether the persist middleware has finished rehydrating from
- * localStorage. Use this to gate any rendering decision that depends on
+ * IndexedDB. Use this to gate any rendering decision that depends on
  * persisted state (e.g. "is the diary started?", "is day 3 bedtime set?")
  * so the component does not flash the initial-state UI before hydration
  * completes.
@@ -382,7 +385,9 @@ export default useDiaryStore;
  * (empty) state. A `useEffect` that fires conditional logic on that first
  * pass — e.g. the summary page's `if (!diaryStarted) router.replace('/')`
  * — runs before the persisted state lands, and the redirect fires even
- * though localStorage has a complete diary.
+ * though IndexedDB has a complete diary. (The async backend makes this
+ * gap slightly longer than under localStorage — the hook is even more
+ * load-bearing now.)
  *
  * Real-world symptom: a patient deep-links or refreshes /summary → flash
  * of the empty/locked state → unwanted redirect to "/" → confusing.
