@@ -1,6 +1,5 @@
 import { jsPDF } from 'jspdf';
-import { parseISO } from 'date-fns';
-import { getDayNumber, getHoursInTz } from '../utils';
+import { getDayNumber, getHoursInTz, getMinutesInTz } from '../utils';
 import { SENSATION_LABELS } from '../constants';
 import type { DiaryState } from '../types';
 import type { DiaryMetrics } from '../calculations';
@@ -207,8 +206,7 @@ export function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics,
     allVoids.forEach((v) => {
       const dayNum = getDayNumber(v.timestampIso, state.startDate, state.bedtimes, state.timeZone);
       const color = dayColors[(dayNum - 1) as 0 | 1 | 2];
-      const dt = parseISO(v.timestampIso);
-      const hourOfDay = getHoursInTz(v.timestampIso, state.timeZone) + dt.getMinutes() / 60;
+      const hourOfDay = getHoursInTz(v.timestampIso, state.timeZone) + getMinutesInTz(v.timestampIso, state.timeZone) / 60;
       // Shift so 6am = 0, 5am = 23
       const shifted = hourOfDay >= 6 ? hourOfDay - 6 : hourOfDay + 18;
       const dotX = chartX + (shifted / 24) * chartW;
@@ -266,8 +264,7 @@ export function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics,
   const standaloneLeaks = (state.leaks ?? []);
   if (standaloneLeaks.length > 0) {
     standaloneLeaks.forEach((l) => {
-      const dt = parseISO(l.timestampIso);
-      const hourOfDay = getHoursInTz(l.timestampIso, state.timeZone) + dt.getMinutes() / 60;
+      const hourOfDay = getHoursInTz(l.timestampIso, state.timeZone) + getMinutesInTz(l.timestampIso, state.timeZone) / 60;
       const shifted = hourOfDay >= 6 ? hourOfDay - 6 : hourOfDay + 18;
       const lx = chartX + (shifted / 24) * chartW;
       const ly = chart2Top + chart2H - 2; // Near bottom of chart
