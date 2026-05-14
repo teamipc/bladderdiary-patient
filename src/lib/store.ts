@@ -118,6 +118,30 @@ interface DiaryStore extends DiaryState {
   resetDiary: () => void;
 }
 
+export const migrateBladderDiaryState = (
+  persisted: unknown,
+  version: number,
+): DiaryStore => {
+  const obj = persisted as Record<string, unknown>;
+  if (version < 1) {
+    // v0 had no timeZone — auto-detect from browser
+    obj.timeZone = detectTimeZone();
+  }
+  if (version < 2) {
+    // v1 had no morning anchor / Day 1 celebration flag
+    obj.morningAnchor = null;
+    obj.day1CelebrationShown = false;
+  }
+  // Defensive: any persisted state predating an array field should hydrate
+  // with []. Touches every array field on DiaryState so future v* bumps
+  // don't have to re-discover this in production via a runtime crash.
+  const ARRAY_FIELDS = ['voids', 'drinks', 'leaks', 'bedtimes', 'wakeTimes'] as const;
+  for (const field of ARRAY_FIELDS) {
+    if (!Array.isArray(obj[field])) obj[field] = [];
+  }
+  return obj as unknown as DiaryStore;
+};
+
 const initialState: DiaryState = {
   startDate: format(new Date(), 'yyyy-MM-dd'),
   age: null,
@@ -327,19 +351,7 @@ export const useDiaryStore = create<DiaryStore>()(
     {
       name: 'bladder-diary-patient',
       version: 2,
-      migrate: (persisted, version) => {
-        const obj = persisted as Record<string, unknown>;
-        if (version < 1) {
-          // v0 had no timeZone — auto-detect from browser
-          obj.timeZone = detectTimeZone();
-        }
-        if (version < 2) {
-          // v1 had no morning anchor / Day 1 celebration flag
-          obj.morningAnchor = null;
-          obj.day1CelebrationShown = false;
-        }
-        return obj as unknown as DiaryStore;
-      },
+      migrate: migrateBladderDiaryState,
     },
   ),
 );
