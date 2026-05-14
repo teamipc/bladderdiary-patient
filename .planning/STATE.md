@@ -45,6 +45,7 @@ Recent decisions affecting current work:
 - Init: Stabilization milestone framing chosen — audit-driven bug fixes over new features.
 - Init: Coarse phase granularity — 3 phases grouping the 8 STAB-* requirements by failure class.
 - Init: Skip per-phase research — codebase map + memory + `docs/TIME_MODEL.md` are authoritative.
+- 2026-05-14: Added Phase 4 (STAB-09) — IndexedDB backend swap chosen over encryption-at-rest; same privacy model, lower UX cost.
 
 ### Pending Todos
 

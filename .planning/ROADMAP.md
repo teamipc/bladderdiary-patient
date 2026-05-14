@@ -13,6 +13,7 @@ This milestone closes silent-bug gaps surfaced by the codebase audit (`.planning
 - [ ] **Phase 1: Locale + reminder + observation correctness** — Close the top 3 silent bugs flagged by audit (i18n coverage, reminder timezone, observation day-attribution dedup)
 - [ ] **Phase 2: Remaining timezone correctness + store hygiene** — PDF minute-rendering across half-hour-offset zones, wakeTimes null safety + migration completeness
 - [ ] **Phase 3: UX polish + input validation** — Locale-aware milestone-toast dedup, export-error toast, clinicCode URL-param validation
+- [ ] **Phase 4: Storage backend hardening** — Swap Zustand persist from localStorage to IndexedDB (same privacy model, better Safari-ITP survivability, larger quota)
 
 ## Phase Details
 
@@ -54,13 +55,28 @@ Plans:
 Plans:
 - [ ] 03-01: TBD
 
+### Phase 4: Storage backend hardening
+**Goal**: Swap the Zustand `persist` backend from `localStorage` to IndexedDB (via `idb-keyval`) without changing the privacy model. Same same-origin sandbox, better Safari-ITP survivability, vastly larger quota. Includes a one-time `localStorage` → IndexedDB migration so existing patients don't lose their in-progress diary.
+**Depends on**: Phase 2 (must land after STAB-05's v1→v2 migration cleanup so the backend swap is the only migration left to reason about)
+**Requirements**: STAB-09
+**Success Criteria** (what must be TRUE):
+  1. A patient who completes Day 1, idles 7+ days on iOS Safari 17+, then returns can still resume Day 2 with all events intact (manual verification via the daily walkthrough; previously, Safari ITP eviction destroyed this path on `localStorage`).
+  2. An existing patient with a v2 store in `localStorage` opens the app once → diary loads from IndexedDB after migration → the `localStorage` key is cleared (verified by inspecting both storages in DevTools).
+  3. `src/__tests__/store.test.ts` covers the v2→v3 backend migration; full vitest suite passes.
+  4. The 6-locale daily production walkthrough continues to pass with no new findings logged to `walkthrough_findings.md`.
+**Plans**: TBD
+
+Plans:
+- [ ] 04-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Locale + reminder + observation correctness | 0/TBD | Not started | - |
+| 1. Locale + reminder + observation correctness | 3/3 | Complete | 2026-05-14 (via quick task 260514-ndz) |
 | 2. Remaining timezone correctness + store hygiene | 0/TBD | Not started | - |
 | 3. UX polish + input validation | 0/TBD | Not started | - |
+| 4. Storage backend hardening | 0/TBD | Not started | - |

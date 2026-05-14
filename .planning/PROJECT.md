@@ -41,6 +41,7 @@ The patient can complete a clinically-accurate 3-day diary in their own timezone
 - [ ] **STAB-06**: Locale-aware milestone toast deduplication (currently re-fires on locale switch) — `src/app/[locale]/diary/day/[dayNumber]/DayPageClient.tsx`
 - [ ] **STAB-07**: Replace export-error `alert()` with toast — `src/components/export/ExportActions.tsx`
 - [ ] **STAB-08**: Validate + length-cap `clinicCode` query param before persisting — `src/app/[locale]/LandingContent.tsx`
+- [ ] **STAB-09**: Swap Zustand persist backend from `localStorage` to IndexedDB (via `idb-keyval`) for better Safari-ITP survivability — same privacy model, same device-only sandbox — `src/lib/store.ts` + new `src/lib/storage/indexedDbAdapter.ts`
 
 ### Out of Scope
 
@@ -75,7 +76,7 @@ The patient can complete a clinically-accurate 3-day diary in their own timezone
 ## Constraints
 
 - **Tech stack**: Next.js 16 App Router + React 19 + Tailwind 4 + Zustand + next-intl 4 — pinned by existing codebase, not up for re-litigation in this milestone.
-- **Storage**: localStorage only. No server, no cloud, no accounts. Drives compliance simplicity (no PHI on a server). Reaffirmed in Out of Scope.
+- **Storage**: Device-local only via Zustand `persist`. No server, no cloud, no accounts. Currently `localStorage`-backed; Phase 4 (STAB-09) swaps to IndexedDB via `idb-keyval` — same same-origin sandbox, same privacy model, better Safari-ITP survivability. Reaffirmed in Out of Scope.
 - **i18n**: All six locales (en/fr/es/pt/zh/ar) must remain at parity. Stop hook + pre-commit hook enforce article translation coverage.
 - **Output mode**: `next.config.ts` uses `output: "export"` — static export only. No server-side runtime is available, so anything proposing a server endpoint is non-viable without ripping out the deployment model.
 - **Day-boundary correctness**: Three layers (form correctors, `getDayNumber`, `reassignMorningVoid`) must stay in sync. See `docs/TIME_MODEL.md` and `time_model_gotchas` memory before any change to time/timezone code.
@@ -91,6 +92,7 @@ The patient can complete a clinically-accurate 3-day diary in their own timezone
 | Three-layer day-boundary logic (form correctors + `getDayNumber` + `reassignMorningVoid`) | Naive `setHours` silently breaks for any patient whose browser tz ≠ stored tz | ⚠️ Revisit — fragile, see STAB-03 deduplication |
 | Premium features gated by compile-time constant (not env) | Intentional friction while uncommercialized | — Pending — revisit when commercializing |
 | Stabilization milestone (this) | Audit-driven: 8 silent bugs surfaced by `.planning/codebase/CONCERNS.md` are higher-leverage than new features | — Pending — outcome judged at milestone close |
+| Storage upgrade path = IndexedDB (not encryption-at-rest) | IndexedDB lives in the same same-origin sandbox as localStorage so the privacy model is unchanged, but it survives Safari ITP eviction better and has vastly more headroom. Encryption-at-rest is bigger work and would require a PIN/WebAuthn setup step that costs more boomer-safe-UX than it buys when the data never leaves the device anyway. | — Pending — added 2026-05-14 as STAB-09 / Phase 4 |
 
 ## Evolution
 
@@ -110,4 +112,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-14 after initialization (brownfield wrap, milestone framing = Stabilization)*
+*Last updated: 2026-05-14 after Phase 1 complete (via quick task 260514-ndz) + STAB-09 / Phase 4 added for IndexedDB storage backend swap*

@@ -41,6 +41,14 @@ paths, specific edge cases).
   *Files:* `src/lib/observations.ts`, `src/lib/store.ts`
   *Verify:* load a v0 store snapshot in tests; `generateObservations` doesn't throw.
 
+### Storage Backend
+
+- [ ] **STAB-09** — Swap Zustand persist backend from `localStorage` to IndexedDB (via `idb-keyval`)
+  `localStorage` is the right shape for our privacy posture (device-only, same-origin sandboxed), but it has two real failure modes: Safari ITP evicts it after ~7 days of inactivity (patient mid-diary loses data), and the 5–10 MB cap is tight if we ever extend beyond a 3-day diary. IndexedDB lives in the same same-origin sandbox (no new attack surface), survives Safari eviction marginally better, and has a vastly larger quota. We're swapping the persistence layer, not the privacy model — nothing leaves the device.
+  *Files:* `src/lib/store.ts` (Zustand persist config), `package.json` (add `idb-keyval`), new adapter (likely `src/lib/storage/indexedDbAdapter.ts`).
+  *Migration:* on first hydrate after the change, if IndexedDB is empty AND `localStorage` has the diary key, copy over and then clear the `localStorage` key. Bump the store version to v3.
+  *Verify:* (1) fresh patient on Safari 17+ completes 3 days without data loss after a 7-day idle gap (manual). (2) Existing patient with v2 `localStorage` state opens the app once → diary loads from IndexedDB after the migration → `localStorage` key is gone. (3) Existing store-migration tests pass (`src/__tests__/store.test.ts`) plus a new test for the v2→v3 backend migration. (4) Daily 6-locale walkthrough still green.
+
 ### UX + Input Validation
 
 - [ ] **STAB-06** — Milestone toasts dedupe across locale switches
@@ -80,8 +88,9 @@ paths, specific edge cases).
 | Phase 1: Locale + reminder + observation correctness | STAB-01, STAB-02, STAB-03 |
 | Phase 2: Remaining tz + store hygiene | STAB-04, STAB-05 |
 | Phase 3: UX polish + input validation | STAB-06, STAB-07, STAB-08 |
+| Phase 4: Storage backend hardening | STAB-09 |
 
-All 8 v1 requirements mapped. Coverage: 100%.
+All 9 v1 requirements mapped. Coverage: 100%.
 
 ---
 *Requirements defined: 2026-05-14*
