@@ -1,5 +1,4 @@
-import { parseISO } from 'date-fns';
-import { getDayNumber, getHoursInTz, formatTime } from '../utils';
+import { getDayNumber, getHoursInTz, getMinutesInTz, formatTime } from '../utils';
 import type { DiaryState } from '../types';
 import { getPdfStrings, pdfDrinkLabel, pdfLeakTriggerLabel } from './strings';
 import { dv } from './shared';
@@ -148,8 +147,7 @@ export function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale:
 
     // Filter events in this 30-min window
     const inSlot = (iso: string) => {
-      const d = parseISO(iso);
-      return getHoursInTz(iso, state.timeZone) === hour && d.getMinutes() >= minStart && d.getMinutes() <= minEnd;
+      return getHoursInTz(iso, state.timeZone) === hour && getMinutesInTz(iso, state.timeZone) >= minStart && getMinutesInTz(iso, state.timeZone) <= minEnd;
     };
 
     const ps = getPdfStrings(locale);

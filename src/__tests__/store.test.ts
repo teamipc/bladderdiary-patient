@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { format } from 'date-fns';
-import { useDiaryStore } from '@/lib/store';
+import { useDiaryStore, migrateBladderDiaryState } from '@/lib/store';
 
 /**
  * Store tests — exercises all Zustand actions and selectors.
@@ -372,5 +372,36 @@ describe('resetDiary', () => {
     // resetDiary uses format(new Date(), 'yyyy-MM-dd') which is local time
     const today = format(new Date(), 'yyyy-MM-dd');
     expect(useDiaryStore.getState().startDate).toBe(today);
+  });
+});
+
+// ──────────────────────────────────────────────
+// migrateBladderDiaryState
+// ──────────────────────────────────────────────
+describe('migrateBladderDiaryState', () => {
+  it('v0 snapshot: initializes timeZone, morningAnchor flag, and all array fields', () => {
+    const v0 = { age: 65, startDate: '2026-01-01' };
+    const result = migrateBladderDiaryState(v0, 0) as unknown as Record<string, unknown>;
+    expect(result.voids).toEqual([]);
+    expect(result.drinks).toEqual([]);
+    expect(result.leaks).toEqual([]);
+    expect(result.bedtimes).toEqual([]);
+    expect(result.wakeTimes).toEqual([]);
+    expect(typeof result.timeZone).toBe('string');
+    expect(result.morningAnchor).toBeNull();
+    expect(result.day1CelebrationShown).toBe(false);
+  });
+
+  it('v1 snapshot: preserves timeZone, initializes v2 fields and all array fields', () => {
+    const v1 = { age: 65, startDate: '2026-01-01', timeZone: 'America/New_York' };
+    const result = migrateBladderDiaryState(v1, 1) as unknown as Record<string, unknown>;
+    expect(result.voids).toEqual([]);
+    expect(result.drinks).toEqual([]);
+    expect(result.leaks).toEqual([]);
+    expect(result.bedtimes).toEqual([]);
+    expect(result.wakeTimes).toEqual([]);
+    expect(result.timeZone).toBe('America/New_York');
+    expect(result.morningAnchor).toBeNull();
+    expect(result.day1CelebrationShown).toBe(false);
   });
 });

@@ -112,7 +112,7 @@ export function generateObservations(state: DiaryState): Observation[] {
   // single day. Multiple per night might indicate something the doctor should
   // weigh in on, so we let the export speak for itself there.
   for (const dayNumber of [1, 2, 3] as const) {
-    const wake = state.wakeTimes.find((w) => w.dayNumber === dayNumber);
+    const wake = (state.wakeTimes ?? []).find((w) => w.dayNumber === dayNumber);
     const prevBed = dayNumber > 1
       ? state.bedtimes.find((b) => b.dayNumber === (dayNumber - 1))
       : undefined;
