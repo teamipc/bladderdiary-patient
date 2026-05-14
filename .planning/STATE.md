@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 
 ## Current Position
 
-Phase: 2 of 4 (Remaining timezone correctness + store hygiene — satisfied)
-Plan: 0 of TBD in current phase (Phase 2 requirements STAB-04/05 satisfied via quick task 260514-nt1)
-Status: Phases 1 + 2 requirements satisfied — Phase 4 (STAB-09 IndexedDB) is next via `/gsd-plan-phase 4`; Phase 3 (STAB-06/07/08 UX polish) remains
-Last activity: 2026-05-14 — Completed quick task 260514-nt1: STAB-04/05 fixes (2 atomic commits, 379/379 tests pass)
+Phase: 4 of 4 (Storage backend hardening — complete)
+Plan: 2/2 in Phase 4 complete (04-01 adapter + 04-02 wire-in)
+Status: Phases 1 + 2 + 4 complete. Only Phase 3 (STAB-06/07/08 UX polish) remains in the Stabilization milestone. Verifier flagged 2 post-merge manual items (Safari ITP 7-day idle test + 6-locale walkthrough) — both explicitly scoped that way at plan time.
+Last activity: 2026-05-14 — Completed Phase 4: STAB-09 IndexedDB backend swap (4 atomic commits across 2 plans, 389/389 tests pass)
 
-Progress: [██████░░░░] 56%
+Progress: [████████░░] 89%
 
 ## Performance Metrics
 
@@ -46,6 +46,7 @@ Recent decisions affecting current work:
 - Init: Coarse phase granularity — 3 phases grouping the 8 STAB-* requirements by failure class.
 - Init: Skip per-phase research — codebase map + memory + `docs/TIME_MODEL.md` are authoritative.
 - 2026-05-14: Added Phase 4 (STAB-09) — IndexedDB backend swap chosen over encryption-at-rest; same privacy model, lower UX cost.
+- 2026-05-14: Phase 4 shipped via planned route (`/gsd-plan-phase 4` → `/gsd-execute-phase 4`). 2 plans, 4 atomic commits, 389/389 tests pass. Verifier scored 2/4 automated + 2/4 post-merge manual (Safari ITP + walkthrough).
 
 ### Pending Todos
 
@@ -73,5 +74,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-05-14
-Stopped at: Quick task 260514-nt1 complete — STAB-04/05 fixed in 2 atomic commits (a573bb9, 5220c54), full vitest suite 379/379 pass. Phases 1 + 2 requirements satisfied. Next: `/gsd-plan-phase 4` (STAB-09 IndexedDB backend swap — planned route per user, deferred Phase 3 UX polish for now).
+Stopped at: Phase 4 complete — STAB-09 IndexedDB backend swap shipped (b7f6071, 0437a16, 0d84770, 317e470 plus a docs-drift cleanup). Adapter at `src/lib/storage/indexedDbAdapter.ts`, wired into Zustand persist, store version bumped 2→3, 389/389 tests pass. Two post-merge manual items pending: (1) Safari iOS 17+ 7-day idle test, (2) post-deploy 6-locale walkthrough — both explicitly scoped that way. Only Phase 3 (STAB-06/07/08 UX polish) remains in the milestone.
 Resume file: None

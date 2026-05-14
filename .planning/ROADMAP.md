@@ -80,4 +80,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Locale + reminder + observation correctness | 3/3 | Complete | 2026-05-14 (via quick task 260514-ndz) |
 | 2. Remaining timezone correctness + store hygiene | 2/2 | Complete | 2026-05-14 (via quick task 260514-nt1) |
 | 3. UX polish + input validation | 0/TBD | Not started | - |
-| 4. Storage backend hardening | 0/TBD | Not started | - |
+| 4. Storage backend hardening | 2/2 | Complete | 2026-05-14 (planned route; 2 post-merge manual checks pending) |
