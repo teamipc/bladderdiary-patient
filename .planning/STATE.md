@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-05-14)
 
 ## Current Position
 
-Phase: 1 of 3 (Locale + reminder + observation correctness)
-Plan: 0 of TBD in current phase (Phase 1 requirements STAB-01/02/03 satisfied via quick task 260514-ndz)
-Status: Phase 1 requirements satisfied via quick task — ready to mark Phase 1 complete OR plan Phase 2
-Last activity: 2026-05-14 — Completed quick task 260514-ndz: STAB-01/02/03 fixes (3 atomic commits, 377/377 tests pass)
+Phase: 2 of 4 (Remaining timezone correctness + store hygiene — satisfied)
+Plan: 0 of TBD in current phase (Phase 2 requirements STAB-04/05 satisfied via quick task 260514-nt1)
+Status: Phases 1 + 2 requirements satisfied — Phase 4 (STAB-09 IndexedDB) is next via `/gsd-plan-phase 4`; Phase 3 (STAB-06/07/08 UX polish) remains
+Last activity: 2026-05-14 — Completed quick task 260514-nt1: STAB-04/05 fixes (2 atomic commits, 379/379 tests pass)
 
-Progress: [████░░░░░░] 38%
+Progress: [██████░░░░] 56%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ None yet. (Full audit findings tracked in `.planning/codebase/CONCERNS.md`.)
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260514-ndz | STAB-01/02/03: i18n locales, reminder tz, observations dedup | 2026-05-14 | 42cfe46 | [260514-ndz-fix-stab-01-02-03-top-3-silent-bugs-from](./quick/260514-ndz-fix-stab-01-02-03-top-3-silent-bugs-from/) |
+| 260514-nt1 | STAB-04/05: PDF tz minutes + wakeTimes null-safe migration | 2026-05-14 | 5220c54 | [260514-nt1-fix-stab-04-05-pdf-timezone-minutes-wake](./quick/260514-nt1-fix-stab-04-05-pdf-timezone-minutes-wake/) |
 
 ## Deferred Items
 
@@ -72,5 +73,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-05-14
-Stopped at: Quick task 260514-ndz complete — STAB-01/02/03 fixed in 3 atomic commits (963a1ad, acc99d7, 42cfe46), full vitest suite 377/377 pass. Phase 1 requirements satisfied. Next: mark Phase 1 complete + plan Phase 2 (STAB-04/05) OR continue running quick tasks for remaining STAB items.
+Stopped at: Quick task 260514-nt1 complete — STAB-04/05 fixed in 2 atomic commits (a573bb9, 5220c54), full vitest suite 379/379 pass. Phases 1 + 2 requirements satisfied. Next: `/gsd-plan-phase 4` (STAB-09 IndexedDB backend swap — planned route per user, deferred Phase 3 UX polish for now).
 Resume file: None
