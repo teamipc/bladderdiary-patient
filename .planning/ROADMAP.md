@@ -64,10 +64,11 @@ Plans:
   2. An existing patient with a v2 store in `localStorage` opens the app once → diary loads from IndexedDB after migration → the `localStorage` key is cleared (verified by inspecting both storages in DevTools).
   3. `src/__tests__/store.test.ts` covers the v2→v3 backend migration; full vitest suite passes.
   4. The 6-locale daily production walkthrough continues to pass with no new findings logged to `walkthrough_findings.md`.
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md — Add idb-keyval dep + write createIndexedDbStorage adapter with localStorage→IDB migration + adapter unit tests
+- [ ] 04-02-PLAN.md — Wire adapter into Zustand persist config, bump store version 2→3, add v3 migration branch + v2→v3 integration test
 
 ## Progress
 
