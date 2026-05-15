@@ -96,10 +96,23 @@ Plans:
   4. Header expands to use available width at `md`+ (currently constrained inside `AppShell` flex column) with proper internal max-width on its content; logo + nav + locale switcher are spaced for desktop, not stacked at mobile density.
   5. RTL (Arabic) AppShell chrome verifies clean — top-bar nav order mirrors correctly using logical properties (`ms-`/`me-`, `start`/`end`), no `ml-`/`mr-` regressions introduced.
   6. Daily 6-locale walkthrough still passes; no new findings in `walkthrough_findings.md`; mobile screenshots at 375px diff cleanly against pre-phase baseline (no visual regression on mobile).
-**Plans**: TBD (planner produces; expected 2–3 plans: container primitive + breakpoint tokens, AppShell desktop chrome, FAB reposition)
+**Plans**: 7 plans, 4 waves (planning complete 2026-05-15; checker PASSED)
 
 Plans:
-- [ ] 05-NN: TBD (created by `/gsd-plan-phase 5`)
+**Wave 1 (foundation — must land first)**
+- [ ] 05-01-PLAN.md — Create `<Container>` primitive (`src/components/layout/Container.tsx`) — server-component-safe React with `variant` (narrow/default/wide/full) + `as` + `noPadding` + `className` props; vitest unit coverage
+- [ ] 05-02-PLAN.md — Add `nav.primaryNavAriaLabel` to `messages/en.json` (one-line change; `i18n-sync` PostToolUse hook auto-mirrors to fr/es/pt/zh/ar; manual fallback path documented)
+
+**Wave 2 (chrome desktop behavior — depends on Wave 1; 3 plans run in parallel)**
+- [ ] 05-03-PLAN.md — `AppShell.tsx` `pb-24 md:pb-0` spacer + `BottomNav.tsx` `md:hidden` (mobile pinned bar invisible at desktop) + `Footer.tsx` `md:py-12 lg:py-16` desktop padding
+- [ ] 05-04-PLAN.md — `Header.tsx` adds inline top-bar `<nav aria-label="Primary navigation">` with NavLink helper + Container `wide` variant inner + `aria-current="page"` active state + focus-visible rings on the new nav AND on the existing Learn link + locale switcher button
+- [ ] 05-05-PLAN.md — `QuickLogFAB.tsx` `right-5` → `end-5` RTL fix + single `md:end-[max(1.25rem,calc((100vw-768px)/2+1.25rem))]` formula anchoring to the diary's 768px content column at all desktop widths + `md:bottom-8` desktop position + focus-visible rings on toggle + 3 speed-dial buttons
+
+**Wave 3 (Container adoption in pages — depends on Wave 1; can parallel Wave 2)**
+- [ ] 05-06-PLAN.md — Adopt `<Container>` in `LandingContent.tsx` (3 wrappers, 2 with `noPadding + className="px-6 sm:px-6"` deterministic mobile-padding override) + `OnboardingFlow.tsx` (1 wrapper, same override) + `diary/layout.tsx` + `summary/page.tsx` (2 wrappers). Per-page composition preserved (no redesign — those are Phases 6/7).
+
+**Wave 4 (verification — depends on all prior)**
+- [ ] 05-07-PLAN.md — New Playwright spec `e2e/phase5-chrome.spec.ts` (6-locale × 3-width matrix + 6 per-criterion assertions); local-build verification harness via `npx serve out -l 4173` + `npx playwright test --test-match='**/phase5-chrome.spec.ts'`; aggregate physical-CSS grep guard; **Step 3.5 SEO regression check** (canonical/hreflang/H1/JSON-LD per locale's `out/index.html`); i18n parity check; human-verify checkpoint (manual eyeball OR `visual-qa` skill invocation).
 
 ### Phase 6: Diary forms + keyboard navigation
 **Milestone**: Desktop & Tablet UX (Milestone 2)
@@ -164,7 +177,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. Ph
 | 2. Remaining timezone correctness + store hygiene | Stabilization | 2/2 | Complete | 2026-05-14 (via quick task 260514-nt1) |
 | 3. UX polish + input validation | Stabilization | 0/TBD | Not started | - |
 | 4. Storage backend hardening | Stabilization | 2/2 | Complete | 2026-05-14 (planned route; 2 post-merge manual checks pending) |
-| 5. Layout foundation + AppShell chrome | Desktop & Tablet UX | 0/TBD | Planning in progress | - |
+| 5. Layout foundation + AppShell chrome | Desktop & Tablet UX | 0/7 | Planned (ready to execute) | - |
 | 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 0/TBD | Not started | - |
 | 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 0/TBD | Not started | - |
 | 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 0/TBD | Not started | - |
