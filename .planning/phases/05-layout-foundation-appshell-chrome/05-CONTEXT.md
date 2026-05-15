@@ -144,6 +144,28 @@ The user's framing "Airbnb consumer-level UI/UX with the rigor of a medical app"
 
 **CASCADE PRIORITY — mobile-first evaluation (locked 2026-05-15 reinforcement):** All 8 axes above are evaluated **MOBILE-FIRST**. The 375px rendering of every modified surface is the design baseline; desktop rendering is the layered additive enhancement. A planner working on Phase 6/7/8 should: (1) verify the proposed change is invisible/inert on mobile per the §"Mobile invariants" First Principle above, (2) only THEN apply the axis decision for desktop. If a desktop axis decision can't be applied without affecting mobile beyond the two locked carve-outs, the desktop decision is dropped or deferred — **mobile-pristine wins, every time.** Per user reinforcement: "majority of patient use the mobile experience so it needs to be pristine." This rule overrides any tension within an individual axis decision below.
 
+**BOOMER-SAFE OVERRIDES on Design DNA (locked 2026-05-15 — user reinforcement: "for the design we thought about the fact that most people we see are boomers"):**
+
+The target user is 50+, non-tech-savvy, completing a 3-day clinical commitment for their clinician. This is a HARD constraint — see `docs/UX_PHILOSOPHY.md`. The Design DNA above does not contradict boomer-safe at any axis (audited 2026-05-15), but it requires these 7 concrete overrides that constrain HOW the axes are applied:
+
+1. **Hit-target minimum: 44px on EVERY interactive element, mobile AND desktop.** Apple HIG / iOS standard / WCAG 2.5.5. Existing `Button` primitive already enforces this (`min-h-[44px]` on `md`, `min-h-[52px]` on `lg`). NEW chrome elements (NavLink in Plan 05-04, any Phase 6/7 buttons) MUST add explicit `min-h-[44px]` even when text-padding alone would give a smaller box. The +12px desktop padding budget is already comfortably in axis 1 (generous whitespace) — this is a free constraint, not a design tradeoff.
+
+2. **Hover-lift magnitude: cap at `translate-y-[-1px]`, NEVER `-2px` or beyond** (refines Design DNA axis 5). Airbnb's default 2px lift reads as flicker to boomer eyes (and to anyone with subtle motion sensitivity). 1px is detectable but not jarring. This is the maximum, not a target — many chrome elements should have NO lift at all (color shift only).
+
+3. **Animation duration cap: 200ms maximum on every transition, including modal slide-in / toast slide-in / hover transitions** (refines Design DNA axis 6). Animations longer than 200ms feel broken or slow to boomers. Tailwind defaults: `transition-colors` is 150ms (✓), `transition-all` is 150ms (✓), `duration-150` (✓), `duration-200` (✓ — at the limit), `duration-300` (✗ — already used in QuickLogFAB existing `transition-[bottom] duration-300`; preserve the existing 300ms because it's a positional shift not a state-change animation, but DO NOT introduce new 300ms animations). NEW transitions must be ≤ 200ms.
+
+4. **Modal close affordances: ALWAYS three paths to dismiss** (Phase 6 cascade — refines Design DNA axis 4). When bottom sheets become desktop modals at md+, every modal MUST provide: (a) a visible large X close button (≥ 44px hit target), (b) Escape key dismissal (already in DTUX-03 plan), (c) backdrop-click dismissal. No modal may be dismissable by ONLY one of those. Boomers don't always remember Escape; touch users don't always click backdrop; X must be obvious.
+
+5. **No icon-only chrome buttons.** Every interactive chrome element MUST have a visible text label OR an `aria-label` AND the icon must be paired with text within the same hit zone. The locale switcher button (Globe icon + "EN" code text) is the boundary case — that's acceptable because the text "EN" is the affordance. The QuickLogFAB main button (just a `+` icon) is acceptable because the affordance is universal AND the speed-dial expansions provide labels ("Drink", "Leak", "Pee"). NEW chrome should default to text-with-icon, not icon-alone.
+
+6. **Browser zoom resilience: layout must not break at 125% / 150% / 200% browser zoom.** Many boomers run elevated zoom for readability. Container max-width tokens use `rem`-relative values so they scale with zoom; absolute pixel values in arbitrary classes (`end-[max(1.25rem,calc((100vw-768px)/2+1.25rem))]`) use viewport-relative + rem floors so they also scale. Phase 8 visual-qa MUST audit at 100% / 150% / 200% zoom on at least the landing + diary day + summary surfaces in EN at 1280px width.
+
+7. **Familiar patterns only — NO novel UI.** No swipe gestures (swipe to delete, swipe to dismiss), no hover-to-reveal content, no auto-scrolling, no infinite scroll, no clever-but-novel interactions. Stick to: tap/click to act, scroll to see more, type to fill, modal to overlay, toast to notify. Boomers haven't seen the latest design pattern — they've seen the basics. The Design DNA "Airbnb consumer-grade" framing applies to POLISH (whitespace, typography, hover affordances), NOT to interaction-pattern novelty.
+
+**Cascade priority among the three meta-rules:** Mobile-first > Boomer-safe > Design DNA axis decision. If they conflict, the higher-priority rule wins. They generally don't conflict because all three favor restraint; this hierarchy is for tie-breaking edge cases.
+
+
+
 **Cascade rules (how this applies to the four downstream phases):**
 
 - **Phase 5 (this phase, chrome):** Axes 3, 5, 6, 7 are the relevant ones for chrome. The current PLAN files already reflect these (functional-chrome-only Header/BottomNav/Footer; subtle hover on nav links per UI-SPEC §"Hover-affordance spec"; no decorative motion; "Powered by IPC" visible in Header). Trust-signal axis 7 produces ONE small Phase 5 follow-up: at desktop, the Footer should include "Your data stays on your device" as a permanent line — Plan 05-03 (Footer modifications) is the natural home for this. Documented as a Phase 5 amendment below.
@@ -308,6 +330,22 @@ Also added a **CASCADE PRIORITY** rule at the top of §"Design DNA — Aesthetic
 **No plan revision required.** Plan 05-07's verification matrix already iterates [375px → 768px → 1280px] in that order (mobile-first); the human-verify spot-check list already leads with `landing-en-mobile-375.png`. Plans 05-01 through 05-06 already preserve mobile at every modified file. The framing change is enforcement-priority guidance for downstream Phase 6/7/8 planners, not a re-engineering trigger.
 
 **What this changes for Phase 6/7/8 planners:** they read "mobile-first" as the overriding rule and structure their plans to verify mobile-inertness FIRST, then layer desktop additively. The Design DNA framework still applies — but it applies on top of an unchanged mobile baseline, never at mobile's expense.
+
+### Session 5 — 2026-05-15 (boomer-safe overrides on Design DNA)
+**User reinforcement:** *"Okay also for the design we thought about the fact that most people we see are boomers."*
+
+The boomer-safe persona (50+, non-tech-savvy, completing a 3-day clinical commitment) was already a project-wide hard constraint in `docs/UX_PHILOSOPHY.md` and was referenced in §"Aesthetic reference" above. This session audits the Design DNA from Session 2 explicitly against boomer-safe and adds 7 concrete overrides that constrain HOW the axes are applied.
+
+**Audit result:** No axis CONTRADICTS boomer-safe. Several axes are STRENGTHENED by boomer-safe (axes 3, 6, 7, 8). The remaining axes (1, 2, 4, 5) are aligned but require concrete refinements: hit-target minimums, hover-lift cap, animation duration cap, modal close affordances, no icon-only buttons, browser-zoom resilience, no-novel-patterns.
+
+**Decision:** Locked the 7 boomer-safe overrides into §"Design DNA — Aesthetic axes" subsection above (just below the cascade-priority rule, just above the cascade rules per phase). Established meta-rule priority: **Mobile-first > Boomer-safe > Design DNA axis decision** (tie-breaking hierarchy).
+
+**Plan revision applied (one concrete change):** Plan 05-04's NavLink helper updated from `px-3 py-1.5` (~32px height — below 44px boomer-safe minimum) to `inline-flex items-center min-h-[44px] px-3 py-2`. New acceptance criterion verifies the 44px minimum is present and the old too-small `py-1.5` is gone.
+
+**Cascade for Phase 6/7/8:**
+- Phase 6 (Diary forms + keyboard): all form-sheet buttons inherit Button primitive's existing `min-h-[44px]` / `min-h-[52px]` — boomer-safe by virtue of using Button. Modal close affordances must provide all 3 paths (X + Escape + backdrop click). Modal slide-in duration ≤ 200ms.
+- Phase 7 (Onboarding + Summary): age input, timezone picker buttons, summary export buttons — all inherit Button/Input primitives or must add `min-h-[44px]` if rolling new chrome. Hover-lift on summary export buttons capped at `translate-y-[-1px]`. NO novel interaction patterns.
+- Phase 8 (Visual QA): MUST audit at 100% / 150% / 200% browser zoom on at least the landing + diary day + summary surfaces in EN at 1280px width. Add this to the Phase 8 visual-qa matrix when it's planned.
 
 **Phase 6/7/8 cascade:**
 - Phase 6 planner will apply axis 4 (modal elevation `shadow-xl ring-1 ring-black/5` for desktop modals) + axis 6 (modal slide-in motion allowed; no decorative motion).
