@@ -126,12 +126,15 @@ describe('getNextOccurrence — just before and just after transition', () => {
 // + 3 * 86_400_000 ms = 14:00 UTC on day 4 = 10 AM EDT — 1 hour late.
 // ---------------------------------------------------------------------------
 describe('scheduleDiaryCompleteReminder — DST safety (spring forward)', () => {
-  let setTimeoutSpy: ReturnType<typeof vi.spyOn>;
+  // Use any-typed handle and re-cast at point of use. The real signature for
+  // vi.spyOn(global, 'setTimeout') has a narrow generic that doesn't fit a
+  // module-scoped `let` declaration cleanly.
+  let setTimeoutSpy: { mock: { calls: unknown[][] }; mockRestore: () => void };
 
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-03-06T17:00:00.000Z'));
-    setTimeoutSpy = vi.spyOn(global, 'setTimeout');
+    setTimeoutSpy = vi.spyOn(global, 'setTimeout') as typeof setTimeoutSpy;
     cancelReminders();
   });
 
