@@ -20,7 +20,7 @@
  *   import { createJSONStorage } from 'zustand/middleware';
  *   import { createIndexedDbStorage } from '@/lib/storage/indexedDbAdapter';
  *   // inside persist config:
- *   storage: createJSONStorage(createIndexedDbStorage),
+ *   storage: createJSONStorage(() => createIndexedDbStorage()),
  */
 
 import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
