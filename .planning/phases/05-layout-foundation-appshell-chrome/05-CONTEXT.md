@@ -65,7 +65,24 @@ The boundary is deliberate: foundation lands first, then form-by-form work consu
 - **Locked:** Header expands at `md`+ — currently the logo + locale switcher + Learn link sit in a tight mobile-density row. At `md`+ they get desktop spacing and the top-bar nav joins them.
 
 ### Mobile invariants
-- **Locked (HARD CONSTRAINT — explicitly reinforced by user 2026-05-15):** No visual regression at < 768px. Mobile chrome (BottomNav at viewport bottom, FAB in bottom-right, mobile Header density) is unchanged. The user's exact words: "keep the mobile as is cause it is working very well right now". Daily walkthrough must continue to pass. Mobile is the production-tested surface; do NOT touch its visual rhythm under any circumstances during Phases 5–8.
+
+**FIRST PRINCIPLE (locked 2026-05-15 across THREE user reinforcements — strongest constraint in this entire CONTEXT):**
+
+Mobile is not just preserved — it is the **FIRST-CLASS PRIMARY SURFACE** for this app. The majority of patients use the mobile experience; desktop is the secondary, additive surface. The user's exact words across three reinforcements within ~24 hours:
+
+1. *"Keep the mobile as is cause it is working very well right now"* (during initial scoping)
+2. *"Is my mobile design still safe"* (mid-discussion mobile-safety audit; reassurance requested)
+3. *"A majority of patient use the mobile experience so it needs to be pristine"* (final reinforcement)
+
+**Operational meaning for every Phase 5–8 decision:**
+- Every modified surface is evaluated **MOBILE FIRST.** The 375px rendering is the design baseline; desktop rendering is the layered additive enhancement on top of an unchanged mobile base.
+- If a desktop-improving change degrades mobile by even one pixel beyond the two locked carve-outs (Arabic FAB correctness fix; +8px sm:px-6 shift at 640–767px), the desktop change is REJECTED, not the mobile invariant.
+- A planner working on Phase 6/7/8 should: (a) verify the proposed change is invisible/inert on mobile per these invariants, (b) only THEN apply the desktop axis decision. If the two can't both be true, mobile wins and the desktop decision is dropped or deferred.
+- Verification weight: the daily 6-locale production walkthrough (which runs at mobile width) is the **canonical regression gate, no exceptions**. Plan 05-07's mobile screenshots in all 6 locales are the human-eyeball pre-deploy gate. Phase 8 visual-qa MUST weight mobile heavier than desktop in its audit matrix (mobile findings = blockers; desktop-only findings = warnings).
+
+The remaining bullets in this subsection are the precise mechanics that implement this First Principle:
+
+- **Locked (HARD CONSTRAINT):** No visual regression at < 768px. Mobile chrome (BottomNav at viewport bottom, FAB in bottom-right, mobile Header density) is unchanged. Daily walkthrough must continue to pass. Mobile is the production-tested surface; do NOT touch its visual rhythm under any circumstances during Phases 5–8.
 - **Locked:** Mobile screenshot diffs at 375px (iPhone-baseline) must show NO change as a pass criterion.
 - **Locked:** Every plan that modifies a chrome file (AppShell, Header, BottomNav, Footer, FAB) MUST include an acceptance criterion verifying mobile (< 768px) behavior is unchanged via either an inline grep guard or a Playwright screenshot diff.
 
@@ -124,6 +141,8 @@ The user's framing "Airbnb consumer-level UI/UX with the rigor of a medical app"
 | **6** | **Motion + transitions** | Mostly medical, two exceptions. NO page-transition fades (slow + uncertain). Modal slide-in IS OK (feedback for a user action). Toast slide-in IS OK (already exists). NO parallax, NO auto-rotate, NO animated-numbers-counting-up on summary metrics. | Medical apps benefit from instant snappy feedback. Cinematic transitions read as slow. The exceptions are user-triggered feedback, not idle decoration. |
 | **7** | **Trust signal density (privacy / IPC / data-locality)** | Medical wins. "Powered by IPC" stays visible in chrome at all times (small + restrained, not loud). "Your data stays on your device" becomes a Footer permanent line at desktop, NOT just a dismissible landing card. | Patient must trust the data stays local. Constant subtle reassurance reads as more honest than one big one-time popup. |
 | **8** | **Information density on the diary entry page** | Minimalist focus, NOT consumer-dashboard. Diary day at desktop stays single-column timeline with FAB anchored to content. NO live-metrics sidebar showing "today's volume" while logging. Summary page is the dashboard moment — diary entry is the task moment. | Adding a sidebar during entry = patient watching their stats instead of doing the next entry. Worse data, worse compliance. Boomer-safe principle: don't multitask the user. |
+
+**CASCADE PRIORITY — mobile-first evaluation (locked 2026-05-15 reinforcement):** All 8 axes above are evaluated **MOBILE-FIRST**. The 375px rendering of every modified surface is the design baseline; desktop rendering is the layered additive enhancement. A planner working on Phase 6/7/8 should: (1) verify the proposed change is invisible/inert on mobile per the §"Mobile invariants" First Principle above, (2) only THEN apply the axis decision for desktop. If a desktop axis decision can't be applied without affecting mobile beyond the two locked carve-outs, the desktop decision is dropped or deferred — **mobile-pristine wins, every time.** Per user reinforcement: "majority of patient use the mobile experience so it needs to be pristine." This rule overrides any tension within an individual axis decision below.
 
 **Cascade rules (how this applies to the four downstream phases):**
 
@@ -270,6 +289,25 @@ Scope, surfaces, breakpoints, and chrome behavior. Captured inline from the user
 **User decision:** Accepted the +8px small-tablet padding shift as consistent with the codebase's existing `sm:px-6` convention. No plan revision required — option (a) is what the plans already do.
 
 **Decision recorded in:** §"Mobile invariants" above, "Two precise carve-outs the user explicitly accepted" subsection. The two carve-outs are EXHAUSTIVE — no other mobile diffs are permitted by Phase 5.
+
+### Session 4 — 2026-05-15 (mobile primacy reinforcement, third user reinforcement)
+**User reinforcement:** *"Don't forget a majority of patient use the mobile experience so it needs to be pristine."*
+
+This is the THIRD time within ~24 hours the user has elevated the mobile invariant. Each time strengthens the framing:
+- Reinforcement 1 (initial scoping): "keep the mobile as is cause it is working very well"
+- Reinforcement 2 (mid-discussion): "is my mobile design still safe?" (asks for audit)
+- Reinforcement 3 (here): "majority of patient use the mobile experience so it needs to be pristine"
+
+**Decision:** Elevated the framing in §"Mobile invariants" from "preserved (no regression)" to **FIRST-CLASS PRIMARY SURFACE.** Added a new **First Principle** opening to the section that:
+- Quotes all three reinforcements
+- States the operational meaning: every Phase 5–8 decision is evaluated MOBILE FIRST; desktop is the additive layer; mobile-pristine wins ties
+- Reweights verification: daily walkthrough is the canonical regression gate (no exceptions); Phase 8 visual-qa must weight mobile findings as blockers and desktop-only findings as warnings
+
+Also added a **CASCADE PRIORITY** rule at the top of §"Design DNA — Aesthetic axes" cascade-rules subsection: all 8 axes are mobile-first; if a desktop axis decision can't be applied without affecting mobile beyond the two locked carve-outs, the desktop decision is dropped or deferred.
+
+**No plan revision required.** Plan 05-07's verification matrix already iterates [375px → 768px → 1280px] in that order (mobile-first); the human-verify spot-check list already leads with `landing-en-mobile-375.png`. Plans 05-01 through 05-06 already preserve mobile at every modified file. The framing change is enforcement-priority guidance for downstream Phase 6/7/8 planners, not a re-engineering trigger.
+
+**What this changes for Phase 6/7/8 planners:** they read "mobile-first" as the overriding rule and structure their plans to verify mobile-inertness FIRST, then layer desktop additively. The Design DNA framework still applies — but it applies on top of an unchanged mobile baseline, never at mobile's expense.
 
 **Phase 6/7/8 cascade:**
 - Phase 6 planner will apply axis 4 (modal elevation `shadow-xl ring-1 ring-black/5` for desktop modals) + axis 6 (modal slide-in motion allowed; no decorative motion).
