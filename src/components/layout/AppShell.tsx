@@ -13,7 +13,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <Footer />
-      <div className="pb-24" aria-hidden />
+      <div className="pb-24 md:pb-0" aria-hidden />
       <BottomNav />
       <PrivacyNotice />
     </div>
