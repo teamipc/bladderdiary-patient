@@ -98,8 +98,45 @@ The boundary is deliberate: foundation lands first, then form-by-form work consu
 
 ### Aesthetic reference
 - **User-stated:** "Airbnb-grade browser experience" — generous whitespace bounded by readable max-widths, strong visual hierarchy, sensible keyboard behavior. NOT cluttered, NOT data-dense like a clinician dashboard.
+- **User-stated (2026-05-15 reinforcement):** "Airbnb consumer level UI/UX but still with the rigor of medical." This is the headline tension the Design DNA below resolves axis-by-axis.
 - **Locked from project memory:** Boomer-safe UX (target user 50+, non-tech-savvy) is a hard constraint — desktop redesign must NOT make hit targets smaller, fonts denser, or interactions less obvious. See `docs/UX_PHILOSOPHY.md`.
 - **Locked from project memory:** Collaborative tone, not clinical/authoritative; no em-dashes in UI strings.
+
+### Design DNA — Aesthetic axes (locked 2026-05-15 via `/gsd-discuss-phase`)
+
+The user's framing "Airbnb consumer-level UI/UX with the rigor of a medical app" is a real tension, not a marketing line. This subsection translates it into 8 concrete axes Phase 5 chrome and the downstream Phase 6/7/8 planners can apply consistently. The headline rule from this discussion: **Be Airbnb in the moments of arrival, browsing, and reassurance — be medical in the moments of recording, reviewing, and exporting.**
+
+| # | Axis | Locked decision | Why |
+|---|------|-----------------|-----|
+| **1** | **Whitespace + typography scale at desktop** | Airbnb wins. Headlines bump up at `md`+ (current `text-3xl` → `text-4xl` / `text-5xl` on landing/onboarding/summary H1). Generous bounded whitespace stays. | 50+ users need readable type. A 3-day commitment needs an inviting, not clinical, first impression. |
+| **2** | **Imagery + illustration policy** | Mixed by surface. Landing / onboarding / Learn topic pages CAN use illustration (locale-safe SVG, no English text in artwork, RTL-safe). Diary forms + timeline + summary metrics: zero imagery (the data IS the content). | Imagery helps first impressions and topic browsing; imagery during a task distracts. |
+| **3** | **Decorative chrome vs functional chrome** | Medical wins. No decorative borders, dividers, or icons that don't communicate state. Every chrome element is functional. | Decorative noise undermines clinical trust. The user is here for a task. |
+| **4** | **Card elevation + shadows** | Mixed by component class. Modals + bottom-sheets-becoming-desktop-modals at `md`+: elevation (`shadow-xl ring-1 ring-black/5`) — Airbnb modal pattern. In-page content (timeline events, summary metric tiles, Learn cards): flat with `bg-ipc-50` border or subtle inner shadow. | Modals NEED elevation to read as overlays. Page content shouldn't compete with itself. |
+| **5** | **Hover affordances** | Mixed by element class. Chrome (nav links, buttons, Learn-card links): subtle hover (color shift + tiny `translate-y-[-1px]` if appropriate). Non-clickable content (metric tiles, completed timeline entries): zero hover state. | Chrome must feel responsive (consumer expectation at desktop). Hover-fancy on non-clickable items lies about interactivity. |
+| **6** | **Motion + transitions** | Mostly medical, two exceptions. NO page-transition fades (slow + uncertain). Modal slide-in IS OK (feedback for a user action). Toast slide-in IS OK (already exists). NO parallax, NO auto-rotate, NO animated-numbers-counting-up on summary metrics. | Medical apps benefit from instant snappy feedback. Cinematic transitions read as slow. The exceptions are user-triggered feedback, not idle decoration. |
+| **7** | **Trust signal density (privacy / IPC / data-locality)** | Medical wins. "Powered by IPC" stays visible in chrome at all times (small + restrained, not loud). "Your data stays on your device" becomes a Footer permanent line at desktop, NOT just a dismissible landing card. | Patient must trust the data stays local. Constant subtle reassurance reads as more honest than one big one-time popup. |
+| **8** | **Information density on the diary entry page** | Minimalist focus, NOT consumer-dashboard. Diary day at desktop stays single-column timeline with FAB anchored to content. NO live-metrics sidebar showing "today's volume" while logging. Summary page is the dashboard moment — diary entry is the task moment. | Adding a sidebar during entry = patient watching their stats instead of doing the next entry. Worse data, worse compliance. Boomer-safe principle: don't multitask the user. |
+
+**Cascade rules (how this applies to the four downstream phases):**
+
+- **Phase 5 (this phase, chrome):** Axes 3, 5, 6, 7 are the relevant ones for chrome. The current PLAN files already reflect these (functional-chrome-only Header/BottomNav/Footer; subtle hover on nav links per UI-SPEC §"Hover-affordance spec"; no decorative motion; "Powered by IPC" visible in Header). Trust-signal axis 7 produces ONE small Phase 5 follow-up: at desktop, the Footer should include "Your data stays on your device" as a permanent line — Plan 05-03 (Footer modifications) is the natural home for this. Documented as a Phase 5 amendment below.
+- **Phase 6 (Diary forms + keyboard nav):** Axes 4 and 6 are critical. Bottom-sheet forms at `md`+ become modal-elevation cards (`shadow-xl ring-1 ring-black/5`) per axis 4. Modal slide-in motion is allowed per axis 6. Forms get NO illustrations per axis 2.
+- **Phase 7 (Onboarding + Summary):** Axes 1, 2, 4, 8 are critical. Onboarding (axis 1) gets desktop H1 bumped to `text-4xl` / `text-5xl` per the typography decision; can include locale-safe illustration per axis 2. Summary metrics (axis 4) use flat tiles with `bg-ipc-50`, NOT elevated cards (the metrics ARE the content; they shouldn't compete). Diary day stays single-column per axis 8 — Phase 7 must NOT introduce a metrics sidebar even if "it would look more dashboard-y". Summary page IS the dashboard moment.
+- **Phase 8 (Cross-locale visual QA + polish):** All 8 axes are part of the visual-qa audit. Add explicit acceptance criterion to Phase 8: verify each axis's locked decision is reflected in the production rendering across all 6 locales × LTR/RTL × md/lg/xl.
+
+**Phase 5 amendment from this discussion (incorporated into existing plans, not a new plan):**
+
+- **Plan 05-03 (`Footer.tsx` modifications)** acquires one additional change per axis 7: at `md`+, the Footer renders a permanent line reading "Your data stays on your device" (or the locale equivalent). This should reuse the existing privacy-notice copy from `messages/{locale}.json` if present, OR introduce a new key `footer.dataLocality` (English: "Your data stays on your device") which the `i18n-sync` PostToolUse hook auto-mirrors across the 5 non-English locales. The line uses the existing Footer typography spec (`text-sm`, `text-ipc-700`). The PrivacyNotice landing card is NOT removed — it stays as the first-visit reassurance; the Footer line is the always-on reassurance for returning users. This is a SMALL extension to Plan 05-03 — the planner-revision pass should add: a new task in 05-03 for the Footer copy line + i18n key, with the same mobile-invariant guard (the line appears at `md`+ only via `hidden md:block`; mobile Footer unchanged).
+
+### Claude's Discretion (aesthetic-axes scope)
+
+The user explicitly chose to lock only the design-DNA axis framework (option 1 of the AskUserQuestion). The following 3 unselected gray areas remain at Claude's discretion, applied per the locked DNA above as defaults:
+
+1. **Imagery + illustration + cards-with-elevation tactical decisions** — Phase 7 planner picks the SPECIFIC imagery (illustration vs photograph), the SPECIFIC card-elevation tokens for modals, and the SPECIFIC summary-metric tile styling, applying axis 2 + axis 4 above as the policy.
+2. **Trust-signal-prominence tactical decisions beyond the Footer line** — Beyond the Plan 05-03 Footer line locked above, additional trust-signal placements (e.g., on the Summary page near the export buttons; in the diary completion celebration) are at the Phase 7 planner's discretion, applying axis 7 above as the policy.
+3. **Micro-interaction tactical decisions beyond the chrome hover** — Beyond the Phase 5 chrome hover spec already in UI-SPEC, additional motion touches (modal slide-ins for Phase 6 forms; Toast slide-ins; no decorative motion) are at the relevant planner's discretion, applying axis 5 + axis 6 above as the policy.
+
+These are deliberately left as discretion — the DNA framework is detailed enough that the planners can apply it consistently without re-asking.
 
 ### Claude's Discretion
 - The exact name and shape of the container primitive (component vs hook vs class set) — UI-SPEC + planner picks.
@@ -197,5 +234,32 @@ These came up in scoping but are explicitly OUT of Phase 5 (and tracked elsewher
 
 ---
 
+## Discussion Log
+
+### Session 1 — 2026-05-14 (initial scoping during `/gsd-plan-phase`)
+Scope, surfaces, breakpoints, and chrome behavior. Captured inline from the user's `/gsd-plan-phase` brief plus 4 AskUserQuestion answers (roadmap fit, surface coverage, keyboard depth, tablet handling). User's two reinforcement constraints — mobile-as-is HARD CONSTRAINT and SEO regression gate — added later in the planning session.
+
+### Session 2 — 2026-05-15 (`/gsd-discuss-phase` — Design DNA)
+**User question:** "Are there discuss for the UI/UX decision? Again we need to be Airbnb consumer level UI/UX but still with the rigor of medical."
+
+**Surfaced gray areas (4 candidates):**
+1. Airbnb-vs-medical tension — concretize the design DNA
+2. Imagery + illustration + cards-with-elevation policy
+3. Trust signals — how prominently to surface medical rigor
+4. Micro-interactions + information density philosophy
+
+**User picked:** Option 1 only (Airbnb-vs-medical tension — design DNA framework). The other three remain Claude's discretion, defaults applied per the locked DNA.
+
+**Decision:** Locked an 8-axis Design DNA framework (whitespace+typography, imagery, decorative chrome, card elevation, hover affordances, motion, trust signal density, information density). Headline rule: **"Be Airbnb in the moments of arrival, browsing, and reassurance — be medical in the moments of recording, reviewing, and exporting."**
+
+**Phase 5 amendment cascade:** Plan 05-03 acquired one new task (Task 4) per axis 7 (constant subtle trust signals): a new `footer.dataLocality` i18n key + a permanent desktop-only "Your data stays on your device" line in the Footer. PrivacyNotice landing card stays unchanged. No other Phase 5 plan changes — the chrome work in 05-04 / 05-05 / 05-06 already reflects axes 3, 5, 6 by virtue of the existing UI-SPEC §"Hover-affordance spec" and §"6-Pillar Pre-Check".
+
+**Phase 6/7/8 cascade:**
+- Phase 6 planner will apply axis 4 (modal elevation `shadow-xl ring-1 ring-black/5` for desktop modals) + axis 6 (modal slide-in motion allowed; no decorative motion).
+- Phase 7 planner will apply axis 1 (bump landing/onboarding/summary H1 to `text-4xl`/`text-5xl` at md+) + axis 2 (locale-safe illustration on landing/onboarding allowed; zero imagery on diary forms / summary metrics) + axis 4 (summary metric tiles flat with `bg-ipc-50`, NOT elevated cards) + axis 8 (no live-metrics sidebar on diary day at desktop).
+- Phase 8 (visual-qa skill) will audit each axis's rendering across the 6-locale × LTR/RTL × md/lg/xl matrix.
+
+---
+
 *Phase: 05-layout-foundation-appshell-chrome*
-*Context gathered: 2026-05-14 (inline from `/gsd-plan-phase` brief + scoping AskUserQuestion answers; no full `/gsd-discuss-phase` run)*
+*Context gathered: 2026-05-14 (initial scoping during `/gsd-plan-phase`); extended 2026-05-15 (Design DNA framework via `/gsd-discuss-phase`)*
