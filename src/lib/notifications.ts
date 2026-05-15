@@ -92,15 +92,15 @@ function showNotification(title: string, body: string): void {
   }
 }
 
-function getNextOccurrence(hour: number, minute: number, timeZone?: string): Date {
+export function getNextOccurrence(hour: number, minute: number, timeZone?: string): Date {
   const nowIso = new Date().toISOString();
   const todayInTz = getDateInTz(nowIso, timeZone);
   let nextIso = buildIsoForClockTimeInTz(`${todayInTz}T12:00:00.000Z`, hour, minute, timeZone);
   if (new Date(nextIso).getTime() <= Date.now()) {
-    const tomorrowIso = new Date(
-      Date.parse(todayInTz + 'T00:00:00.000Z') + 86_400_000,
-    ).toISOString();
-    const tomorrowInTz = getDateInTz(tomorrowIso, timeZone);
+    // "Tomorrow" in any timezone is whatever calendar date "now + 24h" lands on
+    // in that tz. Computing it from a UTC midnight string silently fails for
+    // tzs west of UTC.
+    const tomorrowInTz = getDateInTz(new Date(Date.now() + 86_400_000).toISOString(), timeZone);
     nextIso = buildIsoForClockTimeInTz(`${tomorrowInTz}T12:00:00.000Z`, hour, minute, timeZone);
   }
   return new Date(nextIso);
