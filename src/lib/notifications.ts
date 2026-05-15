@@ -20,6 +20,7 @@
  * browser is running in a different timezone.
  */
 
+import { addDays, format, parseISO } from 'date-fns';
 import { buildIsoForClockTimeInTz, getDateInTz } from './utils';
 
 export type PermissionStatus = 'granted' | 'denied' | 'default' | 'unsupported';
@@ -140,9 +141,12 @@ export function cancelReminders(): void {
  * Schedule a one-time "diary complete" notification for day 4.
  */
 export function scheduleDiaryCompleteReminder(startDate: string, timeZone?: string): void {
-  const startIso = buildIsoForClockTimeInTz(`${startDate}T12:00:00.000Z`, 9, 0, timeZone);
-  const day4Ms = new Date(startIso).getTime() + 3 * 86_400_000;
-  const delay = day4Ms - Date.now();
+  // Compute day 4 via calendar-date arithmetic, NOT '+3 * 86_400_000 ms'.
+  // The flat-ms approach drifts by 1 hour when a DST transition falls inside
+  // the 3-day window (twice a year for DST-observing zones).
+  const day4Date = format(addDays(parseISO(`${startDate}T12:00:00`), 3), 'yyyy-MM-dd');
+  const day4Iso = buildIsoForClockTimeInTz(`${day4Date}T12:00:00.000Z`, 9, 0, timeZone);
+  const delay = new Date(day4Iso).getTime() - Date.now();
   if (delay <= 0) return;
 
   const timer = setTimeout(() => {

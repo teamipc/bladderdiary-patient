@@ -7,7 +7,14 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getNextOccurrence } from '@/lib/notifications';
+import { cancelReminders, getNextOccurrence, scheduleDiaryCompleteReminder } from '@/lib/notifications';
+
+// Stub Notification.permission so scheduleDiaryCompleteReminder doesn't bail
+// early on its permission check (jsdom doesn't define Notification by default).
+Object.defineProperty(globalThis, 'Notification', {
+  configurable: true,
+  value: { permission: 'granted', requestPermission: vi.fn() },
+});
 
 // ---------------------------------------------------------------------------
 // Suite 1 — parametrized: getNextOccurrence always returns a future date
@@ -103,5 +110,48 @@ describe('getNextOccurrence — just before and just after transition', () => {
     // Expect ~86_340_000 ms; allow ±5 s tolerance
     expect(delay).toBeGreaterThanOrEqual(86_335_000);
     expect(delay).toBeLessThanOrEqual(86_345_000);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Suite 4 — scheduleDiaryCompleteReminder DST safety (spring forward)
+// Start on 2026-03-06 (Friday before US "spring forward" on 2026-03-08 02:00).
+// Day 4 = 2026-03-09; 9 AM EDT on 2026-03-09 = 13:00 UTC (UTC-4 after DST).
+// "Now" pinned to 2026-03-06T17:00:00.000Z (= 12:00 EST on the start date).
+//
+// Expected delay (NEW calendar-date code): 2026-03-09T13:00:00Z -
+// 2026-03-06T17:00:00Z = 68 hours = 244_800_000 ms (correct = 9 AM EDT).
+//
+// Old flat-ms code (the bug): startIso was 9 AM EST = 14:00 UTC on day 0;
+// + 3 * 86_400_000 ms = 14:00 UTC on day 4 = 10 AM EDT — 1 hour late.
+// ---------------------------------------------------------------------------
+describe('scheduleDiaryCompleteReminder — DST safety (spring forward)', () => {
+  let setTimeoutSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-06T17:00:00.000Z'));
+    setTimeoutSpy = vi.spyOn(global, 'setTimeout');
+    cancelReminders();
+  });
+
+  afterEach(() => {
+    cancelReminders();
+    setTimeoutSpy.mockRestore();
+    vi.useRealTimers();
+  });
+
+  it('fires at 9 AM local on day 4 even across DST spring-forward', () => {
+    scheduleDiaryCompleteReminder('2026-03-06', 'America/New_York');
+
+    const calls = setTimeoutSpy.mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const lastCall = calls[calls.length - 1];
+    const delay = lastCall[1] as number;
+
+    // 2026-03-09T13:00:00Z (9 AM EDT) - 2026-03-06T17:00:00Z = 244_800_000 ms.
+    // Old buggy code would produce 248_400_000 ms (= 10 AM EDT day 4, off by 1h).
+    expect(delay).toBeGreaterThanOrEqual(244_799_000);
+    expect(delay).toBeLessThanOrEqual(244_801_000);
   });
 });
