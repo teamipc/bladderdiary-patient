@@ -65,8 +65,22 @@ The boundary is deliberate: foundation lands first, then form-by-form work consu
 - **Locked:** Header expands at `md`+ — currently the logo + locale switcher + Learn link sit in a tight mobile-density row. At `md`+ they get desktop spacing and the top-bar nav joins them.
 
 ### Mobile invariants
-- **Locked:** No visual regression at < 768px. Mobile chrome (BottomNav at viewport bottom, FAB in bottom-right, mobile Header density) is unchanged. Daily walkthrough must continue to pass.
-- **Locked:** Mobile screenshot diffs at 375px (iPhone-baseline) must show NO change as a pass criterion.
+- **Locked (HARD CONSTRAINT — explicitly reinforced by user 2026-05-15):** No visual regression at < 768px. Mobile chrome (BottomNav at viewport bottom, FAB in bottom-right, mobile Header density) is unchanged. The user's exact words: "keep the mobile as is cause it is working very well right now". Daily walkthrough must continue to pass. Mobile is the production-tested surface; do NOT touch its visual rhythm under any circumstances during Phases 5–8.
+- **Locked:** Mobile screenshot diffs at 375px (iPhone-baseline) must show NO change as a pass criterion. The single documented exception is the QuickLogFAB `right-5 → end-5` RTL correctness fix (in Arabic the FAB now correctly sits on the inline-end / left side — this is a CORRECTNESS fix that was already failing per UI-SPEC §"Mobile invariants" point 2; in the 5 LTR locales `end-5` resolves to `right:20px` so they are byte-equivalent).
+- **Locked:** Every plan that modifies a chrome file (AppShell, Header, BottomNav, Footer, FAB) MUST include an acceptance criterion verifying mobile (< 768px) behavior is unchanged via either an inline grep guard or a Playwright screenshot diff.
+
+### SEO invariants (added 2026-05-15 per user constraint: "all of this still needs to be SEO optimized")
+- **Locked:** Phase 5 chrome work MUST NOT regress any of the production SEO surface. Specifically, the static-export `out/` after `npm run build` must continue to contain, for EVERY locale's `index.html` (en at bare path, fr/es/pt/zh/ar at prefixed paths):
+  - At least 1 `<link rel="canonical" ...>` tag
+  - At least 6 `<link rel="alternate" hreflang="..." ...>` tags (5 sibling locales + x-default)
+  - At least 1 `<h1 ...>` tag (the page H1 — must NOT be removed by Container wrapping)
+  - At least 1 `<script type="application/ld+json" ...>` block (JSON-LD structured data)
+- **Locked:** Top-bar nav links added by Plan 05-04 MUST be real anchors (`<a href="...">` via `<Link>` from `@/i18n/navigation`), NOT `<button onClick>` patterns. Search engine crawlers ignore button-clicks; real `href` links populate the internal-link graph and improve crawl coverage.
+- **Locked:** Container is server-component-safe (no `'use client'`, no hooks) per Plan 05-01 — this preserves SSG output, zero added JS payload for layout, and protects Lighthouse / Core Web Vitals scores.
+- **Locked:** No new Cumulative Layout Shift (CLS) — `md:` responsive class changes apply at initial render (no post-hydration shift). New chrome (top-bar nav) renders server-side via SSG (Header is `'use client'` but pre-rendered).
+- **Locked:** Phase 5 does NOT touch any of: `src/app/[locale]/sitemap.ts`, `src/app/[locale]/robots.ts`, `src/components/seo/*`, `generateMetadata()` calls, or any JSON-LD generation. These are NOT in `files_modified` for any Phase 5 plan.
+- **Locked:** Mobile-first indexing (Google's primary crawl mode) sees the mobile rendering. Since mobile is preserved unchanged (per the mobile invariant above), mobile SEO surface is unaffected.
+- **Locked:** Plan 05-07's Step 3.5 SEO regression check is the gate — Phase 5 does NOT pass if any locale's `out/index.html` is missing canonical / hreflang / H1 / JSON-LD after the build.
 
 ### Internationalization invariants
 - **Locked:** All new spacing/positioning uses logical CSS properties (`ms-`/`me-`, `start`/`end`, `ps-`/`pe-`) — never `ml-`/`mr-`/`left-`/`right-`. RTL (Arabic) must verify clean.

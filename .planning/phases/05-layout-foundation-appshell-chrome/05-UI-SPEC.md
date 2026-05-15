@@ -550,14 +550,12 @@ The FAB shifts from `right-5` (viewport-anchored) to a content-column-anchored p
 <div className={`fixed z-50 flex flex-col items-end gap-3 transition-[bottom] duration-300
   end-5
   md:end-[max(1.25rem,calc((100vw-768px)/2+1.25rem))]
-  lg:end-[max(1.25rem,calc((100vw-1024px)/2+1.25rem))]
   ${navHidden ? 'bottom-6 md:bottom-8' : 'bottom-24 md:bottom-8'}`}>
 ```
 
 Translation:
 - `end-5` (mobile): 20px from inline-end (= right in LTR, left in RTL). Existing behavior preserved as `right-5` is replaced by `end-5` to fix a latent RTL bug.
-- `md:end-[max(1.25rem, calc((100vw - 768px)/2 + 1.25rem))]`: at 768px+, the FAB sits at the right edge of a 768px-wide content column centered in the viewport. The `max()` floor of 1.25rem (=20px) ensures it never overlaps the viewport edge if the content column is narrower than the viewport.
-- `lg:end-[...]`: at 1024px+, anchors to a 1024px-wide content column edge (matches `Container variant="wide"`).
+- `md:end-[max(1.25rem, calc((100vw - 768px)/2 + 1.25rem))]`: at 768px+, the FAB sits at the right edge of a 768px-wide content column centered in the viewport. The `max()` floor of 1.25rem (=20px) ensures it never overlaps the viewport edge if the content column is narrower than the viewport. **This single formula handles all desktop widths (md, lg, xl, 2xl)** because the diary content column stays at `max-w-3xl` (768px) across all desktop widths per the locked diary contract (see "Note on the assumption" below). No separate `lg:end-[...]` rule is needed.
 - `md:bottom-8`: at 768px+, the FAB sits 32px from the bottom of the viewport (no BottomNav to clear; only Footer above which is below content scroll).
 - The auto-hide-on-scroll behavior (existing `navHidden` state) is preserved at mobile but at desktop `bottom-8` is the constant value — there's no nav to "drop below". Planner may simplify the desktop branch to ignore `navHidden` entirely if the existing logic causes flicker at desktop; the `md:bottom-8` already overrides regardless.
 
@@ -572,10 +570,16 @@ Translation:
 | 375px (mobile) | full-width minus padding | n/a (viewport-anchored) | 20px (end-5) |
 | 768px (md exact) | max-w-3xl 768px (no margin) | 768 - padding | 20px (max() floor wins) |
 | 1024px (lg) | max-w-3xl 768px content + 128px margin | viewport center + 384 | ~128 + 20 = ~148px |
+| 1280px (xl) | max-w-3xl 768px + 256px margin each | viewport center + 384 | ~256 + 20 = ~276px |
 | 1440px | max-w-3xl 768px + 336px margin each | viewport center + 384 | ~336 + 20 = ~356px |
 | 1920px | max-w-3xl 768px + 576px margin each | viewport center + 384 | ~576 + 20 = ~596px |
 
+All desktop rows are produced by the single `md:end-[max(1.25rem,calc((100vw-768px)/2+1.25rem))]` formula above — there is intentionally no separate `lg:`/`xl:` formula because the content column stays at `max-w-3xl` (768px) across all desktop widths.
+
 The FAB is now visually "next to" the content column at all desktop widths — never floating in the desert at the viewport corner.
+
+**Test 2 expected x for Plan 05-07** (verifies this math):
+- At viewport 1280px: FAB right edge = 1280 - 276 = 1004px. FAB left edge = 1004 - 64 (FAB width) = 940px. **Test 2's `expectedX ≈ 940px (±10)` is correct against this corrected formula.**
 
 **Note on the assumption that DayPageClient uses `Container variant="default"`:** Locked. After Container adoption, `src/app/[locale]/diary/layout.tsx` uses `<Container variant="default">` which is `max-w-3xl` (768px). The FAB math above assumes this. If the planner decides DayPageClient should use a wider container (e.g., `wide`/`max-w-5xl` on desktop for the timeline), update the FAB's `lg:end-[...]` formula correspondingly. Default: planner keeps the diary at `default` (`max-w-3xl`) since the timeline is single-column reading content.
 
