@@ -62,6 +62,7 @@ None yet. (Full audit findings tracked in `.planning/codebase/CONCERNS.md`.)
 |---|-------------|------|--------|-----------|
 | 260514-ndz | STAB-01/02/03: i18n locales, reminder tz, observations dedup | 2026-05-14 | 42cfe46 | [260514-ndz-fix-stab-01-02-03-top-3-silent-bugs-from](./quick/260514-ndz-fix-stab-01-02-03-top-3-silent-bugs-from/) |
 | 260514-nt1 | STAB-04/05: PDF tz minutes + wakeTimes null-safe migration | 2026-05-14 | 5220c54 | [260514-nt1-fix-stab-04-05-pdf-timezone-minutes-wake](./quick/260514-nt1-fix-stab-04-05-pdf-timezone-minutes-wake/) |
+| 260514-ttr | BLOCKING-1/HIGH-1/MEDIUM-1/LOW-1 review fixes (notifications tz + IDB fallback + DST + JSDoc) | 2026-05-14 | 6c171eb | [260514-ttr-fix-blocking-1-notifications-tz-high-1-i](./quick/260514-ttr-fix-blocking-1-notifications-tz-high-1-i/) |
 
 ## Deferred Items
 
@@ -74,5 +75,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-05-14
-Stopped at: Phase 4 complete — STAB-09 IndexedDB backend swap shipped (b7f6071, 0437a16, 0d84770, 317e470 plus a docs-drift cleanup). Adapter at `src/lib/storage/indexedDbAdapter.ts`, wired into Zustand persist, store version bumped 2→3, 389/389 tests pass. Two post-merge manual items pending: (1) Safari iOS 17+ 7-day idle test, (2) post-deploy 6-locale walkthrough — both explicitly scoped that way. Only Phase 3 (STAB-06/07/08 UX polish) remains in the milestone.
+Stopped at: Phase 4 + code-review follow-ups complete. After Phase 4 shipped, an inline code review (gsd-code-reviewer subagent 529'd; reviewer done inline) found 1 BLOCKING (notifications west-of-UTC tomorrow bug — regression I introduced via STAB-02), 1 HIGH (IDB-throws hides localStorage), 1 MEDIUM (DST drift in day-4 reminder), 1 LOW (JSDoc). Quick task 260514-ttr fixed all 4 with atomic commits (b0a7e4c, ca1dae6, 52c1c39, 091f802, 6c171eb). 413/413 vitest pass, tsc clean. Codex cross-AI review was attempted but Codex CLI is unauthenticated (refresh-token expired) — user said they'd re-auth and have me retry; deferred for now. Ready for `git push origin main` → Vercel auto-deploy when user confirms. Only Phase 3 (STAB-06/07/08 UX polish) remains in the Stabilization milestone.
 Resume file: None
