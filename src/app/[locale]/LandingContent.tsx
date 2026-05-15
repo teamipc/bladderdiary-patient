@@ -22,6 +22,7 @@ import Image from 'next/image';
 import { Link, useRouter } from '@/i18n/navigation';
 import { track } from '@vercel/analytics';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
+import Container from '@/components/layout/Container';
 import IpcInfoModal from '@/components/ui/IpcInfoModal';
 import { getCurrentDay } from '@/lib/utils';
 import { usePwaInstall } from '@/lib/usePwaInstall';
@@ -84,15 +85,15 @@ function LandingContent() {
   // back" — visible flicker, especially on slower devices.
   if (!hydrated) {
     return (
-      <div className="flex items-center justify-center py-24 bg-surface">
+      <Container variant="narrow" as="div" className="flex items-center justify-center py-24 bg-surface">
         <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
-      </div>
+      </Container>
     );
   }
 
   if (diaryStarted) {
     return (
-      <div className="flex flex-col items-center px-6 pt-12 md:pt-20 pb-12 max-w-lg md:max-w-xl mx-auto w-full">
+      <Container variant="narrow" as="div" noPadding className="px-6 sm:px-6 pt-12 md:pt-20 pb-12 flex flex-col items-center">
         <div className="text-center mb-8 animate-fade-slide-up">
           <div className="w-20 h-20 rounded-2xl bg-ipc-100 flex items-center justify-center mx-auto mb-4">
             <Image src="/app-logo.png" alt="My Flow Check" width={52} height={52} />
@@ -149,7 +150,7 @@ function LandingContent() {
             </div>
           )}
         </div>
-      </div>
+      </Container>
     );
   }
 
@@ -158,7 +159,7 @@ function LandingContent() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center px-6 pt-8 md:pt-16 pb-12 max-w-lg md:max-w-2xl mx-auto w-full">
+    <Container variant="narrow" as="div" noPadding className="px-6 sm:px-6 pt-8 md:pt-16 pb-12 flex flex-col items-center justify-center">
       <div className="text-center mb-8 md:mb-10 animate-fade-slide-up">
         <div className="w-28 h-28 md:w-32 md:h-32 rounded-3xl bg-ipc-100 flex items-center justify-center mx-auto mb-5 md:mb-6">
           <Image src="/app-logo.png" alt="My Flow Check bladder diary tracker" width={72} height={72} className="md:w-20 md:h-20" />
@@ -274,7 +275,7 @@ function LandingContent() {
           </Link>
         </div>
       </footer>
-    </div>
+    </Container>
   );
 }
 
