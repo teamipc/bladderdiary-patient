@@ -464,7 +464,8 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "help": "Help",
-    "navAriaLabel": "Footer"
+    "navAriaLabel": "Footer",
+    "dataLocality": "Your data stays on your device"
   },
   "language": {
     "switchLanguage": "Language",

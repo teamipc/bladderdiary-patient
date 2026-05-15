@@ -464,7 +464,8 @@
     "privacy": "الخصوصية",
     "terms": "الشروط",
     "help": "المساعدة",
-    "navAriaLabel": "تذييل الصفحة"
+    "navAriaLabel": "تذييل الصفحة",
+    "dataLocality": "بياناتك تبقى على جهازك"
   },
   "language": {
     "switchLanguage": "اللغة",

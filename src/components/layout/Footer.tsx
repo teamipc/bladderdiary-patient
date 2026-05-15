@@ -48,6 +48,10 @@ export default function Footer() {
         <p className="text-xs text-ipc-500 mt-5 leading-relaxed">
           {t('rights', { year })}
         </p>
+
+        <p className="hidden md:block mt-4 text-sm text-ipc-700">
+          {t('dataLocality')}
+        </p>
       </Container>
     </footer>
   );

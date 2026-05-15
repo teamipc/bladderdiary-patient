@@ -464,7 +464,8 @@
     "privacy": "Privacidade",
     "terms": "Termos",
     "help": "Ajuda",
-    "navAriaLabel": "Rodapé"
+    "navAriaLabel": "Rodapé",
+    "dataLocality": "Os teus dados ficam no teu dispositivo"
   },
   "language": {
     "switchLanguage": "Idioma",

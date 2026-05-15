@@ -464,7 +464,8 @@
     "privacy": "Privacidad",
     "terms": "Términos",
     "help": "Ayuda",
-    "navAriaLabel": "Pie de página"
+    "navAriaLabel": "Pie de página",
+    "dataLocality": "Tus datos permanecen en tu dispositivo"
   },
   "language": {
     "switchLanguage": "Idioma",

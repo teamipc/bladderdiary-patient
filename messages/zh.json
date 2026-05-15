@@ -464,7 +464,8 @@
     "privacy": "隐私",
     "terms": "条款",
     "help": "帮助",
-    "navAriaLabel": "页脚"
+    "navAriaLabel": "页脚",
+    "dataLocality": "你的数据保存在你的设备上"
   },
   "language": {
     "switchLanguage": "语言",
