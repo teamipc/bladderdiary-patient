@@ -53,7 +53,8 @@
     "home": "Home",
     "track": "Track",
     "diary": "Diary",
-    "learn": "Learn"
+    "learn": "Learn",
+    "primaryNavAriaLabel": "Primary navigation"
   },
   "landing": {
     "welcomeBack": "Welcome back!",

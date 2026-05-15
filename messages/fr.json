@@ -53,7 +53,8 @@
     "home": "Accueil",
     "track": "Suivi",
     "diary": "Journal",
-    "learn": "Apprendre"
+    "learn": "Apprendre",
+    "primaryNavAriaLabel": "Navigation principale"
   },
   "landing": {
     "welcomeBack": "Content de vous revoir !",

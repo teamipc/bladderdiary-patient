@@ -53,7 +53,8 @@
     "home": "الرئيسية",
     "track": "تتبع",
     "diary": "المفكرة",
-    "learn": "تعلّم"
+    "learn": "تعلّم",
+    "primaryNavAriaLabel": "التنقل الرئيسي"
   },
   "landing": {
     "welcomeBack": "أهلاً بعودتك!",

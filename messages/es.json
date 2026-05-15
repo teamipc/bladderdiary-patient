@@ -53,7 +53,8 @@
     "home": "Inicio",
     "track": "Registro",
     "diary": "Diario",
-    "learn": "Aprender"
+    "learn": "Aprender",
+    "primaryNavAriaLabel": "Navegación principal"
   },
   "landing": {
     "welcomeBack": "¡Bienvenido de nuevo!",

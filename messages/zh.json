@@ -53,7 +53,8 @@
     "home": "首页",
     "track": "追踪",
     "diary": "日记",
-    "learn": "了解"
+    "learn": "了解",
+    "primaryNavAriaLabel": "主导航"
   },
   "landing": {
     "welcomeBack": "欢迎回来!",
