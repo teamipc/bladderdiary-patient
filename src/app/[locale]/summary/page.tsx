@@ -15,6 +15,7 @@ import { getCurrentDay } from '@/lib/utils';
 import { generateObservations } from '@/lib/observations';
 import Image from 'next/image';
 import IpcInfoModal from '@/components/ui/IpcInfoModal';
+import Container from '@/components/layout/Container';
 
 export default function SummaryPage() {
   const router = useRouter();
@@ -75,18 +76,18 @@ export default function SummaryPage() {
 
   if (!isComplete) {
     return (
-      <div className="max-w-2xl mx-auto px-4 pt-12 text-center">
+      <Container variant="default" as="div" className="pt-12 text-center">
         <div className="w-16 h-16 rounded-full bg-ipc-100 flex items-center justify-center mx-auto mb-4">
           <Lock size={28} className="text-ipc-400" />
         </div>
         <h2 className="text-xl font-bold text-ipc-950 mb-2 text-balance">{t('diaryLocked')}</h2>
         <p className="text-base text-ipc-500 leading-relaxed">{t('diaryLockedDescription')}</p>
-      </div>
+      </Container>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pt-4 pb-12 space-y-6">
+    <Container variant="default" as="div" className="pt-4 pb-12 space-y-6">
       {/* Back link — when the diary is complete, return to Day 3 (the latest
           filled day) instead of getCurrentDay(). The latter is a real-world
           calendar diff and lands on Day 1 when a tester completes all three
@@ -322,6 +323,6 @@ export default function SummaryPage() {
           </Button>
         </Link>
       </div>
-    </div>
+    </Container>
   );
 }
