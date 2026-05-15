@@ -131,6 +131,42 @@ These two carve-outs are EXHAUSTIVE — no other mobile diffs are permitted by P
 
 The user's framing "Airbnb consumer-level UI/UX with the rigor of a medical app" is a real tension, not a marketing line. This subsection translates it into 8 concrete axes Phase 5 chrome and the downstream Phase 6/7/8 planners can apply consistently. The headline rule from this discussion: **Be Airbnb in the moments of arrival, browsing, and reassurance — be medical in the moments of recording, reviewing, and exporting.**
 
+#### THE BINDING SYNTHESIS — Streamlined Cognition (locked 2026-05-15 — the foundational WHY everything else derives from)
+
+User's exact insight: *"Airbnb very thought-out design and very streamlined makes it good. And not-tech-savvy people."*
+
+This is the synthesis that reconciles the four things we've been layering — Mobile-first primacy (Sessions 1, 3, 4), Airbnb consumer-grade Design DNA (Session 2), Boomer-safe overrides (Session 5), and the not-tech-savvy persona — into ONE underlying value: **streamlined cognition**.
+
+What "Airbnb-grade" actually means for this app is NOT cards, NOT photography, NOT elevation, NOT generous whitespace as decoration. Those are surface signals. The DEEP value Airbnb delivers is: **a first-time visitor with no tech experience can complete a multi-step task without help, without confusion, without backtracking.** Same here — a 65-year-old patient who got this URL from their PFPT for the first time should complete the 3-day diary without phoning anyone. **The polish IS the cognition; the cognition IS the polish.**
+
+Eight Streamlined Cognition Principles every Phase 5–8 surface must satisfy:
+
+1. **One primary action per screen.** Every screen has ONE obvious "do this now" action. CTAs visually dominate; secondary actions are visibly secondary; tertiary actions are out of the way. No ambiguity about what to tap.
+2. **State is always visible.** "Where am I? What's done? What's next?" — answerable from the current screen alone. No memory required between screens. Day indicators, step indicators, "X of Y" counters belong everywhere they make sense.
+3. **Recovery from any wrong tap is one obvious step.** Back / Cancel / Close / Undo always present and obvious — never tucked behind a gesture or a small icon.
+4. **No silent states.** Loading shows "loading [what]". Empty shows "do this to fill it" with the action visible. Errors show "this happened, do this to fix it" with the recovery action right there. Never just a spinner or a blank screen or "Error".
+5. **Progressive disclosure with care.** Show what's needed for the current step; hide what's not. BUT — when in doubt for boomers, prefer SHOWING over hiding (boomers don't always discover hidden affordances). Example: 8-item drink picker stays visible all-at-once (no "Show more" disclosure); 24-item timezone list uses a search/picker pattern because all-at-once is too much.
+6. **Plain language only — separate the patient surface from the clinician surface.** Patient-facing copy uses everyday words: "pee" not "void", "wake up" not "diuresis onset", "leak" not "involuntary urine loss". The CSV/PDF export that goes to the clinician CAN use medical terms because that audience is medical. NEVER mix audiences in one piece of copy.
+7. **Confirmation for destructive actions.** Reset diary / clear data / change timezone mid-recording require explicit confirmation that explains the consequence in plain language ("This will erase 2 days of entries — you'll need to start over").
+8. **Defaults are sensible, visible, pre-selected.** When the user has to pick (drink type, volume, timezone), the most-likely choice is pre-selected — never present an empty form requiring "make a choice" if a sensible default exists. The default IS the answer for the default user.
+
+**Layered architecture (in order from foundational to surface):**
+
+```
+Streamlined Cognition (8 principles)        ← the WHY
+        ↓
+Mobile-first primacy (Session 4)            ← which surface dominates
+        ↓
+Boomer-safe overrides (7 rules)             ← what NOT to regress
+        ↓
+Design DNA axes (8 axes table below)        ← what it LOOKS like
+```
+
+The Streamlined Cognition principles tell you WHAT TO BUILD. The Mobile-first rule tells you WHICH SURFACE wins. The Boomer-safe overrides tell you WHAT NOT TO REGRESS. The Design DNA axes tell you WHAT IT LOOKS LIKE. Together: streamlined cognition delivered on a mobile-pristine baseline, never below the boomer-safe floor, rendered with the Airbnb-meets-medical visual language.
+
+**Tie-breaking priority for pixel-level conflicts:** Mobile-first > Boomer-safe > Design DNA axis. (Streamlined Cognition sits ABOVE all three — if a pixel-level decision violates a Cognition principle, the decision is wrong regardless of which axis or override would have permitted it. But in practice the principles never conflict with the rendering rules; they constrain WHAT to build, not WHAT it looks like.)
+
+
 | # | Axis | Locked decision | Why |
 |---|------|-----------------|-----|
 | **1** | **Whitespace + typography scale at desktop** | Airbnb wins. Headlines bump up at `md`+ (current `text-3xl` → `text-4xl` / `text-5xl` on landing/onboarding/summary H1). Generous bounded whitespace stays. | 50+ users need readable type. A 3-day commitment needs an inviting, not clinical, first impression. |
@@ -346,6 +382,19 @@ The boomer-safe persona (50+, non-tech-savvy, completing a 3-day clinical commit
 - Phase 6 (Diary forms + keyboard): all form-sheet buttons inherit Button primitive's existing `min-h-[44px]` / `min-h-[52px]` — boomer-safe by virtue of using Button. Modal close affordances must provide all 3 paths (X + Escape + backdrop click). Modal slide-in duration ≤ 200ms.
 - Phase 7 (Onboarding + Summary): age input, timezone picker buttons, summary export buttons — all inherit Button/Input primitives or must add `min-h-[44px]` if rolling new chrome. Hover-lift on summary export buttons capped at `translate-y-[-1px]`. NO novel interaction patterns.
 - Phase 8 (Visual QA): MUST audit at 100% / 150% / 200% browser zoom on at least the landing + diary day + summary surfaces in EN at 1280px width. Add this to the Phase 8 visual-qa matrix when it's planned.
+
+### Session 6 — 2026-05-15 (binding synthesis: Streamlined Cognition)
+**User insight:** *"And not-tech-savvy people? So that's Airbnb very thought-out design and very streamlined makes it good."*
+
+This is the synthesis insight that ties EVERYTHING together. The user identified that "Airbnb-grade" doesn't mean cards/photography/elevation — it means **streamlined cognition that even a non-tech-savvy first-time visitor can navigate without help**. That IS the value the boomer + medical-rigor + mobile-first constraints are all pointing at, just from different angles.
+
+**Decision:** Locked **Streamlined Cognition** as the foundational principle in §"Design DNA — Aesthetic axes" (now appears as the FIRST subsection of Design DNA, before the 8-axis table). Eight Streamlined Cognition Principles defined: (1) one primary action per screen, (2) state always visible, (3) recovery one obvious step, (4) no silent states, (5) progressive disclosure with care (prefer showing for boomers), (6) plain language only with patient/clinician audience separation, (7) confirmation for destructive actions, (8) defaults pre-selected.
+
+**Layered architecture established (foundational → surface):** Streamlined Cognition → Mobile-first primacy → Boomer-safe overrides → Design DNA axes. The principles tell planners WHAT TO BUILD; the mobile rule tells WHICH SURFACE wins; the overrides tell WHAT NOT TO REGRESS; the axes tell WHAT IT LOOKS LIKE.
+
+**No plan revision required.** Plans 05-01 through 05-07 are pure layout/chrome work — they don't introduce user-flow content where Streamlined Cognition principles would directly apply. The principles are inputs for Phase 6 (forms — every form must have one obvious next button + recovery via Cancel/Escape/X + sensible defaults pre-selected) and Phase 7 (onboarding — each step shows "X of Y" + obvious advance + plain copy; summary — clear hierarchy + obvious export action). When those plans are written, the planner reads CONTEXT.md and applies the principles per plan.
+
+**Why this synthesis matters:** without it, the planners might interpret "Airbnb-grade" as "more visual decoration" (cards, hover lifts, photography) — the OPPOSITE of what the user actually wants. With this synthesis explicit, the planners interpret "Airbnb-grade" correctly as "obvious to a first-time non-tech-savvy 65-year-old", which aligns naturally with mobile-first + boomer-safe + medical-restraint.
 
 **Phase 6/7/8 cascade:**
 - Phase 6 planner will apply axis 4 (modal elevation `shadow-xl ring-1 ring-black/5` for desktop modals) + axis 6 (modal slide-in motion allowed; no decorative motion).
