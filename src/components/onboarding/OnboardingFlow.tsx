@@ -7,6 +7,7 @@ import { track } from '@vercel/analytics';
 import { useTranslations, useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
 import BottomSheet from '@/components/ui/BottomSheet';
+import Container from '@/components/layout/Container';
 import { detectTimeZone, timeZoneCity, getTimezoneOffset, formatFullDayDate } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
@@ -86,7 +87,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col items-center px-6 pt-6 md:pt-12 pb-10 max-w-lg md:max-w-xl mx-auto w-full">
+      <Container variant="narrow" as="div" noPadding className="px-6 sm:px-6 pt-6 md:pt-12 pb-10 flex flex-col items-center">
 
         {/* Step dots + plain-English label (wayfinding for older / non-tech users) */}
         <div className="flex flex-col items-center gap-1.5 mb-5">
@@ -285,7 +286,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </div>
           </div>
         )}
-      </div>
+      </Container>
 
       {/* Timezone Picker BottomSheet */}
       <BottomSheet open={showTzPicker} onClose={() => setShowTzPicker(false)} title={t('timezonePickerTitle')}>
