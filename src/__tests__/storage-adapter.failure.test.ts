@@ -70,4 +70,30 @@ describe('createIndexedDbStorage — IDB unavailable graceful degrade', () => {
     expect(warnSpy).toHaveBeenCalledTimes(1);
     warnSpy.mockRestore();
   });
+
+  // Test 9 — HIGH-1 regression: IDB-unavailable still surfaces v2 localStorage
+  // For existing patients on browsers where IDB throws (private mode, corrupted
+  // DB), the adapter must hydrate from localStorage and NOT clear it (the
+  // migration write would also fail, and we want LS preserved so the patient
+  // doesn't lose their diary on the v3 deploy).
+  it('returns v2 localStorage value when IDB throws on getItem (no migration attempted)', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const legacyValue = JSON.stringify({ state: { voids: [{ id: 'x' }] }, version: 2 });
+    localStorage.setItem(KEY, legacyValue);
+
+    // IDB get throws (private mode, IDB disabled, corrupted DB, etc.)
+    vi.mocked(get).mockRejectedValue(new Error('IDB unavailable'));
+
+    const result = await adapter.getItem(KEY);
+
+    // Patient still gets their diary state
+    expect(result).toBe(legacyValue);
+    // localStorage must NOT be cleared — IDB is dead, migration cannot succeed
+    expect(localStorage.getItem(KEY)).toBe(legacyValue);
+    // idbSet must NOT have been called (no migration attempt when IDB is dead)
+    expect(idbSet).not.toHaveBeenCalled();
+    // One warn for the IDB get failure
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    warnSpy.mockRestore();
+  });
 });

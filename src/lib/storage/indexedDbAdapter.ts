@@ -39,18 +39,23 @@ interface StateStorageLike {
 export function createIndexedDbStorage(): StateStorageLike {
   return {
     async getItem(name: string): Promise<string | null> {
-      // Step 1: Try IDB first
+      // Step 1: Try IDB first. Track whether IDB is reachable so we can decide
+      // whether to attempt a v2-localStorage migration on this hydrate.
+      let idbAvailable = true;
       try {
         const idbValue = await idbGet<string>(name);
         if (idbValue !== undefined) {
           return idbValue;
         }
       } catch (err) {
-        console.warn('[indexedDbAdapter] getItem IDB error', err);
-        return null;
+        // IDB threw — Firefox private mode, Safari ITP weirdness, corrupted DB.
+        // Fall through to localStorage instead of returning null, otherwise an
+        // existing v2 patient on these browsers would silently lose their diary.
+        console.warn('[indexedDbAdapter] getItem IDB error — falling back to localStorage', err);
+        idbAvailable = false;
       }
 
-      // Step 2: IDB is empty — check for a v2 localStorage value to migrate
+      // Step 2: Check for a v2 localStorage value (either IDB was empty OR threw).
       let lsValue: string | null = null;
       try {
         lsValue = typeof localStorage !== 'undefined' ? localStorage.getItem(name) : null;
@@ -62,18 +67,22 @@ export function createIndexedDbStorage(): StateStorageLike {
         return null;
       }
 
-      // Step 3: Migrate — only clear localStorage if the IDB write succeeds
-      try {
-        await idbSet(name, lsValue);
-        // IDB write succeeded — safe to remove the localStorage key
+      // Step 3: Only attempt the migration when IDB is reachable. If IDB is dead,
+      // keep localStorage as-is — the patient continues to hydrate from LS until
+      // IDB recovers. Trying to write to a broken IDB would just fail anyway.
+      if (idbAvailable) {
         try {
-          localStorage.removeItem(name);
-        } catch {
-          // Removing from localStorage failed; not critical — IDB is the new source
+          await idbSet(name, lsValue);
+          // IDB write succeeded — safe to remove the localStorage key
+          try {
+            localStorage.removeItem(name);
+          } catch {
+            // Removing from localStorage failed; not critical — IDB is the new source
+          }
+        } catch (err) {
+          // IDB write failed — keep localStorage intact so migration retries next load
+          console.warn('[indexedDbAdapter] migration write failed; will retry on next load', err);
         }
-      } catch (err) {
-        // IDB write failed — keep localStorage intact so migration retries next load
-        console.warn('[indexedDbAdapter] migration write failed; will retry on next load', err);
       }
 
       return lsValue;
