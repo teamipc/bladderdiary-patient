@@ -3,6 +3,7 @@
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { Mail } from 'lucide-react';
+import Container from '@/components/layout/Container';
 
 const CONTACT_EMAIL = 'hello@myflowcheck.com';
 
@@ -12,7 +13,7 @@ export default function Footer() {
 
   return (
     <footer className="mt-12 border-t border-ipc-100 bg-gradient-to-b from-surface to-ipc-50/40">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 text-center">
+      <Container variant="narrow" as="div" className="py-10 md:py-12 lg:py-16 text-center">
         <h2 className="text-lg sm:text-xl font-bold text-ipc-950 tracking-tight mb-1">
           {t('contactTitle')}
         </h2>
@@ -47,7 +48,7 @@ export default function Footer() {
         <p className="text-xs text-ipc-500 mt-5 leading-relaxed">
           {t('rights', { year })}
         </p>
-      </div>
+      </Container>
     </footer>
   );
 }
