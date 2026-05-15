@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import Container from '@/components/layout/Container';
+
 export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
@@ -10,8 +12,8 @@ export default function DiaryLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="max-w-xl mx-auto w-full px-4 pt-4">
+    <Container variant="default" as="div" className="pt-4">
       {children}
-    </div>
+    </Container>
   );
 }
