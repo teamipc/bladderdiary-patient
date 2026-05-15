@@ -66,8 +66,16 @@ The boundary is deliberate: foundation lands first, then form-by-form work consu
 
 ### Mobile invariants
 - **Locked (HARD CONSTRAINT — explicitly reinforced by user 2026-05-15):** No visual regression at < 768px. Mobile chrome (BottomNav at viewport bottom, FAB in bottom-right, mobile Header density) is unchanged. The user's exact words: "keep the mobile as is cause it is working very well right now". Daily walkthrough must continue to pass. Mobile is the production-tested surface; do NOT touch its visual rhythm under any circumstances during Phases 5–8.
-- **Locked:** Mobile screenshot diffs at 375px (iPhone-baseline) must show NO change as a pass criterion. The single documented exception is the QuickLogFAB `right-5 → end-5` RTL correctness fix (in Arabic the FAB now correctly sits on the inline-end / left side — this is a CORRECTNESS fix that was already failing per UI-SPEC §"Mobile invariants" point 2; in the 5 LTR locales `end-5` resolves to `right:20px` so they are byte-equivalent).
+- **Locked:** Mobile screenshot diffs at 375px (iPhone-baseline) must show NO change as a pass criterion.
 - **Locked:** Every plan that modifies a chrome file (AppShell, Header, BottomNav, Footer, FAB) MUST include an acceptance criterion verifying mobile (< 768px) behavior is unchanged via either an inline grep guard or a Playwright screenshot diff.
+
+**Two precise carve-outs the user explicitly accepted (2026-05-15 follow-up Q&A):**
+
+1. **Arabic FAB position correctness fix.** The QuickLogFAB `right-5` → `end-5` change moves the FAB from the right corner to the left corner in RTL Arabic at every viewport width. This was previously a physical-CSS leak (the FAB sat on the visual-RIGHT in Arabic, which is the inline-START side, the wrong side). `end-5` puts it on the inline-END side correctly (visual-RIGHT in LTR, visual-LEFT in RTL). This IS a mobile diff in Arabic but it is a CORRECTNESS fix that was already failing — UI-SPEC §"Mobile Invariants" point 2 documents it as the single allowed exception. The 5 LTR locales (en/fr/es/pt/zh) are byte-equivalent because `end-5` resolves to `right:20px` in LTR.
+
+2. **`sm:px-6` shift in the 640–767px range on `diary/layout.tsx` and `summary/page.tsx`.** Plan 05-06's adoption of Container `default` variant (`px-4 sm:px-6`) on these two files means horizontal padding shifts from 16px to 24px in the 640–767px viewport range (small-tablet portrait, phones in landscape, Pixel Fold edge cases). At < 640px (the dominant phone range — iPhone SE 375px, iPhone 14 390px, iPhone Plus 414px, Pixel 412px, all Android phones in portrait) the padding stays 16px exactly — byte-equivalent. **User explicitly accepted this +8px shift in the 640–767px range** because (a) it is consistent with the rest of the codebase's `sm:px-6` convention used by Header, `learn/page.tsx`, `ArchiveContent.tsx`, `LandingContent.tsx`, etc., (b) it is a +8px breathing-room gain not a loss, and (c) the alternative (passing `noPadding + className="px-4"` to keep 16px at all widths) would introduce a one-off inconsistency with the rest of the chrome system. Strict mobile invariant therefore reads: "byte-equivalent at < 640px; +8px padding gain at 640–767px is accepted as consistent with the codebase's existing sm:px-6 convention."
+
+These two carve-outs are EXHAUSTIVE — no other mobile diffs are permitted by Phase 5. Plan 05-07's verification matrix captures 375px screenshots in all 6 locales as the human-eyeball gate; the daily walkthrough is the post-deploy regression net.
 
 ### SEO invariants (added 2026-05-15 per user constraint: "all of this still needs to be SEO optimized")
 - **Locked:** Phase 5 chrome work MUST NOT regress any of the production SEO surface. Specifically, the static-export `out/` after `npm run build` must continue to contain, for EVERY locale's `index.html` (en at bare path, fr/es/pt/zh/ar at prefixed paths):
@@ -253,6 +261,15 @@ Scope, surfaces, breakpoints, and chrome behavior. Captured inline from the user
 **Decision:** Locked an 8-axis Design DNA framework (whitespace+typography, imagery, decorative chrome, card elevation, hover affordances, motion, trust signal density, information density). Headline rule: **"Be Airbnb in the moments of arrival, browsing, and reassurance — be medical in the moments of recording, reviewing, and exporting."**
 
 **Phase 5 amendment cascade:** Plan 05-03 acquired one new task (Task 4) per axis 7 (constant subtle trust signals): a new `footer.dataLocality` i18n key + a permanent desktop-only "Your data stays on your device" line in the Footer. PrivacyNotice landing card stays unchanged. No other Phase 5 plan changes — the chrome work in 05-04 / 05-05 / 05-06 already reflects axes 3, 5, 6 by virtue of the existing UI-SPEC §"Hover-affordance spec" and §"6-Pillar Pre-Check".
+
+### Session 3 — 2026-05-15 (mobile-safety follow-up)
+**User question:** "btw is my mobile design still safe"
+
+**Answer delivered:** Per-file walkthrough at < 768px showed all 10 modified files are byte-equivalent at the dominant phone range (320–639px) except for two narrow carve-outs: (1) Arabic FAB position correctness fix (was already wrong), (2) `sm:px-6` padding shift in the 640–767px range on `diary/layout.tsx` and `summary/page.tsx` (small-tablet-portrait edge case).
+
+**User decision:** Accepted the +8px small-tablet padding shift as consistent with the codebase's existing `sm:px-6` convention. No plan revision required — option (a) is what the plans already do.
+
+**Decision recorded in:** §"Mobile invariants" above, "Two precise carve-outs the user explicitly accepted" subsection. The two carve-outs are EXHAUSTIVE — no other mobile diffs are permitted by Phase 5.
 
 **Phase 6/7/8 cascade:**
 - Phase 6 planner will apply axis 4 (modal elevation `shadow-xl ring-1 ring-black/5` for desktop modals) + axis 6 (modal slide-in motion allowed; no decorative motion).
