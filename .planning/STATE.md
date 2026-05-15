@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-05-14)
 
 **Core value:** Patient completes a clinically-accurate 3-day diary in their own timezone with their own routine and leaves with a clinician-ready export — no data loss, no UX friction, no privacy compromise.
-**Current focus:** Phase 1 — Locale + reminder + observation correctness
+**Current focus:** Phase 5 — Layout foundation + AppShell chrome (kicking off Desktop & Tablet UX milestone)
 
 ## Current Position
 
-Phase: 4 of 4 (Storage backend hardening — complete)
-Plan: 2/2 in Phase 4 complete (04-01 adapter + 04-02 wire-in)
-Status: Phases 1 + 2 + 4 complete. Only Phase 3 (STAB-06/07/08 UX polish) remains in the Stabilization milestone. Verifier flagged 2 post-merge manual items (Safari ITP 7-day idle test + 6-locale walkthrough) — both explicitly scoped that way at plan time.
-Last activity: 2026-05-14 — Completed Phase 4: STAB-09 IndexedDB backend swap (4 atomic commits across 2 plans, 389/389 tests pass)
+Phase: 5 of 8 (Layout foundation + AppShell chrome — planning in progress)
+Plan: 0/TBD (UI-SPEC.md being generated, then `/gsd-plan-phase 5` produces plans)
+Status: Stabilization milestone (Phases 1–4) is 3/4 complete (Phase 3 STAB-06/07/08 UX polish tail remains, deferred). Desktop & Tablet UX milestone (Phases 5–8) just added: 6 new requirements (DTUX-01–06), 4 new phases. Phase 5 establishes container/max-width tokens + AppShell desktop chrome (BottomNav → top-bar nav, FAB reposition, Header expansion). Phases 6–8 build on it.
+Last activity: 2026-05-14 — Added Desktop & Tablet UX milestone to roadmap; planning Phase 5 with UI-SPEC.md gate.
 
-Progress: [████████░░] 89%
+Progress: [████░░░░░░] 44% (4 of 9 active phases complete; 1 in planning, 4 not started)
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Recent decisions affecting current work:
 - Init: Skip per-phase research — codebase map + memory + `docs/TIME_MODEL.md` are authoritative.
 - 2026-05-14: Added Phase 4 (STAB-09) — IndexedDB backend swap chosen over encryption-at-rest; same privacy model, lower UX cost.
 - 2026-05-14: Phase 4 shipped via planned route (`/gsd-plan-phase 4` → `/gsd-execute-phase 4`). 2 plans, 4 atomic commits, 389/389 tests pass. Verifier scored 2/4 automated + 2/4 post-merge manual (Safari ITP + walkthrough).
+- 2026-05-14: Added Desktop & Tablet UX milestone (Phases 5–8, DTUX-01 through DTUX-06). New milestone scope: 4 phases ordered foundation → forms → per-page → polish. Decision to keep phase numbering monotonic (5–8 not 1–4 reset) so existing tooling and `padded_phase` directory naming stays consistent. UI-SPEC.md gate enabled for Phase 5 (frontend phase, design contract locks max-width tokens + breakpoint set + chrome behavior before planner runs).
 
 ### Pending Todos
 

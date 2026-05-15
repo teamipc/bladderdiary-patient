@@ -49,6 +49,40 @@ paths, specific edge cases).
   *Migration:* on first hydrate after the change, if IndexedDB is empty AND `localStorage` has the diary key, copy over and then clear the `localStorage` key. Bump the store version to v3.
   *Verify:* (1) fresh patient on Safari 17+ completes 3 days without data loss after a 7-day idle gap (manual). (2) Existing patient with v2 `localStorage` state opens the app once → diary loads from IndexedDB after the migration → `localStorage` key is gone. (3) Existing store-migration tests pass (`src/__tests__/store.test.ts`) plus a new test for the v2→v3 backend migration. (4) Daily 6-locale walkthrough still green.
 
+### Desktop & Tablet UX (new milestone, added 2026-05-14)
+
+The patient app today is mobile-first and does not adapt for browsers wider than ~768px. Forms span 100% viewport width, the BottomNav (mobile tab bar) stays pinned at the bottom on a 1920px monitor, and there is no keyboard navigation anywhere. The fix is a deliberate desktop + tablet UX pass that gives the app the layout discipline of a consumer browser product (Airbnb-grade — generous whitespace bounded by readable max-widths, strong visual hierarchy, sensible keyboard behavior) without losing the boomer-safe mobile UX it already has.
+
+- [ ] **DTUX-01** — Diary forms (Void / Drink / Leak / Bedtime / Wake) constrain to readable widths at `md`+ breakpoints
+  At ≥ 768px the bottom-sheet forms must cap content width (target: 2-column button grids fit inside ~`max-w-3xl`, slider rows inside ~`max-w-2xl`) so drink-type buttons aren't stadium-sized and the volume slider doesn't span 1800px. Buttons reflow into multi-column grids (4-up at `lg`, 2-up at `sm`). The bottom sheet itself becomes a centered modal-style card on `md`+, not a full-bleed sheet.
+  *Files:* `src/components/diary/LogDrinkForm.tsx`, `LogVoidForm.tsx`, `LogLeakForm.tsx`, `SetBedtimeForm.tsx`, `SetWakeTimeForm.tsx`, plus shared sheet container in `src/components/ui/`.
+  *Verify:* render each form at 768px / 1024px / 1440px / 1920px viewport widths in EN + AR (RTL); buttons + slider stay within reading-comfortable widths; the sheet does not stretch to the viewport edge.
+
+- [ ] **DTUX-02** — AppShell chrome adapts at `md`+
+  At ≥ 768px the BottomNav (mobile tab bar) is replaced by an integrated top-bar navigation in the Header (Home / Track / Diary inline, right-aligned next to the language switcher); the floating QuickLogFAB either repositions inside the content column or is replaced by an inline "Log event" button anchored to the timeline area; the Header itself spans the available width with proper internal max-width constraints; the Footer gets desktop-appropriate padding.
+  *Files:* `src/components/layout/AppShell.tsx`, `Header.tsx`, `BottomNav.tsx`, `Footer.tsx`, `src/components/diary/QuickLogFAB.tsx`.
+  *Verify:* visit `/en/diary/day/1` at 1440px — no bottom tab bar present, top-bar nav shows Home/Track/Diary, Log-event affordance is anchored to the day's content not the viewport corner; visit at 375px — original mobile chrome unchanged.
+
+- [ ] **DTUX-03** — Keyboard navigation: Enter advances, Escape closes sheets, Tab order is logical
+  Every wizard step in onboarding and every form sheet in the diary advances on `Enter` (when the current step is valid). `Escape` closes any open bottom sheet / modal. Initial focus on sheet open lands on the first interactive element. Tab order flows top-to-bottom through buttons → inputs → primary action. Focus rings are visible (Tailwind `focus-visible:` ring tokens, not the suppressed `outline-none` pattern).
+  *Files:* `src/components/onboarding/OnboardingFlow.tsx`, all `Log*Form.tsx` + `Set*Form.tsx`, shared sheet container, `src/components/ui/Button.tsx` (focus-visible token).
+  *Verify:* keyboard-only walkthrough of onboarding (3 steps) + a single drink-log + a single void-log completes without touching the mouse; Escape closes the sheet from any point.
+
+- [ ] **DTUX-04** — Onboarding flow uses editorial desktop layout (not a tiny input swimming in 1920px whitespace)
+  The 3-step wizard (age → start date → timezone + units) gets a desktop-appropriate composition: wider content column with a supporting visual or progress chrome, age input scaled appropriately for desktop hit-target conventions (not the same compact mobile size), step indicator visible at all widths.
+  *Files:* `src/components/onboarding/OnboardingFlow.tsx`, individual step components.
+  *Verify:* render onboarding at 1440px; the active step occupies a confident portion of the viewport; the age input is keyboard-typable (already true) AND visually proportioned for desktop.
+
+- [ ] **DTUX-05** — Summary + export page laid out for desktop (proper grid for metrics, hover affordances on export actions)
+  Summary page metrics use a multi-column grid at `md`+ (e.g., 24HV / NPi / AVV / MVV / NBC laid out 5-up or 3-up + 2-up instead of stacked). Export action buttons (CSV / PDF / Share) get hover states and respect a reasonable max-width (don't stretch full-bleed).
+  *Files:* `src/app/[locale]/summary/page.tsx`, `src/components/summary/`, `src/components/export/ExportActions.tsx`.
+  *Verify:* render `/en/summary` after completing a 3-day diary at 1440px; metric grid is 3-up or 5-up not 1-up; export buttons hover + are reasonably-sized.
+
+- [ ] **DTUX-06** — All 6 locales pass visual QA at `md` / `lg` / `xl` in both LTR and RTL
+  Cross-locale walkthrough at desktop widths catches: PT/AR text overflow on wide buttons (long translations), font fallbacks for ZH/AR (CJK + Arabic glyphs), RTL physical-CSS leaks introduced during DTUX-01/02 (must use logical properties: `ms-`/`me-` not `ml-`/`mr-`, `start`/`end` not `left`/`right`), focus-ring visibility in dark and light backgrounds, AA contrast on hover and focus states.
+  *Files:* runs against the production app via the `visual-qa` skill; any fixes land in the components touched by DTUX-01–05.
+  *Verify:* `visual-qa` skill runs the 6-locale × LTR/RTL × `md`/`lg`/`xl` matrix; zero new findings logged to `walkthrough_findings.md`; existing daily walkthrough still green.
+
 ### UX + Input Validation
 
 - [ ] **STAB-06** — Milestone toasts dedupe across locale switches
@@ -83,6 +117,8 @@ paths, specific edge cases).
 
 ## Traceability
 
+### Stabilization milestone (Phases 1–4)
+
 | Phase | Requirements |
 |-------|--------------|
 | Phase 1: Locale + reminder + observation correctness | STAB-01, STAB-02, STAB-03 |
@@ -90,7 +126,16 @@ paths, specific edge cases).
 | Phase 3: UX polish + input validation | STAB-06, STAB-07, STAB-08 |
 | Phase 4: Storage backend hardening | STAB-09 |
 
-All 9 v1 requirements mapped. Coverage: 100%.
+### Desktop & Tablet UX milestone (Phases 5–8)
+
+| Phase | Requirements |
+|-------|--------------|
+| Phase 5: Layout foundation + AppShell chrome | DTUX-02 |
+| Phase 6: Diary forms + keyboard navigation | DTUX-01, DTUX-03 |
+| Phase 7: Onboarding + Summary surfaces | DTUX-04, DTUX-05 |
+| Phase 8: Cross-locale visual QA + polish | DTUX-06 |
+
+All 15 v1 requirements (9 STAB + 6 DTUX) mapped. Coverage: 100%.
 
 ---
-*Requirements defined: 2026-05-14*
+*Requirements defined: 2026-05-14 (Stabilization). Desktop & Tablet UX milestone added 2026-05-14.*

@@ -31,7 +31,9 @@ The patient can complete a clinically-accurate 3-day diary in their own timezone
 
 ### Active
 
-<!-- Current milestone: Stabilization. Fix silent bugs flagged in CONCERNS.md (cd3de78). -->
+<!-- Two concurrent milestones. Stabilization is closing out (only STAB-06/07/08 remain). Desktop & Tablet UX (DTUX-*) is the new milestone for the desktop/iPad responsive redesign. -->
+
+**Stabilization milestone (closing out):**
 
 - [ ] **STAB-01**: Fix `INTL_LOCALES` to cover all 6 locales (pt/zh/ar currently fall back to en-US formatting) — `src/lib/utils.ts:8`
 - [ ] **STAB-02**: Reminders honor the patient's stored timezone, not browser-local — `src/lib/notifications.ts`
@@ -42,6 +44,15 @@ The patient can complete a clinically-accurate 3-day diary in their own timezone
 - [ ] **STAB-07**: Replace export-error `alert()` with toast — `src/components/export/ExportActions.tsx`
 - [ ] **STAB-08**: Validate + length-cap `clinicCode` query param before persisting — `src/app/[locale]/LandingContent.tsx`
 - [ ] **STAB-09**: Swap Zustand persist backend from `localStorage` to IndexedDB (via `idb-keyval`) for better Safari-ITP survivability — same privacy model, same device-only sandbox — `src/lib/store.ts` + new `src/lib/storage/indexedDbAdapter.ts`
+
+**Desktop & Tablet UX milestone (Phases 5–8, added 2026-05-14):**
+
+- [ ] **DTUX-01**: Diary forms (Void/Drink/Leak/Bedtime/Wake) constrain to readable widths at `md`+; button grids reflow; sliders don't span 1920px — `src/components/diary/Log*Form.tsx`, `Set*Form.tsx`, shared sheet container
+- [ ] **DTUX-02**: AppShell chrome adapts at `md`+ — BottomNav becomes top-bar nav, FAB repositions or anchors to content, Header expands — `src/components/layout/`, `src/components/diary/QuickLogFAB.tsx`
+- [ ] **DTUX-03**: Keyboard navigation — Enter advances every wizard step, Escape closes sheets, Tab order is logical, focus rings visible — all form components + `Button.tsx`
+- [ ] **DTUX-04**: Onboarding gets editorial desktop layout (not a tiny age input swimming in 1920px whitespace) — `src/components/onboarding/OnboardingFlow.tsx`
+- [ ] **DTUX-05**: Summary + export page laid out for desktop (multi-column metric grid, hover affordances) — `src/app/[locale]/summary/page.tsx`, `src/components/summary/`, `src/components/export/ExportActions.tsx`
+- [ ] **DTUX-06**: All 6 locales pass visual QA at `md`/`lg`/`xl` in both LTR + RTL (catches PT/AR overflow, ZH/AR font fallbacks, RTL physical-CSS leaks) — runs via `visual-qa` skill, fixes land in components touched by DTUX-01–05
 
 ### Out of Scope
 
@@ -93,6 +104,7 @@ The patient can complete a clinically-accurate 3-day diary in their own timezone
 | Premium features gated by compile-time constant (not env) | Intentional friction while uncommercialized | — Pending — revisit when commercializing |
 | Stabilization milestone (this) | Audit-driven: 8 silent bugs surfaced by `.planning/codebase/CONCERNS.md` are higher-leverage than new features | — Pending — outcome judged at milestone close |
 | Storage upgrade path = IndexedDB (not encryption-at-rest) | IndexedDB lives in the same same-origin sandbox as localStorage so the privacy model is unchanged, but it survives Safari ITP eviction better and has vastly more headroom. Encryption-at-rest is bigger work and would require a PIN/WebAuthn setup step that costs more boomer-safe-UX than it buys when the data never leaves the device anyway. | — Pending — added 2026-05-14 as STAB-09 / Phase 4 |
+| Desktop & Tablet UX milestone added (Phases 5–8) | Production app is mobile-first and breaks down on desktop: form sheets span 100% viewport, BottomNav stays pinned at the bottom on a 1920px monitor, no keyboard navigation. Brings the app to "Airbnb-grade browser experience" while preserving boomer-safe mobile UX. Run as Milestone 2 alongside Stabilization tail (Phase 3 STAB-06/07/08). | — Pending — added 2026-05-14, planning Phase 5 |
 
 ## Evolution
 
@@ -112,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-14 after Phase 1 complete (via quick task 260514-ndz) + STAB-09 / Phase 4 added for IndexedDB storage backend swap*
+*Last updated: 2026-05-14 — added Desktop & Tablet UX milestone (Phases 5–8, DTUX-01 through DTUX-06) for desktop/iPad responsive redesign.*
