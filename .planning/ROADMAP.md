@@ -132,7 +132,28 @@ Plans:
 **Plans**: TBD (planner produces; expected 3–5 plans: shared sheet container, form-by-form responsive treatment, keyboard navigation system, focus-visible rollout, Enter-handler tests)
 
 Plans:
-- [ ] 06-NN: TBD (created by `/gsd-plan-phase 6`)
+**Wave 1 (foundation)**
+- [ ] 06-01-PLAN.md — Add `@keyframes modalIn` (180ms cubic-bezier, under Boomer-safe 200ms cap) to `globals.css`
+- [ ] 06-02-PLAN.md — Add 4 ConfirmDialog i18n keys (`common.discardEntryTitle`, `discardEntryMessage`, `discard`, `keepEditing`) with pre-vetted manual fallback translations for all 5 non-English locales
+- [ ] 06-03-PLAN.md — Migrate `Button.tsx` from `focus:` to `focus-visible:` token (Phase 5 Q5 carry-over)
+
+**Wave 2 (BottomSheet desktop modal transformation)**
+- [ ] 06-04-PLAN.md — BottomSheet.tsx adds md+ modal classes (`md:max-w-{2xl|3xl} md:shadow-xl md:ring-1 md:ring-black/5` + backdrop blur + slide-in animation); accessibility (role=dialog, aria-modal, aria-labelledby, focus trap, return focus on close, new `inert?` prop); 44×44 close X at md+; backdrop click handler; RTL fix (`right-2.5` → `end-2.5`); STABLE data-attribute initial-focus selector (`data-bottom-sheet-close` + `data-step-dot` — locale-independent, replaces brittle aria-label string matching that broke for ZH)
+
+**Wave 3 (per-form responsive + keyboard, 4 plans in parallel)**
+- [ ] 06-05-PLAN.md — LogDrinkForm: max-w-3xl modal, Enter-advance per step, initial focus, reset-on-cancel dirty-state via `onDirtyChange`
+- [ ] 06-06-PLAN.md — LogVoidForm: same pattern, 3 steps, volume + doubleVoid + sensation
+- [ ] 06-07-PLAN.md — LogLeakForm: same pattern, 3 steps, trigger + amount + urgency
+- [ ] 06-08-PLAN.md — SetBedtimeForm + SetWakeTimeForm: max-w-2xl narrow modal, single step, time picker focus
+
+**Wave 4 (sub-pickers + auxiliary)**
+- [ ] 06-09-PLAN.md — DrinkTypePicker + LeakTriggerPicker + SensationPicker + VolumeInput tap-to-edit: add focus-visible rings, preserve grid columns at both viewports, preserve all 13 data-testids (inline-form-button focus-visible deferred to Phase 8 visual-qa audit as intentional partial coverage — flagged as W2 in plan-check)
+
+**Wave 5 (DayPageClient orchestration)**
+- [ ] 06-10-PLAN.md — DayPageClient intercepts form `onDirtyChange`, shows ConfirmDialog on dirty-close attempt across all 5 forms; wires BottomSheet `inert` prop when ConfirmDialog stacks
+
+**Wave 6 (verification + human-verify checkpoint)**
+- [ ] 06-11-PLAN.md — New Playwright spec `e2e/phase6-keyboard.spec.ts` (6-locale × 3-width matrix + 3 initial-focus tests EN/ZH/AR + Enter-advance EN/AR + Escape + backdrop click + ConfirmDialog flow + textarea newline preservation); aggregate physical-CSS guard; mobile screenshot diff vs Phase 6 baseline; SEO regression check (Next.js 16 `out/{locale}.html` paths; H1=0 treated as informational pre-existing per Phase 5); i18n parity check (4 new keys); data-testid integrity check (21 testids); human-verify checkpoint with 6-locale × LTR/RTL screenshots
 
 ### Phase 7: Onboarding + Summary surfaces
 **Milestone**: Desktop & Tablet UX (Milestone 2)
@@ -177,7 +198,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. Ph
 | 2. Remaining timezone correctness + store hygiene | Stabilization | 2/2 | Complete | 2026-05-14 (via quick task 260514-nt1) |
 | 3. UX polish + input validation | Stabilization | 0/TBD | Not started | - |
 | 4. Storage backend hardening | Stabilization | 2/2 | Complete | 2026-05-14 (planned route; 2 post-merge manual checks pending) |
-| 5. Layout foundation + AppShell chrome | Desktop & Tablet UX | 0/7 | Planned (ready to execute) | - |
-| 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 0/TBD | Not started | - |
+| 5. Layout foundation + AppShell chrome | Desktop & Tablet UX | 7/7 | Complete | 2026-05-16 (14 implementation commits + verification; shipped origin/main `86b082a..3fa1a08`) |
+| 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 0/11 | Planned (ready to execute) | - |
 | 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 0/TBD | Not started | - |
 | 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 0/TBD | Not started | - |
