@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, MessageSquarePlus, Check } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import VolumeInput from '@/components/ui/VolumeInput';
@@ -18,11 +18,12 @@ interface LogDrinkFormProps {
   editEntry?: DrinkEntry;
   initialTime?: string;
   isNightView?: boolean;
+  onDirtyChange?: (isDirty: boolean) => void;
 }
 
 const TOTAL_STEPS = 2;
 
-export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogDrinkFormProps) {
+export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime, isNightView, onDirtyChange }: LogDrinkFormProps) {
   const { addDrink, updateDrink, getBedtimeForDay, getWakeTimeForDay, startDate, volumeUnit, timeZone, drinks: allDrinks } = useDiaryStore();
   const t = useTranslations('logDrink');
   const tc = useTranslations('common');
@@ -78,6 +79,10 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   const [time, setTime] = useState(smartDefault);
   const [note, setNote] = useState(editEntry?.note ?? '');
 
+  // Snapshot of smart-default time on first render — used for dirty-state comparison.
+  // Per 06-UI-SPEC §"Reset-on-Cancel Pattern" → LogDrinkForm row: dirty if time !== smartDefault().
+  const initialTimeSnapshotRef = useRef(time);
+
   // Drink chips: 3 real-world container sizes pulled from patient diary data
   // (Bruno's water/coffee/juice 150–500 mL range, Alex's coffee 200, beer 340).
   // 200 mL = small glass / cup, 350 mL = standard glass / can, 500 mL = bottle.
@@ -122,6 +127,21 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Dirty-state tracking — per 06-UI-SPEC §"Reset-on-Cancel Pattern" → LogDrinkForm:
+  // interacted beyond defaults if any of drinkType/volume/note/time differs from initial.
+  // DayPageClient (Plan 06-10) will consume `onDirtyChange` to gate the ConfirmDialog.
+  const isDirty = useMemo(() => {
+    if (drinkType !== defaultDrinkType) return true;
+    if (volume !== defaultVolume) return true;
+    if (note.length > 0 && note !== (editEntry?.note ?? '')) return true;
+    if (time !== initialTimeSnapshotRef.current) return true;
+    return false;
+  }, [drinkType, volume, note, time, defaultDrinkType, defaultVolume, editEntry]);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const goToStep = useCallback((target: number) => {
     const clamped = Math.max(1, Math.min(TOTAL_STEPS, target));
@@ -206,11 +226,31 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
   return (
-    <div className="select-none min-h-[70vh]">
+    <div
+      className="select-none min-h-[70vh]"
+      onKeyDown={(e) => {
+        const target = e.target as HTMLElement;
+        const tag = target.tagName;
+        // Preserve native Enter behavior inside textareas (newline) and text/number inputs (commit-edit).
+        if (tag === 'TEXTAREA') return;
+        if (tag === 'INPUT' && ((target as HTMLInputElement).type === 'text' || (target as HTMLInputElement).type === 'number')) return;
+        if (e.key !== 'Enter') return;
+        if (e.shiftKey) return;
+        e.preventDefault();
+        if (step < TOTAL_STEPS) {
+          // Same gate as the sticky Next button: volume > 0
+          if (volume > 0) goToStep(step + 1);
+        } else {
+          // Final step (2): same path as the Save button click handler.
+          handleSave();
+        }
+      }}
+    >
       <div className="flex flex-col items-center gap-1 mb-3">
         <div className="flex justify-center gap-2">
           {[1, 2].map((s) => (
             <button key={s} type="button" onClick={() => goToStep(s)}
+              data-step-dot="true"
               className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                 s === step ? 'bg-drink scale-125' : s < step ? 'bg-drink/50' : 'bg-drink/20'
               }`}
@@ -308,8 +348,10 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                   );
                 })}
               </div>
-              <VolumeInput value={volume} onChange={handleVolumeChange}
-                unit={volumeUnit} max={vc.max} step={vc.step} variant={isNightView ? 'night' : 'drink'} />
+              <div className="md:max-w-2xl md:mx-auto">
+                <VolumeInput value={volume} onChange={handleVolumeChange}
+                  unit={volumeUnit} max={vc.max} step={vc.step} variant={isNightView ? 'night' : 'drink'} />
+              </div>
             </>
           )}
 
