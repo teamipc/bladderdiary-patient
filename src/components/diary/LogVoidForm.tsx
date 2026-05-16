@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { CopyPlus, ChevronLeft, ChevronRight, Droplets, MessageSquarePlus, Check, HelpCircle } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import VolumeInput from '@/components/ui/VolumeInput';
@@ -18,9 +18,10 @@ interface LogVoidFormProps {
   editEntry?: VoidEntry;
   initialTime?: string;
   isNightView?: boolean;
+  onDirtyChange?: (isDirty: boolean) => void;
 }
 
-export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogVoidFormProps) {
+export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime, isNightView, onDirtyChange }: LogVoidFormProps) {
   const { addVoid, updateVoid, getWakeTimeForDay, getBedtimeForDay, startDate, volumeUnit, timeZone, voids: allVoids } = useDiaryStore();
   const t = useTranslations('logVoid');
   const tc = useTranslations('common');
@@ -75,6 +76,8 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const [volume, setVolume] = useState(defaultVolume);
   const [sensation, setSensation] = useState<BladderSensation | null>(editEntry?.sensation ?? null);
   const [time, setTime] = useState(smartDefault);
+  // Snapshot of smart-default time on first render — used for dirty-state comparison.
+  const initialTimeSnapshotRef = useRef(time);
   const [note, setNote] = useState(editEntry?.note ?? '');
   const [leak, setLeak] = useState(editEntry?.leak ?? false);
   // For nocturnal voids only — was the patient woken by the urge, or already awake?
@@ -121,6 +124,24 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   useEffect(() => {
     formRef.current = { volume, sensation, time, note, leak, doubleVoid, doubleVoidVolume };
   });
+
+  // Dirty-state tracking — per UI-SPEC §"Reset-on-Cancel Pattern" → LogVoidForm:
+  // dirty if any of volume/sensation/note/leak/doubleVoid/wokeBy/time differs from initial defaults.
+  const isDirty = useMemo(() => {
+    if (volume !== defaultVolume) return true;
+    if (sensation !== (editEntry?.sensation ?? null)) return true;
+    if (note !== (editEntry?.note ?? '')) return true;
+    if (leak !== (editEntry?.leak ?? false)) return true;
+    const editDoubleVoid = !!editEntry?.doubleVoidMl;
+    if (doubleVoid !== editDoubleVoid) return true;
+    if (wokeBy !== (editEntry?.wokeBy ?? null)) return true;
+    if (time !== initialTimeSnapshotRef.current) return true;
+    return false;
+  }, [volume, sensation, note, leak, doubleVoid, wokeBy, time, defaultVolume, editEntry]);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   useEffect(() => {
     if (!isEditing || !editEntry) return;
@@ -246,11 +267,32 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
   return (
-    <div className="select-none min-h-[60vh]">
+    <div
+      className="select-none min-h-[60vh]"
+      onKeyDown={(e) => {
+        const target = e.target as HTMLElement;
+        const tag = target.tagName;
+        if (tag === 'TEXTAREA') return;
+        if (tag === 'INPUT' && ((target as HTMLInputElement).type === 'text' || (target as HTMLInputElement).type === 'number')) return;
+        if (e.key !== 'Enter') return;
+        if (e.shiftKey) return;
+        e.preventDefault();
+        if (step < 3) {
+          // Step 1 → 2 and Step 2 → 3 both gated by volume > 0 (matches the
+          // existing sticky Next button at line 500 which is disabled={volume <= 0}).
+          // Step 2 does NOT additionally require sensation/leak — those are optional.
+          if (volume > 0) goToStep(step + 1);
+        } else {
+          // Step 3: trigger Save (matches the Save button at line 487).
+          handleSave();
+        }
+      }}
+    >
       <div className="flex flex-col items-center gap-1 mb-3">
         <div className="flex justify-center gap-2">
           {[1, 2, 3].map((s) => (
             <button key={s} type="button" onClick={() => goToStep(s)}
+              data-step-dot="true"
               className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                 s === step ? 'bg-ipc-500 scale-125' : s < step ? 'bg-ipc-300' : 'bg-ipc-200/60'
               }`}
@@ -337,8 +379,10 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                 </div>
               )}
 
-              <VolumeInput value={volume} onChange={handleVolumeChange}
-                unit={volumeUnit} max={vc.max} step={vc.step} variant={isNightView ? 'night' : 'default'} />
+              <div className="md:max-w-2xl md:mx-auto">
+                <VolumeInput value={volume} onChange={handleVolumeChange}
+                  unit={volumeUnit} max={vc.max} step={vc.step} variant={isNightView ? 'night' : 'default'} />
+              </div>
               <div className="border-t border-ipc-100/60 mt-5 mb-4" />
               <div className="flex justify-center">
                 <button type="button" onClick={() => setDoubleVoid(!doubleVoid)}
@@ -359,8 +403,10 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                   <label className="block text-sm font-medium text-ipc-500 mb-1 text-center">
                     {t('secondPeeAmount')}
                   </label>
-                  <VolumeInput value={doubleVoidVolume} onChange={setDoubleVoidVolume}
-                    unit={volumeUnit} max={volumeUnit === 'oz' ? 25 : 750} step={vc.step} variant={isNightView ? 'night' : 'default'} />
+                  <div className="md:max-w-2xl md:mx-auto">
+                    <VolumeInput value={doubleVoidVolume} onChange={setDoubleVoidVolume}
+                      unit={volumeUnit} max={volumeUnit === 'oz' ? 25 : 750} step={vc.step} variant={isNightView ? 'night' : 'default'} />
+                  </div>
                 </div>
               )}
             </>
