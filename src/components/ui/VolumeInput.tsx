@@ -95,7 +95,8 @@ export default function VolumeInput({
           <button
             type="button"
             onClick={handleTapNumber}
-            className="inline-flex items-baseline gap-1 active:scale-[0.97] transition-transform"
+            className="inline-flex items-baseline gap-1 active:scale-[0.97] transition-transform
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-lg"
           >
             <span className="text-4xl font-bold text-ipc-950 tabular-nums">
               {value}

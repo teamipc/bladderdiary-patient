@@ -22,7 +22,9 @@ export default function DrinkTypePicker({ value, onChange }: DrinkTypePickerProp
             type="button"
             onClick={() => onChange(drink.value)}
             className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl
-              transition-all active:scale-[0.95] ${
+              transition-all active:scale-[0.95]
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white
+              ${
                 selected
                   ? 'bg-drink text-white ring-2 ring-drink/30 shadow-sm'
                   : 'bg-white text-ipc-950 hover:bg-white border border-ipc-200/50 shadow-sm'

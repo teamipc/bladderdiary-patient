@@ -27,7 +27,8 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
           type="button"
           onClick={() => setShowHelp((v) => !v)}
           aria-label={tc('help')}
-          className="text-ipc-400 hover:text-ipc-600 active:scale-[0.9] transition-all"
+          className="text-ipc-400 hover:text-ipc-600 active:scale-[0.9] transition-all
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
         >
           <HelpCircle size={15} />
         </button>
@@ -45,7 +46,9 @@ export default function SensationPicker({ value, onChange }: SensationPickerProp
               aria-pressed={selected}
               aria-label={`${s} ${t(`${s}.short`)}`}
               className={`flex-1 py-3.5 rounded-xl text-center transition-all
-                active:scale-[0.95] min-h-[52px] ${
+                active:scale-[0.95] min-h-[52px]
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white
+                ${
                   selected
                     ? 'bg-ipc-500/90 text-white font-bold'
                     : 'bg-white/40 text-ipc-600 font-medium border border-ipc-100/50'
