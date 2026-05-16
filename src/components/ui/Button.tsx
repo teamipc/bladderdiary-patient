@@ -13,7 +13,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'lg', fullWidth = false, className = '', children, ...props }, ref) => {
     const base = `inline-flex items-center justify-center gap-2 rounded-2xl font-semibold
       transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed
-      focus:outline-none focus:ring-2 focus:ring-ipc-400 focus:ring-offset-2`;
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2`;
 
     const sizes = {
       md: 'px-4 py-2.5 text-base min-h-[44px]',
@@ -25,15 +25,15 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       secondary: 'bg-ipc-50 text-ipc-800 border border-ipc-200 hover:bg-ipc-100',
       ghost: 'text-ipc-700 hover:bg-ipc-50',
       danger: 'bg-danger text-white hover:bg-danger/90',
-      drink: 'bg-drink text-white hover:bg-drink/90 active:bg-drink/80 focus:ring-drink/40',
-      bedtime: 'bg-bedtime text-white hover:bg-bedtime/90 active:bg-bedtime/80 focus:ring-bedtime/40',
-      leak: 'bg-leak text-white hover:bg-leak/90 active:bg-leak/80 focus:ring-leak/40',
-      night: 'bg-indigo-500 text-white hover:bg-indigo-600 active:bg-indigo-700 focus:ring-indigo-400',
+      drink: 'bg-drink text-white hover:bg-drink/90 active:bg-drink/80 focus-visible:ring-drink/40',
+      bedtime: 'bg-bedtime text-white hover:bg-bedtime/90 active:bg-bedtime/80 focus-visible:ring-bedtime/40',
+      leak: 'bg-leak text-white hover:bg-leak/90 active:bg-leak/80 focus-visible:ring-leak/40',
+      night: 'bg-indigo-500 text-white hover:bg-indigo-600 active:bg-indigo-700 focus-visible:ring-indigo-400',
       // Warm-amber hero CTA: light amber bg + deep brown text. Used for the
       // homepage's first-impression "Start tracking" button. Restores the
       // warm-gold brand feel that bg-ipc-500+text-white sacrificed for AA;
       // dark-text-on-light-amber clears 10:1 contrast naturally.
-      hero: 'bg-ipc-300 text-ipc-950 hover:bg-ipc-400 hover:text-white active:bg-ipc-500 active:text-white focus:ring-ipc-500',
+      hero: 'bg-ipc-300 text-ipc-950 hover:bg-ipc-400 hover:text-white active:bg-ipc-500 active:text-white focus-visible:ring-ipc-500',
     };
 
     return (
