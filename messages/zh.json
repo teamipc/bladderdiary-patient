@@ -47,7 +47,11 @@
     "deleteBedtimeTitle": "删除就寝时间?",
     "deleteWakeUpTitle": "删除起床时间?",
     "hoursAgo": "{n} 小时前",
-    "lastNightAt": "昨晚 {time}"
+    "lastNightAt": "昨晚 {time}",
+    "discardEntryTitle": "放弃这条记录？",
+    "discardEntryMessage": "你的更改将不会被保存。",
+    "discard": "放弃",
+    "keepEditing": "继续编辑"
   },
   "nav": {
     "home": "首页",

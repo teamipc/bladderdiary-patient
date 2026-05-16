@@ -47,7 +47,11 @@
     "deleteBedtimeTitle": "Supprimer le coucher ?",
     "deleteWakeUpTitle": "Supprimer le réveil ?",
     "hoursAgo": "il y a {n} h",
-    "lastNightAt": "{time} hier soir"
+    "lastNightAt": "{time} hier soir",
+    "discardEntryTitle": "Abandonner cette entrée ?",
+    "discardEntryMessage": "Vos modifications ne seront pas enregistrées.",
+    "discard": "Abandonner",
+    "keepEditing": "Continuer la modification"
   },
   "nav": {
     "home": "Accueil",

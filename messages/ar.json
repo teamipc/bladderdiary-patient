@@ -47,7 +47,11 @@
     "deleteBedtimeTitle": "حذف وقت النوم؟",
     "deleteWakeUpTitle": "حذف وقت الاستيقاظ؟",
     "hoursAgo": "قبل {n} ساعة",
-    "lastNightAt": "{time} ليلة أمس"
+    "lastNightAt": "{time} ليلة أمس",
+    "discardEntryTitle": "تجاهل هذه الإدخالة؟",
+    "discardEntryMessage": "لن يتم حفظ التغييرات.",
+    "discard": "تجاهل",
+    "keepEditing": "متابعة التحرير"
   },
   "nav": {
     "home": "الرئيسية",

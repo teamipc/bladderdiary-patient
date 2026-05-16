@@ -47,7 +47,11 @@
     "deleteBedtimeTitle": "\u00bfEliminar la hora de acostarse?",
     "deleteWakeUpTitle": "\u00bfEliminar la hora de despertar?",
     "hoursAgo": "hace {n} h",
-    "lastNightAt": "{time} anoche"
+    "lastNightAt": "{time} anoche",
+    "discardEntryTitle": "¿Descartar esta entrada?",
+    "discardEntryMessage": "Tus cambios no se guardarán.",
+    "discard": "Descartar",
+    "keepEditing": "Seguir editando"
   },
   "nav": {
     "home": "Inicio",

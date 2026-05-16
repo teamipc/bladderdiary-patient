@@ -47,7 +47,11 @@
     "deleteBedtimeTitle": "Delete bedtime?",
     "deleteWakeUpTitle": "Delete wake-up time?",
     "hoursAgo": "{n}h ago",
-    "lastNightAt": "{time} last night"
+    "lastNightAt": "{time} last night",
+    "discardEntryTitle": "Discard this entry?",
+    "discardEntryMessage": "Your changes won't be saved.",
+    "discard": "Discard",
+    "keepEditing": "Keep editing"
   },
   "nav": {
     "home": "Home",
