@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Sun } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import TimePicker from '@/components/ui/TimePicker';
@@ -11,9 +11,10 @@ import { formatTime, advanceIsoToAfter } from '@/lib/utils';
 interface SetWakeTimeFormProps {
   dayNumber: 1 | 2 | 3;
   onSave: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
 }
 
-export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormProps) {
+export default function SetWakeTimeForm({ dayNumber, onSave, onDirtyChange }: SetWakeTimeFormProps) {
   const { setWakeTime, getWakeTimeForDay, getBedtimeForDay, timeZone } = useDiaryStore();
   const t = useTranslations('wakeTime');
   const locale = useLocale();
@@ -43,6 +44,11 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
   };
 
   const [time, setTime] = useState(smartDefault);
+  // Snapshot of the time at mount — used for dirty-state comparison. useState's
+  // lazy initializer captures the initial value once and never updates, giving
+  // us a stable render-safe reference (the ref-based pattern trips React 19's
+  // react-hooks/refs rule because ref.current is not allowed in useMemo).
+  const [initialTimeSnapshotRef] = useState(() => time);
 
   // Wake time is always between the previous bedtime and this day's bedtime.
   // If the user picks a clock time that lands at-or-before the previous
@@ -72,6 +78,14 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
 
   const isInvalid = isAfterBedtime || isBeforePrevBedtime;
 
+  // Dirty-state tracking — per UI-SPEC §"Reset-on-Cancel Pattern" → SetWakeTimeForm:
+  // dirty if time !== smartDefault() — the user moved the time off the resolved default.
+  const isDirty = useMemo(() => time !== initialTimeSnapshotRef, [time, initialTimeSnapshotRef]);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
   const handleSave = useCallback(() => {
     if (isInvalid) return;
     setWakeTime(dayNumber, time);
@@ -79,7 +93,20 @@ export default function SetWakeTimeForm({ dayNumber, onSave }: SetWakeTimeFormPr
   }, [dayNumber, time, isInvalid, setWakeTime, onSave]);
 
   return (
-    <div className="space-y-5">
+    <div
+      className="space-y-5"
+      onKeyDown={(e) => {
+        const target = e.target as HTMLElement;
+        const tag = target.tagName;
+        // Allow native Enter handling inside TimePicker text/number inputs (commit-edit).
+        if (tag === 'INPUT' && ((target as HTMLInputElement).type === 'text' || (target as HTMLInputElement).type === 'number')) return;
+        if (e.key !== 'Enter') return;
+        if (e.shiftKey) return;
+        e.preventDefault();
+        // Single-step form: Enter saves when valid (matches the Save button gate at line 105: disabled={isInvalid}).
+        if (!isInvalid) handleSave();
+      }}
+    >
       <div className="text-center py-3">
         <Sun size={44} className="text-warning mx-auto" />
         <p className="text-lg font-semibold text-ipc-950 mt-3">
