@@ -147,7 +147,7 @@ Plans:
 - [ ] 06-08-PLAN.md — SetBedtimeForm + SetWakeTimeForm: max-w-2xl narrow modal, single step, time picker focus
 
 **Wave 4 (sub-pickers + auxiliary)**
-- [ ] 06-09-PLAN.md — DrinkTypePicker + LeakTriggerPicker + SensationPicker + VolumeInput tap-to-edit: add focus-visible rings, preserve grid columns at both viewports, preserve all 13 data-testids (inline-form-button focus-visible deferred to Phase 8 visual-qa audit as intentional partial coverage — flagged as W2 in plan-check)
+- [x] 06-09-PLAN.md — DrinkTypePicker + LeakTriggerPicker + SensationPicker + VolumeInput tap-to-edit: add focus-visible rings, preserve grid columns at both viewports, preserve all 13 data-testids (inline-form-button focus-visible deferred to Phase 8 visual-qa audit as intentional partial coverage — flagged as W2 in plan-check)
 
 **Wave 5 (DayPageClient orchestration)**
 - [ ] 06-10-PLAN.md — DayPageClient intercepts form `onDirtyChange`, shows ConfirmDialog on dirty-close attempt across all 5 forms; wires BottomSheet `inert` prop when ConfirmDialog stacks
@@ -199,6 +199,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. Ph
 | 3. UX polish + input validation | Stabilization | 0/TBD | Not started | - |
 | 4. Storage backend hardening | Stabilization | 2/2 | Complete | 2026-05-14 (planned route; 2 post-merge manual checks pending) |
 | 5. Layout foundation + AppShell chrome | Desktop & Tablet UX | 7/7 | Complete | 2026-05-16 (14 implementation commits + verification; shipped origin/main `86b082a..3fa1a08`) |
-| 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 0/11 | Planned (ready to execute) | - |
+| 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 2/11 | In Progress|  |
 | 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 0/TBD | Not started | - |
 | 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 0/TBD | Not started | - |
