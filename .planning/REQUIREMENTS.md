@@ -63,7 +63,7 @@ The patient app today is mobile-first and does not adapt for browsers wider than
   *Files:* `src/components/layout/AppShell.tsx`, `Header.tsx`, `BottomNav.tsx`, `Footer.tsx`, `src/components/diary/QuickLogFAB.tsx`.
   *Verify:* visit `/en/diary/day/1` at 1440px — no bottom tab bar present, top-bar nav shows Home/Track/Diary, Log-event affordance is anchored to the day's content not the viewport corner; visit at 375px — original mobile chrome unchanged.
 
-- [ ] **DTUX-03** — Keyboard navigation: Enter advances, Escape closes sheets, Tab order is logical
+- [x] **DTUX-03** — Keyboard navigation: Enter advances, Escape closes sheets, Tab order is logical
   Every wizard step in onboarding and every form sheet in the diary advances on `Enter` (when the current step is valid). `Escape` closes any open bottom sheet / modal. Initial focus on sheet open lands on the first interactive element. Tab order flows top-to-bottom through buttons → inputs → primary action. Focus rings are visible (Tailwind `focus-visible:` ring tokens, not the suppressed `outline-none` pattern).
   *Files:* `src/components/onboarding/OnboardingFlow.tsx`, all `Log*Form.tsx` + `Set*Form.tsx`, shared sheet container, `src/components/ui/Button.tsx` (focus-visible token).
   *Verify:* keyboard-only walkthrough of onboarding (3 steps) + a single drink-log + a single void-log completes without touching the mouse; Escape closes the sheet from any point.

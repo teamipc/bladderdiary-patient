@@ -135,7 +135,7 @@ Plans:
 **Wave 1 (foundation)**
 - [ ] 06-01-PLAN.md — Add `@keyframes modalIn` (180ms cubic-bezier, under Boomer-safe 200ms cap) to `globals.css`
 - [ ] 06-02-PLAN.md — Add 4 ConfirmDialog i18n keys (`common.discardEntryTitle`, `discardEntryMessage`, `discard`, `keepEditing`) with pre-vetted manual fallback translations for all 5 non-English locales
-- [ ] 06-03-PLAN.md — Migrate `Button.tsx` from `focus:` to `focus-visible:` token (Phase 5 Q5 carry-over)
+- [x] 06-03-PLAN.md — Migrate `Button.tsx` from `focus:` to `focus-visible:` token (Phase 5 Q5 carry-over)
 
 **Wave 2 (BottomSheet desktop modal transformation)**
 - [ ] 06-04-PLAN.md — BottomSheet.tsx adds md+ modal classes (`md:max-w-{2xl|3xl} md:shadow-xl md:ring-1 md:ring-black/5` + backdrop blur + slide-in animation); accessibility (role=dialog, aria-modal, aria-labelledby, focus trap, return focus on close, new `inert?` prop); 44×44 close X at md+; backdrop click handler; RTL fix (`right-2.5` → `end-2.5`); STABLE data-attribute initial-focus selector (`data-bottom-sheet-close` + `data-step-dot` — locale-independent, replaces brittle aria-label string matching that broke for ZH)
