@@ -20,6 +20,8 @@ export default function DrinkTypePicker({ value, onChange }: DrinkTypePickerProp
           <button
             key={drink.value}
             type="button"
+            data-testid={`drink-${drink.value}`}
+            aria-pressed={selected}
             onClick={() => onChange(drink.value)}
             className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl
               transition-all active:scale-[0.95]
