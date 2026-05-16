@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Moon } from 'lucide-react';
 import { track } from '@vercel/analytics';
 import { useTranslations, useLocale } from 'next-intl';
@@ -12,9 +12,10 @@ import { formatTime, getDefaultTimeForDay, correctAfterMidnight, advanceIsoToAft
 interface SetBedtimeFormProps {
   dayNumber: 1 | 2 | 3;
   onSave: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
 }
 
-export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProps) {
+export default function SetBedtimeForm({ dayNumber, onSave, onDirtyChange }: SetBedtimeFormProps) {
   const { setBedtime, getBedtimeForDay, getWakeTimeForDay, getVoidsForDay, getDrinksForDay, startDate, timeZone } = useDiaryStore();
   const t = useTranslations('bedtime');
   const locale = useLocale();
@@ -52,6 +53,11 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
   }, [dayNumber, startDate, timeZone, wakeTime]);
 
   const [time, setTime] = useState(() => resolve(smartDefault()));
+  // Snapshot of the time at mount — used for dirty-state comparison. useState's
+  // lazy initializer captures the initial value once and never updates, giving
+  // us a stable render-safe reference (the ref-based pattern trips React 19's
+  // react-hooks/refs rule because ref.current is not allowed in useMemo).
+  const [initialTimeSnapshotRef] = useState(() => time);
 
   const handleTimeChange = useCallback((newTime: string) => {
     setTime(resolve(newTime));
@@ -80,6 +86,14 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
 
   const isInvalid = isBeforeWakeUp || isBeforeLastEvent;
 
+  // Dirty-state tracking — per UI-SPEC §"Reset-on-Cancel Pattern" → SetBedtimeForm:
+  // dirty if time !== resolve(smartDefault()) — i.e., the user moved the time off the resolved default.
+  const isDirty = useMemo(() => time !== initialTimeSnapshotRef, [time, initialTimeSnapshotRef]);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
   const handleSave = useCallback(() => {
     if (isInvalid) return;
     setBedtime(dayNumber, time);
@@ -90,7 +104,20 @@ export default function SetBedtimeForm({ dayNumber, onSave }: SetBedtimeFormProp
   }, [dayNumber, time, isInvalid, existing, setBedtime, onSave]);
 
   return (
-    <div className="space-y-5">
+    <div
+      className="space-y-5"
+      onKeyDown={(e) => {
+        const target = e.target as HTMLElement;
+        const tag = target.tagName;
+        // Allow native Enter handling inside TimePicker text/number inputs (commit-edit).
+        if (tag === 'INPUT' && ((target as HTMLInputElement).type === 'text' || (target as HTMLInputElement).type === 'number')) return;
+        if (e.key !== 'Enter') return;
+        if (e.shiftKey) return;
+        e.preventDefault();
+        // Single-step form: Enter saves when valid (matches the Save button gate at line 116: disabled={isInvalid}).
+        if (!isInvalid) handleSave();
+      }}
+    >
       <div className="text-center py-3">
         <Moon size={44} className="text-bedtime mx-auto" />
         <p className="text-lg font-semibold text-bedtime mt-3">
