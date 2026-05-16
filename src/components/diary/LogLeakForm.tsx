@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, MessageSquarePlus, Check } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import TimePicker from '@/components/ui/TimePicker';
@@ -17,11 +17,12 @@ interface LogLeakFormProps {
   editEntry?: LeakEntry;
   initialTime?: string;
   isNightView?: boolean;
+  onDirtyChange?: (isDirty: boolean) => void;
 }
 
 const TOTAL_STEPS = 3;
 
-export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime, isNightView }: LogLeakFormProps) {
+export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime, isNightView, onDirtyChange }: LogLeakFormProps) {
   const { addLeak, updateLeak, getBedtimeForDay, getWakeTimeForDay, startDate, timeZone, leaks: allLeaks } = useDiaryStore();
   const t = useTranslations('logLeak');
   const tc = useTranslations('common');
@@ -63,6 +64,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   const [amount, setAmount] = useState<LeakAmount | null>(editEntry?.amount ?? null);
   const [urgencyBeforeLeak, setUrgencyBeforeLeak] = useState<boolean | null>(editEntry?.urgencyBeforeLeak ?? null);
   const [time, setTime] = useState(smartDefault);
+  const initialTimeSnapshotRef = useRef(time);
   const [notes, setNotes] = useState(editEntry?.notes ?? '');
   const [noteOpen, setNoteOpen] = useState(false);
 
@@ -77,6 +79,23 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   useEffect(() => {
     formRef.current = { trigger, amount, urgencyBeforeLeak, time, notes };
   });
+
+  // Dirty-state tracking — per UI-SPEC §"Reset-on-Cancel Pattern" → LogLeakForm:
+  // dirty if any of trigger/amount/urgencyBeforeLeak/notes/time differs from initial defaults.
+  // `noteOpen` is intentionally NOT included — toggling the note panel without typing
+  // should not mark the form dirty; only the `notes` content matters for dirty-state.
+  const isDirty = useMemo(() => {
+    if (trigger !== (editEntry?.trigger ?? null)) return true;
+    if (amount !== (editEntry?.amount ?? null)) return true;
+    if (urgencyBeforeLeak !== (editEntry?.urgencyBeforeLeak ?? null)) return true;
+    if (notes !== (editEntry?.notes ?? '')) return true;
+    if (time !== initialTimeSnapshotRef.current) return true;
+    return false;
+  }, [trigger, amount, urgencyBeforeLeak, notes, time, editEntry]);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   // Auto-save on unmount when editing
   useEffect(() => {
@@ -181,7 +200,27 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 
   return (
-    <div className="select-none min-h-[60vh]">
+    <div
+      className="select-none min-h-[60vh]"
+      onKeyDown={(e) => {
+        const target = e.target as HTMLElement;
+        const tag = target.tagName;
+        if (tag === 'TEXTAREA') return;
+        if (tag === 'INPUT' && ((target as HTMLInputElement).type === 'text' || (target as HTMLInputElement).type === 'number')) return;
+        if (e.key !== 'Enter') return;
+        if (e.shiftKey) return;
+        e.preventDefault();
+        if (step < TOTAL_STEPS) {
+          // Per-step gate matches the sticky Next button at line 405:
+          // Step 1 → 2 gated on !!trigger; Step 2 → 3 gated on urgencyBeforeLeak !== null.
+          const canAdvance = step === 1 ? !!trigger : urgencyBeforeLeak !== null;
+          if (canAdvance) goToStep(step + 1);
+        } else {
+          // Step 3: trigger Save (which also gates internally on !trigger || urgencyBeforeLeak === null per line 132).
+          handleSave();
+        }
+      }}
+    >
       {/* Step dots — terracotta theme */}
       <div className="flex flex-col items-center gap-1 mb-3">
         <div className="flex justify-center gap-2">
@@ -189,6 +228,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
             <button
               key={s}
               type="button"
+              data-step-dot="true"
               onClick={() => goToStep(s)}
               className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                 s === step
