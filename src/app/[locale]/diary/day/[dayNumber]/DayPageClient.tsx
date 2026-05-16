@@ -9,6 +9,7 @@ import TimelineView from '@/components/diary/TimelineView';
 import NextStepBanner from '@/components/diary/NextStepBanner';
 import QuickLogFAB from '@/components/diary/QuickLogFAB';
 import BottomSheet from '@/components/ui/BottomSheet';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import LogVoidForm from '@/components/diary/LogVoidForm';
 import LogDrinkForm from '@/components/diary/LogDrinkForm';
 import LogLeakForm from '@/components/diary/LogLeakForm';
@@ -36,6 +37,7 @@ export default function DayPageClient() {
   const searchParams = useSearchParams();
   const t = useTranslations('toasts');
   const tm = useTranslations('milestones');
+  const tc = useTranslations('common');
   const dayNumber = Math.min(3, Math.max(1, Number(params.dayNumber))) as 1 | 2 | 3;
   const {
     diaryStarted,
@@ -84,6 +86,12 @@ export default function DayPageClient() {
   const [toastEmoji, setToastEmoji] = useState<string | undefined>();
   const [toastDuration, setToastDuration] = useState(3000);
   const [showToast, setShowToast] = useState(false);
+
+  // Dirty-state tracking for reset-on-cancel pattern (Phase 6 / DTUX-03).
+  // Updated by each form's onDirtyChange callback; gates whether dismiss
+  // attempts (close X / Escape / backdrop click) trigger a ConfirmDialog.
+  const [activeFormDirty, setActiveFormDirty] = useState(false);
+  const [pendingClose, setPendingClose] = useState(false);
 
   // Edit state — track the entry being edited
   const [editVoidEntry, setEditVoidEntry] = useState<VoidEntry | undefined>();
@@ -166,6 +174,7 @@ export default function DayPageClient() {
     setEditDrinkEntry(undefined);
     setEditLeakEntry(undefined);
     setInitialTime(undefined);
+    setActiveFormDirty(false);
 
     // Check milestones (read fresh state from store)
     const store = useDiaryStore.getState();
@@ -218,12 +227,36 @@ export default function DayPageClient() {
     setShowToast(true);
   }, [dayNumber, showMilestoneToast, t, day1CelebrationShown, router]);
 
-  const handleClose = useCallback(() => {
+  // Internal close — unconditionally tears down the sheet + edit state.
+  // Used by handleSave (after a successful save) AND by handleDiscardConfirm
+  // (after the user confirms discarding unsaved changes).
+  const closeSheet = useCallback(() => {
     setSheetMode(null);
     setEditVoidEntry(undefined);
     setEditDrinkEntry(undefined);
     setEditLeakEntry(undefined);
     setInitialTime(undefined);
+    setActiveFormDirty(false);
+  }, []);
+
+  // Public close gate — fired by BottomSheet's onClose (close X / Escape / backdrop click).
+  // If the active form is dirty, show ConfirmDialog; otherwise close silently.
+  const handleSheetClose = useCallback(() => {
+    if (activeFormDirty) {
+      setPendingClose(true);
+    } else {
+      closeSheet();
+    }
+  }, [activeFormDirty, closeSheet]);
+
+  const handleDiscardConfirm = useCallback(() => {
+    setPendingClose(false);
+    closeSheet();
+  }, [closeSheet]);
+
+  const handleDiscardCancel = useCallback(() => {
+    setPendingClose(false);
+    // Keep modal open; user returns to editing.
   }, []);
 
   const handleEditVoid = useCallback((entry: VoidEntry) => {
@@ -291,9 +324,11 @@ export default function DayPageClient() {
 
       <BottomSheet
         open={sheetMode !== null}
-        onClose={handleClose}
+        onClose={handleSheetClose}
         noScroll={false}
         variant={sheetMode === 'drink' ? 'drink' : sheetMode === 'leak' ? 'leak' : sheetMode === 'bedtime' ? 'bedtime' : 'default'}
+        maxWidth={sheetMode === 'bedtime' || sheetMode === 'wakeup' ? 'narrow' : 'default'}
+        inert={pendingClose}
       >
         {sheetMode === 'void' && (
           <LogVoidForm
@@ -303,6 +338,7 @@ export default function DayPageClient() {
             initialTime={initialTime}
             isNightView={isNightView}
             onSave={() => { track('log_void', { day: dayNumber, edit: !!editVoidEntry }); handleSave(editVoidEntry ? t('peeUpdated') : t('peeSaved')); }}
+            onDirtyChange={setActiveFormDirty}
           />
         )}
         {sheetMode === 'drink' && (
@@ -313,6 +349,7 @@ export default function DayPageClient() {
             initialTime={initialTime}
             isNightView={isNightView}
             onSave={() => { track('log_drink', { day: dayNumber, edit: !!editDrinkEntry }); handleSave(editDrinkEntry ? t('drinkUpdated') : t('drinkSaved')); }}
+            onDirtyChange={setActiveFormDirty}
           />
         )}
         {sheetMode === 'leak' && (
@@ -323,21 +360,35 @@ export default function DayPageClient() {
             initialTime={initialTime}
             isNightView={isNightView}
             onSave={() => { track('log_leak', { day: dayNumber, edit: !!editLeakEntry }); handleSave(editLeakEntry ? t('leakUpdated') : t('leakSaved')); }}
+            onDirtyChange={setActiveFormDirty}
           />
         )}
         {sheetMode === 'bedtime' && (
           <SetBedtimeForm
             dayNumber={dayNumber}
             onSave={() => { track('log_bedtime', { day: dayNumber }); handleSave(t('bedtimeSaved')); }}
+            onDirtyChange={setActiveFormDirty}
           />
         )}
         {sheetMode === 'wakeup' && (
           <SetWakeTimeForm
             dayNumber={dayNumber}
             onSave={() => { track('log_wake', { day: dayNumber }); handleSave(t('wakeUpSaved')); }}
+            onDirtyChange={setActiveFormDirty}
           />
         )}
       </BottomSheet>
+
+      <ConfirmDialog
+        open={pendingClose}
+        title={tc('discardEntryTitle')}
+        message={tc('discardEntryMessage')}
+        confirmLabel={tc('discard')}
+        cancelLabel={tc('keepEditing')}
+        variant="danger"
+        onConfirm={handleDiscardConfirm}
+        onCancel={handleDiscardCancel}
+      />
 
       <Toast
         message={toastMessage}
