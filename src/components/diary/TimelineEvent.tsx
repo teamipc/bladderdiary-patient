@@ -74,7 +74,7 @@ export default function TimelineEvent(props: TimelineEventProps) {
                 ? `${fmt(entry.volumeMl)} + ${fmt(entry.doubleVoidMl)} ${volumeUnit}`
                 : `${fmt(entry.volumeMl)} ${volumeUnit}`}
             </span>
-            {entry.sensation !== null && (
+            {entry.sensation != null && (
               <span className="text-sm text-ipc-600 shrink-0">
                 {entry.sensation} – {ts(`${entry.sensation}.short`)}
               </span>
