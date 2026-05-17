@@ -135,19 +135,19 @@ export default function SummaryPage() {
         className="grid grid-cols-3 gap-2 animate-fade-slide-up opacity-0"
         style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
       >
-        <div className="rounded-2xl bg-ipc-50 border border-ipc-100 px-2 py-3 text-center">
+        <div className="rounded-2xl bg-ipc-50 border border-ipc-100 px-2 py-3 md:px-4 md:py-5 text-center">
           <p className="text-2xl font-bold text-ipc-950 tabular-nums leading-none">{voidCount}</p>
           <p className="text-[10px] uppercase tracking-wide text-ipc-600 mt-1.5 font-semibold leading-tight">
             {t('statBathroomTrips')}
           </p>
         </div>
-        <div className="rounded-2xl bg-ipc-50 border border-ipc-100 px-2 py-3 text-center">
+        <div className="rounded-2xl bg-ipc-50 border border-ipc-100 px-2 py-3 md:px-4 md:py-5 text-center">
           <p className="text-2xl font-bold text-ipc-950 tabular-nums leading-none">{drinkCount}</p>
           <p className="text-[10px] uppercase tracking-wide text-ipc-600 mt-1.5 font-semibold leading-tight">
             {t('statDrinks')}
           </p>
         </div>
-        <div className="rounded-2xl bg-ipc-50 border border-ipc-100 px-2 py-3 text-center">
+        <div className="rounded-2xl bg-ipc-50 border border-ipc-100 px-2 py-3 md:px-4 md:py-5 text-center">
           <p className="text-2xl font-bold text-ipc-950 tabular-nums leading-none">
             3<span className="text-sm font-medium text-ipc-500 ms-1">{t('statOutOf3')}</span>
           </p>

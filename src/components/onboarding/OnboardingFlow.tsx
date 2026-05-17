@@ -103,7 +103,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
         {/* Step 1: Age */}
         {step === 1 && (
-          <div key="step1" className={`w-full text-center ${animClass}`}>
+          <div key="step1" className={`w-full text-center ${animClass}`} onKeyDown={(e) => { const target = e.target as HTMLElement; if (target.tagName === 'TEXTAREA') return; if (e.key !== 'Enter' || e.shiftKey) return; e.preventDefault(); if (isAgeValid) { track('onboarding_age', { age: ageNum }); goForward(2); } }}>
             <h2 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-2 text-balance">
               {t('ageTitle')}
             </h2>
@@ -145,7 +145,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
         {/* Step 2: Unit selection */}
         {step === 2 && (
-          <div key="step2" className={`w-full text-center ${animClass}`}>
+          <div key="step2" className={`w-full text-center ${animClass}`} onKeyDown={(e) => { const target = e.target as HTMLElement; if (target.tagName === 'TEXTAREA') return; if (e.key !== 'Enter' || e.shiftKey) return; e.preventDefault(); track('onboarding_unit', { unit: volumeUnit }); goForward(3); }}>
             <h2 className="text-2xl font-bold text-ipc-950 mb-2 text-balance">
               {t('unitTitle')}
             </h2>
@@ -157,7 +157,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <button
                 type="button"
                 onClick={() => setVolumeUnit('mL')}
-                className={`flex-1 max-w-[160px] py-6 rounded-2xl border-2 transition-all active:scale-[0.97] ${
+                className={`flex-1 max-w-[160px] md:max-w-[200px] py-6 md:py-8 rounded-2xl border-2 transition-all active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
                   volumeUnit === 'mL'
                     ? 'border-ipc-500 bg-ipc-50 ring-2 ring-ipc-200/50'
                     : 'border-ipc-200/50 bg-white/60 hover:border-ipc-300'
@@ -170,7 +170,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <button
                 type="button"
                 onClick={() => setVolumeUnit('oz')}
-                className={`flex-1 max-w-[160px] py-6 rounded-2xl border-2 transition-all active:scale-[0.97] ${
+                className={`flex-1 max-w-[160px] md:max-w-[200px] py-6 md:py-8 rounded-2xl border-2 transition-all active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
                   volumeUnit === 'oz'
                     ? 'border-ipc-500 bg-ipc-50 ring-2 ring-ipc-200/50'
                     : 'border-ipc-200/50 bg-white/60 hover:border-ipc-300'
@@ -193,9 +193,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <button
                 type="button"
                 onClick={() => goBack(1)}
-                className="inline-flex items-center justify-center gap-1 px-4 min-h-[40px] rounded-full
+                className="inline-flex items-center justify-center gap-1 px-4 min-h-[44px] rounded-full
                   text-sm font-semibold text-ipc-700 bg-white border border-ipc-200
-                  hover:bg-ipc-50 active:scale-[0.97] transition-all"
+                  hover:bg-ipc-50 active:scale-[0.97] transition-all
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 <ChevronLeft size={16} className="rtl:scale-x-[-1]" />
                 {tc('back')}
@@ -206,7 +207,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
         {/* Step 3: Date confirmation + Timezone */}
         {step === 3 && (
-          <div key="step3" className={`w-full text-center ${animClass}`}>
+          <div key="step3" className={`w-full text-center ${animClass}`} onKeyDown={(e) => { const target = e.target as HTMLElement; if (target.tagName === 'TEXTAREA') return; if (e.key !== 'Enter' || e.shiftKey) return; e.preventDefault(); handleConfirm(); }}>
             <h2 className="text-2xl font-bold text-ipc-950 mb-1.5 text-balance">
               {t('dateTitle')}
             </h2>
@@ -276,9 +277,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <button
                 type="button"
                 onClick={() => goBack(2)}
-                className="inline-flex items-center justify-center gap-1 px-4 min-h-[40px] rounded-full
+                className="inline-flex items-center justify-center gap-1 px-4 min-h-[44px] rounded-full
                   text-sm font-semibold text-ipc-700 bg-white border border-ipc-200
-                  hover:bg-ipc-50 active:scale-[0.97] transition-all"
+                  hover:bg-ipc-50 active:scale-[0.97] transition-all
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 <ChevronLeft size={16} className="rtl:scale-x-[-1]" />
                 {tc('back')}
