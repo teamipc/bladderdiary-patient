@@ -111,7 +111,7 @@ export default function SummaryPage() {
         <div className="inline-flex w-14 h-14 rounded-full bg-success/15 items-center justify-center mb-3">
           <CheckCircle2 size={32} className="text-success" />
         </div>
-        <h1 className="text-2xl font-bold text-ipc-950 text-balance leading-tight px-4">
+        <h1 className="text-2xl md:text-4xl font-bold text-ipc-950 text-balance leading-tight px-4 md:px-0">
           {t('heroTitle')}
         </h1>
         <p className="text-base text-ipc-600 mt-2 text-balance px-4">
@@ -218,7 +218,7 @@ export default function SummaryPage() {
         className="animate-fade-slide-up opacity-0"
         style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}
       >
-        <h2 className="text-lg font-bold text-ipc-950 text-balance mb-1.5">{t('storyTitle')}</h2>
+        <h2 className="text-lg md:text-xl font-bold text-ipc-950 text-balance mb-1.5">{t('storyTitle')}</h2>
         <p className="text-sm text-ipc-600 leading-relaxed mb-4">{t('storyBody')}</p>
         <div className="space-y-3">
           <DrinkVoidTimeline dayNumber={1} />
@@ -250,7 +250,7 @@ export default function SummaryPage() {
         className="animate-fade-slide-up opacity-0"
         style={{ animationDelay: '750ms', animationFillMode: 'forwards' }}
       >
-        <h2 className="text-lg font-bold text-ipc-950 text-balance mb-3">{t('lookBackTitle')}</h2>
+        <h2 className="text-lg md:text-xl font-bold text-ipc-950 text-balance mb-3">{t('lookBackTitle')}</h2>
         <div className="space-y-3">
           <DaySummaryCard dayNumber={1} />
           <DaySummaryCard dayNumber={2} />
