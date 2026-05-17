@@ -68,7 +68,7 @@ The patient app today is mobile-first and does not adapt for browsers wider than
   *Files:* `src/components/onboarding/OnboardingFlow.tsx`, all `Log*Form.tsx` + `Set*Form.tsx`, shared sheet container, `src/components/ui/Button.tsx` (focus-visible token).
   *Verify:* keyboard-only walkthrough of onboarding (3 steps) + a single drink-log + a single void-log completes without touching the mouse; Escape closes the sheet from any point.
 
-- [ ] **DTUX-04** — Onboarding flow uses editorial desktop layout (not a tiny input swimming in 1920px whitespace)
+- [x] **DTUX-04** — Onboarding flow uses editorial desktop layout (not a tiny input swimming in 1920px whitespace)
   The 3-step wizard (age → start date → timezone + units) gets a desktop-appropriate composition: wider content column with a supporting visual or progress chrome, age input scaled appropriately for desktop hit-target conventions (not the same compact mobile size), step indicator visible at all widths.
   *Files:* `src/components/onboarding/OnboardingFlow.tsx`, individual step components.
   *Verify:* render onboarding at 1440px; the active step occupies a confident portion of the viewport; the age input is keyboard-typable (already true) AND visually proportioned for desktop.
