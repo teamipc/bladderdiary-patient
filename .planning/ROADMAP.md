@@ -199,6 +199,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. Ph
 | 3. UX polish + input validation | Stabilization | 0/TBD | Not started | - |
 | 4. Storage backend hardening | Stabilization | 2/2 | Complete | 2026-05-14 (planned route; 2 post-merge manual checks pending) |
 | 5. Layout foundation + AppShell chrome | Desktop & Tablet UX | 7/7 | Complete | 2026-05-16 (14 implementation commits + verification; shipped origin/main `86b082a..3fa1a08`) |
-| 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 2/11 | In Progress|  |
+| 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 11/11 | Complete | 2026-05-16 (14 implementation commits + Wave-6 spec; 31/31 Playwright pass; user-approved human-verify) |
 | 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 0/TBD | Not started | - |
 | 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 0/TBD | Not started | - |
