@@ -105,13 +105,13 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
   const Icon = shareSupported ? Share2 : FileText;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 md:max-w-2xl md:mx-auto">
       <Button
         onClick={handlePdf}
         fullWidth
         variant="primary"
         disabled={!hasData || exporting === 'pdf'}
-        className={shimmer ? 'animate-cta-shimmer' : ''}
+        className={`${shimmer ? 'animate-cta-shimmer ' : ''}md:hover:-translate-y-px md:transition-all md:duration-150`}
       >
         <Icon size={20} />
         {exporting === 'pdf' ? t('generating') : pdfLabel}
@@ -123,6 +123,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
           fullWidth
           variant="secondary"
           disabled={!hasData || exporting === 'csv'}
+          className="md:hover:-translate-y-px md:transition-all md:duration-150"
         >
           {shareSupported ? <Share2 size={20} /> : <FileSpreadsheet size={20} />}
           {exporting === 'csv' ? t('generating') : csvLabel}
