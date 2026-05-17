@@ -3,6 +3,7 @@
 import { useCallback, useState, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Button from '@/components/ui/Button';
+import Toast from '@/components/ui/Toast';
 import { useDiaryStore } from '@/lib/store';
 import { downloadCsv, generateCsvBlob } from '@/lib/exportCsv';
 import { FileText, FileSpreadsheet, Share2 } from 'lucide-react';
@@ -34,6 +35,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
   const ts = useTranslations('summary');
   const locale = useLocale();
   const [exporting, setExporting] = useState<string | null>(null);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
 
   // Detect share capability once on mount (stable across renders)
   const shareSupported = useMemo(() => canShareFiles(), []);
@@ -65,7 +67,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
       if (err instanceof Error && err.name === 'AbortError') return;
       console.error('PDF export failed:', err);
       const msg = err instanceof Error ? err.message : String(err);
-      alert(t('pdfError', { msg }));
+      setErrorToast(t('pdfError', { msg }));
     } finally {
       setTimeout(() => setExporting(null), 1000);
     }
@@ -91,7 +93,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
       console.error('CSV export failed:', err);
-      alert(t('csvError'));
+      setErrorToast(t('csvError'));
     } finally {
       setTimeout(() => setExporting(null), 1000);
     }
@@ -135,6 +137,14 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
           {t('noDataYet')}
         </p>
       )}
+
+      <Toast
+        message={errorToast ?? ''}
+        emoji="⚠️"
+        visible={errorToast !== null}
+        onDismiss={() => setErrorToast(null)}
+        duration={5000}
+      />
     </div>
   );
 }
