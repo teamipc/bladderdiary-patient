@@ -73,7 +73,7 @@ The patient app today is mobile-first and does not adapt for browsers wider than
   *Files:* `src/components/onboarding/OnboardingFlow.tsx`, individual step components.
   *Verify:* render onboarding at 1440px; the active step occupies a confident portion of the viewport; the age input is keyboard-typable (already true) AND visually proportioned for desktop.
 
-- [ ] **DTUX-05** — Summary + export page laid out for desktop (proper grid for metrics, hover affordances on export actions)
+- [x] **DTUX-05** — Summary + export page laid out for desktop (proper grid for metrics, hover affordances on export actions)
   Summary page metrics use a multi-column grid at `md`+ (e.g., 24HV / NPi / AVV / MVV / NBC laid out 5-up or 3-up + 2-up instead of stacked). Export action buttons (CSV / PDF / Share) get hover states and respect a reasonable max-width (don't stretch full-bleed).
   *Files:* `src/app/[locale]/summary/page.tsx`, `src/components/summary/`, `src/components/export/ExportActions.tsx`.
   *Verify:* render `/en/summary` after completing a 3-day diary at 1440px; metric grid is 3-up or 5-up not 1-up; export buttons hover + are reasonably-sized.
