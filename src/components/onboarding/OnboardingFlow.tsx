@@ -104,7 +104,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 1: Age */}
         {step === 1 && (
           <div key="step1" className={`w-full text-center ${animClass}`}>
-            <h2 className="text-2xl font-bold text-ipc-950 mb-2 text-balance">
+            <h2 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-2 text-balance">
               {t('ageTitle')}
             </h2>
             <p className="text-sm text-ipc-500 mb-8">
@@ -120,9 +120,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 placeholder={t('agePlaceholder')}
                 min={18}
                 max={120}
-                className="w-28 text-center text-3xl font-bold text-ipc-950
+                className="w-28 md:w-32 text-center text-3xl md:text-4xl font-bold text-ipc-950
                   bg-white/60 border-2 border-ipc-200/50 rounded-2xl py-3
-                  outline-none focus:border-ipc-500/60 focus:ring-2 focus:ring-ipc-200/30
+                  outline-none focus-visible:border-ipc-500/60 focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white
                   transition-all placeholder:text-ipc-200 placeholder:text-xl
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 autoFocus
