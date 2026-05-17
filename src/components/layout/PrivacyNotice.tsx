@@ -35,7 +35,7 @@ export default function PrivacyNotice() {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-20 z-40 px-3 sm:px-6 pointer-events-none"
+      className="fixed inset-x-0 bottom-44 md:bottom-28 z-40 px-3 sm:px-6 pointer-events-none"
       role="region"
       aria-label={t('ariaLabel')}
     >
