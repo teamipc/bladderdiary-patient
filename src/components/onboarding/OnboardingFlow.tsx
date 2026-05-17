@@ -146,7 +146,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 2: Unit selection */}
         {step === 2 && (
           <div key="step2" className={`w-full text-center ${animClass}`} onKeyDown={(e) => { const target = e.target as HTMLElement; if (target.tagName === 'TEXTAREA') return; if (e.key !== 'Enter' || e.shiftKey) return; e.preventDefault(); track('onboarding_unit', { unit: volumeUnit }); goForward(3); }}>
-            <h2 className="text-2xl font-bold text-ipc-950 mb-2 text-balance">
+            <h2 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-2 text-balance">
               {t('unitTitle')}
             </h2>
             <p className="text-sm text-ipc-500 mb-8">
@@ -208,7 +208,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 3: Date confirmation + Timezone */}
         {step === 3 && (
           <div key="step3" className={`w-full text-center ${animClass}`} onKeyDown={(e) => { const target = e.target as HTMLElement; if (target.tagName === 'TEXTAREA') return; if (e.key !== 'Enter' || e.shiftKey) return; e.preventDefault(); handleConfirm(); }}>
-            <h2 className="text-2xl font-bold text-ipc-950 mb-1.5 text-balance">
+            <h2 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-1.5 text-balance">
               {t('dateTitle')}
             </h2>
             <p className="text-sm text-ipc-500 mb-4 text-balance">
@@ -223,9 +223,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="ps-10 pe-4 py-3 text-base font-semibold text-ipc-950
+                  className="ps-10 pe-4 py-3 md:py-4 text-base md:text-lg font-semibold text-ipc-950
                     bg-white/60 border-2 border-ipc-200/50 rounded-2xl
-                    outline-none focus:border-ipc-500/60 focus:ring-2 focus:ring-ipc-200/30
+                    outline-none focus-visible:border-ipc-500/60 focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white
                     transition-all"
                 />
               </div>
