@@ -26,7 +26,7 @@ Two milestones tracked in this roadmap.
 
 - [ ] **Phase 5: Layout foundation + AppShell chrome** — Establish container/max-width tokens, breakpoint conventions, transform BottomNav → top-bar nav at `md`+, reposition QuickLogFAB, expand Header for desktop
 - [ ] **Phase 6: Diary forms + keyboard navigation** — All bottom-sheet forms (Void/Drink/Leak/Bedtime/Wake) get max-width + responsive button grids; Enter advances, Escape closes, Tab order is logical, focus rings visible
-- [ ] **Phase 7: Onboarding + Summary surfaces** — Editorial desktop layout for the 3-step wizard; multi-column metric grid + hover affordances on the summary/export page
+- [x] **Phase 7: Onboarding + Summary surfaces** — Editorial desktop layout for the 3-step wizard; multi-column metric grid + hover affordances on the summary/export page (completed 2026-05-17)
 - [ ] **Phase 8: Cross-locale visual QA + polish** — `visual-qa` skill runs the 6-locale × LTR/RTL × `md`/`lg`/`xl` matrix; fix overflow, font-fallback, and physical-CSS-in-RTL bugs surfaced
 
 ## Phase Details
@@ -175,7 +175,7 @@ Plans:
 - [x] 07-03-PLAN.md — ExportActions.tsx hover + max-w: CSV/PDF/Share buttons get `md:hover:-translate-y-px md:transition-all md:duration-150` (1px lift cap per Boomer-safe override 2; 150ms cap per override 3); color shift INHERITS from Button primitive (DO NOT override `hover:bg-*` — conflicts with primitive); responsive `md:max-w-2xl md:mx-auto` wrap around outer div
 
 **Wave 2 (verification, depends on Wave 1)**
-- [ ] 07-04-PLAN.md — New Playwright spec `e2e/phase7-onboarding-summary.spec.ts` covering: onboarding 3-step desktop matrix (6 locales × 375/768/1280) + summary page typography (6 locales × 3 widths) + export-button hover affordance smoke test + 2 back-pill 44px hit-target verification + SEO regression check (Next.js 16 `out/{locale}.html` paths per Phase 5 lesson) + aggregate physical-CSS guard across 3 modified files + human-verify checkpoint with screenshots
+- [x] 07-04-PLAN.md — New Playwright spec `e2e/phase7-onboarding-summary.spec.ts` covering: onboarding 3-step desktop matrix (6 locales × 375/768/1280) + summary page typography (6 locales × 3 widths) + export-button hover affordance smoke test + 2 back-pill 44px hit-target verification + SEO regression check (Next.js 16 `out/{locale}.html` paths per Phase 5 lesson) + aggregate physical-CSS guard across 3 modified files + human-verify checkpoint with screenshots
 
 ### Phase 8: Cross-locale visual QA + polish
 **Milestone**: Desktop & Tablet UX (Milestone 2)
@@ -206,5 +206,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. Ph
 | 4. Storage backend hardening | Stabilization | 2/2 | Complete | 2026-05-14 (planned route; 2 post-merge manual checks pending) |
 | 5. Layout foundation + AppShell chrome | Desktop & Tablet UX | 7/7 | Complete | 2026-05-16 (14 implementation commits + verification; shipped origin/main `86b082a..3fa1a08`) |
 | 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 11/11 | Complete | 2026-05-16 (14 implementation commits + Wave-6 spec; 31/31 Playwright pass; user-approved human-verify) |
-| 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 3/4 | In Progress|  |
+| 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 4/4 | Complete   | 2026-05-17 |
 | 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 0/TBD | Not started | - |
