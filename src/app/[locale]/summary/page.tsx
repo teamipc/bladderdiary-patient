@@ -66,9 +66,14 @@ export default function SummaryPage() {
   // the locked state or the redirect.
   if (!hydrated) {
     return (
-      <div className="flex items-center justify-center py-24 bg-surface">
-        <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
-      </div>
+      <Container variant="default" as="div" className="pt-12 text-center">
+        <h1 className="text-2xl md:text-4xl font-bold text-ipc-950 text-balance leading-tight px-4 md:px-0 mb-6">
+          {t('heroTitle')}
+        </h1>
+        <div className="flex items-center justify-center py-12">
+          <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
+        </div>
+      </Container>
     );
   }
 
