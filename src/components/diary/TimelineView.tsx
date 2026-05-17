@@ -571,7 +571,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
           </p>
           {!isNighttime && (
             <p className={`text-base mb-5 ${isNighttime ? 'text-indigo-300/80' : 'text-ipc-500'}`}>
-              {dayNumber === 1 && !hasWakeTime
+              {!hasWakeTime && (dayNumber === 1 || hasNightPhase)
                 ? t('startByWakeUp')
                 : t('addFirstPee', { dayNumber })}
             </p>
@@ -620,7 +620,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
             </div>
           ) : (
             <div className="space-y-4">
-              {dayNumber === 1 && !hasWakeTime && onLogWakeUp ? (
+              {!hasWakeTime && (dayNumber === 1 || hasNightPhase) && onLogWakeUp ? (
                 <button type="button" onClick={handleWakeUp}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold text-base active:scale-[0.97] transition-all bg-warning/15 text-warning border border-warning/30 animate-wake-guide">
                   <Sun size={18} />
@@ -819,7 +819,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
                 </Link>
               </div>
               <Link
-                href={`/diary/day/${dayNumber + 1}?view=night`}
+                href={`/diary/day/${dayNumber + 1}?view=day`}
                 className="flex items-center justify-center gap-2 w-full px-5 py-3 rounded-2xl bg-ipc-100/70 border border-ipc-200/70 text-ipc-700 font-semibold text-base active:scale-[0.97] transition-all"
               >
                 {t('noOvernightContinueButton', { dayNumber: dayNumber + 1 })}
