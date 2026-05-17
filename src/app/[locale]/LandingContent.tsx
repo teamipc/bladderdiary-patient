@@ -32,6 +32,20 @@ import {
   scheduleDiaryCompleteReminder,
 } from '@/lib/notifications';
 
+/**
+ * Validation for the `?clinic=` URL search param.
+ *
+ * Rule: alphanumeric + hyphen, 1 to 32 characters. Anything outside
+ * this charset (including <script>, multi-thousand-char payloads,
+ * URL-encoded entities, whitespace, etc.) is silently rejected —
+ * the param is NOT persisted to the diary store. A dev-only
+ * console.warn fires for debugging visibility.
+ *
+ * Locked at gate: see .planning/phases/03-ux-polish-input-validation/03-CONTEXT.md
+ * §"STAB-08 — locked details".
+ */
+export const CLINIC_CODE_RE = /^[A-Za-z0-9-]{1,32}$/;
+
 function LandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,8 +59,12 @@ function LandingContent() {
 
   useEffect(() => {
     const clinic = searchParams.get('clinic');
-    if (clinic) {
+    if (clinic && CLINIC_CODE_RE.test(clinic)) {
       setClinicCode(clinic);
+    } else if (clinic && process.env.NODE_ENV !== 'production') {
+      // Truncate payload at 100 chars to prevent dev-tools console
+      // blow-up on a 5000-char attack string.
+      console.warn('Ignored invalid clinicCode:', clinic.slice(0, 100));
     }
   }, [searchParams, setClinicCode]);
 
