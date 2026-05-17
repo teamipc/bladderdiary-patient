@@ -78,7 +78,7 @@ The patient app today is mobile-first and does not adapt for browsers wider than
   *Files:* `src/app/[locale]/summary/page.tsx`, `src/components/summary/`, `src/components/export/ExportActions.tsx`.
   *Verify:* render `/en/summary` after completing a 3-day diary at 1440px; metric grid is 3-up or 5-up not 1-up; export buttons hover + are reasonably-sized.
 
-- [ ] **DTUX-06** — All 6 locales pass visual QA at `md` / `lg` / `xl` in both LTR and RTL
+- [x] **DTUX-06** — All 6 locales pass visual QA at `md` / `lg` / `xl` in both LTR and RTL
   Cross-locale walkthrough at desktop widths catches: PT/AR text overflow on wide buttons (long translations), font fallbacks for ZH/AR (CJK + Arabic glyphs), RTL physical-CSS leaks introduced during DTUX-01/02 (must use logical properties: `ms-`/`me-` not `ml-`/`mr-`, `start`/`end` not `left`/`right`), focus-ring visibility in dark and light backgrounds, AA contrast on hover and focus states.
   *Files:* runs against the production app via the `visual-qa` skill; any fixes land in the components touched by DTUX-01–05.
   *Verify:* `visual-qa` skill runs the 6-locale × LTR/RTL × `md`/`lg`/`xl` matrix; zero new findings logged to `walkthrough_findings.md`; existing daily walkthrough still green.

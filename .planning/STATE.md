@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 7 SHIPPED 2026-05-17 — DTUX-04 + DTUX-05 closed. Wave 1 (07-01/02/03) ran in parallel without worktree isolation; documented vitest stash/pop race bundled 07-02's tile-padding edits into 07-01's commit 8791349 (content correct, atomicity blurred — noted in 07-02-SUMMARY). Wave 2 (07-04) wrote 851-line Playwright spec; orchestrator ran the suite (sandbox blocked agent server startup); 28/28 PASS in 11.3min across 6 locales × 3 viewports + EN+AR Enter-advance + SEO regression + back-pill 44px + export hover. All aggregate guards PASS (physical-CSS, FLAT-tile, i18n parity 698 keys, SEO canonical/hreflang/JSON-LD). User approved. Phase 8 (cross-locale visual QA via visual-qa skill) is the only remaining Desktop & Tablet UX phase. Ready for `git push origin main` when user confirms.
-last_updated: "2026-05-17T17:00:00.000Z"
-last_activity: 2026-05-17 — Phase 7 EXECUTED + SHIPPED. 4 plans done across 2 waves; 8 implementation commits; 28/28 Playwright PASS; user-approved.
+status: "Phase 7 SHIPPED 2026-05-17 (Both DTUX-04 + DTUX-05 closed). 8 implementation commits + 1 spec commit + 4 SUMMARY commits. Wave 1 ran 3 executors in parallel against a shared working tree — a documented vitest stash/pop race bundled 07-02's 3-stat tile-padding into 07-01's commit `8791349`; content correct, atomicity blurred (next time use isolation="worktree" for parallel waves touching the same repo). Wave 2: 851-line Playwright spec across 6 locales × 3 viewports + Enter-advance EN/AR + back-pill 44px + export hover smoke + SEO regression. ZERO new i18n keys, ZERO new physical CSS, ONE accepted mobile diff (back-pill 40→44px per Boomer-safe override 1). Remaining Desktop & Tablet UX milestone: Phase 8 only."
+stopped_at: Phase 4 + code-review follow-ups complete. After Phase 4 shipped, an inline code review (gsd-code-reviewer subagent 529'd; reviewer done inline) found 1 BLOCKING (notifications west-of-UTC tomorrow bug — regression I introduced via STAB-02), 1 HIGH (IDB-throws hides localStorage), 1 MEDIUM (DST drift in day-4 reminder), 1 LOW (JSDoc). Quick task 260514-ttr fixed all 4 with atomic commits (b0a7e4c, ca1dae6, 52c1c39, 091f802, 6c171eb). 413/413 vitest pass, tsc clean. Codex cross-AI review was attempted but Codex CLI is unauthenticated (refresh-token expired) — user said they'd re-auth and have me retry; deferred for now. Ready for `git push origin main` → Vercel auto-deploy when user confirms. Only Phase 3 (STAB-06/07/08 UX polish) remains in the Stabilization milestone.
+last_updated: "2026-05-17T19:22:04.375Z"
+last_activity: 2026-05-17 — Phase 7 EXECUTED + SHIPPED + user-approved.
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 2
   total_plans: 24
-  completed_plans: 12
-  percent: 50
+  completed_plans: 9
+  percent: 38
 ---
 
 # Project State
@@ -30,7 +30,7 @@ Plan: Phase 7 complete — 4/4 plans shipped (07-01 OnboardingFlow, 07-02 summar
 Status: Phase 7 SHIPPED 2026-05-17 (Both DTUX-04 + DTUX-05 closed). 8 implementation commits + 1 spec commit + 4 SUMMARY commits. Wave 1 ran 3 executors in parallel against a shared working tree — a documented vitest stash/pop race bundled 07-02's 3-stat tile-padding into 07-01's commit `8791349`; content correct, atomicity blurred (next time use isolation="worktree" for parallel waves touching the same repo). Wave 2: 851-line Playwright spec across 6 locales × 3 viewports + Enter-advance EN/AR + back-pill 44px + export hover smoke + SEO regression. ZERO new i18n keys, ZERO new physical CSS, ONE accepted mobile diff (back-pill 40→44px per Boomer-safe override 1). Remaining Desktop & Tablet UX milestone: Phase 8 only.
 Last activity: 2026-05-17 — Phase 7 EXECUTED + SHIPPED + user-approved.
 
-Progress: [█████░░░░░] 50%
+Progress: [████░░░░░░] 38%
 
 ## Performance Metrics
 
@@ -103,6 +103,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-17T14:16:31.376Z
+Last session: 2026-05-17T19:22:04.366Z
 Stopped at: Phase 4 + code-review follow-ups complete. After Phase 4 shipped, an inline code review (gsd-code-reviewer subagent 529'd; reviewer done inline) found 1 BLOCKING (notifications west-of-UTC tomorrow bug — regression I introduced via STAB-02), 1 HIGH (IDB-throws hides localStorage), 1 MEDIUM (DST drift in day-4 reminder), 1 LOW (JSDoc). Quick task 260514-ttr fixed all 4 with atomic commits (b0a7e4c, ca1dae6, 52c1c39, 091f802, 6c171eb). 413/413 vitest pass, tsc clean. Codex cross-AI review was attempted but Codex CLI is unauthenticated (refresh-token expired) — user said they'd re-auth and have me retry; deferred for now. Ready for `git push origin main` → Vercel auto-deploy when user confirms. Only Phase 3 (STAB-06/07/08 UX polish) remains in the Stabilization milestone.
 Resume file: None
