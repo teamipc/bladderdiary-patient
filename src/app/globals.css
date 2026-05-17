@@ -260,6 +260,33 @@ input, select, textarea {
   color: rgba(99, 90, 160, 0.5) !important;
 }
 
+/* Phase 5 top-bar nav (NavLink helper inside Header) adapts to night mode.
+   The Phase 5 NavLinks use `bg-ipc-100` (active), `hover:bg-ipc-50`,
+   `text-ipc-950` (hover), and `decoration-ipc-400` (active underline). At day
+   these are warm cream + amber on the cream-tinted Header backdrop, with
+   AA contrast. At night the Header backdrop becomes faintly-cream-tinted-on-
+   purple (`rgba(253,248,239,0.12)` over `#1e1b3a`), so the warm cream
+   active-state background visually disappears (cream-on-cream-on-dark) and
+   the amber hover-text becomes near-black on near-dark — both unreadable.
+   Override below remaps to subtle indigo tints that keep AA contrast on
+   the dark Header. The BottomNav override above is unaffected because
+   `header nav` is more specific than `nav` alone. */
+.nighttime-bg header nav .bg-ipc-100 {
+  background-color: rgba(141, 132, 200, 0.25) !important;
+}
+.nighttime-bg header nav .hover\:bg-ipc-50:hover {
+  background-color: rgba(141, 132, 200, 0.15) !important;
+}
+.nighttime-bg header nav .hover\:text-ipc-950:hover {
+  color: #f4f1fa !important;
+}
+.nighttime-bg header nav .decoration-ipc-400 {
+  text-decoration-color: rgba(180, 170, 220, 0.85) !important;
+}
+.nighttime-bg header nav .hover\:decoration-ipc-600:hover {
+  text-decoration-color: rgba(200, 192, 232, 0.95) !important;
+}
+
 /* Bottom sheet adapts to night mode — darker surface, lighter text */
 .nighttime-bg .bg-white\/70 {
   background-color: rgba(38, 34, 70, 0.92) !important;
