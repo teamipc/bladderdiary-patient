@@ -17,7 +17,7 @@ import SetBedtimeForm from '@/components/diary/SetBedtimeForm';
 import SetWakeTimeForm from '@/components/diary/SetWakeTimeForm';
 import Day1Celebration from '@/components/diary/Day1Celebration';
 import Toast from '@/components/ui/Toast';
-import { useDiaryStore } from '@/lib/store';
+import { useDiaryStore, useStoreHydrated } from '@/lib/store';
 import type { VoidEntry, DrinkEntry, LeakEntry, BedtimeEntry } from '@/lib/types';
 
 type SheetMode = null | 'void' | 'drink' | 'leak' | 'bedtime' | 'wakeup';
@@ -48,6 +48,13 @@ export default function DayPageClient() {
     markDay1CelebrationShown,
     setMorningAnchor,
   } = useDiaryStore();
+  // Don't make any routing decision until persist has finished rehydrating from
+  // localStorage — otherwise a deep-link to /diary/day/N fires the redirect
+  // useEffect on the empty initial state (diaryStarted = false) and bounces the
+  // patient to "/" even when localStorage holds a valid in-progress diary.
+  // Mirrors the same pattern in src/app/[locale]/summary/page.tsx and
+  // src/app/[locale]/LandingContent.tsx.
+  const hydrated = useStoreHydrated();
 
   // Milestone messages — shown once per session via localStorage
   const MILESTONES: Record<string, { emoji: string; message: string; subtitle: string; duration: number }> = {
@@ -108,36 +115,43 @@ export default function DayPageClient() {
   // Auto-open void form when arriving with ?add=void (from "Log overnight pee" shortcut)
   const autoOpenConsumed = useRef(false);
   useEffect(() => {
+    if (!hydrated) return;
     if (autoOpenConsumed.current) return;
     if (!diaryStarted || !prevDayComplete) return;
     if (searchParams.get('add') === 'void' && canLogEntries) {
       autoOpenConsumed.current = true;
       setSheetMode('void');
     }
-  }, [diaryStarted, prevDayComplete, searchParams, canLogEntries]);
+  }, [hydrated, diaryStarted, prevDayComplete, searchParams, canLogEntries]);
 
   // Track page view once per day number
   const trackedDay = useRef(0);
   useEffect(() => {
+    if (!hydrated) return;
     if (diaryStarted && prevDayComplete && trackedDay.current !== dayNumber) {
       trackedDay.current = dayNumber;
       track('view_day', { day: dayNumber });
     }
-  }, [diaryStarted, prevDayComplete, dayNumber]);
+  }, [hydrated, diaryStarted, prevDayComplete, dayNumber]);
 
-  // Redirect to landing if diary not started
+  // Redirect to landing if diary not started — gated on hydration to avoid a
+  // race where the persist middleware hasn't yet loaded localStorage and
+  // diaryStarted reads as the default `false` from the unhydrated store,
+  // causing a wrong redirect when the user deep-links to /diary/day/N.
   useEffect(() => {
+    if (!hydrated) return;
     if (!diaryStarted) {
       router.replace('/');
     }
-  }, [diaryStarted, router]);
+  }, [hydrated, diaryStarted, router]);
 
-  // Redirect to previous day if it's not complete yet
+  // Redirect to previous day if it's not complete yet — same hydration gate.
   useEffect(() => {
+    if (!hydrated) return;
     if (diaryStarted && !prevDayComplete) {
       router.replace(`/diary/day/${dayNumber - 1}`);
     }
-  }, [diaryStarted, prevDayComplete, dayNumber, router]);
+  }, [hydrated, diaryStarted, prevDayComplete, dayNumber, router]);
 
   // Toggle full-page night background on body
   useEffect(() => {
@@ -298,6 +312,17 @@ export default function DayPageClient() {
     setInitialTime(time);
     setSheetMode('leak');
   }, []);
+
+  // Until hydration finishes, show a non-committal loading state. This avoids
+  // a flash of either the redirect target or the page content while the Zustand
+  // persist middleware is asynchronously rehydrating from localStorage.
+  if (!hydrated) {
+    return (
+      <div className="flex items-center justify-center py-24 bg-surface">
+        <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
+      </div>
+    );
+  }
 
   if (!diaryStarted || !prevDayComplete) return null;
 
