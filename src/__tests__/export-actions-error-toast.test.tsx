@@ -115,3 +115,75 @@ describe('ExportActions — error toast (STAB-07)', () => {
     expect(screen.queryByText(/PDF error|mock-pdf-fail/i)).toBeNull();
   });
 });
+
+describe('ExportActions — Download alternative when Web Share is supported', () => {
+  beforeEach(() => {
+    useDiaryStore.getState().resetDiary();
+    useDiaryStore.setState({
+      diaryStarted: true,
+      startDate: '2026-05-17',
+      voids: [
+        {
+          id: 'v1',
+          timestampIso: new Date().toISOString(),
+          volumeMl: 200,
+          sensation: 2,
+          leak: false,
+          note: '',
+          isFirstMorningVoid: false,
+        },
+      ],
+    });
+    // Stub Web Share API so canShareFiles() returns true.
+    Object.defineProperty(global.navigator, 'share', {
+      value: vi.fn().mockResolvedValue(undefined),
+      configurable: true,
+      writable: true,
+    });
+    Object.defineProperty(global.navigator, 'canShare', {
+      value: vi.fn().mockReturnValue(true),
+      configurable: true,
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    // Restore: delete the stubs so canShareFiles() returns false in other tests.
+    // @ts-expect-error — deleting at runtime, types don't allow
+    delete (global.navigator as Navigator).share;
+    // @ts-expect-error — same
+    delete (global.navigator as Navigator).canShare;
+  });
+
+  it('renders both share PDF button + Download PDF text-link when shareSupported', () => {
+    render(wrapper(<ExportActions />));
+    // Primary "Send to your healthcare team" share button is the existing CTA.
+    expect(screen.getByRole('button', { name: /send to your healthcare team/i })).toBeTruthy();
+    // NEW: secondary "Save the PDF for me" download-alt as a text-link button.
+    expect(screen.getByTestId('export-pdf-download-alt')).toBeTruthy();
+    expect(screen.getByText(/save the pdf for me/i)).toBeTruthy();
+  });
+
+  it('renders both share CSV button + Download CSV text-link when shareSupported', () => {
+    render(wrapper(<ExportActions />));
+    expect(screen.getByRole('button', { name: /send a spreadsheet/i })).toBeTruthy();
+    expect(screen.getByTestId('export-csv-download-alt')).toBeTruthy();
+    expect(screen.getByText(/save the spreadsheet/i)).toBeTruthy();
+  });
+
+  it('omits both download-alt links when pdfOnly=true (top-of-page reward CTA)', () => {
+    render(wrapper(<ExportActions pdfOnly />));
+    // PDF download-alt still shown (PDF is the only export in pdfOnly mode)
+    expect(screen.getByTestId('export-pdf-download-alt')).toBeTruthy();
+    // CSV download-alt + CSV share button BOTH suppressed
+    expect(screen.queryByTestId('export-csv-download-alt')).toBeNull();
+    expect(screen.queryByRole('button', { name: /send a spreadsheet/i })).toBeNull();
+  });
+
+  it('omits download-alt links when there is no diary data', () => {
+    useDiaryStore.getState().resetDiary(); // back to empty state
+    render(wrapper(<ExportActions />));
+    expect(screen.queryByTestId('export-pdf-download-alt')).toBeNull();
+    expect(screen.queryByTestId('export-csv-download-alt')).toBeNull();
+  });
+});

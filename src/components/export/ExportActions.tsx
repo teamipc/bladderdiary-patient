@@ -73,6 +73,24 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
     }
   }, [store, shareSupported, locale]);
 
+  // ── PDF download (always-download alternative when share IS supported) ──
+  // Patient asked for an explicit save-to-device option even on share-capable
+  // devices, so they aren't forced through the OS share sheet to keep a copy.
+  const handlePdfDownload = useCallback(async () => {
+    setExporting('pdf');
+    try {
+      const { generatePdf } = await import('@/lib/exportPdf');
+      generatePdf(store, locale);
+      track('pdf_generated', { method: 'download_alt' });
+    } catch (err) {
+      console.error('PDF download failed:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      setErrorToast(t('pdfError', { msg }));
+    } finally {
+      setTimeout(() => setExporting(null), 1000);
+    }
+  }, [store, locale, t]);
+
   // ── CSV ──
   const handleCsv = useCallback(async () => {
     setExporting('csv');
@@ -99,6 +117,20 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
     }
   }, [store, shareSupported]);
 
+  // ── CSV download (always-download alternative when share IS supported) ──
+  const handleCsvDownload = useCallback(() => {
+    setExporting('csv');
+    try {
+      downloadCsv(store);
+      track('csv_generated', { method: 'download_alt' });
+    } catch (err) {
+      console.error('CSV download failed:', err);
+      setErrorToast(t('csvError'));
+    } finally {
+      setTimeout(() => setExporting(null), 1000);
+    }
+  }, [store, t]);
+
   const hasData = store.hasData();
   // Alliance framing on the summary page: "Send to your healthcare team"
   // (when sharing is supported) reads as collaboration, not data submission.
@@ -119,6 +151,23 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
         {exporting === 'pdf' ? t('generating') : pdfLabel}
       </Button>
 
+      {/* Secondary "save to this device" affordance — rendered only when the
+          OS-level share sheet is the primary path (mobile / iPadOS). Lets the
+          patient keep a copy locally without going through share. Text-link
+          weight (not full Button) preserves visual hierarchy: share stays the
+          primary CTA, download is the quieter alternative. */}
+      {shareSupported && hasData && (
+        <button
+          type="button"
+          onClick={handlePdfDownload}
+          disabled={exporting === 'pdf'}
+          data-testid="export-pdf-download-alt"
+          className="block w-full text-center text-sm text-ipc-700 hover:text-ipc-950 underline underline-offset-4 decoration-ipc-300 hover:decoration-ipc-500 disabled:opacity-50 disabled:cursor-not-allowed py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded"
+        >
+          {ts('exportSavePdf')}
+        </button>
+      )}
+
       {!pdfOnly && (
         <Button
           onClick={handleCsv}
@@ -130,6 +179,18 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
           {shareSupported ? <Share2 size={20} /> : <FileSpreadsheet size={20} />}
           {exporting === 'csv' ? t('generating') : csvLabel}
         </Button>
+      )}
+
+      {!pdfOnly && shareSupported && hasData && (
+        <button
+          type="button"
+          onClick={handleCsvDownload}
+          disabled={exporting === 'csv'}
+          data-testid="export-csv-download-alt"
+          className="block w-full text-center text-sm text-ipc-700 hover:text-ipc-950 underline underline-offset-4 decoration-ipc-300 hover:decoration-ipc-500 disabled:opacity-50 disabled:cursor-not-allowed py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded"
+        >
+          {ts('exportSaveCsv')}
+        </button>
       )}
 
       {!hasData && (
