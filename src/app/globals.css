@@ -287,6 +287,50 @@ input, select, textarea {
   text-decoration-color: rgba(200, 192, 232, 0.95) !important;
 }
 
+/* Footer adapts to night mode — kill the warm `bg-gradient-to-b from-surface to-ipc-50/40`
+   gradient and remap text + email-button + link colors so the footer doesn't visually
+   split the page into a dark-top + cream-bottom on /diary/day/N?view=night.
+   Mirrors the pattern used for `.nighttime-bg header` above. */
+.nighttime-bg footer {
+  background: #1e1b3a !important;
+  border-top-color: rgba(99, 90, 160, 0.25) !important;
+}
+.nighttime-bg footer .text-ipc-950 {
+  color: #e8e6f0 !important;
+}
+.nighttime-bg footer .text-ipc-900 {
+  color: #d8d2ec !important;
+}
+.nighttime-bg footer .text-ipc-700 {
+  color: #b0a8d4 !important;
+}
+.nighttime-bg footer .text-ipc-600 {
+  color: #9a92c8 !important;
+}
+.nighttime-bg footer .text-ipc-500 {
+  color: #8a82b8 !important;
+}
+.nighttime-bg footer .text-ipc-300 {
+  color: rgba(141, 132, 200, 0.4) !important;
+}
+/* Email button — kill the white pill, remap to a subtle dark surface */
+.nighttime-bg footer .bg-white {
+  background-color: rgba(38, 34, 70, 0.92) !important;
+}
+.nighttime-bg footer .border-ipc-200 {
+  border-color: rgba(141, 132, 200, 0.3) !important;
+}
+.nighttime-bg footer .hover\:border-ipc-400:hover {
+  border-color: rgba(141, 132, 200, 0.5) !important;
+}
+/* Privacy/Terms/Help link hover + decoration */
+.nighttime-bg footer .hover\:text-ipc-950:hover {
+  color: #f4f1fa !important;
+}
+.nighttime-bg footer .decoration-ipc-300 {
+  text-decoration-color: rgba(141, 132, 200, 0.4) !important;
+}
+
 /* Bottom sheet adapts to night mode — darker surface, lighter text */
 .nighttime-bg .bg-white\/70 {
   background-color: rgba(38, 34, 70, 0.92) !important;

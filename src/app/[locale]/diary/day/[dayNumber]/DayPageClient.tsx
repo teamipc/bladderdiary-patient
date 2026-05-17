@@ -120,6 +120,14 @@ export default function DayPageClient() {
     if (!diaryStarted || !prevDayComplete) return;
     if (searchParams.get('add') === 'void' && canLogEntries) {
       autoOpenConsumed.current = true;
+      // The "Log overnight pee" link sits near the bottom of Day N's timeline.
+      // Next.js preserves scroll across the same-segment route change to
+      // /diary/day/${N+1}?view=night&add=void, so without an explicit reset
+      // the user lands on Day N+1's page already scrolled to the footer —
+      // the sheet opens off-screen above. Force scroll to top before opening.
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
       setSheetMode('void');
     }
   }, [hydrated, diaryStarted, prevDayComplete, searchParams, canLogEntries]);
