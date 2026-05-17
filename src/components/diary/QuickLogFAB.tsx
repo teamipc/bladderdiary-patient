@@ -64,7 +64,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
               type="button"
               data-testid="fab-action-drink"
               onClick={() => handleAction('drink')}
-              className="flex items-center justify-between gap-3 min-w-[8rem] ps-4 pe-3 py-2.5 rounded-full bg-drink
+              className="flex items-center justify-between gap-3 min-w-[8rem] min-h-[44px] ps-4 pe-3 py-2.5 rounded-full bg-drink
                 text-white shadow-lg active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface transition-transform"
             >
               <span className="text-base font-semibold">{t('drink')}</span>
@@ -77,7 +77,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
               type="button"
               data-testid="fab-action-leak"
               onClick={() => handleAction('leak')}
-              className="flex items-center justify-between gap-3 min-w-[8rem] ps-4 pe-3 py-2.5 rounded-full bg-leak
+              className="flex items-center justify-between gap-3 min-w-[8rem] min-h-[44px] ps-4 pe-3 py-2.5 rounded-full bg-leak
                 text-white shadow-lg active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface transition-transform"
             >
               <span className="text-base font-semibold">{t('leak')}</span>
@@ -90,7 +90,7 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
               type="button"
               data-testid="fab-action-void"
               onClick={() => handleAction('void')}
-              className="flex items-center justify-between gap-3 min-w-[8rem] ps-4 pe-3 py-2.5 rounded-full bg-void
+              className="flex items-center justify-between gap-3 min-w-[8rem] min-h-[44px] ps-4 pe-3 py-2.5 rounded-full bg-void
                 text-white shadow-lg active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface transition-transform"
             >
               <span className="text-base font-semibold">{t('pee')}</span>
