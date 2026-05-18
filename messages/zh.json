@@ -784,7 +784,8 @@
       "affiliations": "所属机构",
       "articlesAuthored": "{name} 的文章",
       "articlesReviewed": "{name} 医学审阅的文章",
-      "noArticles": "暂时还没有文章。"
+      "noArticles": "暂时还没有文章。",
+      "photoAlt": "{name}的肖像"
     },
     "disclaimer": "本文仅用于教育用途。它不提供医疗建议、诊断或治疗。任何医疗状况都请咨询合格的医疗专业人员。",
     "breadcrumbs": {

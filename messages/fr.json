@@ -784,7 +784,8 @@
         "affiliations": "Affiliations",
         "articlesAuthored": "Articles de {name}",
         "articlesReviewed": "Articles revus médicalement par {name}",
-        "noArticles": "Aucun article pour le moment."
+        "noArticles": "Aucun article pour le moment.",
+        "photoAlt": "Portrait de {name}"
       },
       "disclaimer": "Cet article est à des fins éducatives uniquement. Il ne constitue pas un avis médical, un diagnostic ou un traitement. Consultez toujours un professionnel de santé qualifié pour toute condition médicale.",
       "breadcrumbs": {

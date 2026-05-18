@@ -99,10 +99,10 @@ export default async function AuthorPage({
           {author.photoUrl && (
             <Image
               src={author.photoUrl}
-              alt={author.name}
+              alt={tAuthor('photoAlt', { name: author.name })}
               width={80}
               height={80}
-              className="rounded-full bg-ipc-50"
+              className="rounded-full bg-ipc-50 object-cover"
             />
           )}
           <div>

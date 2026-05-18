@@ -784,7 +784,8 @@
       "affiliations": "Afiliações",
       "articlesAuthored": "Artigos de {name}",
       "articlesReviewed": "Artigos com revisão médica de {name}",
-      "noArticles": "Ainda não há artigos."
+      "noArticles": "Ainda não há artigos.",
+      "photoAlt": "Retrato de {name}"
     },
     "disclaimer": "Este artigo destina-se apenas a fins educativos. Não fornece aconselhamento médico, diagnóstico ou tratamento. Consulta sempre um profissional de saúde qualificado para qualquer condição médica.",
     "breadcrumbs": {

@@ -784,7 +784,8 @@
       "affiliations": "Affiliations",
       "articlesAuthored": "Articles by {name}",
       "articlesReviewed": "Articles medically reviewed by {name}",
-      "noArticles": "No articles yet."
+      "noArticles": "No articles yet.",
+      "photoAlt": "Portrait of {name}"
     },
     "disclaimer": "This article is for educational purposes only. It does not provide medical advice, diagnosis, or treatment. Always consult a qualified health professional regarding any medical condition.",
     "breadcrumbs": {
