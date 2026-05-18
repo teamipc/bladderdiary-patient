@@ -17,6 +17,27 @@ interface CorePage {
   priority: number;
 }
 
+// Sitemap scope policy (2026-05-17, after Search Console export showed 157 URLs
+// stuck in "Discovered – currently not indexed" — i.e. crawl-budget waiting list):
+//
+// We deliberately EXCLUDE the following from the sitemap to focus Google's
+// limited crawl budget on articles + topic hubs that actually carry search
+// intent and unique content. The pages still exist on the site and remain
+// reachable via internal navigation; they just don't get sitemap-driven
+// crawl priority:
+//
+//   - /learn/for-men, /learn/for-women  — audience landings (re-add if/when
+//     dedicated audience-specific keyword strategy proves search demand)
+//   - /learn/glossary + per-term pages   — term definitions; better to let
+//     these surface via article internal links (Disclaimer + first-occurrence
+//     glossary links) than burn crawl budget on standalone term pages
+//   - /learn/authors/<slug>               — author bios. E-E-A-T value is
+//     delivered through article-level author byline + JSON-LD Person schema;
+//     the standalone author page doesn't need to rank
+//
+// To re-include any of these, restore the entry to corePages or restore the
+// author-pages loop further down. The pages themselves carry `index, follow`
+// robots — sitemap exclusion only deprioritizes crawl, not indexability.
 const corePages: CorePage[] = [
   { path: '/', changeFrequency: 'monthly', priority: 1 },
   { path: '/privacy', changeFrequency: 'yearly', priority: 0.3 },
@@ -24,9 +45,6 @@ const corePages: CorePage[] = [
   { path: '/help', changeFrequency: 'yearly', priority: 0.3 },
   { path: '/learn', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/learn/articles', changeFrequency: 'weekly', priority: 0.7 },
-  { path: '/learn/for-men', changeFrequency: 'weekly', priority: 0.8 },
-  { path: '/learn/for-women', changeFrequency: 'weekly', priority: 0.8 },
-  { path: '/learn/glossary', changeFrequency: 'monthly', priority: 0.6 },
 ];
 
 function absolute(path: string): string {
@@ -118,36 +136,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
       const fm = article.frontmatter;
       if (fm.noindex) continue;
       if (fm.pageType === 'pillar') continue;
-      const path =
-        fm.pageType === 'glossary'
-          ? `/learn/glossary/${fm.slug}`
-          : `/learn/${fm.topic}/${fm.slug}`;
+      // Glossary terms are excluded per the sitemap scope policy above. They
+      // surface organically through article internal links; standalone term
+      // pages don't warrant sitemap crawl budget while articles wait in the
+      // "Discovered - not indexed" queue.
+      if (fm.pageType === 'glossary') continue;
+      const path = `/learn/${fm.topic}/${fm.slug}`;
       const articleLastMod =
         maxDate([fm.updatedAt, fm.lastReviewedAt, fm.publishedAt]) ?? siteLastMod;
       entries.push({
         url: absolute(localizedPath(typedLocale, path)),
         lastModified: articleLastMod,
         changeFrequency: 'monthly',
-        priority: fm.pageType === 'glossary' ? 0.5 : 0.6,
+        priority: 0.6,
         alternates: { languages: buildLanguagesMap(path) },
         images: fm.hero ? [absolute(fm.hero)] : undefined,
       });
     }
   }
 
-  for (const author of getAllAuthors()) {
-    const path = `/learn/authors/${author.slug}`;
-    const languages = buildLanguagesMap(path);
-    for (const locale of locales) {
-      entries.push({
-        url: absolute(localizedPath(locale as Locale, path)),
-        lastModified: siteLastMod,
-        changeFrequency: 'yearly',
-        priority: 0.4,
-        alternates: { languages },
-      });
-    }
-  }
+  // Author pages excluded per sitemap scope policy above. E-E-A-T value is
+  // delivered through article-level author byline + Person JSON-LD already
+  // embedded in each article; standalone author pages don't need sitemap
+  // priority. The `getAllAuthors` import is kept so re-enabling is a one-line
+  // toggle when/if traffic warrants it.
+  void getAllAuthors;
 
   return entries;
 }
