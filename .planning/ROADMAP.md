@@ -232,10 +232,16 @@ Plans:
   5. `removeWakeTime` action in store triggers `reassignMorningVoid` (or equivalent) so the FMV anchor recomputes when a wake-time is deleted. Same invariant as `addWakeTime` / `setBedtime` / void-add already enforce.
   6. `observations.ts` caffeine-pattern detection filters out Day 1 events (consistent with IPC "exclude Day 1 from 24HV/NPi/AVV" rule).
   7. New tests in `src/__tests__/`: at least one regression test per form covering the Discard path, plus one for the `removeWakeTime`-FMV-recompute invariant.
-**Plans**: TBD (planner produces; expected 2–4 plans — Discard fix across 3 forms + tests, timezone-leak fixes, removeWakeTime FMV invariant, observations Day-1 filter)
+**Plans**: 4 plans, 2 waves (planning complete 2026-05-18)
 
 Plans:
-- [ ] 10-NN: TBD (created by `/gsd-plan-phase 10`)
+**Wave 1 (parallel — different files, no overlap)**
+- [ ] 10-01-PLAN.md — Remove autosave-on-unmount + formRef + ESLint suppression from LogVoidForm / LogDrinkForm / LogLeakForm (closes CR-01, CR-02, ME-04); add 3 vitest specs (one per form) covering mount no-op, unmount-without-Save no-op (the direct CRI-01 regression guard), explicit-Save still works, and static-code drift guard
+- [ ] 10-02-PLAN.md — NextStepBanner.tsx reads stored tz via getHoursInTz (CRI-02 / closes HI-02); reminders.ts:anchorTimeLabel widened to take timeZone param and uses buildIsoForClockTimeInTz + formatTime (CRI-03 / closes HI-03); Day1Celebration + Day2ReminderCard pass stored timeZone through; 2 vitest specs (NextStepBanner branch divergence in SGT vs NYC; anchorTimeLabel pure-function tests including half-hour offset Kolkata)
+- [ ] 10-03-PLAN.md — store.ts removeWakeTime calls reassignMorningVoid + reassignMorningVoid no-wake branch clears stale FMV flags (CRI-04 / closes LO-05); observations.ts caffeineToBathroom filters Day 1 via isDayOne(getDayNumber) (CRI-05 / closes ME-05); extends store.test.ts + observations.test.ts with 6 new tests (3 per CRI)
+
+**Wave 2 (verification — depends on all Wave 1)**
+- [ ] 10-04-PLAN.md — New Playwright spec `e2e/phase10-clinical-record-integrity.spec.ts` (5 describe blocks, 1 per CRI) running against local serve on port 4173; cross-cutting verification (tsc + eslint + full vitest + grep guards for browser-tz leaks and autosave drift); 7-step human-verify checkpoint across 6 locales
 
 ### Phase 11: WCAG 2.1 AA baseline
 **Milestone**: Medical-Grade Closure (Milestone 3)
@@ -248,10 +254,16 @@ Plans:
   3. A "Skip to content" link is the first focusable element on every page; pressing Tab once + Enter from page load jumps focus past nav landmarks into the main content region. Visible only on focus (standard pattern).
   4. `ConfirmDialog.tsx`: destructive (red) button is in the LEFT/secondary position, Cancel (safe) button in the RIGHT/primary position with `autoFocus`. The previously-declared-but-unassigned `confirmBtnRef` is removed or correctly wired. Pressing Enter at dialog-open activates Cancel, not Destroy.
   5. axe-core sweep across 6 locales × 3 viewports (375 / 768 / 1280) on diary day 1 / summary / landing / one learn article reports 0 WCAG 2.1 AA violations.
-**Plans**: TBD (planner produces; expected 2–3 plans — landmarks/h1 sweep, Toast aria-live + skip-link, ConfirmDialog rework, axe-core verification spec)
+**Plans**: 4 plans, 2 waves (planning complete 2026-05-18)
 
 Plans:
-- [ ] 11-NN: TBD (created by `/gsd-plan-phase 11`)
+**Wave 1 (parallel — different files, no overlap)**
+- [ ] 11-01-PLAN.md — Promote TimelineView day/night header from `<h2>` to `<h1>` (the only diary-page h1 gap per audit); aggregate h1-count audit confirms 18 total h1 openings across src/ (was 17) with no other surface gaining/losing h1
+- [ ] 11-02-PLAN.md — Toast root gains `role="status"` + `aria-live="polite"` + `aria-atomic="true"` (A11Y-02) + AppShell gains skip-to-content link with `href="#main-content"`, sr-only-until-focused Tailwind pattern, logical CSS positioning + `<main>` gains `id="main-content"` + `tabIndex={-1}` (A11Y-03) + `nav.skipToContent` i18n key in en.json auto-mirrors to fr/es/pt/zh/ar via i18n-sync hook
+- [ ] 11-03-PLAN.md — ConfirmDialog ref rename `confirmBtnRef` → `cancelBtnRef` (orphan ref removed); Cancel gets `autoFocus` + defensive `useEffect` programmatic refocus; DOM order swaps so Confirm is left/start (secondary) and Cancel is right/end (primary); existing variant styling preserved; both active callers (DayPageClient dirty-discard + TimelineView delete-event) benefit from Cancel-default
+
+**Wave 2 (verification — depends on all Wave 1)**
+- [ ] 11-04-PLAN.md — Extend `e2e/a11y.spec.ts` with 5-route × 6-locale axe-core matrix (homepage + diaryDay1 + summary + learnTopic + learnArticle) + per-criterion DOM assertions (h1 count, skip-link Tab+Enter functional, Toast aria attrs present, ConfirmDialog Cancel autoFocused); `autonomous: false` with a 7-step human-verify checkpoint covering automated findings inspection + manual keyboard walkthrough + optional VO/NVDA SR spot-check + visual regression + daily walkthrough green
 
 ### Phase 12: SEO config + technical fixes
 **Milestone**: Medical-Grade Closure (Milestone 3)
@@ -283,6 +295,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 4/4 | Complete | 2026-05-17 |
 | 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 4/4 | Complete | 2026-05-17 |
 | 9. Locale parity production-hotfix | Medical-Grade Closure | 0/TBD | Not started | - |
-| 10. Clinical record integrity | Medical-Grade Closure | 0/TBD | Not started | - |
-| 11. WCAG 2.1 AA baseline | Medical-Grade Closure | 0/TBD | Not started | - |
+| 10. Clinical record integrity | Medical-Grade Closure | 0/4 | Planning complete (2026-05-18) | - |
+| 11. WCAG 2.1 AA baseline | Medical-Grade Closure | 0/4 | Planning complete (2026-05-18) | - |
 | 12. SEO config + technical fixes | Medical-Grade Closure | 0/TBD | Not started | - |
+</content>
