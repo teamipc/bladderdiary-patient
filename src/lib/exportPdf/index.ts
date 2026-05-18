@@ -41,8 +41,9 @@ export function generatePdfBlob(state: DiaryState, locale: string = 'en'): { blo
   // Page 6: Graphs
   pageGraphs(doc, state, metrics, locale);
 
-  // Page 7: Machine-readable data (always English for clinical software)
-  pageMachineData(doc, state, metrics);
+  // Page 7: Machine-readable data. Schema columns and field names stay English (machine-parsing surface);
+  // human-readable section titles (structuredDataTitle, eventsTitle, structuredDataSubtitle) are localized.
+  pageMachineData(doc, state, metrics, locale);
 
   // Add footers to all pages
   const pageCount = doc.getNumberOfPages();

@@ -41,7 +41,6 @@ export function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: str
   for (let i = 0; i < 24; i++) {
     const hour = (startHour + i) % 24;
     const hourStr = hour.toString().padStart(2, '0') + ':00';
-    const ampm = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
 
     // Drinks in this hour
     const hourDrinks = dayDrinks.filter((d) => getHoursInTz(d.timestampIso, state.timeZone) === hour);
@@ -78,7 +77,7 @@ export function buildHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale: str
     const leakText = leakParts.join('\n');
 
     slots.push({
-      label: `${hourStr}\n${ampm}`,
+      label: hourStr,
       drinks: drinksText,
       voids: voidsText,
       urgency: urgText,
@@ -135,15 +134,8 @@ export function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale:
     const minStart = isSecondHalf ? 30 : 0;
     const minEnd = isSecondHalf ? 59 : 29;
 
-    // Label: AM/PM only on :00 rows
+    // 24hr label only, locale-neutral and consistent with the rest of the table.
     const hourStr = `${hour.toString().padStart(2, '0')}:${isSecondHalf ? '30' : '00'}`;
-    let label: string;
-    if (!isSecondHalf) {
-      const ampm = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
-      label = `${hourStr}\n${ampm}`;
-    } else {
-      label = hourStr;
-    }
 
     // Filter events in this 30-min window
     const inSlot = (iso: string) => {
@@ -181,7 +173,7 @@ export function buildHalfHourSlots(state: DiaryState, dayNum: 1 | 2 | 3, locale:
     const leakText = leakParts.join('\n');
 
     slots.push({
-      label,
+      label: hourStr,
       drinks: drinksText,
       voids: voidsText,
       urgency: urgText,

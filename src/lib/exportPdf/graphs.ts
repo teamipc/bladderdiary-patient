@@ -190,8 +190,9 @@ export function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics,
   const voidStep = niceStep(voidHeadroom, 4);
   const roundedMaxVoid = Math.max(Math.ceil(voidHeadroom / voidStep) * voidStep, u === 'oz' ? 4 : 100);
 
-  // X-axis: 24h time from 6am to 5am (clinical convention)
-  const timeLabels = ['6am', '8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm', '10pm', '12am', '2am', '4am'];
+  // 24-hour clock labels, locale-neutral. Used as the x-axis on the frequency-volume scatter plot.
+  // The clinical convention starts at 06:00 (when most patients wake) and wraps through midnight.
+  const timeLabels = ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00', '02:00', '04:00'];
   // Show every label but use 12 slots for 24 hours (every 2 hours)
   drawAxis(doc, chartX, chart2Top, chartW, chart2H, u, roundedMaxVoid, {
     gridlines: true,

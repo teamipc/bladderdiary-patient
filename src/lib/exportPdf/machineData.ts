@@ -6,19 +6,21 @@ import type { DiaryState } from '../types';
 import type { DiaryMetrics } from '../calculations';
 import { C, MARGIN } from './theme';
 import { addLogo, dv } from './shared';
+import { getPdfStrings } from './strings';
 
-export function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics) {
+export function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics, locale: string) {
   doc.addPage('a4', 'portrait');
   addLogo(doc);
+  const s = getPdfStrings(locale);
 
   doc.setFontSize(13);
   doc.setTextColor(...C.dark);
   doc.setFont('helvetica', 'bold');
-  doc.text('Structured Data', MARGIN, 20);
+  doc.text(s.structuredDataTitle, MARGIN, 20);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(...C.muted);
-  doc.text('For clinical software ingestion. This page may be scanned or parsed electronically.', MARGIN, 25);
+  doc.text(s.structuredDataSubtitle, MARGIN, 25);
 
   // ── Metadata table ──
   let y = 30;
@@ -50,6 +52,7 @@ export function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMet
     );
   }
 
+  // Schema columns intentionally English (machine-parsing surface). See index.ts:44.
   autoTable(doc, {
     startY: y,
     head: [['Field', 'Value']],
@@ -67,7 +70,7 @@ export function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMet
   doc.setFontSize(8);
   doc.setTextColor(...C.dark);
   doc.setFont('helvetica', 'bold');
-  doc.text('Events', MARGIN, y);
+  doc.text(s.eventsTitle, MARGIN, y);
   doc.setFont('helvetica', 'normal');
   y += 3;
 

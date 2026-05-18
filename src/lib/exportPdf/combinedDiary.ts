@@ -42,7 +42,6 @@ export function pageCombinedDiary(doc: jsPDF, state: DiaryState, locale: string,
 
   for (let i = 0; i < 24; i++) {
     const hour = (baseHour + i) % 24;
-    const ampm = hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`;
     const timeLabel = `${hour.toString().padStart(2, '0')}:00`;
     const row: string[] = [timeLabel];
 

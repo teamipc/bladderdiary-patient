@@ -1,9 +1,9 @@
 import { format, parseISO } from 'date-fns';
-import { enUS, fr, es } from 'date-fns/locale';
+import { enUS, fr, es, pt, zhCN, arSA } from 'date-fns/locale';
 import type { Locale as DateFnsLocale } from 'date-fns';
 import type { DrinkType, LeakTrigger } from '../types';
 
-const DATE_LOCALES: Record<string, DateFnsLocale> = { en: enUS, fr, es };
+const DATE_LOCALES: Record<string, DateFnsLocale> = { en: enUS, fr, es, pt, zh: zhCN, ar: arSA };
 
 export function getDateLocale(locale: string): DateFnsLocale {
   return DATE_LOCALES[locale] || enUS;
@@ -58,6 +58,8 @@ export interface PdfStrings {
   urine: string;
   sensationLegend: string;
   clinicalAnalysis: string;
+  /** Page-7 schema-comment sub-title under structuredDataTitle. EN-only by convention (see PdfStrings note). */
+  structuredDataSubtitle: string;
   dailyFluidBalance: string;
   fluidIntakeLabel: string;
   voidedOutput: string;
@@ -76,6 +78,10 @@ export interface PdfStrings {
   sensLabels: Record<number, string>;
   drinkLabels: Record<string, string>;
   leakTriggerLabels: Record<string, string>;
+  /** Header for the page-7 machine-readable data section. EN-only by convention but emitted via the strings table for completeness. */
+  structuredDataTitle: string;
+  /** Inline header above the events table on page 7. */
+  eventsTitle: string;
 }
 
 const PDF_STRINGS: Record<string, PdfStrings> = {
@@ -128,6 +134,7 @@ const PDF_STRINGS: Record<string, PdfStrings> = {
     urine: 'Urine',
     sensationLegend: 'Bladder sensation codes:  0 = No urge (went just in case)  |  1 = Mild (normal desire)  |  2 = Moderate (urgency, but passed)  |  3 = Strong (barely made it)  |  4 = Leaked (couldn\'t make it)',
     clinicalAnalysis: 'Clinical Analysis',
+    structuredDataSubtitle: 'For clinical software ingestion. This page may be scanned or parsed electronically.',
     dailyFluidBalance: 'Daily Fluid Balance',
     fluidIntakeLabel: 'Fluid Intake',
     voidedOutput: 'Voided Output',
@@ -146,6 +153,8 @@ const PDF_STRINGS: Record<string, PdfStrings> = {
     sensLabels: { 0: 'No urge', 1: 'Mild', 2: 'Moderate', 3: 'Strong', 4: 'Leaked' },
     drinkLabels: { water: 'Water', coffee: 'Coffee', tea: 'Tea', juice: 'Juice', carbonated: 'Soda', alcohol: 'Alcohol', milk: 'Milk', other: 'Other' },
     leakTriggerLabels: { cough: 'Coughing', sneeze: 'Sneezing', laugh: 'Laughing', lifting: 'Lifting', exercise: 'Exercise', toilet_way: 'On the way', other: 'Other', not_sure: 'Not sure' },
+    structuredDataTitle: 'Structured Data',
+    eventsTitle: 'Events',
   },
   fr: {
     appName: 'My Flow Check',
@@ -196,6 +205,7 @@ const PDF_STRINGS: Record<string, PdfStrings> = {
     urine: 'Urine',
     sensationLegend: 'Codes d\'envie :  0 = Aucune envie (précaution)  |  1 = Légère (normale)  |  2 = Modérée (envie passée)  |  3 = Forte (de justesse)  |  4 = Escape (pas eu le temps)',
     clinicalAnalysis: 'Analyse clinique',
+    structuredDataSubtitle: 'Pour l\'intégration logicielle clinique. Cette page peut être numérisée ou analysée électroniquement.',
     dailyFluidBalance: 'Bilan liquidien quotidien',
     fluidIntakeLabel: 'Apport liquidien',
     voidedOutput: 'Volume uriné',
@@ -214,6 +224,8 @@ const PDF_STRINGS: Record<string, PdfStrings> = {
     sensLabels: { 0: 'Aucune envie', 1: 'Légère', 2: 'Modérée', 3: 'Forte', 4: 'Escape' },
     drinkLabels: { water: 'Eau', coffee: 'Café', tea: 'Thé', juice: 'Jus', carbonated: 'Boisson gazeuse', alcohol: 'Alcool', milk: 'Lait', other: 'Autre' },
     leakTriggerLabels: { cough: 'Toux', sneeze: 'Éternuement', laugh: 'Rire', lifting: 'Port de charge', exercise: 'Exercice', toilet_way: 'En chemin', other: 'Autre', not_sure: 'Pas sûr' },
+    structuredDataTitle: 'Données structurées',
+    eventsTitle: 'Événements',
   },
   es: {
     appName: 'My Flow Check',
@@ -264,6 +276,7 @@ const PDF_STRINGS: Record<string, PdfStrings> = {
     urine: 'Orina',
     sensationLegend: 'Códigos de ganas:  0 = Sin ganas (por precaución)  |  1 = Leve (normal)  |  2 = Moderada (ganas pasaron)  |  3 = Fuerte (por poco)  |  4 = Escape (no llegó a tiempo)',
     clinicalAnalysis: 'Análisis clínico',
+    structuredDataSubtitle: 'Para la ingesta por software clínico. Esta página puede escanearse o analizarse electrónicamente.',
     dailyFluidBalance: 'Balance de líquidos diario',
     fluidIntakeLabel: 'Ingesta de líquidos',
     voidedOutput: 'Volumen orinado',
@@ -282,6 +295,79 @@ const PDF_STRINGS: Record<string, PdfStrings> = {
     sensLabels: { 0: 'Sin ganas', 1: 'Leve', 2: 'Moderada', 3: 'Fuerte', 4: 'Escape' },
     drinkLabels: { water: 'Agua', coffee: 'Café', tea: 'Té', juice: 'Jugo', carbonated: 'Refresco', alcohol: 'Alcohol', milk: 'Leche', other: 'Otro' },
     leakTriggerLabels: { cough: 'Tos', sneeze: 'Estornudo', laugh: 'Risa', lifting: 'Levantar peso', exercise: 'Ejercicio', toilet_way: 'De camino', other: 'Otro', not_sure: 'No sé' },
+    structuredDataTitle: 'Datos estructurados',
+    eventsTitle: 'Eventos',
+  },
+  pt: {
+    appName: 'My Flow Check',
+    reportSubtitle: 'Diário miccional de 3 dias',
+    startDate: 'Data de início',
+    age: 'Idade',
+    clinicCode: 'Código clínico',
+    generated: 'Gerado em',
+    clinicalMetrics: 'Medidas clínicas',
+    metric: 'Medida',
+    night1Day2: 'Noite 1 / Dia 2',
+    night2Day3: 'Noite 2 / Dia 3',
+    overall: 'Total',
+    nocturnalVol: 'Vol. noturno',
+    totalIntake: 'Ingestão total',
+    totalOutput: 'Volume total',
+    voidCount: 'N.º de micções',
+    voidLeakCount: 'Perdas durante micção',
+    standaloneLeaks: 'Perdas isoladas',
+    continence: 'Continência',
+    continent: 'Continente',
+    incontinent: 'Incontinente',
+    dailySummary: 'Resumo diário',
+    fluidIntake: 'Ingestão de líquidos',
+    voidVolume: 'Volume urinado',
+    drinkCount: 'N.º de bebidas',
+    voidLeaks: 'Perdas durante micção',
+    wakeTime: 'Despertar',
+    bedtime: 'Deitar',
+    day: (n) => `Dia ${n}`,
+    wake: 'Despertar',
+    bed: 'Deitar',
+    fluidIn: 'Bebidas',
+    voided: 'Urinado',
+    sens: 'Vontade',
+    leak: 'Perda',
+    intake: 'Ingestão',
+    output: 'Urinado',
+    voids: 'micções',
+    leaks: 'Perdas',
+    voidWord: 'micção',
+    standaloneWord: 'isolada',
+    threeDayTitle: 'Diário miccional de 3 dias',
+    started: 'Início',
+    name: 'Nome',
+    time: 'HORA',
+    drinks: 'Bebidas',
+    urine: 'Urina',
+    sensationLegend: 'Códigos de vontade:  0 = Sem vontade (precaução)  |  1 = Leve (normal)  |  2 = Moderada (vontade passou)  |  3 = Forte (por pouco)  |  4 = Perda (não chegou a tempo)',
+    clinicalAnalysis: 'Análise clínica',
+    structuredDataSubtitle: 'Para ingestão por software clínico. Esta página pode ser digitalizada ou analisada eletronicamente.',
+    dailyFluidBalance: 'Balanço diário de líquidos',
+    fluidIntakeLabel: 'Ingestão de líquidos',
+    voidedOutput: 'Volume urinado',
+    freqVolChart: 'Gráfico frequência-volume',
+    freqVolDesc: 'Cada ponto = uma micção, posicionada pela hora. Círculo vermelho = perda. Linha pontilhada = VMM.',
+    voidLeakLegend: '= Perda durante micção',
+    standaloneLeakLegend: '= Perda isolada',
+    urgencyDistribution: 'Distribuição da vontade',
+    notRecorded: 'Não registado',
+    footerTagline: 'IPC, Integrated Pelvic Care, acredita que melhores dados levam a melhores cuidados.',
+    footerDisclaimer: 'Este relatório é apenas informativo e não substitui o aconselhamento médico. Consulte sempre o seu profissional de saúde.',
+    page: (n, total) => `Página ${n} / ${total}`,
+    yes: 'Sim',
+    morningPee: 'PMU',
+    doubleVoid: 'DV',
+    sensLabels: { 0: 'Sem vontade', 1: 'Leve', 2: 'Moderada', 3: 'Forte', 4: 'Perda' },
+    drinkLabels: { water: 'Água', coffee: 'Café', tea: 'Chá', juice: 'Sumo', carbonated: 'Refrigerante', alcohol: 'Álcool', milk: 'Leite', other: 'Outro' },
+    leakTriggerLabels: { cough: 'Tosse', sneeze: 'Espirro', laugh: 'Riso', lifting: 'Levantar peso', exercise: 'Exercício', toilet_way: 'A caminho', other: 'Outro', not_sure: 'Não sei' },
+    structuredDataTitle: 'Dados estruturados',
+    eventsTitle: 'Eventos',
   },
 };
 

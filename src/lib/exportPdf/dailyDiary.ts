@@ -52,7 +52,7 @@ export function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3,
 
   autoTable(doc, {
     startY: subY,
-    head: [['Time', `${s.fluidIn} (${state.volumeUnit})`, `${s.voided} (${state.volumeUnit})`, s.sens, s.leak]],
+    head: [[s.time, `${s.fluidIn} (${state.volumeUnit})`, `${s.voided} (${state.volumeUnit})`, s.sens, s.leak]],
     body,
     margin: { left: MARGIN, right: MARGIN },
     styles: {
