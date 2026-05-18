@@ -25,7 +25,7 @@ export default function Day2ReminderCard() {
   const t = useTranslations('day2Reminder');
   const tdc = useTranslations('day1Celebration');
   const locale = useLocale();
-  const { startDate, morningAnchor, setMorningAnchor, voids, drinks, leaks, wakeTimes, bedtimes } = useDiaryStore();
+  const { startDate, morningAnchor, setMorningAnchor, voids, drinks, leaks, wakeTimes, bedtimes, timeZone } = useDiaryStore();
   const [dismissed, setDismissed] = useState(false);
 
   if (morningAnchor || dismissed) return null;
@@ -34,7 +34,7 @@ export default function Day2ReminderCard() {
   // the 3-way anchor picker. The user can still tweak from settings later
   // if we add that surface.
   const anchor = 'wake';
-  const timeLabel = anchorTimeLabel(anchor, locale);
+  const timeLabel = anchorTimeLabel(anchor, locale, timeZone);
   const day3Url = typeof window !== 'undefined'
     ? `${window.location.origin}/${locale}/diary/day/3`
     : '';

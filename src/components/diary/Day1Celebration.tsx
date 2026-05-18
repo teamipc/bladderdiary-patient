@@ -25,7 +25,7 @@ const ANCHOR_OPTIONS: { value: MorningAnchor; icon: typeof Sunrise; key: 'anchor
 export default function Day1Celebration({ open, eventCount, onClose }: Day1CelebrationProps) {
   const t = useTranslations('day1Celebration');
   const locale = useLocale();
-  const { startDate } = useDiaryStore();
+  const { startDate, timeZone } = useDiaryStore();
   const [selected, setSelected] = useState<MorningAnchor | null>(null);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function Day1Celebration({ open, eventCount, onClose }: Day1Celeb
 
   if (!open) return null;
 
-  const timeLabel = anchorTimeLabel(selected, locale);
+  const timeLabel = anchorTimeLabel(selected, locale, timeZone);
   const day2Url = typeof window !== 'undefined'
     ? `${window.location.origin}/${locale}/diary/day/2`
     : '';

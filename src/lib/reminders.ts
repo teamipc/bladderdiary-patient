@@ -4,13 +4,23 @@
  * - Share: native share sheet (mobile) falling back to mailto (desktop).
  */
 
+import { buildIsoForClockTimeInTz, formatTime } from './utils';
 import type { MorningAnchor } from './types';
 
-/** Local clock time the user will see in their reminder, keyed to chosen anchor. */
-export function anchorTimeLabel(anchor: MorningAnchor | null, locale: string): string {
-  const d = new Date();
-  d.setHours(anchor === 'coffee' ? 8 : 7, anchor === 'bathroom' ? 15 : 0, 0, 0);
-  return d.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
+/**
+ * Local clock time the user will see in their reminder, keyed to chosen anchor.
+ * Uses the patient's stored timezone (not browser-local) so a travelling /
+ * VPN'd patient sees the wall-clock time the reminder will actually fire at.
+ * See docs/TIME_MODEL.md (CRI-03).
+ */
+export function anchorTimeLabel(
+  anchor: MorningAnchor | null,
+  locale: string,
+  timeZone?: string,
+): string {
+  const { h, m } = anchorHourMinute(anchor);
+  const iso = buildIsoForClockTimeInTz(new Date().toISOString(), h, m, timeZone);
+  return formatTime(iso, locale, timeZone);
 }
 
 function anchorHourMinute(anchor: MorningAnchor | null): { h: number; m: number } {

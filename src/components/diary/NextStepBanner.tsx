@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Sun, Moon, Droplets, Sparkles, Clock } from 'lucide-react';
 import { useDiaryStore } from '@/lib/store';
+import { getHoursInTz } from '@/lib/utils';
 
 interface NextStepBannerProps {
   dayNumber: 1 | 2 | 3;
@@ -32,7 +33,7 @@ function lastEventIso(
  */
 export default function NextStepBanner({ dayNumber, isNightView }: NextStepBannerProps) {
   const t = useTranslations('nextStep');
-  const { getWakeTimeForDay, getBedtimeForDay, getVoidsForDay, getDrinksForDay, getLeaksForDay } = useDiaryStore();
+  const { getWakeTimeForDay, getBedtimeForDay, getVoidsForDay, getDrinksForDay, getLeaksForDay, timeZone } = useDiaryStore();
 
   const wakeTime = getWakeTimeForDay(dayNumber);
   const bedtime = getBedtimeForDay(dayNumber);
@@ -76,7 +77,8 @@ export default function NextStepBanner({ dayNumber, isNightView }: NextStepBanne
       hint = t('staleNudgeHint');
       isStaleNudge = true;
     } else {
-      const hour = new Date().getHours();
+      // Use stored diary timezone, not browser tz. See docs/TIME_MODEL.md (CRI-02).
+      const hour = getHoursInTz(new Date().toISOString(), timeZone);
       if (hour >= 20) {
         Icon = Moon;
         title = t('bedtimeTitle');
