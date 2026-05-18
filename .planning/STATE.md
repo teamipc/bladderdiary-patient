@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: "Phase 7 SHIPPED 2026-05-17 (Both DTUX-04 + DTUX-05 closed). 8 implementation commits + 1 spec commit + 4 SUMMARY commits. Wave 1 ran 3 executors in parallel against a shared working tree — a documented vitest stash/pop race bundled 07-02's 3-stat tile-padding into 07-01's commit `8791349`; content correct, atomicity blurred (next time use isolation="worktree" for parallel waves touching the same repo). Wave 2: 851-line Playwright spec across 6 locales × 3 viewports + Enter-advance EN/AR + back-pill 44px + export hover smoke + SEO regression. ZERO new i18n keys, ZERO new physical CSS, ONE accepted mobile diff (back-pill 40→44px per Boomer-safe override 1). Remaining Desktop & Tablet UX milestone: Phase 8 only."
-stopped_at: Phase 4 + code-review follow-ups complete. After Phase 4 shipped, an inline code review (gsd-code-reviewer subagent 529'd; reviewer done inline) found 1 BLOCKING (notifications west-of-UTC tomorrow bug — regression I introduced via STAB-02), 1 HIGH (IDB-throws hides localStorage), 1 MEDIUM (DST drift in day-4 reminder), 1 LOW (JSDoc). Quick task 260514-ttr fixed all 4 with atomic commits (b0a7e4c, ca1dae6, 52c1c39, 091f802, 6c171eb). 413/413 vitest pass, tsc clean. Codex cross-AI review was attempted but Codex CLI is unauthenticated (refresh-token expired) — user said they'd re-auth and have me retry; deferred for now. Ready for `git push origin main` → Vercel auto-deploy when user confirms. Only Phase 3 (STAB-06/07/08 UX polish) remains in the Stabilization milestone.
-last_updated: "2026-05-17T18:00:00.000Z"
-last_activity: 2026-05-17 — Phase 3 SHIPPED; entire roadmap COMPLETE.
+status: "Phase 9 SHIPPED 2026-05-18 — Milestone 3 (Medical-Grade Closure) opened with audit-driven hotfix landing all 6 LP-* requirements in 8 commits (c46b5d5..9f09827, pushed to origin/main). LP-01 ArticleCard regex covers all 6 locales (driven from i18n/config.ts), LP-02 Noto Sans CJK + Arabic Unicode fonts subset+lazy-loaded (125.6 KB + 31.0 KB), LP-03 zero hardcoded English in EN/FR/ES PDFs + 24hr axis labels, LP-04 TimePicker chips via formatTime(), LP-05 Breadcrumb aria-label translated, LP-06 author photos sourced (dr-di-wu + dr-steven-tijerina) + JSON-LD image. generatePdfBlob refactored to async with 5 caller-ripple sites updated. 504/505 vitest passing, tsc + eslint clean. gsd-verifier GOAL-ACHIEVED with 6/6 must-haves verified at codebase level. Phase 10/11/12 plans landed (commit 240f1c3) with all 5 plan-checker BLOCKERS pre-fixed and ready for execution. Vercel auto-deploy in flight; post-deploy human-verify items: ZH/AR PDF glyph rendering visual check + production /pt|zh|ar/learn 200."
+stopped_at: Phase 9 SHIPPED + Phase 10/11/12 planning complete. Phase 9 ran 4 waves over a single session — Wave 1 (09-01 + 09-02 parallel worktree-isolated) cherry-picked → Wave 2 (09-03 solo in worktree + 09-04 paused at checkpoint:decision for photo sourcing; user picked option-real-photos and dropped dr-di-wu.jpg + dr-steven-tijerina.jpg via Finder) → Wave 3 (09-05 ran in main without worktree due to runtime worktree-base flake from a prior attempt; subset-font + @fontsource scripts produced 156.6 KB total Noto subsets; async generatePdfBlob ripple updated 5 caller files; the resulting await-serialization actually FIXED 2 pre-existing flakes from 09-02/09-03 notes) → Wave 4 (09-06 cross-locale verification spec + human-verify checkpoint; 36 Playwright tests + 19 vitest PDF blob tests). Photo checkpoint:decision surfaced 3 options (real / SVG initials / defer); user picked real, tijerina.jpg compressed orchestrator-side via sips from 3.66 MB → 65 KB. Phase 10/11/12 plans parallel-planned during Phase 9 execution; plan-checker found 5 BLOCKERS (Phase 10 testid + Time-for-bed string; Phase 11 stale h1 audit count + missing OnboardingFlow h1 task; Phase 12 --test-match CLI flag + en-locale localePath in JSON-LD assertions) all pre-fixed in chore commit 240f1c3. Pushed to origin/main 2026-05-18; Vercel auto-deploy in flight. Post-push verify items remaining: open generated PDFs in viewer for ZH/AR glyph correctness (pdf-parse cannot reliably extract embedded-font CJK/Arabic; visual eyeball is the medical-grade gate), and curl /pt|zh|ar/learn/<topic>/<slug> on the deployed origin.
+last_updated: "2026-05-18T20:30:00.000Z"
+last_activity: 2026-05-18 — Phase 9 SHIPPED; Milestone 3 opened with Phase 10/11/12 plans landed.
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 29
-  completed_plans: 17
-  percent: 100
+  total_phases: 12
+  completed_phases: 9
+  total_plans: 35
+  completed_plans: 23
+  percent: 75
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-14)
 
 **Core value:** Patient completes a clinically-accurate 3-day diary in their own timezone with their own routine and leaves with a clinician-ready export — no data loss, no UX friction, no privacy compromise.
-**Current focus:** Phase 5 — Layout foundation + AppShell chrome (kicking off Desktop & Tablet UX milestone)
+**Current focus:** Milestone 3 (Medical-Grade Closure) — Phase 9 SHIPPED; Phase 10 (clinical record integrity), Phase 11 (WCAG 2.1 AA baseline), Phase 12 (SEO config + technical fixes) planned + plan-checked, ready for execution.
 
 ## Current Position
 
-Phase: 🎉 ROADMAP COMPLETE — all 8 phases SHIPPED across both milestones. No phases remaining.
-Plan: Phase 3 complete — 3/3 plans shipped (03-01 STAB-06 regression-guard, 03-02 STAB-07 alert→Toast, 03-03 STAB-08 clinicCode validation). Vitest 451/452 (+1 skipped). All 17 milestone+phase plans done across the lifecycle. Spec-polish chip for Phase 8 regression-guards (21/37 failing tests) is the only queued follow-up.
-Status: Phase 3 SHIPPED 2026-05-17 closing the Stabilization milestone. 3 parallel worktree-isolated executors. 03-01 was reproduction-first: bug already-fixed (locale-independent sessionStorage key `milestone_${key}`); ships regression guard only. 03-02 swaps both alert() calls for Toast with emoji='⚠️' override + 5000ms duration; reuses existing pdfError/csvError i18n keys. 03-03 adds CLINIC_CODE_RE = /^[A-Za-z0-9-]{1,32}$/ guard with dev-only console.warn truncated at 100 chars; orchestrator fixed an infinite-render-loop in the integration test mock (useSearchParams must return a stable URLSearchParams reference, not a new instance per call). +24 tests (vitest 451 passing + 1 skipped sanity). ZERO new i18n keys. Both milestones COMPLETE: Stabilization (Phases 1+2+3+4) + Desktop & Tablet UX (Phases 5+6+7+8).
+Phase: Phase 9 SHIPPED 2026-05-18. Milestone 3 (Medical-Grade Closure) opened — 1/4 phases complete, 3 remaining (Phase 10, 11, 12 all planned + plan-checked).
+Plan: Phase 9 complete — 6/6 plans shipped (09-01 LP-01 ArticleCard regex; 09-02 LP-04 + LP-05 TimePicker + Breadcrumb; 09-03 LP-02 partial + LP-03 PDF strings/date-fns; 09-04 LP-06 author photos; 09-05 LP-02 PDF Unicode fonts ZH+AR; 09-06 cross-locale verification spec). Vitest 504/505 (+1 skipped), tsc + eslint clean, gsd-verifier reports GOAL-ACHIEVED with 6/6 must-haves verified at codebase level. Phase 10/11/12 plans landed at chore commit 240f1c3 with all 5 plan-checker BLOCKERS pre-fixed.
+Status: Phase 9 SHIPPED + pushed to origin/main 2026-05-18 closing the production-affecting locale-parity bug class surfaced by the comprehensive 2026-05-18 audit. PT/ZH/AR Learn-hub article cards no longer 404; clinician-facing PDF export renders correctly with embedded Unicode glyphs for CJK + Arabic; author profile pages have YMYL trust photos with locale-correct alt text. Phase 10/11/12 ready for /gsd-execute-phase 10 next. Post-deploy verify items remaining: open generated ZH/AR PDFs in a viewer to confirm glyph rendering (pdf-parse cannot reliably extract embedded-font CJK/Arabic); curl /pt|zh|ar/learn/<topic>/<slug> on the deployed origin to confirm 200 status.
 Last activity: 2026-05-17 — Phase 3 SHIPPED; entire roadmap COMPLETE.
 
 Progress: [██████████] 100%

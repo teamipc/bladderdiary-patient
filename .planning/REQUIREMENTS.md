@@ -104,32 +104,32 @@ The 2026-05-18 comprehensive audit (`CODE-REVIEW.md` + `SEO-REVIEW.md` + `UI-REV
 
 #### Locale Parity (Phase 9)
 
-- [ ] **LP-01** — Article cards link to valid in-locale URLs in all 6 locales
+- [x] **LP-01** — Article cards link to valid in-locale URLs in all 6 locales (shipped 2026-05-18, commit 21fd2b8)
   `src/components/learn/ArticleCard.tsx:36` regex `/^\/(en|fr|es)/` strips only 3 of 6 locale prefixes, so `/pt/learn/...` cards generate hrefs like `/pt/pt/learn/...` that return 404 in production. Confirmed live via `curl`. Same bug affects ZH and AR. Half the locale audience is broken on the Learn hub.
   *Files:* `src/components/learn/ArticleCard.tsx`
   *Verify:* `curl -o /dev/null -w "%{http_code}\n" https://myflowcheck.com/{pt,zh,ar}/learn/<topic>/<slug>` returns 200 for each (after deploy); regex (or replacement logic) covers all 6 locales — driven by the locale list in `src/i18n/config.ts`, not a hardcoded subset.
 
-- [ ] **LP-02** — Clinical PDF export renders correct strings AND glyphs for PT/ZH/AR
+- [x] **LP-02** — Clinical PDF export renders correct strings AND glyphs for PT/ZH/AR (shipped 2026-05-18, commits 0c491bb + a535d42; Noto Sans SC 125.6 KB + Noto Sans Arabic 31.0 KB subsets, well under per-locale 2 MB budget)
   `src/lib/exportPdf/strings.ts:81-285` has translation tables for en/fr/es only. Every PDF page calls `doc.setFont('helvetica', ...)` — helvetica has zero glyph coverage for Chinese or Arabic. A Mandarin-speaking PFPT receiving a patient's PDF sees English headers or boxes-where-CJK-glyphs-should-be, undoing the entire localization investment. Requires (a) extending `strings.ts` with pt/zh/ar tables, (b) registering Unicode font (Noto Sans CJK + Noto Sans Arabic, subsetted) per locale via lazy-load, (c) per-locale `date-fns` locale registration for date formatting.
   *Files:* `src/lib/exportPdf/strings.ts`, `src/lib/exportPdf/*.ts` (every page that calls `setFont`), new font asset under `public/fonts/` or lazy-loaded chunks.
   *Verify:* generate a 3-day PDF export from a `/pt/`, `/zh/`, `/ar/` session; every section header, table header, axis label, and inline string is in the patient's locale with correct glyphs. File size impact documented.
 
-- [ ] **LP-03** — Eliminate hardcoded English strings in PDFs even for EN/FR/ES
+- [x] **LP-03** — Eliminate hardcoded English strings in PDFs even for EN/FR/ES (shipped 2026-05-18, commit 0c491bb; time-axis switched to 24hr `06:00..04:00`)
   PDFs generated in EN/FR/ES currently contain several hardcoded English strings that bypass the `strings.ts` table: `dailyDiary.ts:55` ("Time" column header), `slots.ts:44,142` ("AM" / "PM" labels), `machineData.ts:17,21,55,70` ("Structured Data" / "Field/Value" / "Events" headers), `graphs.ts:194` (time-axis labels "6am/8am/10am/.../2am/4am"). For FR/ES this means a half-translated PDF; for the future PT/ZH/AR work in LP-02 it means the new translation tables won't cover everything unless these are migrated.
   *Files:* `src/lib/exportPdf/{dailyDiary,slots,machineData,graphs}.ts`, `src/lib/exportPdf/strings.ts`
   *Verify:* a generated PDF in FR contains no English strings; in ES contains no English strings; time-axis on graphs uses locale-correct hour labels.
 
-- [ ] **LP-04** — TimePicker bedtime preset chips render via `formatTime()` in all 6 locales
+- [x] **LP-04** — TimePicker bedtime preset chips render via `formatTime()` in all 6 locales (shipped 2026-05-18, commit 3b26db2)
   `src/components/diary/TimePicker.tsx:159,166,173` hardcodes "10 PM" / "11 PM" / "12 AM" as English string literals into translated wrappers. French users see "10 PM hier soir"; Arabic users see Latin "PM" inside RTL line.
   *Files:* `src/components/diary/TimePicker.tsx`
   *Verify:* render TimePicker in each of 6 locales; bedtime presets show "22 h" (FR), "22:00" (ES per locale convention), Arabic-numeral PM marker (AR), Chinese time format (ZH).
 
-- [ ] **LP-05** — Breadcrumb landmark `aria-label` is translated
+- [x] **LP-05** — Breadcrumb landmark `aria-label` is translated (shipped 2026-05-18, commit 3b26db2)
   The `<nav aria-label="Breadcrumb">` landmark is hardcoded English in the breadcrumb component. Should use the i18n message system + auto-mirror to all 5 non-en locales via `i18n-sync`.
   *Files:* the breadcrumb component (likely `src/components/seo/` or `src/components/learn/`), `messages/en.json` (new key), all 5 non-en locale files.
   *Verify:* DOM inspection in `/fr/learn/<topic>/<slug>` shows the translated landmark label; screen-reader navigation announces it correctly.
 
-- [ ] **LP-06** — Author profile photos sourced + wired
+- [x] **LP-06** — Author profile photos sourced + wired (shipped 2026-05-18, commit b856f74; dr-di-wu.jpg 25 KB 400x400 + dr-steven-tijerina.jpg 65 KB 400x600 after sips compression from 3.66 MB)
   Both author JSON files (`content/authors/*.json`) have empty `photoUrl`; `public/authors/` directory does not exist. Author pages render without photos. For medical YMYL E-E-A-T signal, real photos are documented as required.
   *Files:* `public/authors/*.jpg` (new), `content/authors/*.json` (populate `photoUrl`), `Author` JSON-LD wire-up (likely in `src/app/[locale]/learn/authors/[slug]/page.tsx`), `<img>` rendering + alt text translation.
   *Verify:* author profile pages render `<img src="/authors/<slug>.jpg" alt="<translated>">`; `Author` JSON-LD `image`/`photoUrl` is non-empty; visible on `/learn/authors/<slug>` in all 6 locales.
