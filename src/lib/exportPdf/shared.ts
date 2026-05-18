@@ -4,6 +4,7 @@ import type { DiaryState } from '../types';
 import { IPC_LOGO_BASE64 } from '../ipcLogoBase64';
 import { C, MARGIN, PAGE_W, LOGO_W, LOGO_H } from './theme';
 import { getPdfStrings } from './strings';
+import { currentFontFamily } from './fonts';
 
 export function addLogo(doc: jsPDF) {
   doc.addImage(
@@ -33,12 +34,13 @@ export function addFooter(doc: jsPDF, pageNum: number, totalPages: number, local
   doc.text(s.page(pageNum, totalPages), pageW - MARGIN, y + 11, { align: 'right' });
 }
 
-export function sectionTitle(doc: jsPDF, text: string, y: number): number {
+export function sectionTitle(doc: jsPDF, text: string, y: number, locale: string): number {
+  const family = currentFontFamily(locale);
   doc.setFontSize(13);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(family, 'bold');
   doc.text(text, MARGIN, y);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(family, 'normal');
   return y + 6;
 }
 

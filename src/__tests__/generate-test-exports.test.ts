@@ -324,7 +324,7 @@ describe('generate test exports', () => {
     });
 
     it(`generates PDF for ${name}`, async () => {
-      const { blob } = generatePdfBlob(state);
+      const { blob } = await generatePdfBlob(state);
       // jsdom Blob: read via FileReader
       const buffer = await new Promise<Buffer>((resolve, reject) => {
         const reader = new FileReader();

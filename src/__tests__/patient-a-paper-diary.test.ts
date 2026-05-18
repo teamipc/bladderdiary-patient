@@ -82,7 +82,7 @@ const patientA: DiaryState = {
 
 describe('patient A paper diary', () => {
   it('generates PDF', async () => {
-    const { blob } = generatePdfBlob(patientA);
+    const { blob } = await generatePdfBlob(patientA);
     const buffer = await new Promise<Buffer>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(Buffer.from(reader.result as ArrayBuffer));

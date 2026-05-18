@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/build-pdf-font-subsets.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -37,6 +38,8 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
+    "@fontsource/noto-sans-arabic": "^5.2.5",
+    "@fontsource/noto-sans-sc": "^5.2.5",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
@@ -51,6 +54,7 @@
     "googleapis": "^171.4.0",
     "jsdom": "^27.0.1",
     "pdf-parse": "^2.4.5",
+    "subset-font": "^2.4.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.4"

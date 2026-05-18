@@ -6,6 +6,7 @@ import type { DiaryMetrics } from '../calculations';
 import { C, MARGIN, CONTENT_W } from './theme';
 import { getPdfStrings } from './strings';
 import { addLogo, dv } from './shared';
+import { currentFontFamily } from './fonts';
 
 /** Pick a "nice" round step for axis ticks. Safe against 0/NaN/Infinity. */
 export function niceStep(range: number, approxTicks: number): number {
@@ -79,14 +80,15 @@ function drawAxis(
 
 export function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics, locale: string) {
   const s = getPdfStrings(locale);
+  const fontFamily = currentFontFamily(locale);
   doc.addPage('a4', 'portrait');
   addLogo(doc);
 
   doc.setFontSize(16);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.text(s.clinicalAnalysis, MARGIN, 20);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
 
   // ── Chart 1: Daily Fluid Balance (top) ──
   const chart1Y = 28;
@@ -96,9 +98,9 @@ export function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics,
 
   doc.setFontSize(9);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.text(s.dailyFluidBalance, MARGIN, chart1Y);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
 
   const u = state.volumeUnit;
   const maxBalanceDisplay = Math.max(
@@ -174,9 +176,9 @@ export function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics,
   const chart2Y = legY + 12;
   doc.setFontSize(9);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.text(s.freqVolChart, MARGIN, chart2Y);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
   doc.setFontSize(6);
   doc.setTextColor(...C.muted);
   doc.text(s.freqVolDesc, MARGIN, chart2Y + 4);
@@ -296,9 +298,9 @@ export function pageGraphs(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics,
   const chart3Y = leg2Y + 10;
   doc.setFontSize(9);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.text(s.urgencyDistribution, MARGIN, chart3Y);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
 
   const sensCount = [0, 0, 0, 0, 0];
   let notRecordedCount = 0;

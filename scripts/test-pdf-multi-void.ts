@@ -133,16 +133,16 @@ const mockCreateElement = (tag: string) => {
 (document as any).createElement = mockCreateElement;
 
 console.log('Generating PDF with test data...');
-_orig(testState);
+// generatePdf is async (LP-02 — must await ensureLocaleFontRegistered for ZH/AR).
+await _orig(testState);
 
 if (capturedBlob) {
   // Convert blob to buffer and write to file
-  capturedBlob.arrayBuffer().then((buf) => {
-    const pdfPath = '/Users/zhen/bladderdiary-patient/test-multi-void.pdf';
-    writeFileSync(pdfPath, Buffer.from(buf));
-    console.log(`PDF written to: ${pdfPath}`);
-    console.log('Open with: open test-multi-void.pdf');
-  });
+  const buf = await (capturedBlob as Blob).arrayBuffer();
+  const pdfPath = '/Users/zhen/bladderdiary-patient/test-multi-void.pdf';
+  writeFileSync(pdfPath, Buffer.from(buf));
+  console.log(`PDF written to: ${pdfPath}`);
+  console.log('Open with: open test-multi-void.pdf');
 } else {
   console.error('No PDF blob captured!');
 }

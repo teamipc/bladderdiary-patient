@@ -50,7 +50,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
       // who never reaches the export step.
       const { generatePdf, generatePdfBlob } = await import('@/lib/exportPdf');
       if (shareSupported) {
-        const { blob, filename } = generatePdfBlob(store, locale);
+        const { blob, filename } = await generatePdfBlob(store, locale);
         track('pdf_generated', { method: 'share' });
         const file = new File([blob], filename, { type: 'application/pdf' });
         await navigator.share({
@@ -59,7 +59,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
         });
         track('pdf_shared');
       } else {
-        generatePdf(store, locale);
+        await generatePdf(store, locale);
         track('pdf_generated', { method: 'download' });
       }
     } catch (err) {
@@ -80,7 +80,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
     setExporting('pdf');
     try {
       const { generatePdf } = await import('@/lib/exportPdf');
-      generatePdf(store, locale);
+      await generatePdf(store, locale);
       track('pdf_generated', { method: 'download_alt' });
     } catch (err) {
       console.error('PDF download failed:', err);

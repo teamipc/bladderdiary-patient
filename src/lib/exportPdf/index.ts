@@ -20,12 +20,21 @@ import { pageResultsOverview } from './resultsOverview';
 import { pageDailyDiary } from './dailyDiary';
 import { pageGraphs } from './graphs';
 import { pageMachineData } from './machineData';
+import { ensureLocaleFontRegistered } from './fonts';
 
 /** Generate the PDF blob without triggering a download. */
-export function generatePdfBlob(state: DiaryState, locale: string = 'en'): { blob: Blob; filename: string } {
+export async function generatePdfBlob(state: DiaryState, locale: string = 'en'): Promise<{ blob: Blob; filename: string }> {
   // Start landscape — the combined 3-day diary is the first page
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const metrics = computeMetrics(state);
+
+  // Register the locale-specific Unicode font BEFORE any page builder runs.
+  // Each page module calls doc.setFont(currentFontFamily(locale), ...) somewhere
+  // in its body; the addFont/VFS calls inside registerZhFont / registerArFont
+  // MUST run first, otherwise setFont('NotoSansSC', ...) produces an
+  // undefined-font reference and jsPDF silently falls back to courier.
+  // No-op for en/fr/es/pt — helvetica is built into jsPDF.
+  await ensureLocaleFontRegistered(doc, locale);
 
   // Page 1: Combined 3-day diary (landscape) — uses the initial page
   pageCombinedDiary(doc, state, locale, true);
@@ -59,8 +68,8 @@ export function generatePdfBlob(state: DiaryState, locale: string = 'en'): { blo
 }
 
 /** Generate and download the PDF (desktop fallback). */
-export function generatePdf(state: DiaryState, locale: string = 'en'): void {
-  const { blob, filename } = generatePdfBlob(state, locale);
+export async function generatePdf(state: DiaryState, locale: string = 'en'): Promise<void> {
+  const { blob, filename } = await generatePdfBlob(state, locale);
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');

@@ -6,9 +6,11 @@ import { IPC_LOGO_BASE64, IPC_LOGO_ASPECT } from '../ipcLogoBase64';
 import { C } from './theme';
 import { getPdfStrings, pdfFormatDate } from './strings';
 import { buildHourSlots } from './slots';
+import { currentFontFamily } from './fonts';
 
 export function pageCombinedDiary(doc: jsPDF, state: DiaryState, locale: string, useCurrentPage = false) {
   const s = getPdfStrings(locale);
+  const fontFamily = currentFontFamily(locale);
   // Add landscape page (unless we're using the initial page)
   if (!useCurrentPage) doc.addPage('a4', 'landscape');
 
@@ -24,9 +26,9 @@ export function pageCombinedDiary(doc: jsPDF, state: DiaryState, locale: string,
   // Title
   doc.setFontSize(14);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.text(s.threeDayTitle, M, 13);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
   doc.setFontSize(8);
   doc.setTextColor(...C.muted);
   const startLabel = pdfFormatDate(state.startDate + 'T12:00:00', 'PPP', locale);

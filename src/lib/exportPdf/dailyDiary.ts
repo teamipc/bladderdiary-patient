@@ -7,9 +7,11 @@ import { C, MARGIN, PAGE_W, CONTENT_W, FOOTER_Y } from './theme';
 import { getPdfStrings, pdfFormatDate } from './strings';
 import { addLogo, dv } from './shared';
 import { buildHalfHourSlots } from './slots';
+import { currentFontFamily } from './fonts';
 
 export function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3, dm: DayMetrics, locale: string) {
   const s = getPdfStrings(locale);
+  const fontFamily = currentFontFamily(locale);
   doc.addPage('a4', 'portrait');
   addLogo(doc);
 
@@ -19,9 +21,9 @@ export function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3,
   // Title
   doc.setFontSize(16);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.text(s.day(dayNum), MARGIN, 20);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
   doc.setFontSize(10);
   doc.setTextColor(...C.muted);
   doc.text(dayLabel, MARGIN, 26);
@@ -140,12 +142,12 @@ export function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3,
   doc.roundedRect(MARGIN, totY, CONTENT_W, 8, 1.5, 1.5, 'F');
 
   doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.setTextColor(...C.dark);
   const leakSummary = dm.standaloneLeakCount > 0
     ? `${s.leaks}: ${dm.leakCount} ${s.voidWord} + ${dm.standaloneLeakCount} ${s.standaloneWord}`
     : `${s.leaks}: ${dm.leakCount}`;
   const totText = `${s.intake}: ${dv(dm.totalFluidIntakeMl, state).toLocaleString()} ${state.volumeUnit}    ${s.output}: ${dv(dm.totalVoidVolumeMl, state).toLocaleString()} ${state.volumeUnit} (${dm.voidCount} ${s.voids})    ${leakSummary}`;
   doc.text(totText, PAGE_W / 2, totY + 5, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
 }

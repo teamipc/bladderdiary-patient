@@ -4,12 +4,13 @@ import { resolve } from 'node:path';
 import { format } from 'date-fns';
 import { getPdfStrings, getDateLocale } from '@/lib/exportPdf/strings';
 
-// Locales with PDF strings tables after plan 09-03. ZH and AR arrive in plan 09-05
-// alongside Unicode font registration.
-const SUPPORTED_PDF_LOCALES = ['en', 'fr', 'es', 'pt'] as const;
+// All six app locales are covered after plan 09-05 — ZH and AR arrived with
+// Unicode font registration in LP-02. The structural-parity assertions below
+// now iterate over the full set, activating coverage for ZH + AR translations.
+const SUPPORTED_PDF_LOCALES = ['en', 'fr', 'es', 'pt', 'zh', 'ar'] as const;
 
-describe('PDF strings table (LP-03 + LP-02 partial)', () => {
-  it('exports PDF_STRINGS entries for en, fr, es, pt', () => {
+describe('PDF strings table (LP-03 + LP-02)', () => {
+  it('exports PDF_STRINGS entries for en, fr, es, pt, zh, ar', () => {
     for (const L of SUPPORTED_PDF_LOCALES) {
       const s = getPdfStrings(L);
       expect(s).toBeTruthy();

@@ -8,18 +8,20 @@ import type { DiaryMetrics } from '../calculations';
 import { C, MARGIN } from './theme';
 import { getPdfStrings, getDateLocale, pdfFormatDate } from './strings';
 import { addLogo, sectionTitle, dv } from './shared';
+import { currentFontFamily } from './fonts';
 
 export function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics, locale: string) {
   const s = getPdfStrings(locale);
+  const fontFamily = currentFontFamily(locale);
   doc.addPage('a4', 'portrait');
   addLogo(doc);
 
   // Title block
   doc.setFontSize(22);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.text(s.appName, MARGIN, 22);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
 
   doc.setFontSize(11);
   doc.setTextColor(...C.muted);
@@ -49,7 +51,7 @@ export function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: Diar
 
   // ── Clinical Metrics table (premium only) ──
   if (PREMIUM_FEATURES_ENABLED) {
-    y = sectionTitle(doc, s.clinicalMetrics, y);
+    y = sectionTitle(doc, s.clinicalMetrics, y, locale);
 
     const p1 = metrics.periods[0];
     const p2 = metrics.periods[1];
@@ -82,7 +84,7 @@ export function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: Diar
   }
 
   // ── Per-Day Summary ──
-  y = sectionTitle(doc, s.dailySummary, y);
+  y = sectionTitle(doc, s.dailySummary, y, locale);
 
   autoTable(doc, {
     startY: y,

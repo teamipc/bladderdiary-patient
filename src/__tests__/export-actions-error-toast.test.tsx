@@ -8,9 +8,11 @@ import { useDiaryStore } from '@/lib/store';
 import enMessages from '../../messages/en.json';
 
 // Must mock before module resolution so the dynamic import() in handlePdf is intercepted.
+// generatePdf and generatePdfBlob are async (LP-02 — must await ensureLocaleFontRegistered
+// for ZH/AR), so the mocks return rejected promises rather than throwing synchronously.
 vi.mock('@/lib/exportPdf', () => ({
-  generatePdf: vi.fn(() => { throw new Error('mock-pdf-fail'); }),
-  generatePdfBlob: vi.fn(() => { throw new Error('mock-pdf-fail'); }),
+  generatePdf: vi.fn(() => Promise.reject(new Error('mock-pdf-fail'))),
+  generatePdfBlob: vi.fn(() => Promise.reject(new Error('mock-pdf-fail'))),
 }));
 
 vi.mock('@/lib/exportCsv', () => ({

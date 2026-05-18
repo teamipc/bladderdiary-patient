@@ -7,17 +7,19 @@ import type { DiaryMetrics } from '../calculations';
 import { C, MARGIN } from './theme';
 import { addLogo, dv } from './shared';
 import { getPdfStrings } from './strings';
+import { currentFontFamily } from './fonts';
 
 export function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMetrics, locale: string) {
   doc.addPage('a4', 'portrait');
   addLogo(doc);
   const s = getPdfStrings(locale);
+  const fontFamily = currentFontFamily(locale);
 
   doc.setFontSize(13);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.text(s.structuredDataTitle, MARGIN, 20);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
   doc.setFontSize(7);
   doc.setTextColor(...C.muted);
   doc.text(s.structuredDataSubtitle, MARGIN, 25);
@@ -69,9 +71,9 @@ export function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMet
   // ── Events table ──
   doc.setFontSize(8);
   doc.setTextColor(...C.dark);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontFamily, 'bold');
   doc.text(s.eventsTitle, MARGIN, y);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontFamily, 'normal');
   y += 3;
 
   // Merge all events into one sorted list

@@ -1,3 +1,10 @@
+// Font families for the clinical PDF:
+//   helvetica → en, fr, es, pt (Latin script, built-in to jsPDF)
+//   NotoSansSC → zh (Simplified Chinese, lazy-loaded via fonts/zh.ts)
+//   NotoSansArabic → ar (Arabic script, RTL, lazy-loaded via fonts/ar.ts)
+// Use currentFontFamily(locale) from ./fonts to resolve the right family at runtime.
+// machineData.ts intentionally keeps `font: 'courier'` for its schema tables
+// (English-only by design, monospace machine-parseable look).
 import { IPC_LOGO_ASPECT } from '../ipcLogoBase64';
 
 export const C = {
