@@ -112,6 +112,18 @@ export default function DayPageClient() {
   const [day1CelebrationOpen, setDay1CelebrationOpen] = useState(false);
   const [day1EventCount, setDay1EventCount] = useState(0);
 
+  // Reset scroll position whenever the dayNumber changes. Next.js preserves
+  // scroll across same-route-pattern navigations (/diary/day/1 → /diary/day/2),
+  // so the "Continue to day N+1" link at the bottom of Day N's timeline (and
+  // the "Log overnight pee" link below that) would leave the user staring at
+  // Day N+1's footer instead of the top of the new day. Fires on initial
+  // mount too (no-op since scrollY is already 0 on fresh load).
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [dayNumber]);
+
   // Auto-open void form when arriving with ?add=void (from "Log overnight pee" shortcut)
   const autoOpenConsumed = useRef(false);
   useEffect(() => {
@@ -120,11 +132,9 @@ export default function DayPageClient() {
     if (!diaryStarted || !prevDayComplete) return;
     if (searchParams.get('add') === 'void' && canLogEntries) {
       autoOpenConsumed.current = true;
-      // The "Log overnight pee" link sits near the bottom of Day N's timeline.
-      // Next.js preserves scroll across the same-segment route change to
-      // /diary/day/${N+1}?view=night&add=void, so without an explicit reset
-      // the user lands on Day N+1's page already scrolled to the footer —
-      // the sheet opens off-screen above. Force scroll to top before opening.
+      // Belt-and-suspenders scroll reset for the rare case where ?add=void
+      // is toggled on the SAME day without a dayNumber change (the
+      // dayNumber-change useEffect above doesn't fire in that path).
       if (typeof window !== 'undefined') {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
