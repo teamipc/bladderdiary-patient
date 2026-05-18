@@ -1,14 +1,12 @@
-# Requirements — Stabilization Milestone
+# Requirements — Stabilization + Desktop & Tablet UX + Medical-Grade Closure
 
 **Project:** My Flow Check (Bladder Diary Patient App)
-**Milestone:** Stabilization (audit-driven silent-bug fixes)
-**Source audit:** `.planning/codebase/CONCERNS.md` (cd3de78)
-**Created:** 2026-05-14
+**Active milestone:** Milestone 3 — Medical-Grade Closure (audit-driven, 2026-05-18)
+**Completed milestones:** Milestone 1 — Stabilization (2026-05-14 → 2026-05-17), Milestone 2 — Desktop & Tablet UX (2026-05-15 → 2026-05-17)
+**Source audits:** `.planning/codebase/CONCERNS.md` (cd3de78, M1) · `.planning/audits/2026-05-18-comprehensive-audit/FINDINGS.md` (M3)
+**Created:** 2026-05-14 · **Updated:** 2026-05-18 (M3 added)
 
-This milestone closes silent-bug gaps surfaced by the codebase audit. None of these
-add user-visible features — they correct existing features that mis-behave for some
-subset of patients (specific locales, specific timezones, specific store-migration
-paths, specific edge cases).
+Milestone 1 closed silent-bug gaps surfaced by the original codebase audit. Milestone 2 brought the app to "Airbnb-grade browser experience" at desktop + tablet widths. Milestone 3 closes the gaps surfaced by the comprehensive 2026-05-18 between-milestones audit — production-affecting locale parity bugs, clinical-record-integrity bugs, WCAG 2.1 AA gaps, and SEO config drift.
 
 ## v1 Requirements
 
@@ -100,6 +98,108 @@ The patient app today is mobile-first and does not adapt for browsers wider than
   *Files:* `src/app/[locale]/LandingContent.tsx:45-49`, `src/lib/store.ts:setClinicCode`
   *Verify:* `?clinic=<32 alphanumeric chars>` accepts; `?clinic=<5000 chars>` or `?clinic=<script>` rejects (or truncates to a safe substring).
 
+### Medical-Grade Closure (Milestone 3, added 2026-05-18)
+
+The 2026-05-18 comprehensive audit (`CODE-REVIEW.md` + `SEO-REVIEW.md` + `UI-REVIEW.md` → synthesized in `FINDINGS.md`) surfaced 69 findings across 3 audits: 7 Critical, 17 High, 24 Medium, 21 Low. The 4 phases below cover the Critical + High items in 4 failure classes: locale parity (LP-), clinical-record integrity (CRI-), accessibility (A11Y-), SEO config (SEO-M3-).
+
+#### Locale Parity (Phase 9)
+
+- [ ] **LP-01** — Article cards link to valid in-locale URLs in all 6 locales
+  `src/components/learn/ArticleCard.tsx:36` regex `/^\/(en|fr|es)/` strips only 3 of 6 locale prefixes, so `/pt/learn/...` cards generate hrefs like `/pt/pt/learn/...` that return 404 in production. Confirmed live via `curl`. Same bug affects ZH and AR. Half the locale audience is broken on the Learn hub.
+  *Files:* `src/components/learn/ArticleCard.tsx`
+  *Verify:* `curl -o /dev/null -w "%{http_code}\n" https://myflowcheck.com/{pt,zh,ar}/learn/<topic>/<slug>` returns 200 for each (after deploy); regex (or replacement logic) covers all 6 locales — driven by the locale list in `src/i18n/config.ts`, not a hardcoded subset.
+
+- [ ] **LP-02** — Clinical PDF export renders correct strings AND glyphs for PT/ZH/AR
+  `src/lib/exportPdf/strings.ts:81-285` has translation tables for en/fr/es only. Every PDF page calls `doc.setFont('helvetica', ...)` — helvetica has zero glyph coverage for Chinese or Arabic. A Mandarin-speaking PFPT receiving a patient's PDF sees English headers or boxes-where-CJK-glyphs-should-be, undoing the entire localization investment. Requires (a) extending `strings.ts` with pt/zh/ar tables, (b) registering Unicode font (Noto Sans CJK + Noto Sans Arabic, subsetted) per locale via lazy-load, (c) per-locale `date-fns` locale registration for date formatting.
+  *Files:* `src/lib/exportPdf/strings.ts`, `src/lib/exportPdf/*.ts` (every page that calls `setFont`), new font asset under `public/fonts/` or lazy-loaded chunks.
+  *Verify:* generate a 3-day PDF export from a `/pt/`, `/zh/`, `/ar/` session; every section header, table header, axis label, and inline string is in the patient's locale with correct glyphs. File size impact documented.
+
+- [ ] **LP-03** — Eliminate hardcoded English strings in PDFs even for EN/FR/ES
+  PDFs generated in EN/FR/ES currently contain several hardcoded English strings that bypass the `strings.ts` table: `dailyDiary.ts:55` ("Time" column header), `slots.ts:44,142` ("AM" / "PM" labels), `machineData.ts:17,21,55,70` ("Structured Data" / "Field/Value" / "Events" headers), `graphs.ts:194` (time-axis labels "6am/8am/10am/.../2am/4am"). For FR/ES this means a half-translated PDF; for the future PT/ZH/AR work in LP-02 it means the new translation tables won't cover everything unless these are migrated.
+  *Files:* `src/lib/exportPdf/{dailyDiary,slots,machineData,graphs}.ts`, `src/lib/exportPdf/strings.ts`
+  *Verify:* a generated PDF in FR contains no English strings; in ES contains no English strings; time-axis on graphs uses locale-correct hour labels.
+
+- [ ] **LP-04** — TimePicker bedtime preset chips render via `formatTime()` in all 6 locales
+  `src/components/diary/TimePicker.tsx:159,166,173` hardcodes "10 PM" / "11 PM" / "12 AM" as English string literals into translated wrappers. French users see "10 PM hier soir"; Arabic users see Latin "PM" inside RTL line.
+  *Files:* `src/components/diary/TimePicker.tsx`
+  *Verify:* render TimePicker in each of 6 locales; bedtime presets show "22 h" (FR), "22:00" (ES per locale convention), Arabic-numeral PM marker (AR), Chinese time format (ZH).
+
+- [ ] **LP-05** — Breadcrumb landmark `aria-label` is translated
+  The `<nav aria-label="Breadcrumb">` landmark is hardcoded English in the breadcrumb component. Should use the i18n message system + auto-mirror to all 5 non-en locales via `i18n-sync`.
+  *Files:* the breadcrumb component (likely `src/components/seo/` or `src/components/learn/`), `messages/en.json` (new key), all 5 non-en locale files.
+  *Verify:* DOM inspection in `/fr/learn/<topic>/<slug>` shows the translated landmark label; screen-reader navigation announces it correctly.
+
+- [ ] **LP-06** — Author profile photos sourced + wired
+  Both author JSON files (`content/authors/*.json`) have empty `photoUrl`; `public/authors/` directory does not exist. Author pages render without photos. For medical YMYL E-E-A-T signal, real photos are documented as required.
+  *Files:* `public/authors/*.jpg` (new), `content/authors/*.json` (populate `photoUrl`), `Author` JSON-LD wire-up (likely in `src/app/[locale]/learn/authors/[slug]/page.tsx`), `<img>` rendering + alt text translation.
+  *Verify:* author profile pages render `<img src="/authors/<slug>.jpg" alt="<translated>">`; `Author` JSON-LD `image`/`photoUrl` is non-empty; visible on `/learn/authors/<slug>` in all 6 locales.
+
+#### Clinical Record Integrity (Phase 10)
+
+- [ ] **CRI-01** — `LogVoidForm` / `LogDrinkForm` / `LogLeakForm` Discard truly discards
+  Each form has a cleanup `useEffect` that autosaves the dirty state on unmount. Phase 6 added an explicit "Discard" ConfirmDialog that says "Your changes won't be saved" — but the autosave fires anyway when the form unmounts after Discard, so the user-visible contract is violated. **The clinical record reflects state the patient explicitly chose to discard.** No test catches it.
+  *Files:* `src/components/diary/LogVoidForm.tsx`, `LogDrinkForm.tsx`, `LogLeakForm.tsx`
+  *Verify:* regression test per form — open in edit mode, change a value, simulate close-with-Discard, assert store state unchanged. Add to `src/__tests__/`.
+
+- [ ] **CRI-02** — `NextStepBanner` uses stored timezone, not browser-local
+  `src/components/diary/NextStepBanner.tsx:79` uses `new Date().getHours()` (browser-local) instead of canonical timezone helpers. This regresses the exact anti-pattern Phases 1–2 spent months eliminating. A patient in stored-tz ≠ browser-tz sees a banner suggesting the wrong next step.
+  *Files:* `src/components/diary/NextStepBanner.tsx`
+  *Verify:* with stored tz `Asia/Singapore` from a browser reporting `America/New_York`, the banner's "next step" reasoning uses SGT local time, not EST.
+
+- [ ] **CRI-03** — `reminders.ts:anchorTimeLabel` uses stored timezone
+  Same browser-local-time leak in the displayed reminder time label. The patient sees a reminder time string computed in their browser tz, not their stored diary tz.
+  *Files:* `src/lib/reminders.ts`
+  *Verify:* same test as CRI-02 against the reminder UI surface.
+
+- [ ] **CRI-04** — `removeWakeTime` recomputes FMV anchor
+  Adding/setting wake-time correctly triggers `reassignMorningVoid`; removing one does not. The FMV anchor can drift after wake-time deletion, producing wrong NPi computation in subtle cases.
+  *Files:* `src/lib/store.ts` (`removeWakeTime` action)
+  *Verify:* test — add 2 wake-times, set one void as FMV by proximity to wake-time A, remove wake-time A, assert FMV recomputes against wake-time B (or clears).
+
+- [ ] **CRI-05** — `observations.ts` caffeine-pattern detection filters Day 1
+  IPC rule: Day 1 is excluded from 24HV / NPi / AVV (adaptation period). The caffeine-pattern detection in `observations.ts` doesn't apply this filter, producing observations that include adaptation-day caffeine bursts in pattern aggregates.
+  *Files:* `src/lib/observations.ts`
+  *Verify:* test — synth a diary where Day 1 has 4 caffeine events and Days 2–3 have 1 each; caffeine-pattern observation only counts events from Days 2–3.
+
+#### Accessibility / WCAG 2.1 AA (Phase 11)
+
+- [ ] **A11Y-01** — Every page has exactly one `<h1>`
+  `DayPageClient` / diary day pages open with `<h2>` "Day 1" — there is no `<h1>` anywhere on the most-used surface in the app. WCAG 2.4.6 (Headings and Labels) + 1.3.1 (Info and Relationships) fail. Other pages need audit too (summary, landing, learn topics, articles, authors, glossary, help).
+  *Files:* page-component layer across `src/app/[locale]/**/page.tsx` and surrounding client components.
+  *Verify:* axe-core sweep across 6 locales × major routes (diary, summary, landing, learn topic, learn article) reports exactly one `<h1>` per page.
+
+- [ ] **A11Y-02** — `Toast` announces via `role="status"` / `aria-live`
+  `src/components/ui/Toast.tsx` (and any time-warning component) has no `aria-live`, `role="status"`, or `role="alert"`. Screen-reader users miss every milestone toast and time warning. WCAG 4.1.3 (Status Messages) fail.
+  *Files:* `src/components/ui/Toast.tsx`, any time-warning surface.
+  *Verify:* axe-core reports live region present; manual NVDA / VoiceOver test confirms milestone toast is announced.
+
+- [ ] **A11Y-03** — Skip-to-content link
+  No skip-to-content link anywhere. WCAG 2.4.1 (Bypass Blocks) fail. Should be the first focusable element on every page, visible only on focus.
+  *Files:* `src/components/layout/AppShell.tsx` or a new `SkipLink.tsx`.
+  *Verify:* keyboard-only walkthrough — Tab once + Enter from page load jumps focus past nav landmarks into `<main>`. Visible focus indicator on the link.
+
+- [ ] **A11Y-04** — ConfirmDialog destructive button position + autoFocus Cancel
+  `src/components/ui/ConfirmDialog.tsx` has the destructive (red) button in the primary (right) position with no `autoFocus` on Cancel — a declared `confirmBtnRef` is never assigned. Enter at dialog-open activates the destructive action by default. Standard medical-grade pattern: safe action defaults, destructive action requires explicit selection.
+  *Files:* `src/components/ui/ConfirmDialog.tsx`, all callers (likely `DayPageClient.tsx` and form components).
+  *Verify:* open a dirty form, trigger close → ConfirmDialog appears with Cancel autoFocused on the right, Discard on the left; pressing Enter at dialog-open does NOT discard.
+
+#### SEO Config + Technical (Phase 12)
+
+- [ ] **SEO-M3-01** — BreadcrumbList JSON-LD uses consistent URLs + Title-Case names
+  `BreadcrumbList` JSON-LD on learn articles has inconsistent URLs across positions (positions 1–3 use bare paths that 404 live; position 4 uses `/en/`) and position 3 name renders the raw lowercase slug ("nocturia" instead of "Nocturia"). Either confuses crawlers or renders ugly breadcrumb pills in SERPs.
+  *Files:* `src/components/seo/JsonLd.tsx` or wherever `BreadcrumbList` is assembled (`src/lib/seo/` candidate).
+  *Verify:* render `/en/learn/voiding/<slug>` and `/fr/learn/voiding/<slug>`; each position's URL is internally consistent and renders 200; position 3 name is Title-Cased.
+
+- [ ] **SEO-M3-02** — Bare `/` route returns indexable HTML, not JS-only shell
+  Bare `/` (default-locale homepage) currently returns a ~8KB JS-only redirect shell with no `<title>` / no body. Googlebot sees soft content. The fix is to ensure the static-export of the en-locale root has the full landing HTML (likely a Next.js i18n-prefix gotcha — the en root needs explicit rendering, not just a redirect rewrite).
+  *Files:* `next.config.ts` (next-intl plugin config), `src/app/page.tsx` or `src/app/[locale]/page.tsx`, `vercel.json` (now deleted) routing intent.
+  *Verify:* `curl -s https://myflowcheck.com/ | grep '<title>'` returns the landing page title; body has meaningful content; Google's Search Console "URL inspection" shows the bare URL as indexable with content.
+
+- [ ] **SEO-M3-03** — Audience landing intros reach 600-word spec target
+  `/learn/for-men` and `/learn/for-women` intro copy was expanded by recent commit but is still under the 600-word spec target documented in `content/README.md`. Reduces thin-content signal further.
+  *Files:* the MDX or component sources for the two audience landing pages (`src/app/[locale]/learn/for-men/`, `src/app/[locale]/learn/for-women/`); content files if applicable.
+  *Verify:* `wc -w` on the rendered intro for each landing in each locale reports ≥ 600 words.
+
 ## v2 Requirements
 
 <!-- Deferred to a later milestone. -->
@@ -107,6 +207,9 @@ The patient app today is mobile-first and does not adapt for browsers wider than
 - Locale-aware milestone-toast persistence keyed by patient instance, not session+locale (a deeper fix than STAB-06).
 - Migration from compile-time `PREMIUM_FEATURES_ENABLED` to env-gated rollout — wait until premium is commercialized.
 - Type augmentation for `jspdf-autotable`'s `lastAutoTable` to remove the four `@ts-expect-error` suppressions — tracked as tech debt, not a runtime bug.
+- Cluster article authoring for the 3 under-built pillars (`bph`, `frequency`, `urgency` — each at `_pillar.mdx` only, no cluster articles). Drafted via the existing SEO workflow + `article-intake` skill on a parallel content workstream, NOT inside Milestone 3.
+- `TimelineView.tsx` refactor (884-line monolith with no unit tests) — defer until a feature change forces extraction.
+- `JsonLd` `</` escape hardening (defense-in-depth on trusted content).
 
 ## Out of Scope
 
@@ -135,7 +238,16 @@ The patient app today is mobile-first and does not adapt for browsers wider than
 | Phase 7: Onboarding + Summary surfaces | DTUX-04, DTUX-05 |
 | Phase 8: Cross-locale visual QA + polish | DTUX-06 |
 
-All 15 v1 requirements (9 STAB + 6 DTUX) mapped. Coverage: 100%.
+### Medical-Grade Closure milestone (Phases 9–12)
+
+| Phase | Requirements |
+|-------|--------------|
+| Phase 9: Locale parity production-hotfix | LP-01, LP-02, LP-03, LP-04, LP-05, LP-06 |
+| Phase 10: Clinical record integrity | CRI-01, CRI-02, CRI-03, CRI-04, CRI-05 |
+| Phase 11: WCAG 2.1 AA baseline | A11Y-01, A11Y-02, A11Y-03, A11Y-04 |
+| Phase 12: SEO config + technical fixes | SEO-M3-01, SEO-M3-02, SEO-M3-03 |
+
+All 33 v1 requirements (9 STAB + 6 DTUX + 18 M3) mapped. Coverage: 100%.
 
 ---
-*Requirements defined: 2026-05-14 (Stabilization). Desktop & Tablet UX milestone added 2026-05-14.*
+*Requirements defined: 2026-05-14 (Stabilization). Desktop & Tablet UX milestone added 2026-05-14. Medical-Grade Closure milestone added 2026-05-18.*

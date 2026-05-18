@@ -1,19 +1,21 @@
-# Roadmap: My Flow Check — Stabilization + Desktop & Tablet UX Milestones
+# Roadmap: My Flow Check — Stabilization + Desktop & Tablet UX + Medical-Grade Closure Milestones
 
 ## Overview
 
-Two milestones tracked in this roadmap.
+Three milestones tracked in this roadmap.
 
-**Milestone 1 — Stabilization (Phases 1–4):** Closes silent-bug gaps surfaced by the codebase audit (`.planning/codebase/CONCERNS.md`, committed cd3de78). All work is correction of existing features that mis-behave for some subset of patients — no new user-visible features. Phases are grouped by failure class so each phase's fixes share verification surface and regression risk. Phases 1, 2, 4 are complete; Phase 3 (small UX polish: toast dedup / export-alert / clinicCode validation) is the only remaining work.
+**Milestone 1 — Stabilization (Phases 1–4):** Closes silent-bug gaps surfaced by the codebase audit (`.planning/codebase/CONCERNS.md`, committed cd3de78). All work is correction of existing features that mis-behave for some subset of patients — no new user-visible features. Phases are grouped by failure class so each phase's fixes share verification surface and regression risk. All 4 phases complete (2026-05-14 through 2026-05-17).
 
-**Milestone 2 — Desktop & Tablet UX (Phases 5–8):** Brings the patient app to "Airbnb-grade browser experience" at desktop + tablet widths without losing the boomer-safe mobile UX it already has. Today the app is mobile-first and does not adapt for browsers wider than ~768px (forms span 100% viewport, BottomNav stays pinned at the bottom of a 1920px monitor, no keyboard navigation anywhere). Phases are ordered foundation → forms → per-page → polish so the lower phases lock in container patterns + chrome behavior the upper phases build on.
+**Milestone 2 — Desktop & Tablet UX (Phases 5–8):** Brings the patient app to "Airbnb-grade browser experience" at desktop + tablet widths without losing the boomer-safe mobile UX it already has. Today the app is mobile-first and does not adapt for browsers wider than ~768px (forms span 100% viewport, BottomNav stays pinned at the bottom of a 1920px monitor, no keyboard navigation anywhere). Phases are ordered foundation → forms → per-page → polish so the lower phases lock in container patterns + chrome behavior the upper phases build on. All 4 phases complete (2026-05-15 through 2026-05-17).
+
+**Milestone 3 — Medical-Grade Closure (Phases 9–12):** Closes the gaps surfaced by the comprehensive 2026-05-18 between-milestones audit (`.planning/audits/2026-05-18-comprehensive-audit/FINDINGS.md`). Three Critical findings are live in production right now (PT/ZH/AR article-card 404, PDF English-only for non-EN/FR/ES locales, no `<h1>` on diary day pages); two more are clinical-record-integrity bugs (Discard actually saves in 3 log forms); one is an untracked-config landmine (now deleted). This milestone gets the app to medical-grade quality across all 6 locales with WCAG 2.1 AA accessibility and clinical-record-integrity guarantees. Phases are ordered production-impact-first: locale parity → record integrity → a11y baseline → SEO technical fixes.
 
 ## Phases
 
 **Phase Numbering:**
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
-- Phases 1–4 belong to Milestone 1 (Stabilization); Phases 5–8 belong to Milestone 2 (Desktop & Tablet UX). Phase numbering is monotonic across the project, not reset per milestone.
+- Phases 1–4 belong to Milestone 1 (Stabilization); Phases 5–8 belong to Milestone 2 (Desktop & Tablet UX); Phases 9–12 belong to Milestone 3 (Medical-Grade Closure). Phase numbering is monotonic across the project, not reset per milestone.
 
 ### Stabilization (Milestone 1)
 
@@ -28,6 +30,13 @@ Two milestones tracked in this roadmap.
 - [x] **Phase 6: Diary forms + keyboard navigation** — All bottom-sheet forms (Void/Drink/Leak/Bedtime/Wake) get max-width + responsive button grids; Enter advances, Escape closes, Tab order is logical, focus rings visible (completed 2026-05-16)
 - [x] **Phase 7: Onboarding + Summary surfaces** — Editorial desktop layout for the 3-step wizard; multi-column metric grid + hover affordances on the summary/export page (completed 2026-05-17)
 - [x] **Phase 8: Cross-locale visual QA + polish** — `visual-qa` skill runs the 6-locale × LTR/RTL × `md`/`lg`/`xl` matrix; fix overflow, font-fallback, and physical-CSS-in-RTL bugs surfaced (completed 2026-05-17)
+
+### Medical-Grade Closure (Milestone 3)
+
+- [ ] **Phase 9: Locale parity production-hotfix** — Fix article-card 404 in PT/ZH/AR (regex strips only en/fr/es), localize clinical PDF export for PT/ZH/AR including CJK + Arabic Unicode font registration, eliminate hardcoded English strings in EN/FR/ES PDFs, localize TimePicker bedtime preset chips, source + wire author profile photos
+- [ ] **Phase 10: Clinical record integrity** — Remove autosave-on-unmount from Log{Void,Drink,Leak}Form so Discard actually discards, finish eliminating browser-local-time leaks (NextStepBanner, reminders.ts), fix `removeWakeTime` FMV recomputation, Day-1 filter in observations.ts caffeine pattern detection, regression-test the autosave class
+- [ ] **Phase 11: WCAG 2.1 AA baseline** — Add `<h1>` to every page, announce Toast via `role="status"` / `aria-live`, add skip-to-content link, reposition ConfirmDialog destructive button + autoFocus Cancel + Enter activates Cancel
+- [ ] **Phase 12: SEO config + technical fixes** — Fix BreadcrumbList JSON-LD (consistent URLs, Title-Case names), restore bare-root indexability (currently JS-only shell), expand audience landing intros to 600-word spec target. (Cluster authoring for bph/frequency/urgency pillars runs on a parallel SEO content workstream, NOT in this phase.)
 
 ## Phase Details
 
@@ -193,18 +202,87 @@ Plans:
 Plans:
 - [ ] 08-NN: TBD (created by `/gsd-plan-phase 8`)
 
+### Phase 9: Locale parity production-hotfix
+**Milestone**: Medical-Grade Closure (Milestone 3)
+**Goal**: PT/ZH/AR patients receive the same clinical product EN/FR/ES patients receive. The Learn-hub article cards stop 404'ing in half the locales, the clinician-facing PDF export renders correct strings AND correct glyphs in every supported locale, and the small remaining hardcoded-English leaks in TimePicker and aria-labels close. By the end of this phase, a Mandarin-speaking PFPT can open a patient's PDF and read it; a Portuguese patient on `/pt/learn` clicks an article card and lands on the article, not a 404.
+**Depends on**: Nothing (independent of remaining milestones; production users broken right now)
+**Requirements**: LP-01, LP-02, LP-03, LP-04, LP-05, LP-06
+**Success Criteria** (what must be TRUE):
+  1. `curl https://myflowcheck.com/pt/learn` → renders article cards whose hrefs are `/pt/learn/<topic>/<slug>` (not `/pt/pt/learn/...`). Each card link returns 200, not 404. Same for `/zh/learn` and `/ar/learn`. The `ArticleCard.tsx` regex covers all 6 locales (or uses locale-list-driven approach).
+  2. Generate a PDF export for a 3-day diary completed in `pt`, `zh`, `ar` locales — all page headers, table headers, section labels (`Time`, `AM`, `PM`, `Structured Data`, `Field/Value`, `Events`), and time-axis labels (`6am/8am/.../2am/4am`) render in the patient's locale. For ZH and AR, CJK + Arabic glyphs render correctly (no missing-glyph tofu boxes) — requires Unicode font registration on top of `helvetica` default.
+  3. PDFs generated in EN/FR/ES no longer contain hardcoded English strings: `exportPdf/strings.ts` covers all the labels currently hardcoded in `dailyDiary.ts:55`, `slots.ts:44,142`, `machineData.ts:17,21,55,70`, `graphs.ts:194`.
+  4. `TimePicker.tsx` bedtime preset chips ("10 PM" / "11 PM" / "12 AM") render via `formatTime()` in all 6 locales — FR users see "22 h" not "10 PM hier soir"; AR users see Arabic-numeral PM marker inside the RTL line.
+  5. Breadcrumb landmark `aria-label` is translated in all 6 locales (currently hardcoded English).
+  6. Author profile pages render real photos: `public/authors/<slug>.jpg` exists, `Author` JSON-LD `photoUrl` is non-empty, `<img>` is rendered with locale-correct `alt` text in all 6 locales.
+**Plans**: TBD (planner produces; expected 4–6 plans split by surface — ArticleCard regex + tests; PDF Unicode font registration + lazy-load; PDF strings table extension + hardcoded-English elimination; TimePicker localization; aria-label translation + i18n-sync mirror; author photo sourcing via `image-source` skill + JSON-LD wire-up)
+
+Plans:
+- [ ] 09-NN: TBD (created by `/gsd-plan-phase 9`)
+
+### Phase 10: Clinical record integrity
+**Milestone**: Medical-Grade Closure (Milestone 3)
+**Goal**: Close the "Discard saves anyway" autosave-on-unmount bug class across all 3 edit forms with regression tests, and finish eliminating the remaining browser-local-time leaks that regressed during Phase 5–8 work. The clinical record the patient submits reflects exactly what they intended to submit; the time displayed on every UI surface matches the patient's stored timezone, not their browser's wall clock.
+**Depends on**: Phase 9 (no hard dep — independent code surface — but ordered to keep production-user-facing fixes first)
+**Requirements**: CRI-01, CRI-02, CRI-03, CRI-04, CRI-05
+**Success Criteria** (what must be TRUE):
+  1. Opening `LogVoidForm` in edit mode, changing the volume from 200 to 350, clicking the close X (or pressing Escape / clicking backdrop) → the dirty-state ConfirmDialog appears → clicking "Discard" → the void's volume in store remains 200, not 350. The "Your changes won't be saved" copy is honored.
+  2. Same as #1 for `LogDrinkForm` (volume) and `LogLeakForm` (urgency or amount). The autosave-on-unmount `useEffect` is removed from all 3 forms.
+  3. `NextStepBanner.tsx:79` uses the stored timezone via canonical helpers (`getHoursInTz` / `getDayNumber`). No `new Date().getHours()` call remains anywhere outside `utils.ts` time helpers.
+  4. `reminders.ts:anchorTimeLabel` uses the stored timezone for the displayed reminder time string — patients in a stored-tz different from browser-tz see the correct local clock label.
+  5. `removeWakeTime` action in store triggers `reassignMorningVoid` (or equivalent) so the FMV anchor recomputes when a wake-time is deleted. Same invariant as `addWakeTime` / `setBedtime` / void-add already enforce.
+  6. `observations.ts` caffeine-pattern detection filters out Day 1 events (consistent with IPC "exclude Day 1 from 24HV/NPi/AVV" rule).
+  7. New tests in `src/__tests__/`: at least one regression test per form covering the Discard path, plus one for the `removeWakeTime`-FMV-recompute invariant.
+**Plans**: TBD (planner produces; expected 2–4 plans — Discard fix across 3 forms + tests, timezone-leak fixes, removeWakeTime FMV invariant, observations Day-1 filter)
+
+Plans:
+- [ ] 10-NN: TBD (created by `/gsd-plan-phase 10`)
+
+### Phase 11: WCAG 2.1 AA baseline
+**Milestone**: Medical-Grade Closure (Milestone 3)
+**Goal**: Every interactive surface meets WCAG 2.1 AA. For medical-grade software this is the floor, not aspirational. Screen-reader users hear toasts. Keyboard users can skip past nav directly to content. Diary day pages have a proper `<h1>` landmark. Destructive actions in ConfirmDialog default to safe, not destroy.
+**Depends on**: Phase 9 (Breadcrumb aria-label landing in P9 informs the broader translation sweep here)
+**Requirements**: A11Y-01, A11Y-02, A11Y-03, A11Y-04
+**Success Criteria** (what must be TRUE):
+  1. Every page in the app has exactly one `<h1>`. Diary day pages (`DayPageClient`), summary, landing, learn topic pages, learn article pages, glossary, audience landings, author pages, help, privacy, terms — all comply.
+  2. `Toast.tsx` announces via `role="status"` (non-urgent) or `role="alert"` (errors). Time warnings and milestone toasts are screen-reader-audible. Verified via axe-core.
+  3. A "Skip to content" link is the first focusable element on every page; pressing Tab once + Enter from page load jumps focus past nav landmarks into the main content region. Visible only on focus (standard pattern).
+  4. `ConfirmDialog.tsx`: destructive (red) button is in the LEFT/secondary position, Cancel (safe) button in the RIGHT/primary position with `autoFocus`. The previously-declared-but-unassigned `confirmBtnRef` is removed or correctly wired. Pressing Enter at dialog-open activates Cancel, not Destroy.
+  5. axe-core sweep across 6 locales × 3 viewports (375 / 768 / 1280) on diary day 1 / summary / landing / one learn article reports 0 WCAG 2.1 AA violations.
+**Plans**: TBD (planner produces; expected 2–3 plans — landmarks/h1 sweep, Toast aria-live + skip-link, ConfirmDialog rework, axe-core verification spec)
+
+Plans:
+- [ ] 11-NN: TBD (created by `/gsd-plan-phase 11`)
+
+### Phase 12: SEO config + technical fixes
+**Milestone**: Medical-Grade Closure (Milestone 3)
+**Goal**: Close the BreadcrumbList JSON-LD inconsistency, restore bare-root indexability (currently JS-only shell), and reach the 600-word audience-landing-intro spec target. Cluster article authoring for the 3 under-built pillars (`bph`, `frequency`, `urgency`) is explicitly OUT of this phase — that runs on a parallel SEO content workstream via the existing `article-intake` skill.
+**Depends on**: Nothing (parallel to Phases 9–11; can run in any order)
+**Requirements**: SEO-M3-01, SEO-M3-02, SEO-M3-03
+**Success Criteria** (what must be TRUE):
+  1. BreadcrumbList JSON-LD on every learn article uses consistent URLs (all positions use the same locale-prefixed canonical form, or all use bare paths — but never a mix). Position 3 name is Title-Cased ("Nocturia" not "nocturia"). Render-verified against 3+ sample articles per locale.
+  2. Bare `/` route returns HTML with non-empty `<title>` and meaningful body content (not the current ~8KB JS-only redirect shell with no `<title>` / no body). Soft-content risk for Googlebot eliminated.
+  3. Audience landing pages (`/learn/for-men`, `/learn/for-women` + locale equivalents) intro copy reaches the 600-word spec target (per `content/README.md`) — currently expanded by recent commit but still under target.
+**Plans**: TBD (planner produces; expected 2 plans — BreadcrumbList + bare-root SSR fix, audience-landing intro expansion)
+
+Plans:
+- [ ] 12-NN: TBD (created by `/gsd-plan-phase 12`)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8. Phase 3 (Stabilization tail) and Phase 5 (start of Desktop & Tablet UX) are independent — they may run in either order or in parallel branches.
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12. Within Milestone 3, Phase 12 (SEO technical fixes) is fully independent and may run in parallel with Phases 9/10/11.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Locale + reminder + observation correctness | Stabilization | 3/3 | Complete | 2026-05-14 (via quick task 260514-ndz) |
 | 2. Remaining timezone correctness + store hygiene | Stabilization | 2/2 | Complete | 2026-05-14 (via quick task 260514-nt1) |
-| 3. UX polish + input validation | Stabilization | 0/TBD | Not started | - |
-| 4. Storage backend hardening | Stabilization | 2/2 | Complete | 2026-05-14 (planned route; 2 post-merge manual checks pending) |
-| 5. Layout foundation + AppShell chrome | Desktop & Tablet UX | 7/7 | Complete | 2026-05-16 (14 implementation commits + verification; shipped origin/main `86b082a..3fa1a08`) |
-| 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 11/11 | Complete | 2026-05-16 (14 implementation commits + Wave-6 spec; 31/31 Playwright pass; user-approved human-verify) |
-| 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 4/4 | Complete   | 2026-05-17 |
-| 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 0/TBD | Not started | - |
+| 3. UX polish + input validation | Stabilization | 3/3 | Complete | 2026-05-17 |
+| 4. Storage backend hardening | Stabilization | 2/2 | Complete | 2026-05-14 |
+| 5. Layout foundation + AppShell chrome | Desktop & Tablet UX | 7/7 | Complete | 2026-05-16 |
+| 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 11/11 | Complete | 2026-05-16 |
+| 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 4/4 | Complete | 2026-05-17 |
+| 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 4/4 | Complete | 2026-05-17 |
+| 9. Locale parity production-hotfix | Medical-Grade Closure | 0/TBD | Not started | - |
+| 10. Clinical record integrity | Medical-Grade Closure | 0/TBD | Not started | - |
+| 11. WCAG 2.1 AA baseline | Medical-Grade Closure | 0/TBD | Not started | - |
+| 12. SEO config + technical fixes | Medical-Grade Closure | 0/TBD | Not started | - |
