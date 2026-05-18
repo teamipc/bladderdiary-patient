@@ -2,8 +2,13 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { getAuthor, type Article } from '@/lib/content';
-import { type Locale } from '@/i18n/config';
+import { locales, type Locale } from '@/i18n/config';
 import { authorInitials, formatBylineMeta } from '@/lib/authorByline';
+
+// Strip ANY supported locale prefix from urlPath so <Link> from @/i18n/navigation
+// can re-prepend the current locale without producing /pt/pt/... double-prefixed URLs.
+// Driven from i18n/config so this can never silently drift when a locale is added.
+const LOCALE_PREFIX_RE = new RegExp(`^/(${locales.join('|')})(?=/|$)`);
 
 export default async function ArticleCard({
   article,
@@ -33,7 +38,7 @@ export default async function ArticleCard({
 
   return (
     <Link
-      href={article.urlPath.replace(/^\/(en|fr|es)/, '')}
+      href={article.urlPath.replace(LOCALE_PREFIX_RE, '')}
       className="group block rounded-2xl bg-white border border-ipc-100 hover:border-ipc-300 hover:shadow-md transition-all overflow-hidden"
     >
       <div className="aspect-[3/2] relative overflow-hidden bg-gradient-to-br from-ipc-100 to-ipc-200">
