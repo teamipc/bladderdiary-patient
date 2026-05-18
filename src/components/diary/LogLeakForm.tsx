@@ -50,6 +50,10 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after, timeZone);
   };
 
+  const [time, setTime] = useState(smartDefault);
+  // useState (not useRef) so the read is render-safe per react-hooks/refs.
+  const [initialTimeSnapshot] = useState(time);
+
   // In day view, correct after-midnight times so they sort after wake-up
   const handleTimeChange = useCallback((newTime: string) => {
     if (isNightView && prevDayBedtime) {
@@ -63,8 +67,6 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   const [trigger, setTrigger] = useState<LeakTrigger | null>(editEntry?.trigger ?? null);
   const [amount, setAmount] = useState<LeakAmount | null>(editEntry?.amount ?? null);
   const [urgencyBeforeLeak, setUrgencyBeforeLeak] = useState<boolean | null>(editEntry?.urgencyBeforeLeak ?? null);
-  const [time, setTime] = useState(smartDefault);
-  const initialTimeSnapshotRef = useRef(time);
   const [notes, setNotes] = useState(editEntry?.notes ?? '');
   const [noteOpen, setNoteOpen] = useState(false);
 
@@ -73,12 +75,10 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('left');
   const noteAreaRef = useRef<HTMLDivElement>(null);
 
-  // Auto-save refs
+  // savedRef retained as a no-op marker on the explicit Save path. The autosave-on-unmount
+  // cleanup that previously read it was removed in Phase 10 (CRI-01); keeping the writes
+  // avoids destabilizing the long handleSave useCallback deps array.
   const savedRef = useRef(false);
-  const formRef = useRef({ trigger, amount, urgencyBeforeLeak, time, notes });
-  useEffect(() => {
-    formRef.current = { trigger, amount, urgencyBeforeLeak, time, notes };
-  });
 
   // Dirty-state tracking — per UI-SPEC §"Reset-on-Cancel Pattern" → LogLeakForm:
   // dirty if any of trigger/amount/urgencyBeforeLeak/notes/time differs from initial defaults.
@@ -89,31 +89,13 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     if (amount !== (editEntry?.amount ?? null)) return true;
     if (urgencyBeforeLeak !== (editEntry?.urgencyBeforeLeak ?? null)) return true;
     if (notes !== (editEntry?.notes ?? '')) return true;
-    if (time !== initialTimeSnapshotRef.current) return true;
+    if (time !== initialTimeSnapshot) return true;
     return false;
-  }, [trigger, amount, urgencyBeforeLeak, notes, time, editEntry]);
+  }, [trigger, amount, urgencyBeforeLeak, notes, time, editEntry, initialTimeSnapshot]);
 
   useEffect(() => {
     onDirtyChange?.(isDirty);
   }, [isDirty, onDirtyChange]);
-
-  // Auto-save on unmount when editing
-  useEffect(() => {
-    if (!isEditing || !editEntry) return;
-    return () => {
-      if (savedRef.current) return;
-      const d = formRef.current;
-      if (!d.trigger) return;
-      updateLeak(editEntry.id, {
-        timestampIso: d.time,
-        trigger: d.trigger,
-        urgencyBeforeLeak: d.urgencyBeforeLeak,
-        amount: d.amount,
-        notes: d.notes,
-      });
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const goToStep = useCallback((target: number) => {
     const clamped = Math.max(1, Math.min(TOTAL_STEPS, target));
@@ -195,7 +177,7 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     }
     savedRef.current = true;
     onSave();
-  }, [trigger, urgencyBeforeLeak, amount, time, notes, isEditing, editEntry, addLeak, updateLeak, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime, tv]);
+  }, [trigger, urgencyBeforeLeak, amount, time, notes, isEditing, editEntry, addLeak, updateLeak, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime, tv, locale, timeZone]);
 
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 

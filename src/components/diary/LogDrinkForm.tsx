@@ -51,6 +51,12 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after, timeZone);
   };
 
+  const [time, setTime] = useState(smartDefault);
+  // Snapshot of smart-default time on first render — used for dirty-state comparison.
+  // Per 06-UI-SPEC §"Reset-on-Cancel Pattern" → LogDrinkForm row: dirty if time !== smartDefault().
+  // useState (not useRef) so the read is render-safe per react-hooks/refs.
+  const [initialTimeSnapshot] = useState(time);
+
   const handleTimeChange = useCallback((newTime: string) => {
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso, timeZone));
@@ -76,12 +82,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
 
   const [drinkType, setDrinkType] = useState<DrinkType>(defaultDrinkType);
   const [volume, setVolume] = useState(defaultVolume);
-  const [time, setTime] = useState(smartDefault);
   const [note, setNote] = useState(editEntry?.note ?? '');
-
-  // Snapshot of smart-default time on first render — used for dirty-state comparison.
-  // Per 06-UI-SPEC §"Reset-on-Cancel Pattern" → LogDrinkForm row: dirty if time !== smartDefault().
-  const initialTimeSnapshotRef = useRef(time);
 
   // Drink chips: 3 real-world container sizes pulled from patient diary data
   // (Bruno's water/coffee/juice 150–500 mL range, Alex's coffee 200, beer 340).
@@ -106,27 +107,10 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
   // Pavlovian "+VOL" micro-reward — see LogVoidForm for rationale.
   const [chipPop, setChipPop] = useState<{ id: string; label: string; nonce: number } | null>(null);
 
+  // savedRef retained as a no-op marker on the explicit Save path. The autosave-on-unmount
+  // cleanup that previously read it was removed in Phase 10 (CRI-01); keeping the writes
+  // avoids destabilizing the long handleSave useCallback deps array.
   const savedRef = useRef(false);
-  const formRef = useRef({ drinkType, volume, time, note });
-  useEffect(() => {
-    formRef.current = { drinkType, volume, time, note };
-  });
-
-  useEffect(() => {
-    if (!isEditing || !editEntry) return;
-    return () => {
-      if (savedRef.current) return;
-      const d = formRef.current;
-      if (d.volume <= 0) return;
-      updateDrink(editEntry.id, {
-        timestampIso: d.time,
-        volumeMl: displayVolumeToMl(d.volume, volumeUnit),
-        drinkType: d.drinkType,
-        note: d.note,
-      });
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Dirty-state tracking — per 06-UI-SPEC §"Reset-on-Cancel Pattern" → LogDrinkForm:
   // interacted beyond defaults if any of drinkType/volume/note/time differs from initial.
@@ -135,9 +119,9 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     if (drinkType !== defaultDrinkType) return true;
     if (volume !== defaultVolume) return true;
     if (note.length > 0 && note !== (editEntry?.note ?? '')) return true;
-    if (time !== initialTimeSnapshotRef.current) return true;
+    if (time !== initialTimeSnapshot) return true;
     return false;
-  }, [drinkType, volume, note, time, defaultDrinkType, defaultVolume, editEntry]);
+  }, [drinkType, volume, note, time, defaultDrinkType, defaultVolume, editEntry, initialTimeSnapshot]);
 
   useEffect(() => {
     onDirtyChange?.(isDirty);
@@ -221,7 +205,7 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     }
     savedRef.current = true;
     onSave();
-  }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime, tv]);
+  }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime, tv, locale, timeZone]);
 
   const slideClass = slideDir === 'left' ? 'animate-step-in-left' : 'animate-step-in-right';
 

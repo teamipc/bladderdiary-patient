@@ -51,6 +51,11 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
     return getDefaultTimeForDay(startDate, dayNumber as 1 | 2 | 3, after, timeZone);
   };
 
+  const [time, setTime] = useState(smartDefault);
+  // Snapshot of smart-default time on first render — used for dirty-state comparison.
+  // useState (not useRef) so the read is render-safe per react-hooks/refs.
+  const [initialTimeSnapshot] = useState(time);
+
   const handleTimeChange = useCallback((newTime: string) => {
     if (isNightView && prevDayBedtime) {
       setTime(correctNightDate(newTime, prevDayBedtime.timestampIso, timeZone));
@@ -75,9 +80,6 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
 
   const [volume, setVolume] = useState(defaultVolume);
   const [sensation, setSensation] = useState<BladderSensation | null>(editEntry?.sensation ?? null);
-  const [time, setTime] = useState(smartDefault);
-  // Snapshot of smart-default time on first render — used for dirty-state comparison.
-  const initialTimeSnapshotRef = useRef(time);
   const [note, setNote] = useState(editEntry?.note ?? '');
   const [leak, setLeak] = useState(editEntry?.leak ?? false);
   // For nocturnal voids only — was the patient woken by the urge, or already awake?
@@ -119,11 +121,10 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
       ];
   const noteAreaRef = useRef<HTMLDivElement>(null);
 
+  // savedRef retained as a no-op marker on the explicit Save path. The autosave-on-unmount
+  // cleanup that previously read it was removed in Phase 10 (CRI-01); keeping the writes
+  // avoids destabilizing the long handleSave useCallback deps array.
   const savedRef = useRef(false);
-  const formRef = useRef({ volume, sensation, time, note, leak, doubleVoid, doubleVoidVolume });
-  useEffect(() => {
-    formRef.current = { volume, sensation, time, note, leak, doubleVoid, doubleVoidVolume };
-  });
 
   // Dirty-state tracking — per UI-SPEC §"Reset-on-Cancel Pattern" → LogVoidForm:
   // dirty if any of volume/sensation/note/leak/doubleVoid/wokeBy/time differs from initial defaults.
@@ -135,31 +136,13 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
     const editDoubleVoid = !!editEntry?.doubleVoidMl;
     if (doubleVoid !== editDoubleVoid) return true;
     if (wokeBy !== (editEntry?.wokeBy ?? null)) return true;
-    if (time !== initialTimeSnapshotRef.current) return true;
+    if (time !== initialTimeSnapshot) return true;
     return false;
-  }, [volume, sensation, note, leak, doubleVoid, wokeBy, time, defaultVolume, editEntry]);
+  }, [volume, sensation, note, leak, doubleVoid, wokeBy, time, defaultVolume, editEntry, initialTimeSnapshot]);
 
   useEffect(() => {
     onDirtyChange?.(isDirty);
   }, [isDirty, onDirtyChange]);
-
-  useEffect(() => {
-    if (!isEditing || !editEntry) return;
-    return () => {
-      if (savedRef.current) return;
-      const d = formRef.current;
-      if (d.volume <= 0) return;
-      updateVoid(editEntry.id, {
-        timestampIso: d.time,
-        volumeMl: displayVolumeToMl(d.volume, volumeUnit),
-        doubleVoidMl: d.doubleVoid ? displayVolumeToMl(d.doubleVoidVolume, volumeUnit) : undefined,
-        sensation: d.sensation,
-        leak: d.leak,
-        note: d.note,
-      });
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const goToStep = useCallback((target: number) => {
     const clamped = Math.max(1, Math.min(3, target));
