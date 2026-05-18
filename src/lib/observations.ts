@@ -72,10 +72,23 @@ export function generateObservations(state: DiaryState): Observation[] {
   if (voids.length === 0 && drinks.length === 0) return out;
 
   // ── Caffeine to bathroom ──────────────────────────────────────────────
-  const caffeineDrinks = drinks.filter((d) => CAFFEINE_TYPES.includes(d.drinkType));
+  // Exclude Day 1 events from the pattern aggregate. Day 1 is the adaptation
+  // day excluded from IPC 24HV / NPi / AVV calculations (see memory
+  // ipc-calculations.md and docs/TIME_MODEL.md); summary observations should
+  // honor the same exclusion so the patient never sees a pattern based on
+  // adaptation-day data the metrics deliberately ignore (CRI-05).
+  const isDayOne = (iso: string): boolean =>
+    getDayNumber(iso, state.startDate, state.bedtimes, state.timeZone) === 1;
+  const caffeineDrinks = drinks.filter(
+    (d) => CAFFEINE_TYPES.includes(d.drinkType) && !isDayOne(d.timestampIso),
+  );
+  // Also gate the matched voids: a Day-2-attributed late-evening caffeine
+  // drink whose follow-up void lands on Day-1-attributed time (rare but
+  // possible across the bedtime-aware bump) should not count.
+  const eligibleVoids = voids.filter((v) => !isDayOne(v.timestampIso));
   if (caffeineDrinks.length >= 2) {
-    const followed = caffeineDrinks.filter((d) => drinkFollowedByVoid(d, voids, 120)).length;
-    // Show the observation only if the pattern is real (≥half of caffeine drinks)
+    const followed = caffeineDrinks.filter((d) => drinkFollowedByVoid(d, eligibleVoids, 120)).length;
+    // Show the observation only if the pattern is real (>= half of caffeine drinks).
     if (followed >= 2 && followed / caffeineDrinks.length >= 0.5) {
       out.push({
         key: 'caffeineToBathroom',

@@ -280,6 +280,55 @@ describe('setWakeTime / removeWakeTime', () => {
 });
 
 // ──────────────────────────────────────────────
+// removeWakeTime FMV invariant (CRI-04)
+// ──────────────────────────────────────────────
+describe('removeWakeTime FMV invariant (CRI-04)', () => {
+  it('Test A: setting wake after adding a void flags that void as FMV', () => {
+    const store = useDiaryStore.getState();
+    store.addVoid(makeVoid({ timestampIso: '2026-03-08T11:30:00.000Z' }));
+    store.setWakeTime(1, '2026-03-08T11:00:00.000Z');
+    const voids = useDiaryStore.getState().voids;
+    expect(voids).toHaveLength(1);
+    expect(voids[0].isFirstMorningVoid).toBe(true);
+  });
+
+  it('Test B: removeWakeTime clears the FMV flag (the CRI-04 regression guard)', () => {
+    const store = useDiaryStore.getState();
+    store.addVoid(makeVoid({ timestampIso: '2026-03-08T11:30:00.000Z' }));
+    store.setWakeTime(1, '2026-03-08T11:00:00.000Z');
+    // Sanity: FMV is set.
+    expect(useDiaryStore.getState().voids[0].isFirstMorningVoid).toBe(true);
+    // Action under test.
+    store.removeWakeTime(1);
+    // Assertion: the FMV flag MUST be cleared (was the bug under CRI-04).
+    expect(useDiaryStore.getState().voids[0].isFirstMorningVoid).toBe(false);
+    // And the wake itself is removed.
+    expect(useDiaryStore.getState().wakeTimes).toHaveLength(0);
+  });
+
+  it('Test C: removing wake for Day 1 does not clear FMV on Day 2', () => {
+    const store = useDiaryStore.getState();
+    // Day 1: void + wake (sets Day 1 FMV).
+    store.addVoid(makeVoid({ timestampIso: '2026-03-08T11:30:00.000Z' }));
+    store.setWakeTime(1, '2026-03-08T11:00:00.000Z');
+    // Day 2: void + wake (sets Day 2 FMV).
+    store.addVoid(makeVoid({ timestampIso: '2026-03-09T11:30:00.000Z' }));
+    store.setWakeTime(2, '2026-03-09T11:00:00.000Z');
+    const before = useDiaryStore.getState().voids;
+    expect(before).toHaveLength(2);
+    expect(before.find((v) => v.timestampIso.startsWith('2026-03-08'))?.isFirstMorningVoid).toBe(true);
+    expect(before.find((v) => v.timestampIso.startsWith('2026-03-09'))?.isFirstMorningVoid).toBe(true);
+    // Action: remove ONLY Day 1's wake.
+    store.removeWakeTime(1);
+    const after = useDiaryStore.getState().voids;
+    // Day 1 FMV cleared.
+    expect(after.find((v) => v.timestampIso.startsWith('2026-03-08'))?.isFirstMorningVoid).toBe(false);
+    // Day 2 FMV preserved.
+    expect(after.find((v) => v.timestampIso.startsWith('2026-03-09'))?.isFirstMorningVoid).toBe(true);
+  });
+});
+
+// ──────────────────────────────────────────────
 // Day selectors (bedtime-aware boundaries)
 // ──────────────────────────────────────────────
 describe('getVoidsForDay', () => {

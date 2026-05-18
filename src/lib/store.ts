@@ -39,7 +39,20 @@ function reassignMorningVoid(
   timeZone?: string,
 ): VoidEntry[] {
   const wakeEntry = wakeTimes.find((w) => w.dayNumber === dayNumber);
-  if (!wakeEntry) return allVoids; // No wake time → don't change anything
+  if (!wakeEntry) {
+    // No wake time for this day. Clear any stale FMV flag on voids attributed
+    // to this day so removeWakeTime is a true inverse of setWakeTime for the
+    // FMV invariant (CRI-04 / docs/TIME_MODEL.md). Voids on OTHER days are
+    // untouched. Object identity is preserved for entries that don't change,
+    // so React-Zustand reference equality holds for unaffected voids.
+    return allVoids.map((v) => {
+      const vDay = getDayNumber(v.timestampIso, startDate, bedtimes, timeZone);
+      if (vDay === dayNumber && v.isFirstMorningVoid) {
+        return { ...v, isFirstMorningVoid: false };
+      }
+      return v;
+    });
+  }
 
   const wakeIso = wakeEntry.timestampIso;
 
@@ -315,9 +328,13 @@ export const useDiaryStore = create<DiaryStore>()(
           return { wakeTimes: newWakeTimes, voids };
         }),
       removeWakeTime: (dayNumber) =>
-        set((s) => ({
-          wakeTimes: s.wakeTimes.filter((w) => w.dayNumber !== dayNumber),
-        })),
+        set((s) => {
+          const newWakeTimes = s.wakeTimes.filter((w) => w.dayNumber !== dayNumber);
+          // Mirror setWakeTime: recompute FMV for this day. With no wake entry,
+          // the helper clears any stale FMV flag on the day's voids (CRI-04).
+          const voids = reassignMorningVoid(s.voids, dayNumber, s.startDate, s.bedtimes, newWakeTimes, s.timeZone);
+          return { wakeTimes: newWakeTimes, voids };
+        }),
 
       // ── Selectors (bedtime-aware day boundaries) ──
       getVoidsForDay: (dayNumber) => {

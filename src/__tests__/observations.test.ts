@@ -96,6 +96,77 @@ describe('generateObservations: caffeine to bathroom', () => {
   });
 });
 
+describe('generateObservations: caffeine to bathroom -- Day 1 exclusion (CRI-05)', () => {
+  it('Test D: caffeineToBathroom does NOT fire when all caffeine events are on Day 1', () => {
+    const s = baseState({
+      drinks: [
+        { id: 'd1', timestampIso: ts(4, 13, 7), volumeMl: 200, drinkType: 'coffee', note: '' },
+        { id: 'd2', timestampIso: ts(4, 13, 9), volumeMl: 200, drinkType: 'coffee', note: '' },
+        { id: 'd3', timestampIso: ts(4, 13, 11), volumeMl: 200, drinkType: 'coffee', note: '' },
+        { id: 'd4', timestampIso: ts(4, 13, 14), volumeMl: 200, drinkType: 'coffee', note: '' },
+      ],
+      voids: [
+        // Each Day 1 caffeine event is followed within 2h by a Day 1 void.
+        // Under the OLD logic this would emit caffeineToBathroom. Under the
+        // new logic, ALL these are Day-1-attributed and filtered out.
+        { id: 'v1', timestampIso: ts(4, 13, 7, 45), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+        { id: 'v2', timestampIso: ts(4, 13, 9, 30), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+        { id: 'v3', timestampIso: ts(4, 13, 11, 15), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+        { id: 'v4', timestampIso: ts(4, 13, 14, 50), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+      ],
+    });
+    const obs = generateObservations(s);
+    expect(obs.some((o) => o.key === 'caffeineToBathroom')).toBe(false);
+  });
+
+  it('Test E: caffeineToBathroom fires only on Day 2/3 caffeine events, ignoring Day 1', () => {
+    const s = baseState({
+      drinks: [
+        // Day 1: noise that the new logic must ignore.
+        { id: 'd1', timestampIso: ts(4, 13, 7), volumeMl: 200, drinkType: 'coffee', note: '' },
+        { id: 'd2', timestampIso: ts(4, 13, 9), volumeMl: 200, drinkType: 'coffee', note: '' },
+        { id: 'd3', timestampIso: ts(4, 13, 11), volumeMl: 200, drinkType: 'coffee', note: '' },
+        { id: 'd4', timestampIso: ts(4, 13, 14), volumeMl: 200, drinkType: 'coffee', note: '' },
+        // Day 2 + Day 3: the real pattern.
+        { id: 'd5', timestampIso: ts(4, 14, 8), volumeMl: 200, drinkType: 'coffee', note: '' },
+        { id: 'd6', timestampIso: ts(4, 15, 8), volumeMl: 200, drinkType: 'coffee', note: '' },
+      ],
+      voids: [
+        // Day 1 followups (must be excluded from eligibleVoids).
+        { id: 'v1', timestampIso: ts(4, 13, 7, 45), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+        { id: 'v2', timestampIso: ts(4, 13, 9, 30), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+        { id: 'v3', timestampIso: ts(4, 13, 11, 15), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+        { id: 'v4', timestampIso: ts(4, 13, 14, 50), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+        // Day 2 + Day 3 followups (count toward the eligible pattern).
+        { id: 'v5', timestampIso: ts(4, 14, 9), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+        { id: 'v6', timestampIso: ts(4, 15, 9), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+      ],
+    });
+    const obs = generateObservations(s);
+    const caffeine = obs.find((o) => o.key === 'caffeineToBathroom');
+    expect(caffeine).toBeDefined();
+    // 2 eligible caffeine drinks, both followed within 2h.
+    expect(caffeine?.values?.count).toBe(2);
+  });
+
+  it('Test F: regression guard -- a Day-2/3-only pattern still produces caffeineToBathroom', () => {
+    // Same shape as the existing positive test but with data on Day 2 / Day 3.
+    // Confirms the filter does not over-exclude.
+    const s = baseState({
+      drinks: [
+        { id: 'd1', timestampIso: ts(4, 14, 8), volumeMl: 200, drinkType: 'coffee', note: '' },
+        { id: 'd2', timestampIso: ts(4, 15, 8), volumeMl: 200, drinkType: 'coffee', note: '' },
+      ],
+      voids: [
+        { id: 'v1', timestampIso: ts(4, 14, 9, 30), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+        { id: 'v2', timestampIso: ts(4, 15, 9, 0), volumeMl: 250, sensation: 2, leak: false, note: '', isFirstMorningVoid: false },
+      ],
+    });
+    const obs = generateObservations(s);
+    expect(obs.some((o) => o.key === 'caffeineToBathroom')).toBe(true);
+  });
+});
+
 describe('generateObservations: fluid timing', () => {
   it('fires "eveningFluids" when >40% of fluid volume is in evening', () => {
     const s = baseState({
