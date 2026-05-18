@@ -788,6 +788,7 @@
     },
     "disclaimer": "Este art\u00edculo es solo para fines educativos. No proporciona asesoramiento m\u00e9dico, diagn\u00f3stico ni tratamiento. Consulta siempre a un profesional de salud cualificado para cualquier condici\u00f3n m\u00e9dica.",
     "breadcrumbs": {
+      "ariaLabel": "Ruta de navegación",
       "home": "Inicio",
       "learn": "Aprender",
       "glossary": "Glosario",

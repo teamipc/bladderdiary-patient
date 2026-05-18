@@ -1,8 +1,8 @@
 'use client';
 
 import { Minus, Plus } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { buildIsoForClockTimeInTz, getClockTimeInTz, getHoursInTz, getMinutesInTz } from '@/lib/utils';
+import { useLocale, useTranslations } from 'next-intl';
+import { buildIsoForClockTimeInTz, formatTime, getClockTimeInTz, getHoursInTz, getMinutesInTz } from '@/lib/utils';
 
 interface TimePickerProps {
   value: string; // ISO string
@@ -15,6 +15,7 @@ interface TimePickerProps {
 
 export default function TimePicker({ value, onChange, label, variant = 'default', timeZone }: TimePickerProps) {
   const tc = useTranslations('common');
+  const locale = useLocale();
   const isDrink = variant === 'drink';
   const isBedtime = variant === 'bedtime';
   const isLeak = variant === 'leak';
@@ -76,6 +77,19 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
   // (e.g. correctAfterMidnight) handles 12 AM → next-day bumping.
   const handleLastNightAt = (hour24: number) => {
     onChange(buildIsoForClockTimeInTz(value, hour24, 0, timeZone));
+  };
+
+  // Format a 24-hour clock-time as a locale-native preset chip label for the
+  // "last night at" bedtime chips. The label MUST render in the user's locale
+  // (FR -> "22 h", AR -> Arabic-numeral PM with RTL bidi, ZH -> "下午 10:00", etc.),
+  // never as a hardcoded English literal embedded inside the translated wrapper.
+  // We construct an ISO instant for the chip's clock-time on `value`'s date in
+  // the user's tz, then formatTime() it through Intl.DateTimeFormat to get the
+  // locale-native render. Mirrors handleLastNightAt's ISO construction so the
+  // chip label always matches what clicking the chip will save.
+  const formatBedtimeChip = (hour24: number): string => {
+    const iso = buildIsoForClockTimeInTz(value, hour24, 0, timeZone);
+    return formatTime(iso, locale, timeZone);
   };
 
   return (
@@ -156,21 +170,21 @@ export default function TimePicker({ value, onChange, label, variant = 'default'
               onClick={() => handleLastNightAt(22)}
               className="px-3 h-8 rounded-full border border-bedtime/25 text-bedtime/80 text-xs font-semibold hover:bg-bedtime/10 active:scale-[0.95] transition-all whitespace-nowrap"
             >
-              {tc('lastNightAt', { time: '10 PM' })}
+              {tc('lastNightAt', { time: formatBedtimeChip(22) })}
             </button>
             <button
               type="button"
               onClick={() => handleLastNightAt(23)}
               className="px-3 h-8 rounded-full border border-bedtime/25 text-bedtime/80 text-xs font-semibold hover:bg-bedtime/10 active:scale-[0.95] transition-all whitespace-nowrap"
             >
-              {tc('lastNightAt', { time: '11 PM' })}
+              {tc('lastNightAt', { time: formatBedtimeChip(23) })}
             </button>
             <button
               type="button"
               onClick={() => handleLastNightAt(0)}
               className="px-3 h-8 rounded-full border border-bedtime/25 text-bedtime/80 text-xs font-semibold hover:bg-bedtime/10 active:scale-[0.95] transition-all whitespace-nowrap"
             >
-              {tc('lastNightAt', { time: '12 AM' })}
+              {tc('lastNightAt', { time: formatBedtimeChip(0) })}
             </button>
           </>
         ) : (

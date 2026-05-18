@@ -788,6 +788,7 @@
     },
     "disclaimer": "This article is for educational purposes only. It does not provide medical advice, diagnosis, or treatment. Always consult a qualified health professional regarding any medical condition.",
     "breadcrumbs": {
+      "ariaLabel": "Breadcrumb",
       "home": "Home",
       "learn": "Learn",
       "glossary": "Glossary",

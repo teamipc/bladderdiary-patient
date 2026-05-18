@@ -788,6 +788,7 @@
       },
       "disclaimer": "Cet article est à des fins éducatives uniquement. Il ne constitue pas un avis médical, un diagnostic ou un traitement. Consultez toujours un professionnel de santé qualifié pour toute condition médicale.",
       "breadcrumbs": {
+        "ariaLabel": "Fil d'Ariane",
         "home": "Accueil",
         "learn": "Apprendre",
         "glossary": "Glossaire",

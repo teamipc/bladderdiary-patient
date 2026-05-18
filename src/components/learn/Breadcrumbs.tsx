@@ -1,14 +1,16 @@
 import { Link } from '@/i18n/navigation';
 import { ChevronRight } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 export interface BreadcrumbItem {
   label: string;
   href?: string;
 }
 
-export default function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
+export default async function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
+  const t = await getTranslations('learn.breadcrumbs');
   return (
-    <nav aria-label="Breadcrumb" className="mb-4">
+    <nav aria-label={t('ariaLabel')} className="mb-4">
       <ol className="flex flex-wrap items-center gap-1 text-xs text-ipc-500">
         {items.map((item, i) => {
           const isLast = i === items.length - 1;

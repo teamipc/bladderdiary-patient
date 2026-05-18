@@ -788,6 +788,7 @@
     },
     "disclaimer": "Este artigo destina-se apenas a fins educativos. Não fornece aconselhamento médico, diagnóstico ou tratamento. Consulta sempre um profissional de saúde qualificado para qualquer condição médica.",
     "breadcrumbs": {
+      "ariaLabel": "Trilho de navegação",
       "home": "Início",
       "learn": "Aprender",
       "glossary": "Glossário",
