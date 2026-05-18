@@ -49,3 +49,9 @@ next-env.d.ts
 
 # Claude worktree cache
 /.claude/worktrees/
+
+# Search Console CLI script (scripts/check-search-console.mjs)
+# OAuth credentials + cached refresh token + cached report — NEVER commit.
+scripts/.gcp-oauth-credentials.json
+scripts/.gcp-token.json
+scripts/.gcp-last-report.json
