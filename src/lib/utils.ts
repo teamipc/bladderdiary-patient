@@ -147,15 +147,6 @@ export function getDateInTz(isoString: string, timeZone?: string): string {
   return `${y}-${m}-${day}`;
 }
 
-/** Calendar day difference between two ISO timestamps in a specific timezone. */
-function diffCalendarDaysInTz(isoA: string, isoB: string, timeZone?: string): number {
-  const dateA = getDateInTz(isoA, timeZone);
-  const dateB = getDateInTz(isoB, timeZone);
-  const msA = Date.parse(dateA + 'T00:00:00');
-  const msB = Date.parse(dateB + 'T00:00:00');
-  return Math.round((msA - msB) / 86_400_000);
-}
-
 /** Get the current time-of-day (HH:MM:SS) in a specific timezone. */
 function getTimeOfDayInTz(timeZone?: string): string {
   const now = new Date();

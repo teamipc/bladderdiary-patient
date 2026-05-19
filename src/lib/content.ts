@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 import readingTimeFn from 'reading-time';
-import { locales as allLocales, defaultLocale, type Locale } from '@/i18n/config';
+import { locales as allLocales, type Locale } from '@/i18n/config';
 
 const CONTENT_ROOT = path.join(process.cwd(), 'content');
 const ARTICLES_ROOT = path.join(CONTENT_ROOT, 'articles');
