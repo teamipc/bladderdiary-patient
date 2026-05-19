@@ -319,6 +319,18 @@
     "pdfError": "خطأ في PDF: {msg}",
     "csvError": "حدث خطأ أثناء إنشاء ملف CSV. يرجى المحاولة مرة أخرى."
   },
+  "exportPackage": {
+    "readme": {
+      "title": "My Flow Check: مذكرة المثانة لمدة 3 أيام",
+      "patientLine": "ملف المريض: العمر {age}, المنطقة الزمنية {timezone}",
+      "completedLine": "اكتملت المذكرة بتاريخ: {date}",
+      "intro": "تحتوي هذه الحزمة على 4 ملفات لسجلاتك. اختر الملف المناسب لسير\nعملك. تحمل جميع الملفات نفس البيانات التي أبلغ بها المريض.",
+      "fileDescriptions": "  01-clinical-report.pdf\n     ملف PDF إكلينيكي من 7 صفحات يضم الجدول الزمني للمريض، والمؤشرات\n     الإكلينيكية لـ IPC (24HV, NPi, AVV, MVV, NBC)، ورسوم انتشار\n     الأحداث، والملاحظات الإكلينيكية. اقرأ هذا أولاً.\n\n  02-events.csv\n     بيانات الأحداث الخام بصيغة جداول البيانات. افتحه في Excel أو\n     Google Sheets إذا أردت معالجة البيانات يدوياً أو بناء تحليلات\n     مخصصة.\n\n  03-emr-bundle.fhir.json\n     حزمة FHIR R4 جاهزة للرفع المباشر إلى نظام EHR لديك.\n\n  README.txt\n     هذا الملف.",
+      "ehrInstructions": "       Epic: ملف المريض، المستندات، رفع. اختر 03-emr-bundle.fhir.json.\n             تُسجَّل موارد Observation تلقائياً في جدول I&O.\n       Cerner / Allscripts / athenahealth: خيار مشابه لـ 'رفع مستند' أو\n             'استيراد FHIR' داخل ملف المريض.\n       Prompt Health: استيراد FHIR غير مدعوم بعد. أرفِق ملف PDF بدلاً\n             من ذلك.\n       نظام EHR آخر / ورقي: جرّب استيراد FHIR إذا كان نظامك يدعمه.\n             خلاف ذلك، استخدم ملف PDF.",
+      "clinicCodeDisclaimer": "ملاحظة حول معرّف المريض: استخدم هذا المريض حقل رمز العيادة عند\nتشغيل التطبيق. تنتقل القيمة إلى Patient.identifier داخل\n03-emr-bundle.fhir.json كمرجع من نوع TRACKING، وليست رقم سجل طبي.\nتعامل معها كرمز تتبّع؛ لا تطابقها مع MRN.",
+      "footer": "أسئلة حول محتوى المذكرة أو طريقة قراءة المؤشرات?\nراجع https://myflowcheck.com/learn/for-clinicians"
+    }
+  },
   "daySummary": {
     "drinks": "{count} مشروبات",
     "voids": "{count} تبولات",

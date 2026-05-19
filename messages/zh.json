@@ -319,6 +319,18 @@
     "pdfError": "PDF 错误:{msg}",
     "csvError": "生成 CSV 时出错。请重试。"
   },
+  "exportPackage": {
+    "readme": {
+      "title": "My Flow Check:3 天膀胱日记",
+      "patientLine": "患者档案:年龄 {age},时区 {timezone}",
+      "completedLine": "日记完成日期:{date}",
+      "intro": "本压缩包包含 4 个文件,供你存档。请按你的工作流挑选合适的文件。\n所有文件承载的都是同一份患者上报数据。",
+      "fileDescriptions": "  01-clinical-report.pdf\n     共 7 页的临床 PDF,包含患者时间线、IPC 临床指标(24HV、NPi、AVV、\n     MVV、NBC)、事件散点图和临床观察。请先看这一份。\n\n  02-events.csv\n     电子表格格式的原始事件数据。如果你想手动处理数据或自建分析,\n     用 Excel 或 Google Sheets 打开它即可。\n\n  03-emr-bundle.fhir.json\n     FHIR R4 Bundle,可直接上传到你的 EHR。\n\n  README.txt\n     本文件。",
+      "ehrInstructions": "       Epic:患者病历、文档、上传,选择 03-emr-bundle.fhir.json。\n             Observation 资源会自动归入 I&O 表单。\n       Cerner / Allscripts / athenahealth:在患者病历里有类似的\n             '上传文档' 或 '导入 FHIR' 入口。\n       Prompt Health:暂不支持 FHIR 导入,改为附上 PDF。\n       其他 EHR / 纸质流程:如果系统支持,先试 FHIR 导入;\n             不支持就用 PDF。",
+      "clinicCodeDisclaimer": "关于患者标识符的说明:该患者在启动应用时填了诊所代码字段。\n这个值会进入 03-emr-bundle.fhir.json 中的 Patient.identifier,\n类型为 TRACKING,不是病历号(MRN)。请把它当作追踪码处理,\n不要直接与 MRN 对应。",
+      "footer": "对日记内容或指标解读有疑问?\n请查看 https://myflowcheck.com/learn/for-clinicians"
+    }
+  },
   "daySummary": {
     "drinks": "{count} 次喝水",
     "voids": "{count} 次排尿",

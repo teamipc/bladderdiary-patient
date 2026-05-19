@@ -319,6 +319,18 @@
     "pdfError": "Erreur PDF : {msg}",
     "csvError": "Une erreur est survenue lors de la génération du CSV. Veuillez réessayer."
   },
+  "exportPackage": {
+    "readme": {
+      "title": "My Flow Check : journal mictionnel de 3 jours",
+      "patientLine": "Profil du patient : âge {age}, fuseau horaire {timezone}",
+      "completedLine": "Journal terminé le : {date}",
+      "intro": "Ce dossier contient 4 fichiers pour vos archives. Choisissez celui\nqui correspond à votre flux de travail. Tous présentent les mêmes\ndonnées rapportées par le patient.",
+      "fileDescriptions": "  01-clinical-report.pdf\n     Le PDF clinique de 7 pages avec la chronologie du patient, les\n     indicateurs cliniques IPC (24HV, NPi, AVV, MVV, NBC), les graphiques\n     d'événements et les observations cliniques. À lire en premier.\n\n  02-events.csv\n     Données brutes des événements au format tableur. Ouvrez le fichier\n     dans Excel ou Google Sheets pour manipuler les données manuellement\n     ou construire des analyses personnalisées.\n\n  03-emr-bundle.fhir.json\n     Bundle FHIR R4 pour téléversement direct dans votre DSE.\n\n  README.txt\n     Ce fichier.",
+      "ehrInstructions": "       Epic : Dossier patient, Documents, Téléverser. Sélectionnez\n             03-emr-bundle.fhir.json. Les ressources Observation se\n             reportent automatiquement dans la feuille I&O.\n       Cerner / Allscripts / athenahealth : option 'Téléverser un document'\n             ou 'Importer FHIR' similaire dans le dossier patient.\n       Prompt Health : l'import FHIR n'est pas encore pris en charge.\n             Joignez le PDF à la place.\n       Autre DSE / papier : essayez l'import FHIR si votre système le\n             prend en charge. Sinon, utilisez le PDF.",
+      "clinicCodeDisclaimer": "Note sur l'identifiant du patient : ce patient a renseigné le champ\ncode-clinique au lancement de l'app. La valeur est reportée dans\nPatient.identifier au sein de 03-emr-bundle.fhir.json comme référence\nde type TRACKING, et non comme numéro de dossier médical. Traitez-la\ncomme un code de suivi ; ne la rapprochez pas du MRN.",
+      "footer": "Des questions sur le contenu du journal ou la lecture des indicateurs ?\nVoir https://myflowcheck.com/learn/for-clinicians"
+    }
+  },
   "daySummary": {
     "drinks": "{count} boissons",
     "voids": "{count} mictions",

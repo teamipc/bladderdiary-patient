@@ -319,6 +319,18 @@
     "pdfError": "PDF error: {msg}",
     "csvError": "Something went wrong generating the CSV. Please try again."
   },
+  "exportPackage": {
+    "readme": {
+      "title": "My Flow Check: 3-Day Bladder Diary",
+      "patientLine": "Patient profile: age {age}, {timezone} timezone",
+      "completedLine": "Diary completed: {date}",
+      "intro": "This package contains 4 files for your records. Pick whichever\nmatches your workflow. They all carry the same patient-reported data.",
+      "fileDescriptions": "  01-clinical-report.pdf\n     The 7-page clinical PDF with patient timeline, IPC clinical metrics\n     (24HV, NPi, AVV, MVV, NBC), event scatter plots, and clinical\n     observations. Read this first.\n\n  02-events.csv\n     Raw event data in spreadsheet format. Open in Excel or Google Sheets\n     if you want to manipulate the data manually or build custom analyses.\n\n  03-emr-bundle.fhir.json\n     FHIR R4 Bundle for direct upload into your EHR.\n\n  README.txt\n     This file.",
+      "ehrInstructions": "       Epic: Patient Chart, Documents, Upload. Select 03-emr-bundle.fhir.json.\n             Observation resources map to the I&O flowsheet automatically.\n       Cerner / Allscripts / athenahealth: similar 'Upload Document' or\n             'Import FHIR' affordance in the patient chart.\n       Prompt Health: FHIR import not yet supported. Attach the PDF instead.\n       Other EHR / paper: try FHIR import if your system supports it.\n             Otherwise use the PDF.",
+      "clinicCodeDisclaimer": "Note on the patient identifier: this patient used the clinic-code field\nwhen launching the app. The value flows to Patient.identifier in\n03-emr-bundle.fhir.json as a TRACKING-typed reference, not a medical\nrecord number. Treat it as a tracking code; do not match it to MRN.",
+      "footer": "Questions about what's in the diary or how to read the metrics?\nSee https://myflowcheck.com/learn/for-clinicians"
+    }
+  },
   "daySummary": {
     "drinks": "{count} drinks",
     "voids": "{count} voids",

@@ -319,6 +319,18 @@
     "pdfError": "Error de PDF: {msg}",
     "csvError": "Hubo un problema al generar el CSV. Inténtalo de nuevo."
   },
+  "exportPackage": {
+    "readme": {
+      "title": "My Flow Check: diario miccional de 3 días",
+      "patientLine": "Perfil del paciente: edad {age}, zona horaria {timezone}",
+      "completedLine": "Diario completado: {date}",
+      "intro": "Este paquete contiene 4 archivos para tus registros. Elige el que\nse ajuste a tu flujo de trabajo. Todos llevan los mismos datos\nreportados por el paciente.",
+      "fileDescriptions": "  01-clinical-report.pdf\n     El PDF clínico de 7 páginas con la cronología del paciente, las\n     métricas clínicas IPC (24HV, NPi, AVV, MVV, NBC), los gráficos de\n     eventos y las observaciones clínicas. Léelo primero.\n\n  02-events.csv\n     Datos brutos de los eventos en formato de hoja de cálculo. Ábrelo\n     en Excel o Google Sheets si quieres manipular los datos a mano o\n     construir análisis personalizados.\n\n  03-emr-bundle.fhir.json\n     Bundle FHIR R4 para cargarlo directamente en tu HCE.\n\n  README.txt\n     Este archivo.",
+      "ehrInstructions": "       Epic: Historia del paciente, Documentos, Cargar. Selecciona\n             03-emr-bundle.fhir.json. Los recursos Observation pasan\n             automáticamente a la hoja I&O.\n       Cerner / Allscripts / athenahealth: opción similar de 'Cargar\n             documento' o 'Importar FHIR' dentro de la historia del paciente.\n       Prompt Health: la importación FHIR aún no está disponible.\n             Adjunta el PDF en su lugar.\n       Otra HCE / papel: prueba la importación FHIR si tu sistema lo admite.\n             Si no, usa el PDF.",
+      "clinicCodeDisclaimer": "Nota sobre el identificador del paciente: este paciente usó el campo\ncódigo-clínico al iniciar la app. El valor se traslada a\nPatient.identifier en 03-emr-bundle.fhir.json como referencia de tipo\nTRACKING, no como número de historia clínica. Trátalo como código de\nseguimiento; no lo cruces con el MRN.",
+      "footer": "¿Dudas sobre lo que contiene el diario o cómo leer las métricas?\nConsulta https://myflowcheck.com/learn/for-clinicians"
+    }
+  },
   "daySummary": {
     "drinks": "{count} bebidas",
     "voids": "{count} orinas",
