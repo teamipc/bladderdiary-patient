@@ -48,6 +48,7 @@ function baseState(overrides: Partial<DiaryState> = {}): DiaryState {
     bedtimes: [],
     wakeTimes: [],
     volumeUnit: 'mL',
+    hapticEnabled: true,
     diaryStarted: true,
     clinicCode: null,
     timeZone: TZ,

@@ -223,6 +223,10 @@
     "drink": "Boisson",
     "leak": "Fuite"
   },
+  "hapticToggle": {
+    "label": "Vibrer à l'enregistrement",
+    "help": "Une courte impulsion quand vous enregistrez une miction, une boisson ou une fuite. Désactivez si cela vous dérange."
+  },
   "validation": {
     "beforePrevBedtime": "Cette heure est avant le coucher du jour {dayNumber} ({time}). Choisissez une heure plus tardive.",
     "beforeWakeUp": "Cette heure est avant le réveil ({time}). Les entrées de jour doivent être après le réveil.",

@@ -34,6 +34,11 @@ export default function QuickLogFAB({ onAction }: QuickLogFABProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Phase 15 MI-02. The haptic-on-save pulse fires from inside the form
+  // save handlers (LogVoidForm / LogDrinkForm / LogLeakForm), NOT from
+  // this FAB. The FAB only opens a form; the actual store mutation and
+  // the fireSaveHaptic() call happen inside the form's handleSave once
+  // the user confirms. See src/lib/haptic.ts for the utility.
   const handleAction = useCallback(
     (action: LogAction) => {
       setExpanded(false);

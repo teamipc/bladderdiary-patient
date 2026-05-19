@@ -22,6 +22,7 @@ function buildMinimalDiaryState(overrides: Partial<DiaryState> = {}): DiaryState
     startDate: '2026-05-18',
     age: 55,
     volumeUnit: 'mL',
+    hapticEnabled: true,
     diaryStarted: true,
     clinicCode: null,
     timeZone: 'America/New_York',

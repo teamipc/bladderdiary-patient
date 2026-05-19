@@ -223,6 +223,10 @@
     "drink": "喝水",
     "leak": "漏尿"
   },
+  "hapticToggle": {
+    "label": "保存时震动",
+    "help": "记录排尿、喝水或漏尿时发出一次短促震动。如果觉得干扰可以关闭。"
+  },
   "validation": {
     "beforePrevBedtime": "这个时间早于第 {dayNumber} 天的就寝时间({time})。请选一个晚一点的时间。",
     "beforeWakeUp": "这个时间早于起床时间({time})。白天的记录必须在起床之后。",

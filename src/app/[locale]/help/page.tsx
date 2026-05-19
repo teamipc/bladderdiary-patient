@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { FaqPageJsonLd } from '@/components/seo/JsonLd';
 import { buildHreflangMap } from '@/i18n/seo';
+import HapticSettings from './HapticSettings';
 
 export async function generateMetadata({
   params,
@@ -64,6 +65,7 @@ export default async function HelpPage({
             {t('title')}
           </h1>
         </div>
+        <HapticSettings />
         <div className="space-y-4">
           {faqItems.map((item, i) => (
             <details

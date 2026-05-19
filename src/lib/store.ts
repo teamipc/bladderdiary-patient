@@ -90,6 +90,7 @@ interface DiaryStore extends DiaryState {
   setStartDate: (date: string) => void;
   setAge: (age: number) => void;
   setVolumeUnit: (unit: 'mL' | 'oz') => void;
+  setHapticEnabled: (enabled: boolean) => void;
   setTimeZone: (tz: string) => void;
   startDiary: () => void;
   setClinicCode: (code: string | null) => void;
@@ -162,6 +163,12 @@ export const migrateBladderDiaryState = (
   for (const field of ARRAY_FIELDS) {
     if (!Array.isArray(obj[field])) obj[field] = [];
   }
+  // v3 -> v4: hapticEnabled added in Phase 15 MI-02. Default true so existing
+  // users get the new behavior; they can toggle off in /help if undesired.
+  // Guard is idempotent so re-running the migration is safe.
+  if (typeof obj.hapticEnabled !== 'boolean') {
+    obj.hapticEnabled = true;
+  }
   return obj as unknown as DiaryStore;
 };
 
@@ -174,6 +181,7 @@ const initialState: DiaryState = {
   bedtimes: [],
   wakeTimes: [],
   volumeUnit: 'mL',
+  hapticEnabled: true,
   diaryStarted: false,
   clinicCode: null,
   timeZone: detectTimeZone(),
@@ -189,6 +197,7 @@ export const useDiaryStore = create<DiaryStore>()(
       setStartDate: (date) => set({ startDate: date }),
       setAge: (age) => set({ age }),
       setVolumeUnit: (unit) => set({ volumeUnit: unit }),
+      setHapticEnabled: (enabled) => set({ hapticEnabled: enabled }),
       setTimeZone: (tz) => set({ timeZone: tz }),
       startDiary: () => set({ diaryStarted: true }),
       setClinicCode: (code) => set({ clinicCode: code }),
@@ -377,7 +386,7 @@ export const useDiaryStore = create<DiaryStore>()(
     }),
     {
       name: 'bladder-diary-patient',
-      version: 3,
+      version: 4,
       migrate: migrateBladderDiaryState,
       storage: createJSONStorage(() => createIndexedDbStorage()),
     },

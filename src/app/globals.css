@@ -215,6 +215,24 @@ input, select, textarea {
   animation: drawStrike 300ms ease-out 200ms both;
 }
 
+/* Phase 15 MI-01 — volume chip liquid-fill on selection.
+   The fill <span> sits absolutely-positioned inside the chip button,
+   behind the chip text (via z-index ordering). On selection, the keyframe
+   fires via React key prop refresh: the span unmounts and remounts,
+   triggering the animation fresh on every tap. transform-origin: bottom
+   anchors the scale to the bottom edge, producing a liquid-rising visual.
+   Uses only the `transform` property (compositor-only; no layout/paint).
+   prefers-reduced-motion handled by the global rule at lines 94-103. */
+@keyframes liquidFill {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+.animate-liquid-fill {
+  animation: liquidFill 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  transform-origin: bottom;
+}
+
 /* Stagger delays */
 .stagger-1 { animation-delay: 0.05s; }
 .stagger-2 { animation-delay: 0.1s; }

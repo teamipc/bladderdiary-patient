@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button';
 import { VOLUME_CONFIG } from '@/lib/constants';
 import SensationPicker from '@/components/diary/SensationPicker';
 import { useDiaryStore } from '@/lib/store';
+import { fireSaveHaptic } from '@/lib/haptic';
 import { formatTime, getDefaultTimeForDay, getNightDefaultTime, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { BladderSensation, VoidEntry, WokeBy } from '@/lib/types';
 
@@ -231,6 +232,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
     if (isEditing && editEntry) {
       savedRef.current = true;
       updateVoid(editEntry.id, data);
+      // Phase 15 MI-02. Haptic fires after the store mutation succeeds,
+      // before the parent's onSave() callback runs.
+      fireSaveHaptic();
       onSave();
       return;
     }
@@ -244,6 +248,9 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
       return;
     }
     savedRef.current = true;
+    // Phase 15 MI-02. Haptic only on successful add (duplicate-minute drop
+    // returned early above, so we never reach here on a no-op save).
+    fireSaveHaptic();
     onSave();
   }, [volume, sensation, leak, time, note, doubleVoid, doubleVoidVolume, isEditing, editEntry, addVoid, updateVoid, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTimeEntry, isAfterBedtime, currentBedtime, tv, isNocturnal, wokeBy, locale, timeZone]);
 
@@ -329,15 +336,27 @@ export default function LogVoidForm({ onSave, dayNumber, editEntry, initialTime,
                           setVolume(p.value);
                           setChipPop({ id: p.id, label: `+${p.value} ${volumeUnit}`, nonce: Date.now() });
                         }}
-                        className={`w-full min-h-[62px] px-2 py-2 rounded-2xl border-2 flex items-baseline justify-center gap-1 transition-all active:scale-[0.96] ${
+                        className={`relative overflow-hidden w-full min-h-[62px] px-2 py-2 rounded-2xl border-2 flex items-baseline justify-center gap-1 transition-all active:scale-[0.96] ${
                           active
                             ? 'bg-ipc-500 border-ipc-600 text-white shadow-md'
                             : 'bg-white border-ipc-200 text-ipc-950'
                         }`}
                         aria-pressed={active}
                       >
-                        <span className="text-2xl font-bold leading-none tabular-nums">{p.value}</span>
-                        <span className={`text-xs font-medium ${active ? 'text-white/85' : 'text-ipc-500'}`}>
+                        {/* Phase 15 MI-01 liquid-fill paint. The fill <span> mounts only
+                            on selection and re-mounts on every tap via the nonce-keyed
+                            React key, so the keyframe re-fires each time. Sits behind
+                            the text via z-index ordering; the chip's static bg-ipc-500
+                            covers the same surface once the animation ends. */}
+                        {active && chipPop?.id === p.id && (
+                          <span
+                            key={`fill-${p.id}-${chipPop.nonce}`}
+                            aria-hidden="true"
+                            className="absolute inset-0 bg-ipc-500 animate-liquid-fill pointer-events-none"
+                          />
+                        )}
+                        <span className="relative z-10 text-2xl font-bold leading-none tabular-nums">{p.value}</span>
+                        <span className={`relative z-10 text-xs font-medium ${active ? 'text-white/85' : 'text-ipc-500'}`}>
                           {volumeUnit}
                         </span>
                       </button>

@@ -135,6 +135,8 @@ export interface DiaryState {
   wakeTimes: WakeTimeEntry[];
   /** Volume display unit preference. */
   volumeUnit: 'mL' | 'oz';
+  /** Whether to fire a short haptic pulse on log save. Default true; user-togglable in /help. */
+  hapticEnabled: boolean;
   /** Whether onboarding is complete and tracking is active. */
   diaryStarted: boolean;
   /** Optional clinic code for professional integration. */

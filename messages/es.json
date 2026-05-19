@@ -223,6 +223,10 @@
     "drink": "Bebida",
     "leak": "Escape"
   },
+  "hapticToggle": {
+    "label": "Vibrar al guardar",
+    "help": "Un pulso corto cuando registras una orina, una bebida o un escape. Desactívalo si te molesta."
+  },
   "validation": {
     "beforePrevBedtime": "Esta hora es antes de acostarse del día {dayNumber} ({time}). Elija una hora más tarde.",
     "beforeWakeUp": "Esta hora es antes de despertar ({time}). Las entradas del día deben ser después de despertar.",

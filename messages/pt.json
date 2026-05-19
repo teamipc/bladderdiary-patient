@@ -223,6 +223,10 @@
     "drink": "Bebida",
     "leak": "Perda"
   },
+  "hapticToggle": {
+    "label": "Vibrar ao guardar",
+    "help": "Um pulso curto quando registas um chichi, uma bebida ou uma perda. Desativa se te incomodar."
+  },
   "validation": {
     "beforePrevBedtime": "Esta hora é antes do deitar do Dia {dayNumber} ({time}). Escolhe uma hora mais tardia.",
     "beforeWakeUp": "Esta hora é antes de acordares ({time}). As entradas de dia têm de ser depois do despertar.",

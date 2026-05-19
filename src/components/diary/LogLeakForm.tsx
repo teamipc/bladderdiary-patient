@@ -8,6 +8,7 @@ import LeakTriggerPicker from '@/components/diary/LeakTriggerPicker';
 import Button from '@/components/ui/Button';
 import { LEAK_AMOUNT_OPTIONS } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
+import { fireSaveHaptic } from '@/lib/haptic';
 import { formatTime, getDefaultTimeForDay, getNightDefaultTime, correctNightDate, correctAfterMidnight } from '@/lib/utils';
 import type { LeakTrigger, LeakAmount, LeakEntry } from '@/lib/types';
 
@@ -165,6 +166,9 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
     if (isEditing && editEntry) {
       savedRef.current = true;
       updateLeak(editEntry.id, data);
+      // Phase 15 MI-02. Haptic fires after the store mutation succeeds,
+      // before the parent's onSave() callback runs.
+      fireSaveHaptic();
       onSave();
       return;
     }
@@ -176,6 +180,9 @@ export default function LogLeakForm({ onSave, dayNumber, editEntry, initialTime,
       return;
     }
     savedRef.current = true;
+    // Phase 15 MI-02. Haptic only on successful add (duplicate-minute drop
+    // returned early above, so we never reach here on a no-op save).
+    fireSaveHaptic();
     onSave();
   }, [trigger, urgencyBeforeLeak, amount, time, notes, isEditing, editEntry, addLeak, updateLeak, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime, tv, locale, timeZone]);
 

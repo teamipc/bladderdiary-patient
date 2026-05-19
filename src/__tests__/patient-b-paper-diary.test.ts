@@ -37,6 +37,7 @@ const patientB: DiaryState = {
   startDate: '2026-04-22',
   age: 80,
   volumeUnit: 'mL',
+  hapticEnabled: true,
   diaryStarted: true,
   clinicCode: null,
   timeZone: 'UTC',

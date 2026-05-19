@@ -9,6 +9,7 @@ import DrinkTypePicker from '@/components/diary/DrinkTypePicker';
 import Button from '@/components/ui/Button';
 import { VOLUME_CONFIG } from '@/lib/constants';
 import { useDiaryStore } from '@/lib/store';
+import { fireSaveHaptic } from '@/lib/haptic';
 import { formatTime, getDefaultTimeForDay, getNightDefaultTime, correctNightDate, correctAfterMidnight, mlToDisplayVolume, displayVolumeToMl } from '@/lib/utils';
 import type { DrinkType, DrinkEntry } from '@/lib/types';
 
@@ -193,6 +194,9 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
     if (isEditing && editEntry) {
       savedRef.current = true;
       updateDrink(editEntry.id, data);
+      // Phase 15 MI-02. Haptic fires after the store mutation succeeds,
+      // before the parent's onSave() callback runs.
+      fireSaveHaptic();
       onSave();
       return;
     }
@@ -204,6 +208,9 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
       return;
     }
     savedRef.current = true;
+    // Phase 15 MI-02. Haptic only on successful add (duplicate-minute drop
+    // returned early above, so we never reach here on a no-op save).
+    fireSaveHaptic();
     onSave();
   }, [volume, drinkType, time, note, isEditing, editEntry, addDrink, updateDrink, onSave, isBeforePrevBedtime, prevDayBedtime, dayNumber, volumeUnit, isBeforeWakeTime, isAfterWakeTime, wakeTime, isAfterBedtime, currentBedtime, tv, locale, timeZone]);
 
@@ -317,14 +324,25 @@ export default function LogDrinkForm({ onSave, dayNumber, editEntry, initialTime
                           setChipPop({ id: p.id, label: `+${p.value} ${volumeUnit}`, nonce: Date.now() });
                         }}
                         aria-pressed={active}
-                        className={`w-full min-h-[58px] px-2 py-2 rounded-2xl border-2 flex items-baseline justify-center gap-1 transition-all active:scale-[0.96] ${
+                        className={`relative overflow-hidden w-full min-h-[58px] px-2 py-2 rounded-2xl border-2 flex items-baseline justify-center gap-1 transition-all active:scale-[0.96] ${
                           active
                             ? 'bg-drink border-drink text-white shadow-md'
                             : 'bg-white border-drink/30 text-ipc-950'
                         }`}
                       >
-                        <span className="text-2xl font-bold leading-none tabular-nums">{p.value}</span>
-                        <span className={`text-xs font-medium ${active ? 'text-white/85' : 'text-drink/80'}`}>
+                        {/* Phase 15 MI-01 liquid-fill paint. Mirrors LogVoidForm but uses
+                            bg-drink to match this form's accent. Re-mounts via nonce-keyed
+                            React key so the keyframe fires on every tap; sits behind the
+                            chip text via z-index ordering. */}
+                        {active && chipPop?.id === p.id && (
+                          <span
+                            key={`fill-${p.id}-${chipPop.nonce}`}
+                            aria-hidden="true"
+                            className="absolute inset-0 bg-drink animate-liquid-fill pointer-events-none"
+                          />
+                        )}
+                        <span className="relative z-10 text-2xl font-bold leading-none tabular-nums">{p.value}</span>
+                        <span className={`relative z-10 text-xs font-medium ${active ? 'text-white/85' : 'text-drink/80'}`}>
                           {volumeUnit}
                         </span>
                       </button>

@@ -223,6 +223,10 @@
     "drink": "Drink",
     "leak": "Leak"
   },
+  "hapticToggle": {
+    "label": "Vibrate on save",
+    "help": "A short pulse when you log a pee, a drink, or a leak. Turn off if you find it distracting."
+  },
   "validation": {
     "beforePrevBedtime": "This time is before Day {dayNumber}'s bedtime ({time}). Pick a later time.",
     "beforeWakeUp": "This time is before wake-up ({time}). Daytime events must be after you woke up.",
