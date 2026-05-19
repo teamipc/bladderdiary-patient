@@ -83,6 +83,13 @@
     "privacyBody": "Your data never leaves your phone. No account needed, no sign-up, nothing stored on our servers. When you're done, you choose what to share with your health professional.",
     "disclaimer": "This app is intended for personal tracking and educational purposes only. It does not provide medical advice, diagnosis, or treatment. Always consult a qualified health professional regarding any medical condition or health concerns."
   },
+  "welcome": {
+    "headline": "Your clinician needs a picture of your bladder.",
+    "body": "3 days. About 30 seconds per entry. Then you walk away with a clinician-ready record.",
+    "startCta": "Start tracking",
+    "privacyGraphicLabel": "Your data stays on this device.",
+    "privacyDisclosureLabel": "How is my data protected?"
+  },
   "onboarding": {
     "ageTitle": "What's your age?",
     "ageSubtitle": "This is useful information for your health professional.",

@@ -83,6 +83,13 @@
     "privacyBody": "Sus datos nunca salen de su teléfono. No se necesita cuenta, no hay registro, nada se guarda en nuestros servidores. Cuando termine, usted elige qué compartir con su profesional de salud.",
     "disclaimer": "Esta aplicación es solo para seguimiento personal y fines educativos. No proporciona consejos médicos, diagnósticos ni tratamientos. Siempre consulte a un profesional de salud calificado."
   },
+  "welcome": {
+    "headline": "Su profesional de salud necesita ver cómo funciona su vejiga.",
+    "body": "3 días. Unos 30 segundos por anotación. Al terminar, se lleva un registro listo para su profesional de salud.",
+    "startCta": "Comenzar el seguimiento",
+    "privacyGraphicLabel": "Sus datos se quedan en este dispositivo.",
+    "privacyDisclosureLabel": "¿Cómo se protegen mis datos?"
+  },
   "onboarding": {
     "ageTitle": "¿Cuál es su edad?",
     "ageSubtitle": "Esta información será útil para su profesional de salud.",

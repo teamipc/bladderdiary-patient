@@ -83,6 +83,13 @@
     "privacyBody": "Os teus dados nunca saem do teu telemóvel. Não é preciso conta, não há registo, nada fica nos nossos servidores. Quando terminares, és tu que decides o que partilhar com o teu profissional de saúde.",
     "disclaimer": "Esta aplicação destina-se apenas a registo pessoal e a fins educativos. Não fornece aconselhamento médico, diagnóstico ou tratamento. Consulta sempre um profissional de saúde qualificado para qualquer condição médica ou preocupação de saúde."
   },
+  "welcome": {
+    "headline": "O teu clínico precisa de ver como funciona a tua bexiga.",
+    "body": "3 dias. Cerca de 30 segundos por entrada. No fim, levas um registo pronto para o teu clínico.",
+    "startCta": "Começar o registo",
+    "privacyGraphicLabel": "Os teus dados ficam neste dispositivo.",
+    "privacyDisclosureLabel": "Como são protegidos os meus dados?"
+  },
   "onboarding": {
     "ageTitle": "Qual é a tua idade?",
     "ageSubtitle": "Esta informação será útil para o teu profissional de saúde.",

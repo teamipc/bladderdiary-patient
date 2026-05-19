@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import Button from '@/components/ui/Button';
 import { useDiaryStore, useStoreHydrated } from '@/lib/store';
-import { Lock, PlayCircle, RotateCcw, Download, Ellipsis } from 'lucide-react';
+import { PlayCircle, RotateCcw, Download, Ellipsis } from 'lucide-react';
 
 /** iOS share icon — rectangle with arrow pointing up (matches the real Safari icon). */
 function IosShareIcon({ className }: { className?: string }) {
@@ -22,6 +22,7 @@ import Image from 'next/image';
 import { Link, useRouter } from '@/i18n/navigation';
 import { track } from '@vercel/analytics';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
+import WelcomePanel from '@/components/onboarding/WelcomePanel';
 import Container from '@/components/layout/Container';
 import IpcInfoModal from '@/components/ui/IpcInfoModal';
 import { getCurrentDay } from '@/lib/utils';
@@ -177,123 +178,88 @@ function LandingContent() {
   }
 
   return (
-    <Container variant="narrow" as="div" noPadding className="px-6 sm:px-6 pt-8 md:pt-16 pb-12 flex flex-col items-center justify-center">
-      <div className="text-center mb-8 md:mb-10 animate-fade-slide-up">
-        <div className="w-28 h-28 md:w-32 md:h-32 rounded-3xl bg-ipc-100 flex items-center justify-center mx-auto mb-5 md:mb-6">
-          <Image src="/app-logo.png" alt="My Flow Check bladder diary tracker" width={72} height={72} className="md:w-20 md:h-20" />
-        </div>
-        <h1 className="text-2xl md:text-4xl font-bold text-ipc-950 mb-3 md:mb-4 leading-tight text-balance">
-          {t('heroTitle')}
-        </h1>
-        <p className="text-lg md:text-xl text-ipc-500 leading-relaxed text-balance">
-          {t('heroSubtitle')}
-        </p>
-      </div>
+    <>
+      <WelcomePanel
+        onStart={() => { track('start_tracking'); setShowOnboarding(true); }}
+      />
 
-      <div className="w-full md:max-w-md animate-fade-slide-up stagger-3">
-        {/* Hero CTA — uses the warm amber side of the brand palette
-            (bg-ipc-300) with deep text (text-ipc-950) instead of dark-on-light
-            with white text. Pairs better with the amber-cream logo backdrop
-            above and reads as "warm invitation" rather than "submit form".
-            Contrast: 10.9:1 (well above WCAG AA), maintained through the
-            hover/active states by darkening the bg, not flipping text color. */}
-        <Button
-          variant="hero"
-          onClick={() => { track('start_tracking'); setShowOnboarding(true); }}
-          fullWidth
-          size="lg"
-        >
-          {t('startTracking')}
-        </Button>
-      </div>
-
-      {!isInstalled && (canPrompt || isIos) && (
-        <div className="w-full mt-6 animate-fade-slide-up stagger-4">
-          <div className="p-4 rounded-2xl bg-ipc-50 border border-ipc-100">
-            {canPrompt ? (
-              <>
-                <p className="text-sm text-ipc-700 mb-3">
-                  {t('pwaPromptAndroid')}
-                </p>
-                <button
-                  type="button"
-                  onClick={promptInstall}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm
-                    font-semibold bg-ipc-600 text-white active:scale-[0.95] transition-all"
-                >
-                  <Download size={15} />
-                  {t('addToHomeScreen')}
-                </button>
-              </>
-            ) : (
-              <div className="space-y-2.5">
-                <p className="text-sm font-semibold text-ipc-800">
-                  {t('pwaPromptTitle')}
-                </p>
-                <div className="flex items-center gap-3 text-sm text-ipc-700">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">1</span>
-                  <span className="flex items-center gap-1.5">
-                    {t.rich('pwaStep1', {
-                      dots: () => <Ellipsis size={16} className="inline-block text-ipc-600 mx-0.5" />,
-                    })}
-                  </span>
+      <Container variant="narrow" as="div" noPadding className="px-6 sm:px-6 pb-12 flex flex-col items-center">
+        {!isInstalled && (canPrompt || isIos) && (
+          <div className="w-full mt-2 animate-fade-slide-up stagger-4">
+            <div className="p-4 rounded-2xl bg-ipc-50 border border-ipc-100">
+              {canPrompt ? (
+                <>
+                  <p className="text-sm text-ipc-700 mb-3">
+                    {t('pwaPromptAndroid')}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={promptInstall}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm
+                      font-semibold bg-ipc-600 text-white active:scale-[0.95] transition-all"
+                  >
+                    <Download size={15} />
+                    {t('addToHomeScreen')}
+                  </button>
+                </>
+              ) : (
+                <div className="space-y-2.5">
+                  <p className="text-sm font-semibold text-ipc-800">
+                    {t('pwaPromptTitle')}
+                  </p>
+                  <div className="flex items-center gap-3 text-sm text-ipc-700">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">1</span>
+                    <span className="flex items-center gap-1.5">
+                      {t.rich('pwaStep1', {
+                        dots: () => <Ellipsis size={16} className="inline-block text-ipc-600 mx-0.5" />,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-ipc-700">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">2</span>
+                    <span className="flex items-center gap-1.5">
+                      {t.rich('pwaStep2', {
+                        share: () => <IosShareIcon className="inline-block w-4 h-4 text-ipc-600 mx-0.5" />,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-ipc-700">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">3</span>
+                    <span>{t('pwaStep3')}</span>
+                  </div>
+                  <p className="text-xs text-ipc-400 mt-1">
+                    {t('pwaPromptFooter')}
+                  </p>
                 </div>
-                <div className="flex items-center gap-3 text-sm text-ipc-700">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">2</span>
-                  <span className="flex items-center gap-1.5">
-                    {t.rich('pwaStep2', {
-                      share: () => <IosShareIcon className="inline-block w-4 h-4 text-ipc-600 mx-0.5" />,
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-ipc-700">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-ipc-200 text-xs font-bold text-ipc-700 shrink-0">3</span>
-                  <span>{t('pwaStep3')}</span>
-                </div>
-                <p className="text-xs text-ipc-400 mt-1">
-                  {t('pwaPromptFooter')}
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="w-full mt-8 animate-fade-slide-up stagger-4">
-        <div className="flex items-center justify-center gap-1.5 mb-3">
-          <Lock size={13} className="text-ipc-400" />
-          <p className="text-xs font-semibold text-ipc-500 uppercase tracking-wide">
-            {t('privacyTitle')}
+        <footer className="w-full mt-8 animate-fade-slide-up stagger-4">
+          <p className="text-[10px] text-ipc-300 text-center leading-relaxed mb-4">
+            {t('disclaimer')}
           </p>
-        </div>
-        <p className="text-sm text-ipc-500 text-center leading-relaxed">
-          {t('privacyBody')}
-        </p>
-      </div>
 
-      <footer className="w-full mt-8 animate-fade-slide-up stagger-4">
-        <p className="text-[10px] text-ipc-300 text-center leading-relaxed mb-4">
-          {t('disclaimer')}
-        </p>
-
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-          <IpcInfoModal>
-            <span className="flex items-center gap-1">
-              <Image src="/ipc-logo.png" alt="IPC" width={14} height={14} className="opacity-40" />
-              <span className="text-[10px] text-ipc-300">{tc('poweredByIpc')}</span>
-            </span>
-          </IpcInfoModal>
-          <span className="text-ipc-200">&middot;</span>
-          <Link href="/privacy" className="text-[10px] text-ipc-300 underline underline-offset-2">
-            {tc('privacyPolicy')}
-          </Link>
-          <span className="text-ipc-200">&middot;</span>
-          <Link href="/terms" className="text-[10px] text-ipc-300 underline underline-offset-2">
-            {tc('termsOfUse')}
-          </Link>
-        </div>
-      </footer>
-    </Container>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <IpcInfoModal>
+              <span className="flex items-center gap-1">
+                <Image src="/ipc-logo.png" alt="IPC" width={14} height={14} className="opacity-40" />
+                <span className="text-[10px] text-ipc-300">{tc('poweredByIpc')}</span>
+              </span>
+            </IpcInfoModal>
+            <span className="text-ipc-200">&middot;</span>
+            <Link href="/privacy" className="text-[10px] text-ipc-300 underline underline-offset-2">
+              {tc('privacyPolicy')}
+            </Link>
+            <span className="text-ipc-200">&middot;</span>
+            <Link href="/terms" className="text-[10px] text-ipc-300 underline underline-offset-2">
+              {tc('termsOfUse')}
+            </Link>
+          </div>
+        </footer>
+      </Container>
+    </>
   );
 }
 

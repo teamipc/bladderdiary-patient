@@ -83,6 +83,13 @@
     "privacyBody": "Vos données restent sur votre téléphone. Pas de compte, pas d'inscription, rien stocké sur nos serveurs. Quand vous avez terminé, c'est vous qui choisissez ce que vous partagez avec votre professionnel de santé.",
     "disclaimer": "Cette application est destinée au suivi personnel et à des fins éducatives uniquement. Elle ne fournit aucun avis médical, diagnostic ou traitement. Consultez toujours un professionnel de santé qualifié."
   },
+  "welcome": {
+    "headline": "Votre clinicien a besoin d'un portrait de votre vessie.",
+    "body": "3 jours. Environ 30 secondes par entrée. Vous repartez ensuite avec un compte rendu prêt pour votre clinicien.",
+    "startCta": "Commencer le suivi",
+    "privacyGraphicLabel": "Vos données restent sur cet appareil.",
+    "privacyDisclosureLabel": "Comment mes données sont-elles protégées ?"
+  },
   "onboarding": {
     "ageTitle": "Quel est votre âge ?",
     "ageSubtitle": "Cette information sera utile pour votre professionnel de santé.",
