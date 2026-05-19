@@ -264,12 +264,12 @@ The first-time-patient onboarding flow gains a sequence of reassuring beats abov
 
 Each diary action acknowledges itself. See `.planning/phases/15-diary-micro-interactions/15-CONTEXT.md`.
 
-- [ ] **MI-01** — Volume preset chip liquid-fill animation on tap (bottom-up fill, ~180ms).
-- [ ] **MI-02** — Haptic feedback on log save (`navigator.vibrate(15)` mobile-only with user opt-out toggle).
-- [ ] **MI-03** — Day 1 → Day 2 → Day 3 transition acknowledgment overlay (~1.5s, locale-aware copy).
-- [ ] **MI-04** — First-morning-void educational tooltip (one-pass, IDB-persisted flag; dismissible).
-- [ ] **MI-05** — Bedtime "good night" cue (~2s fade-in transition into night-mode color palette).
-- [ ] **MI-06** — Subtle time-of-day gradient drift (lower priority; can be cut if it conflicts with night-mode aesthetic).
+- [x] **MI-01** — Volume preset chip liquid-fill animation on tap (bottom-up fill, ~180ms). ✅ shipped Phase 15 (commit 576b14a)
+- [x] **MI-02** — Haptic feedback on log save (`navigator.vibrate(15)` mobile-only with user opt-out toggle). ✅ shipped Phase 15 (commit 576b14a, settings toggle at /help, persist v4)
+- [x] **MI-03** — Day 1 → Day 2 → Day 3 transition acknowledgment overlay (~1.5s, locale-aware copy). ✅ shipped Phase 15 (commit 6a73d07, prevDayRef detection)
+- [x] **MI-04** — First-morning-void educational tooltip (one-pass, IDB-persisted flag; dismissible). ✅ shipped Phase 15 (commit 6a73d07, persist v5 + Day 2+ gating)
+- [x] **MI-05** — Bedtime "good night" cue (~2s fade-in transition into night-mode color palette). ✅ shipped Phase 15 (commit bdc7a6b, 2000ms cubic-bezier property allowlist)
+- [ ] **MI-06** — Subtle time-of-day gradient drift (lower priority; can be cut if it conflicts with night-mode aesthetic). ⏸️ DEFERRED to post-launch polish per Phase 15 CONTEXT recommendation
 
 #### Summary Celebration + Animated Metrics (Phase 16)
 

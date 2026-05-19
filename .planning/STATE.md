@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: "Phase 13 SHIPPED 2026-05-19. Clinical Export Package: hero 'Send to healthcare team' CTA generates myflowcheck-<date>.zip with 4 files (01-clinical-report.pdf + 02-events.csv + 03-emr-bundle.fhir.json + README.txt). FHIR R4 Bundle locale-neutral with LOINC-coded Observations (9187-6 urine, 8999-5 intake, SNOMED 162172004/LOINC 28232-7 incontinence), skeletal Patient (year-only birthDate, no PHI), 16-item QuestionnaireResponse catalog (NBC dropped per locked D-02). README locale-aware with 6-locale i18n + EHR-specific upload instructions (Epic / Cerner / Allscripts / athenahealth / Prompt). Web Share API two-stage probe per RESEARCH §Pitfall 5. AJV validation devDep-only with grep-guard against client bundling. JSZip + exportPackage dynamic-imported. 4 waves over single session: 13-01 FHIR core → 13-02 + 13-03 parallel (worktree isolation) → 13-04 ExportActions reshape → 13-05 verification spec. 7 source commits 0dc0c59..b83b689 (+102 new tests: 32 FHIR + 52 QR/AJV + 18 export-package). 647/648 vitest passing baseline. Lint cleanup: 9 errors → 1 (useStoreHydrated useSyncExternalStore deferred). MILESTONE 4 (Clinical Polish + Interop) — 1/5 phases complete (Phase 13). Phases 14-17 (flagship polish: onboarding empathy → diary micro-interactions → summary celebration → motion system) queued."
 stopped_at: Phase 13 SHIPPED + Milestone 4 opens. Phase 13 ran 4 waves over a single session with some 529 API turbulence + a stale-base worktree flake on 13-04 (resolved by retry without worktree). Wave 1 (13-01 FHIR generator core, worktree) cherry-picked at 0dc0c59 with 32 new tests. Wave 2 (13-02 + 13-03 parallel worktree): 13-02 hit a sandbox-blocked FHIR schema fetch (resolved by orchestrator-side curl + cp into worktree, then re-spawn); 13-03 hit blob.arrayBuffer() jsdom incompatibility (resolved by FileReader pattern); both shipped at cbd0522 (13-03, 18 new tests) + 9a572be (13-02, 52 new tests). Wave 3 (13-04 ExportActions reshape, second attempt without worktree after first failed with stale fdbb69a base): shipped at f3f7a9d with 4 i18n keys × 6 locales + em-dash cleanup of 2 existing share-title strings + hero CTA + native `<details>` disclosure + Web Share two-stage probe. Wave 4 (13-05 verification spec, no worktree): shipped at 86d0da6 + b83b689 (SUMMARY) — INERT 23-test regression-net Playwright spec mirrors Phase 12-04 PW_TEST_MATCH invocation. Three Phase 13 plans deviated inline from initial planning: NBC dropped (Option A — clinicians derive from nights[].nocturnalVolumeMl), AJV needed draft-06 meta-schema + `id`→`$id` rename, buildReadme signature was 3-arg not 2. All on origin/main as of 13-05 executor push. Cleanup commits before Phase 13: ddabf94 JsonLd escape, 8f706f1 unused imports, 58277a0 TimelineView useCallback drops, fbe0470 NextStepBanner + Day1Celebration React-19 purity. Net lint state: 9 errors → 1 (useStoreHydrated useSyncExternalStore deferred).
-last_updated: "2026-05-19T13:35:00.000Z"
-last_activity: 2026-05-19 — Phase 14 SHIPPED; Milestone 4 2/5 complete; Phase 15 (Diary micro-interactions) next.
+last_updated: "2026-05-19T14:45:00.000Z"
+last_activity: 2026-05-19 — Phase 15 SHIPPED; Milestone 4 3/5 complete; Phase 16 (Summary celebration) next. MI-06 (time-of-day gradient drift) deferred per CONTEXT.
 progress:
   total_phases: 17
-  completed_phases: 14
-  total_plans: 63
-  completed_plans: 47
-  percent: 75
+  completed_phases: 15
+  total_plans: 66
+  completed_plans: 50
+  percent: 76
 ---
 
 # Project State
