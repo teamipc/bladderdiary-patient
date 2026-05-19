@@ -36,10 +36,6 @@ export default function Day1Celebration({ open, eventCount, onClose }: Day1Celeb
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!open) setSelected(null);
-  }, [open]);
-
   if (!open) return null;
 
   const timeLabel = anchorTimeLabel(selected, locale, timeZone);

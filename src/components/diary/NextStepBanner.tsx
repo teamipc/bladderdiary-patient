@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Sun, Moon, Droplets, Sparkles, Clock } from 'lucide-react';
 import { useDiaryStore } from '@/lib/store';
@@ -35,6 +36,12 @@ export default function NextStepBanner({ dayNumber, isNightView }: NextStepBanne
   const t = useTranslations('nextStep');
   const { getWakeTimeForDay, getBedtimeForDay, getVoidsForDay, getDrinksForDay, getLeaksForDay, timeZone } = useDiaryStore();
 
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   const wakeTime = getWakeTimeForDay(dayNumber);
   const bedtime = getBedtimeForDay(dayNumber);
   const dayVoids = getVoidsForDay(dayNumber);
@@ -45,7 +52,7 @@ export default function NextStepBanner({ dayNumber, isNightView }: NextStepBanne
   // L2: how long since the last event? Drives the "log now?" nudge.
   const lastIso = lastEventIso(dayVoids, dayDrinks, dayLeaks);
   const minutesSinceLastEvent = lastIso
-    ? Math.round((Date.now() - new Date(lastIso).getTime()) / 60000)
+    ? Math.round((nowMs - new Date(lastIso).getTime()) / 60000)
     : null;
   const hoursSinceLastEvent = minutesSinceLastEvent !== null
     ? Math.floor(minutesSinceLastEvent / 60)
