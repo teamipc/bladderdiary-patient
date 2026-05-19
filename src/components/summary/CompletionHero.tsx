@@ -35,6 +35,11 @@ export default function CompletionHero() {
     // 240ms opacity fade, then unmount via the dismissed flag. Matches the
     // Tailwind transition-opacity duration-200 class with a hair of headroom
     // so the fade completes visually before React removes the node.
+    //
+    // Phase 17 MOT-01. 240ms is intentionally out of the
+    // --motion-duration-* token vocabulary (one-shot exit timing tuned to
+    // feel "just barely longer than normal" without dragging; migrating to
+    // --duration-slow would shift to 300ms and lose the perceived character).
     setFadingOut(true);
     setTimeout(() => setDismissed(true), 240);
   };

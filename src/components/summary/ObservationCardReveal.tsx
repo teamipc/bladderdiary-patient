@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import useReducedMotion from '@/lib/hooks/useReducedMotion';
 
 interface ObservationCardRevealProps {
   /** Children rendered inside the reveal wrapper. */
@@ -23,7 +24,8 @@ interface ObservationCardRevealProps {
  *   - A setTimeout(reveal, index * staggerMs) schedules the visual reveal
  *     so cards appear in INDEX order even if they all enter the viewport
  *     simultaneously (e.g. on a tall desktop screen).
- *   - The reveal is a 350ms CSS transition on opacity + transform.
+ *   - The reveal is a CSS transition on opacity + transform using
+ *     the --duration-slow + --ease-emphasized tokens from Phase 17 MOT-01.
  *   - The observer disconnects after the one-shot reveal (no re-trigger).
  *
  * SSR + reduced-motion:
@@ -45,22 +47,22 @@ export default function ObservationCardReveal({
   staggerMs = 150,
 }: ObservationCardRevealProps) {
   const [revealed, setRevealed] = useState(false);
+  const reducedMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // SSR safety + reduced-motion + no-IntersectionObserver fallbacks all
     // converge on the same behavior: reveal immediately. These setState
-    // calls synchronize React state with external systems (matchMedia +
-    // IntersectionObserver availability + the DOM ref); they fall under
-    // the documented "subscribe to an external system" exception of
-    // react-hooks/set-state-in-effect. Same pattern as AnimatedMetric.tsx.
-    if (typeof window === 'undefined') {
+    // calls synchronize React state with external systems (the
+    // useReducedMotion hook subscription + IntersectionObserver availability
+    // + the DOM ref); they fall under the documented "subscribe to an
+    // external system" exception of react-hooks/set-state-in-effect.
+    if (reducedMotion) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRevealed(true);
       return;
     }
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mq.matches) {
+    if (typeof window === 'undefined') {
       setRevealed(true);
       return;
     }
@@ -87,7 +89,7 @@ export default function ObservationCardReveal({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [index, staggerMs]);
+  }, [reducedMotion, index, staggerMs]);
 
   return (
     <div
@@ -96,7 +98,7 @@ export default function ObservationCardReveal({
         opacity: revealed ? 1 : 0,
         transform: revealed ? 'translateY(0)' : 'translateY(8px)',
         transition:
-          'opacity 350ms cubic-bezier(0.4, 0, 0.2, 1), transform 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+          'opacity var(--duration-slow) var(--ease-emphasized), transform var(--duration-slow) var(--ease-emphasized)',
         willChange: 'opacity, transform',
       }}
     >

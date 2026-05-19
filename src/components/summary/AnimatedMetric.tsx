@@ -1,38 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-
-/**
- * Detect prefers-reduced-motion. SSR-safe (returns false during static
- * export build). Post-mount, subscribes to the matchMedia change event
- * so the value updates live if the user toggles their preference.
- *
- * Private to this file. Not exported.
- */
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    // Synchronizing React state with the external matchMedia API on mount.
-    // Falls under the documented "subscribe to an external system" exception
-    // of react-hooks/set-state-in-effect.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setReduced(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    // Use addEventListener if available (modern browsers); fall back to
-    // addListener for older Safari per the canonical defensive pattern.
-    if (typeof mq.addEventListener === 'function') {
-      mq.addEventListener('change', handler);
-      return () => mq.removeEventListener('change', handler);
-    }
-    mq.addListener(handler);
-    return () => mq.removeListener(handler);
-  }, []);
-
-  return reduced;
-}
+import useReducedMotion from '@/lib/hooks/useReducedMotion';
 
 /**
  * Count up from 0 to `target` over `durationMs`, starting after `delayMs`.
@@ -125,6 +94,10 @@ interface AnimatedMetricProps {
  * after `delayMs`. easeOutCubic easing. Reduced-motion users see the final
  * value instantly with no animation.
  *
+ * Phase 17 MOT-01. 800ms is intentionally exempt from the
+ * --motion-duration-* token vocabulary: count-up is an ambient reveal,
+ * not an interaction, exempt from the Boomer-safe 200ms cap.
+ *
  * Visual vocabulary matches the existing effort-stat tiles at
  * summary/page.tsx:143-162 (rounded-2xl bg-ipc-50 border ipc-100 tile,
  * tabular-nums number, uppercase tracking-wide label).
@@ -136,7 +109,7 @@ export default function AnimatedMetric({
   precision = 0,
   delayMs = 0,
 }: AnimatedMetricProps) {
-  const reduced = usePrefersReducedMotion();
+  const reduced = useReducedMotion();
   const current = useCountUp(value, 800, delayMs, precision, reduced);
   const display = current.toFixed(precision);
 

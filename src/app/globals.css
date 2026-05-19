@@ -50,6 +50,23 @@
   --color-leak: #9e3e2c;     /* was #b85c4a — text 4.51 → 6.0 ✓ */
 
   --font-sans: "Inter", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* ── Phase 17 Motion System (MOT-01) ──
+   * Canonical motion vocabulary. Components consume these via Tailwind
+   * utilities (duration-normal, ease-emphasized) OR inline CSS
+   * (var(--duration-normal), var(--ease-emphasized)).
+   *
+   * Boomer-safe 200ms cap is the SOFT target for INTERACTIONS. Ambient
+   * reveals (page transitions, skeleton shimmer, count-ups) may exceed
+   * via --duration-slow or annotated out-of-token values (Phase 17 D-12).
+   */
+  --duration-fast: 120ms;     /* micro-interactions: chip tap, button hover */
+  --duration-normal: 180ms;   /* default interactions: bottom-sheet open, day transition */
+  --duration-slow: 300ms;     /* ambient reveals: observation cards, skeleton shimmer */
+
+  --ease-emphasized: cubic-bezier(0.4, 0, 0.2, 1);     /* Material standard; Phase 14/15/16 canonical curve */
+  --ease-decelerated: cubic-bezier(0.0, 0.0, 0.2, 1);  /* entrance: slows into rest */
+  --ease-accelerated: cubic-bezier(0.4, 0.0, 1, 1);    /* exit: accelerates out of view */
 }
 
 /* ── Base styles ── */

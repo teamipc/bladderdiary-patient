@@ -14,6 +14,12 @@
  * global rule in src/app/globals.css; the 1.5s hold is preserved so the
  * message stays readable.
  *
+ * Phase 17 MOT-01. The 200ms fade timings match Tailwind built-in
+ * duration-200 utility (acceptable proxy for --duration-normal=180ms; 20ms
+ * delta is sub-perceptual). The 1.5s hold is intentionally out of the
+ * --motion-duration-* token vocabulary (semantic timer for "let the user
+ * see this", not an animation duration).
+ *
  * Accessibility: role="status" + aria-live="polite" announces the message
  * once to assistive tech when the overlay mounts. Not a dialog (no user
  * action required to proceed).
