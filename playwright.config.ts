@@ -22,12 +22,13 @@ const isHeaded = !!process.env.HEADED;
 // Allow a one-off override of `testMatch` for verification specs that live
 // alongside the daily walkthrough/deep-flow/a11y trio but aren't part of the
 // daily run (e.g., `e2e/phase5-chrome.spec.ts`, `e2e/phase12-seo.spec.ts`,
-// `e2e/phase13-export-package.spec.ts`, `e2e/phase14-onboarding-empathy.spec.ts`).
+// `e2e/phase13-export-package.spec.ts`, `e2e/phase14-onboarding-empathy.spec.ts`,
+// `e2e/phase15-diary-micro-interactions.spec.ts`).
 // The default (no env var) is unchanged: only the three production specs
 // match. Plan 05-07 / Phase 5 chrome verification sets PW_TEST_MATCH=phase5-chrome
 // and runs in isolation via a single dedicated project (see
-// `verificationProjects` below). Phase 12, 13, and 14 verification specs use
-// the same pattern.
+// `verificationProjects` below). Phase 12, 13, 14, and 15 verification specs
+// use the same pattern.
 // This avoids both (a) creating a separate config file and (b) modifying the
 // production testMatch in any user-visible way for normal runs.
 const VERIFICATION_MATCH = process.env.PW_TEST_MATCH;
