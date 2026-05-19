@@ -163,22 +163,22 @@ The 2026-05-18 comprehensive audit (`CODE-REVIEW.md` + `SEO-REVIEW.md` + `UI-REV
 
 #### Accessibility / WCAG 2.1 AA (Phase 11)
 
-- [ ] **A11Y-01** — Every page has exactly one `<h1>`
+- [x] **A11Y-01** — Every page has exactly one `<h1>` per rendered output (shipped 2026-05-18, commit fc96cb1; TimelineView h1 + OnboardingFlow's 3 mutually-exclusive step h1s; Day1Celebration retains its aria-modal h1)
   `DayPageClient` / diary day pages open with `<h2>` "Day 1" — there is no `<h1>` anywhere on the most-used surface in the app. WCAG 2.4.6 (Headings and Labels) + 1.3.1 (Info and Relationships) fail. Other pages need audit too (summary, landing, learn topics, articles, authors, glossary, help).
   *Files:* page-component layer across `src/app/[locale]/**/page.tsx` and surrounding client components.
   *Verify:* axe-core sweep across 6 locales × major routes (diary, summary, landing, learn topic, learn article) reports exactly one `<h1>` per page.
 
-- [ ] **A11Y-02** — `Toast` announces via `role="status"` / `aria-live`
+- [x] **A11Y-02** — `Toast` announces via `role="status"` / `aria-live="polite"` / `aria-atomic="true"` (shipped 2026-05-18, commit bf740bb)
   `src/components/ui/Toast.tsx` (and any time-warning component) has no `aria-live`, `role="status"`, or `role="alert"`. Screen-reader users miss every milestone toast and time warning. WCAG 4.1.3 (Status Messages) fail.
   *Files:* `src/components/ui/Toast.tsx`, any time-warning surface.
   *Verify:* axe-core reports live region present; manual NVDA / VoiceOver test confirms milestone toast is announced.
 
-- [ ] **A11Y-03** — Skip-to-content link
+- [x] **A11Y-03** — Skip-to-content link in AppShell with `<main id="main-content" tabIndex={-1}>` target (shipped 2026-05-18, commit bf740bb; `nav.skipToContent` in all 6 locales)
   No skip-to-content link anywhere. WCAG 2.4.1 (Bypass Blocks) fail. Should be the first focusable element on every page, visible only on focus.
   *Files:* `src/components/layout/AppShell.tsx` or a new `SkipLink.tsx`.
   *Verify:* keyboard-only walkthrough — Tab once + Enter from page load jumps focus past nav landmarks into `<main>`. Visible focus indicator on the link.
 
-- [ ] **A11Y-04** — ConfirmDialog destructive button position + autoFocus Cancel
+- [x] **A11Y-04** — ConfirmDialog destructive button at left/secondary, Cancel autoFocused at right/primary, Enter activates Cancel (shipped 2026-05-18, commit 44ce783; orphan `confirmBtnRef` renamed to `cancelBtnRef` + assigned + defensive useEffect refocus)
   `src/components/ui/ConfirmDialog.tsx` has the destructive (red) button in the primary (right) position with no `autoFocus` on Cancel — a declared `confirmBtnRef` is never assigned. Enter at dialog-open activates the destructive action by default. Standard medical-grade pattern: safe action defaults, destructive action requires explicit selection.
   *Files:* `src/components/ui/ConfirmDialog.tsx`, all callers (likely `DayPageClient.tsx` and form components).
   *Verify:* open a dirty form, trigger close → ConfirmDialog appears with Cancel autoFocused on the right, Discard on the left; pressing Enter at dialog-open does NOT discard.
@@ -250,6 +250,47 @@ Tier-1 EHR interop and flagship-grade polish. Phase 13 (Clinical Export Package)
   *Files:* new `src/__tests__/export-fhir.test.ts`, new `src/lib/exportFhir/validate.ts`, dependency: `ajv` + bundled FHIR R4 schema.
   *Verify:* `npx vitest run src/__tests__/export-fhir.test.ts` exits 0; valid Bundle passes; intentionally-malformed Bundle rejected; zero-PHI grep-assertions pass against the seed-state Patient.
 
+#### Onboarding Empathy Beats (Phase 14)
+
+The first-time-patient onboarding flow gains a sequence of reassuring beats above the existing wizard. All boomer-safe (no confetti, no sound, 200ms motion cap, `prefers-reduced-motion` honored). See `.planning/phases/14-onboarding-empathy-beats/14-CONTEXT.md`.
+
+- [ ] **EM-01** — Welcome panel framing the value above the wizard (`/{locale}` first-paint).
+- [ ] **EM-02** — Animated privacy reassurance graphic (cloud-with-strike "stays on device") in a collapsible disclosure.
+- [ ] **EM-03** — Sample-export PDF thumbnail preview showing the clinician's deliverable upfront.
+- [ ] **EM-04** — Per-step time estimate ("~30 seconds") in each wizard step's copy; 6-locale parity.
+- [ ] **EM-05** — Step-completion micro-celebration (subtle checkmark glow + step-indicator advance with motion); NO confetti.
+
+#### Diary Micro-Interactions (Phase 15)
+
+Each diary action acknowledges itself. See `.planning/phases/15-diary-micro-interactions/15-CONTEXT.md`.
+
+- [ ] **MI-01** — Volume preset chip liquid-fill animation on tap (bottom-up fill, ~180ms).
+- [ ] **MI-02** — Haptic feedback on log save (`navigator.vibrate(15)` mobile-only with user opt-out toggle).
+- [ ] **MI-03** — Day 1 → Day 2 → Day 3 transition acknowledgment overlay (~1.5s, locale-aware copy).
+- [ ] **MI-04** — First-morning-void educational tooltip (one-pass, IDB-persisted flag; dismissible).
+- [ ] **MI-05** — Bedtime "good night" cue (~2s fade-in transition into night-mode color palette).
+- [ ] **MI-06** — Subtle time-of-day gradient drift (lower priority; can be cut if it conflicts with night-mode aesthetic).
+
+#### Summary Celebration + Animated Metrics (Phase 16)
+
+The summary page closes the diary arc with accomplishment + an unambiguous next step. See `.planning/phases/16-summary-celebration/16-CONTEXT.md`.
+
+- [ ] **CEL-01** — Hero celebration moment on first Day-3-completion `/summary` visit (subtle marker, NOT confetti).
+- [ ] **CEL-02** — Animated count-up reveal of 5 IPC clinical metrics (~800ms total, 150ms stagger).
+- [ ] **CEL-03** — Sequential observation card reveal via IntersectionObserver (~150ms stagger).
+- [ ] **CEL-04** — Phase 13's "Send to healthcare team" hero CTA pinned above the fold on `/summary`.
+- [ ] **CEL-05** — One-time hero state on 3-day completion; subsequent visits show normal layout (store-action flag).
+
+#### Motion System + Page Transitions (Phase 17)
+
+Consolidates Phases 14-16's motion vocabulary into a single source of truth. See `.planning/phases/17-motion-system/17-CONTEXT.md`.
+
+- [ ] **MOT-01** — Motion design tokens in Tailwind config: 3 durations (`fast`/`normal`/`slow` = 120/180/300ms) + 3 easing curves (`emphasized`/`decelerated`/`accelerated`). All Phase-14/15/16 animations consume tokens; no inline ms values.
+- [ ] **MOT-02** — `useReducedMotion()` hook at `src/lib/hooks/useReducedMotion.ts` as single source of truth. No inline `@media (prefers-reduced-motion)` queries in component code.
+- [ ] **MOT-03** — Page-to-page transitions for the diary flow (Day 1 → Day 2 → Day 3 → Summary) via View Transitions API where supported + Tailwind keyframe fallback elsewhere.
+- [ ] **MOT-04** — BottomSheet motion refinement: consume the new tokens (replace hardcoded 180ms cubic-bezier).
+- [ ] **MOT-05** — Loading skeleton states with motion personality (shimmer animation); `prefers-reduced-motion` → static placeholders.
+
 ## v2 Requirements
 
 <!-- Deferred to a later milestone. -->
@@ -297,13 +338,17 @@ Tier-1 EHR interop and flagship-grade polish. Phase 13 (Clinical Export Package)
 | Phase 11: WCAG 2.1 AA baseline | A11Y-01, A11Y-02, A11Y-03, A11Y-04 |
 | Phase 12: SEO config + technical fixes | SEO-M3-01, SEO-M3-02, SEO-M3-03 |
 
-### Clinical Polish + Interop milestone (Phases 13–)
+### Clinical Polish + Interop milestone (Phases 13–17)
 
 | Phase | Requirements |
 |-------|--------------|
 | Phase 13: Clinical Export Package | PKG-01, PKG-02, PKG-03, PKG-04, PKG-05, FHIR-EX-01, FHIR-EX-02, FHIR-EX-03 |
+| Phase 14: Onboarding empathy beats | EM-01, EM-02, EM-03, EM-04, EM-05 |
+| Phase 15: Diary micro-interactions | MI-01, MI-02, MI-03, MI-04, MI-05, MI-06 |
+| Phase 16: Summary celebration + animated metrics | CEL-01, CEL-02, CEL-03, CEL-04, CEL-05 |
+| Phase 17: Motion system + page transitions | MOT-01, MOT-02, MOT-03, MOT-04, MOT-05 |
 
-All 41 v1 requirements (9 STAB + 6 DTUX + 18 M3 + 5 PKG + 3 FHIR-EX) mapped. Coverage: 100%.
+All 62 v1 requirements (9 STAB + 6 DTUX + 18 M3 + 8 Phase 13 + 5 EM + 6 MI + 5 CEL + 5 MOT) mapped. Coverage: 100%.
 
 ---
-*Requirements defined: 2026-05-14 (Stabilization). Desktop & Tablet UX milestone added 2026-05-14. Medical-Grade Closure milestone added 2026-05-18. Clinical Polish + Interop milestone added 2026-05-18.*
+*Requirements defined: 2026-05-14 (Stabilization). Desktop & Tablet UX milestone added 2026-05-14. Medical-Grade Closure milestone added 2026-05-18. Clinical Polish + Interop milestone added 2026-05-18 (Phase 13 scaffolded; Phases 14-17 added 2026-05-18 — flagship-polish arc committed to make the patient surface Airbnb-grade).*

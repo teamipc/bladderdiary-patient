@@ -10,7 +10,7 @@ Four milestones tracked in this roadmap.
 
 **Milestone 3 — Medical-Grade Closure (Phases 9–12):** Closes the gaps surfaced by the comprehensive 2026-05-18 between-milestones audit (`.planning/audits/2026-05-18-comprehensive-audit/FINDINGS.md`). Three Critical findings are live in production right now (PT/ZH/AR article-card 404, PDF English-only for non-EN/FR/ES locales, no `<h1>` on diary day pages); two more are clinical-record-integrity bugs (Discard actually saves in 3 log forms); one is an untracked-config landmine (now deleted). This milestone gets the app to medical-grade quality across all 6 locales with WCAG 2.1 AA accessibility and clinical-record-integrity guarantees. Phases are ordered production-impact-first: locale parity → record integrity → a11y baseline → SEO technical fixes.
 
-**Milestone 4 — Clinical Polish + Interop (Phases 13–):** Opens the ceiling features after M3 closes the floor. Phase 13 ships tier-1 EHR interop via a FHIR R4 `Bundle` export sidecar — clinician at an Epic site uploads one file into the patient's chart instead of retyping. Subsequent phases (TBD) will cover the "flagship polish" axes the 2026-05-18 audit deferred: onboarding empathy beats, diary micro-interactions, summary celebration, motion system. M4 is open-ended by design — phase count grows as priorities settle post-M3.
+**Milestone 4 — Clinical Polish + Interop (Phases 13–17):** Opens the ceiling features after M3 closes the floor. Phase 13 ships tier-1 EHR interop via a Clinical Export Package (PDF + CSV + FHIR R4 Bundle + locale-aware README zip) — the clinician on the other end picks whichever file matches their EHR (Epic/Cerner/Allscripts grab the FHIR; Prompt/paper grab the PDF; Excel users grab the CSV) without scrambling between formats. Phases 14-17 are the flagship-polish arc that brings the patient-facing surface to Airbnb-grade detail: onboarding empathy beats (welcome + privacy graphic + sample-export preview + per-step time estimates), diary micro-interactions (chip liquid-fill + haptic on log save + day-transition acknowledgment + FMV educational tooltip + bedtime fade), summary celebration (animated metric reveal + sequential observations + hero "share with clinician" CTA above fold), and a consolidating motion system (design tokens + `useReducedMotion()` single source of truth + page transitions + skeleton states). All polish honors `prefers-reduced-motion` and the boomer-safe 200ms-cap register.
 
 ## Phases
 
@@ -37,12 +37,16 @@ Four milestones tracked in this roadmap.
 
 - [x] **Phase 9: Locale parity production-hotfix** — Fix article-card 404 in PT/ZH/AR (regex strips only en/fr/es), localize clinical PDF export for PT/ZH/AR including CJK + Arabic Unicode font registration, eliminate hardcoded English strings in EN/FR/ES PDFs, localize TimePicker bedtime preset chips, source + wire author profile photos (shipped 2026-05-18; 8 commits c46b5d5..9f09827)
 - [x] **Phase 10: Clinical record integrity** — Remove autosave-on-unmount from Log{Void,Drink,Leak}Form so Discard actually discards, finish eliminating browser-local-time leaks (NextStepBanner, reminders.ts), fix `removeWakeTime` FMV recomputation, Day-1 filter in observations.ts caffeine pattern detection, regression-test the autosave class (shipped 2026-05-18; 4 commits e0bbbbc..97840ed; 35 new tests)
-- [ ] **Phase 11: WCAG 2.1 AA baseline** — Add `<h1>` to every page, announce Toast via `role="status"` / `aria-live`, add skip-to-content link, reposition ConfirmDialog destructive button + autoFocus Cancel + Enter activates Cancel
+- [x] **Phase 11: WCAG 2.1 AA baseline** — Add `<h1>` to every page, announce Toast via `role="status"` / `aria-live`, add skip-to-content link, reposition ConfirmDialog destructive button + autoFocus Cancel + Enter activates Cancel (shipped 2026-05-18; 4 commits fc96cb1..b25406e; 6-locale × 5-route axe-core matrix)
 - [ ] **Phase 12: SEO config + technical fixes** — Fix BreadcrumbList JSON-LD (consistent URLs, Title-Case names), restore bare-root indexability (currently JS-only shell), expand audience landing intros to 600-word spec target. (Cluster authoring for bph/frequency/urgency pillars runs on a parallel SEO content workstream, NOT in this phase.)
 
 ### Clinical Polish + Interop (Milestone 4)
 
 - [ ] **Phase 13: Clinical Export Package (PDF + CSV + FHIR + README)** — Replace the current 3-button export with a single hero "Send to healthcare team" action that generates `myflowcheck-<date>.zip` containing all formats: `01-clinical-report.pdf`, `02-events.csv`, `03-emr-bundle.fhir.json` (LOINC-coded FHIR R4 with skeletal Patient — no PHI), and `README.txt` (locale-aware, EHR-specific upload instructions for Epic / Prompt / Cerner / Allscripts). Existing individual buttons demote to "More options". Tier-1 EHR interop without scrambling — Epic clinicians grab the FHIR; Prompt/PT clinicians grab the PDF; Excel users grab the CSV; all from the same single download. (SMART on FHIR launch + direct EHR write-back are explicitly out of scope — App Orchard / OAuth-server territory; this app stays static-export.)
+- [ ] **Phase 14: Onboarding empathy beats** — Welcome panel above the existing wizard framing the value ("3 days, 30 seconds per entry"), animated privacy reassurance graphic (cloud-with-strike "stays on this device"), sample-export PDF thumbnail preview, per-step time estimates, subtle step-completion celebration. Boomer-safe register: NO confetti, NO sound, all `prefers-reduced-motion`-aware.
+- [ ] **Phase 15: Diary micro-interactions** — Volume preset chip liquid-fill animation, haptic feedback on log save (Vibration API, opt-out toggle), Day 1→2→3 transition acknowledgment overlay, first-morning-void educational tooltip (one-pass), bedtime "good night" fade-in to night-mode, optional time-of-day gradient drift. Every action acknowledged; no gimmick.
+- [ ] **Phase 16: Summary celebration + animated metrics** — Hero "you did it" moment on first /summary visit after 3-day completion (subtle marker, NOT confetti), animated count-up reveal of 5 IPC clinical metrics (24HV / NPi / AVV / MVV / NBC), sequential observation-card reveal via IntersectionObserver, Phase 13's "Send to healthcare team" hero CTA pinned above the fold. Closes the diary arc with a clear sense of accomplishment + an unambiguous next step.
+- [ ] **Phase 17: Motion system + page transitions** — Consolidate the motion vocabulary from Phases 14-16 into a single source of truth: 3 duration tokens (fast/normal/slow) + 3 easing curves in Tailwind config, `useReducedMotion()` hook used everywhere (no inline @media queries in components), Day 1→2→3→Summary page transitions via View Transitions API with Tailwind keyframe fallback, refined BottomSheet curves consuming the new tokens, loading skeleton states with subtle shimmer. The app reads as if one designer wrote every animation.
 
 ## Phase Details
 
@@ -303,10 +307,78 @@ Plans:
 Plans:
 - [ ] 13-NN: TBD (created by `/gsd-plan-phase 13`)
 
+### Phase 14: Onboarding empathy beats
+**Milestone**: Clinical Polish + Interop (Milestone 4)
+**Goal**: A first-time patient hits `/{locale}` and is carried through onboarding by reassuring beats: welcome panel framing the value, animated privacy reassurance graphic, sample-export PDF thumbnail, explicit per-step time estimates, subtle step-completion celebration. The 3-step wizard remains functional — these are additive empathy beats on top of the existing flow.
+**Depends on**: Nothing structural; ordered after Phase 13 to keep the medical-grade arc coherent (M3 floor → 13 interop ceiling → 14-17 polish ceiling)
+**Requirements**: EM-01, EM-02, EM-03, EM-04, EM-05
+**Success Criteria** (TBD via planner; sketch):
+  1. Welcome panel + animated privacy reassurance visible on first paint of `/{locale}` before the wizard.
+  2. Sample-export preview thumbnail loads in <100ms (pre-bundled SVG; no network request).
+  3. Each wizard step shows its time estimate in `messages/<locale>.json` (6-locale parity).
+  4. Step transitions animate over 180ms (under boomer-safe 200ms cap).
+  5. `prefers-reduced-motion: reduce` → animations degrade to instant transitions; static content remains.
+  6. axe-core a11y sweep passes (Phase 11 baseline holds).
+**Plans**: TBD (created by `/gsd-plan-phase 14`)
+
+Plans:
+- [ ] 14-NN: TBD
+
+### Phase 15: Diary micro-interactions
+**Milestone**: Clinical Polish + Interop (Milestone 4)
+**Goal**: Every action in the diary surface has a small interaction confirmation that respects the boomer-safe register: volume chips fill with color, logging saves with haptic + soft visual confirmation, day transitions acknowledge progress, the FMV educational tooltip surfaces once with the right context, nighttime fades in gently when bedtime is logged. The diary surface feels alive without crossing into gimmicky.
+**Depends on**: Phase 14 (empathy beats lock the visual language)
+**Requirements**: MI-01, MI-02, MI-03, MI-04, MI-05, MI-06
+**Success Criteria** (TBD; sketch):
+  1. Tap a volume preset chip → visible liquid-fill animation completes in 180ms.
+  2. Save a void on mobile with Vibration API → device vibrates once (verified via mobile manual checkpoint).
+  3. Complete Day 1's last expected event → Day-transition overlay shows for ~1.5s with locale-correct copy in 6 locales.
+  4. First FMV auto-detection → tooltip appears once; subsequent FMV detections do not re-fire (IDB-persisted flag).
+  5. Log a bedtime in afternoon → night-mode fade-in animates over ~2s instead of switching instantly.
+  6. `prefers-reduced-motion: reduce` → animations become instant; haptic still fires (not motion).
+**Plans**: TBD (created by `/gsd-plan-phase 15`)
+
+Plans:
+- [ ] 15-NN: TBD
+
+### Phase 16: Summary celebration + animated metrics
+**Milestone**: Clinical Polish + Interop (Milestone 4)
+**Goal**: The patient who completes 3 days of diary lands on `/summary` and is rewarded with a brief celebration moment, animated count-up of the 5 IPC clinical metrics, sequentially-revealed observation cards, and Phase 13's "Send to healthcare team" hero CTA above the fold. The page closes the diary arc with a clear sense of accomplishment + an unambiguous next step.
+**Depends on**: Phase 15 (motion + interaction language) and Phase 13 (hero CTA component)
+**Requirements**: CEL-01, CEL-02, CEL-03, CEL-04, CEL-05
+**Success Criteria** (TBD; sketch):
+  1. First visit to `/summary` after Day-3 completion shows the celebration marker + hero CTA at the very top.
+  2. Metric values count up from 0 → final over ~800ms with 150ms stagger per metric.
+  3. Observation cards reveal sequentially as the user scrolls (IntersectionObserver) — not all at once.
+  4. `prefers-reduced-motion: reduce` → final values render instantly, observations render simultaneously.
+  5. Second visit (returning patient) → celebration suppressed; normal layout.
+  6. `aria-live="polite"` on metric region — SR users get final values once they settle.
+**Plans**: TBD (created by `/gsd-plan-phase 16`)
+
+Plans:
+- [ ] 16-NN: TBD
+
+### Phase 17: Motion system + page transitions
+**Milestone**: Clinical Polish + Interop (Milestone 4)
+**Goal**: Consolidate the motion vocabulary from Phases 14-16 into a single source of truth: 3 duration tokens + 3 easing curves in Tailwind config, `useReducedMotion()` hook used everywhere (no inline @media queries in components), Day 1→2→3→Summary page transitions via View Transitions API with Tailwind keyframe fallback, refined BottomSheet curves consuming the new tokens, loading skeleton states with subtle shimmer. The app reads as if one designer wrote every animation.
+**Depends on**: Phases 14, 15, 16 (motion language settles across those phases; this phase consolidates)
+**Requirements**: MOT-01, MOT-02, MOT-03, MOT-04, MOT-05
+**Success Criteria** (TBD; sketch):
+  1. Tailwind config exposes `duration-fast` (120ms), `duration-normal` (180ms), `duration-slow` (300ms) + 3 easing tokens; `grep -rn "transition-\[.*ms\]" src/` returns zero hits.
+  2. `useReducedMotion()` hook used in ≥6 animation components; `grep -rn "prefers-reduced-motion" src/components` returns zero hits.
+  3. Day 1 → Day 2 → Day 3 → Summary uses page transitions (View Transitions API where supported; keyframe fallback elsewhere).
+  4. BottomSheet open/close consumes the new motion tokens.
+  5. Summary metric reveal pre-mount shows skeleton placeholders.
+  6. axe-core a11y sweep + daily 6-locale walkthrough still green.
+**Plans**: TBD (created by `/gsd-plan-phase 17`)
+
+Plans:
+- [ ] 17-NN: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13. Within Milestone 3, Phase 12 (SEO technical fixes) is fully independent and may run in parallel with Phases 9/10/11. Phase 13 (M4 Clinical Polish + Interop) is independent of M3 entirely and may overlap with M3's tail.
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17. Within Milestone 3, Phase 12 (SEO technical fixes) is fully independent and may run in parallel with Phases 9/10/11. Phase 13 (M4 Clinical Polish + Interop) is independent of M3 entirely and may overlap with M3's tail. Phases 14-17 within M4 chain: 14 → 15 → 16 → 17 (each phase consumes the language settled by the prior phase).
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -320,6 +392,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 4/4 | Complete | 2026-05-17 |
 | 9. Locale parity production-hotfix | Medical-Grade Closure | 6/6 | Complete | 2026-05-18 (8 commits c46b5d5..9f09827, pushed) |
 | 10. Clinical record integrity | Medical-Grade Closure | 4/4 | Complete | 2026-05-18 (4 commits e0bbbbc..97840ed; 35 new tests; 530/531 vitest passing) |
-| 11. WCAG 2.1 AA baseline | Medical-Grade Closure | 0/4 | Planning complete (2026-05-18) | - |
+| 11. WCAG 2.1 AA baseline | Medical-Grade Closure | 4/4 | Complete | 2026-05-18 (4 commits fc96cb1..b25406e; 6-locale × 5-route axe-core matrix) |
 | 12. SEO config + technical fixes | Medical-Grade Closure | 0/4 | Planning complete (2026-05-18) | - |
 | 13. Clinical Export Package (PDF + CSV + FHIR + README) | Clinical Polish + Interop | 0/TBD | Scaffolded 2026-05-18 (reframed from "FHIR button" → "send-to-clinician package"); awaiting M3 close-out before planner runs | - |
+| 14. Onboarding empathy beats | Clinical Polish + Interop | 0/TBD | Scaffolded 2026-05-18 (CONTEXT written); awaiting Phase 13 close-out before planner runs | - |
+| 15. Diary micro-interactions | Clinical Polish + Interop | 0/TBD | Scaffolded 2026-05-18 (CONTEXT written); awaiting Phase 14 close-out | - |
+| 16. Summary celebration + animated metrics | Clinical Polish + Interop | 0/TBD | Scaffolded 2026-05-18 (CONTEXT written); awaiting Phase 15 + Phase 13 close-out | - |
+| 17. Motion system + page transitions | Clinical Polish + Interop | 0/TBD | Scaffolded 2026-05-18 (CONTEXT written); awaiting Phases 14-16 close-out | - |
