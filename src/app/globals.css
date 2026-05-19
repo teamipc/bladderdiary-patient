@@ -215,8 +215,12 @@ input, select, textarea {
   animation: scaleIn 0.25s ease-out both;
 }
 
+/* Phase 17 MOT-04. BottomSheet mobile-variant refinement (tokens-only).
+   Visual change: easing keyword migrates from CSS ease-out to explicit
+   cubic-bezier(0.0, 0.0, 0.2, 1) via --ease-decelerated. Duration stays
+   at 300ms semantic-token reference (= --duration-slow). */
 .animate-slide-up {
-  animation: slideUp 0.3s ease-out both;
+  animation: slideUp var(--duration-slow) var(--ease-decelerated) both;
 }
 
 .animate-fade-in {
@@ -231,13 +235,61 @@ input, select, textarea {
   animation: pageFadeIn var(--duration-normal) var(--ease-decelerated) both;
 }
 
-/* Desktop modal slide-in — used by BottomSheet at md+ via md:animate-modal-in.
-   Per Boomer-safe override 3 (animation cap 200ms): 180ms stays safely under
-   the cap; cubic-bezier(0.16, 1, 0.3, 1) is an "out-expo"-style decelerated
-   finish that feels confident at short duration. Mobile keeps the existing
-   animate-slide-up; this utility is gated to md+ usage by callers. */
+/* Phase 17 MOT-04. BottomSheet refinement (tokens-only per CONTEXT
+   key planning question #3 recommendation). Visual change: easing
+   curve migrates from out-expo (0.16, 1, 0.3, 1) to Material emphasized
+   (--ease-emphasized = cubic-bezier(0.4, 0, 0.2, 1)). Duration stays at
+   180ms (= --duration-normal). Per Boomer-safe override 3 (animation
+   cap 200ms): --duration-normal at 180ms remains safely under the cap.
+   Mobile keeps the existing animate-slide-up (also migrated to tokens
+   in this plan); this utility is gated to md+ usage by callers. */
 .animate-modal-in {
-  animation: modalIn 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: modalIn var(--duration-normal) var(--ease-emphasized) both;
+}
+
+/* Phase 17 MOT-05. Skeleton loading shimmer.
+ * Subtle linear-gradient background-position shift that loops infinitely
+ * while a placeholder is mounted. Used by <Skeleton variant=...> in
+ * src/components/ui/Skeleton.tsx (consumers: summary page metric grid
+ * pre-hydration; future learn-section loading states).
+ *
+ * Gradient: --color-ipc-50 to --color-ipc-100 to --color-ipc-50 (low-contrast
+ * brand-palette wash). background-size: 200% 100% so the gradient is twice
+ * as wide as the element, allowing the position shift to look like a
+ * traveling band of slightly-darker amber.
+ *
+ * Iteration 1500ms is intentionally out of the --motion-duration-*
+ * vocabulary. Ambient loops are exempt per Phase 17 D-12. Easing
+ * --ease-decelerated gives the shimmer a gentle "settles in" character
+ * on each pass.
+ *
+ * prefers-reduced-motion override: the global rule at lines 141-150
+ * would collapse animation-duration to 0.01ms (freezing the gradient
+ * mid-shift in an ugly state). The override here explicitly replaces
+ * the gradient with solid --color-ipc-100 + animation: none. Reduced-
+ * motion users see a static placeholder rectangle.
+ */
+@keyframes skeletonShimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+.animate-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-ipc-50),
+    var(--color-ipc-100),
+    var(--color-ipc-50)
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1500ms var(--ease-decelerated) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-skeleton-shimmer {
+    background: var(--color-ipc-100);
+    animation: none;
+  }
 }
 
 /* Strip the iOS home-indicator safe-area padding at md+ where the modal

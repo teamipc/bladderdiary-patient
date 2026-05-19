@@ -97,6 +97,24 @@ const components = {
   DownloadCta,
 };
 
+/**
+ * Phase 17 MOT-05. Loading skeleton integration note.
+ *
+ * The static-export build resolves MDX content at build time via
+ * next-mdx-remote/rsc. There is no client-side loading state for
+ * article body rendering in the current production path.
+ *
+ * FUTURE: when dynamic article loading is added (e.g., async glossary
+ * lookups, search-result article previews), the canonical placeholder pattern
+ * is:
+ *   import Skeleton from '@/components/ui/Skeleton';
+ *   <Suspense fallback={<Skeleton variant="card" />}>
+ *     {dynamicMdxContent}
+ *   </Suspense>
+ *
+ * This annotation reserves Skeleton as the canonical pattern; no
+ * functional integration in this plan.
+ */
 export function RenderMdx({
   source,
   locale,

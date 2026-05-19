@@ -11,6 +11,7 @@ import SummaryObservations, { keyToCopy as observationToCopy } from '@/component
 import CompletionHero from '@/components/summary/CompletionHero';
 import IpcMetricsBlock from '@/components/summary/IpcMetricsBlock';
 import Button from '@/components/ui/Button';
+import Skeleton from '@/components/ui/Skeleton';
 import { HelpCircle, Lock, AlertTriangle, ChevronLeft, CheckCircle2, Sparkles } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { getCurrentDay } from '@/lib/utils';
@@ -236,13 +237,33 @@ export default function SummaryPage() {
           not via CSS position:sticky. The fade-in delay of 260ms lands the
           section 40ms after the top-CTA's 220ms so the metrics emerge just
           after the CTA finishes appearing; the rAF count-up cascade inside
-          AnimatedMetric is independent of this CSS fade. */}
-      <section
-        className="animate-fade-slide-up opacity-0"
-        style={{ animationDelay: '260ms', animationFillMode: 'forwards' }}
-      >
-        <IpcMetricsBlock />
-      </section>
+          AnimatedMetric is independent of this CSS fade.
+
+          Phase 17 MOT-05. Pre-hydration skeleton. While the persisted store
+          is still rehydrating, render a 2x2 (mobile) / 1x4 (md+) grid of
+          Skeleton placeholders in the same grid layout as IpcMetricsBlock.
+          Zero layout shift on hydration (placeholder tile height matches the
+          real tile). The page-level !hydrated branch above already returns a
+          full-page loading spinner, so this branch is defense-in-depth for
+          any future code path that reaches this section pre-hydration. */}
+      {!hydrated ? (
+        <section
+          className="grid grid-cols-2 md:grid-cols-4 gap-2"
+          aria-busy="true"
+        >
+          <Skeleton variant="metric" />
+          <Skeleton variant="metric" />
+          <Skeleton variant="metric" />
+          <Skeleton variant="metric" />
+        </section>
+      ) : isComplete ? (
+        <section
+          className="animate-fade-slide-up opacity-0"
+          style={{ animationDelay: '260ms', animationFillMode: 'forwards' }}
+        >
+          <IpcMetricsBlock />
+        </section>
+      ) : null}
 
       {/* Data warning if entries are missing */}
       {dataWarnings.length > 0 && (
