@@ -161,44 +161,44 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
     | { kind: 'wakeup'; dayNumber: 1 | 2 | 3; label: string };
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
-  const requestDeleteVoid = useCallback((id: string) => {
+  const requestDeleteVoid = (id: string) => {
     const v = allVoids.find((x) => x.id === id);
     if (!v) return;
     const time = formatTime(v.timestampIso, locale, timeZone);
     const vol = mlToDisplayVolume(v.volumeMl, volumeUnit);
     setPendingDelete({ kind: 'void', id, label: `${vol} ${volumeUnit} · ${time}` });
-  }, [allVoids, locale, timeZone, volumeUnit]);
+  };
 
-  const requestDeleteDrink = useCallback((id: string) => {
+  const requestDeleteDrink = (id: string) => {
     const d = allDrinks.find((x) => x.id === id);
     if (!d) return;
     const time = formatTime(d.timestampIso, locale, timeZone);
     const vol = mlToDisplayVolume(d.volumeMl, volumeUnit);
     setPendingDelete({ kind: 'drink', id, label: `${tdt(d.drinkType)} · ${vol} ${volumeUnit} · ${time}` });
-  }, [allDrinks, locale, timeZone, volumeUnit, tdt]);
+  };
 
-  const requestDeleteLeak = useCallback((id: string) => {
+  const requestDeleteLeak = (id: string) => {
     const l = allLeaks.find((x) => x.id === id);
     if (!l) return;
     const time = formatTime(l.timestampIso, locale, timeZone);
     setPendingDelete({ kind: 'leak', id, label: `${tlt(`${l.trigger}.label`)} · ${time}` });
-  }, [allLeaks, locale, timeZone, tlt]);
+  };
 
-  const requestDeleteBedtime = useCallback((dayNumber: 1 | 2 | 3) => {
+  const requestDeleteBedtime = (dayNumber: 1 | 2 | 3) => {
     const b = bedtime;
     if (!b) return;
     const time = formatTime(b.timestampIso, locale, timeZone);
     setPendingDelete({ kind: 'bedtime', dayNumber, label: time });
-  }, [bedtime, locale, timeZone]);
+  };
 
-  const requestDeleteWakeUp = useCallback((dayNumber: 1 | 2 | 3) => {
+  const requestDeleteWakeUp = (dayNumber: 1 | 2 | 3) => {
     const w = wakeTime;
     if (!w) return;
     const time = formatTime(w.timestampIso, locale, timeZone);
     setPendingDelete({ kind: 'wakeup', dayNumber, label: time });
-  }, [wakeTime, locale, timeZone]);
+  };
 
-  const confirmDelete = useCallback(() => {
+  const confirmDelete = () => {
     if (!pendingDelete) return;
     switch (pendingDelete.kind) {
       case 'void': removeVoid(pendingDelete.id); break;
@@ -208,7 +208,7 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
       case 'wakeup': removeWakeTime(pendingDelete.dayNumber); break;
     }
     setPendingDelete(null);
-  }, [pendingDelete, removeVoid, removeDrink, removeLeak, removeBedtime, removeWakeTime]);
+  };
 
 
   // Handle "Wake up" button — opens wake-up time form
