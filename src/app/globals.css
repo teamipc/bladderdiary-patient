@@ -673,12 +673,34 @@ input, select, textarea {
   to { opacity: 1; transform: translateX(0); }
 }
 
+/* Phase 14 EM-05. Boomer-safe step-transition tuning.
+   Old: 0.25s ease-out (250ms, above the 200ms Boomer-safe cap per CLAUDE.md
+   memory ux_philosophy). New: 180ms cubic-bezier(0.4, 0, 0.2, 1), the
+   standard "emphasized" Material curve. Matches the new .animate-step-pulse
+   timing below so dot-pulse + content-fade-in complete together at 180ms.
+   prefers-reduced-motion handled by the global rule at lines 94-103. */
 .animate-step-in-left {
-  animation: stepInLeft 0.25s ease-out both;
+  animation: stepInLeft 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .animate-step-in-right {
-  animation: stepInRight 0.25s ease-out both;
+  animation: stepInRight 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Phase 14 EM-05. Active step-dot pulse on step transition.
+   Re-fires on every step change via React key prop refresh on the dot
+   element. 15% scale-up at midpoint reads as a deliberate motion without
+   feeling jittery. Calibrated for the 50+ patient demographic per
+   CLAUDE.md memory ux_philosophy.
+   prefers-reduced-motion handled by the global rule at lines 94-103. */
+@keyframes stepPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.animate-step-pulse {
+  animation: stepPulse 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 /* Note expand/collapse */

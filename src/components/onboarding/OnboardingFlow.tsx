@@ -89,12 +89,27 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     <div className="flex flex-col">
       <Container variant="narrow" as="div" noPadding className="px-6 sm:px-6 pt-6 md:pt-12 pb-10 flex flex-col items-center">
 
-        {/* Step dots + plain-English label (wayfinding for older / non-tech users) */}
+        {/* Step dots + plain-English label (wayfinding for older / non-tech users).
+            Phase 14 EM-05. Active dot gets a subtle ring halo + the
+            animate-step-pulse keyframe. React `key` alternates between
+            active-N and inactive-N so the active dot re-mounts on every
+            step change and the keyframe re-fires. prefers-reduced-motion
+            users see no perceptible motion via the global rule. */}
         <div className="flex flex-col items-center gap-1.5 mb-5">
           <div className="flex items-center gap-2">
-            <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 1 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
-            <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 2 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
-            <div className={`w-2.5 h-2.5 rounded-full transition-colors ${step === 3 ? 'bg-ipc-500' : 'bg-ipc-200'}`} />
+            {[1, 2, 3].map((n) => {
+              const isActive = step === n;
+              return (
+                <div
+                  key={isActive ? `active-${n}` : `inactive-${n}`}
+                  className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                    isActive
+                      ? 'bg-ipc-500 ring-2 ring-ipc-200/60 ring-offset-1 ring-offset-surface animate-step-pulse'
+                      : 'bg-ipc-200'
+                  }`}
+                />
+              );
+            })}
           </div>
           <span className="text-[11px] font-semibold tracking-wide text-ipc-400 uppercase">
             {tc('stepOf', { current: step, total: 3 })}
