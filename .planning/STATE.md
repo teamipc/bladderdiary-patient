@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: "Phase 9 SHIPPED 2026-05-18 — Milestone 3 (Medical-Grade Closure) opened with audit-driven hotfix landing all 6 LP-* requirements in 8 commits (c46b5d5..9f09827, pushed to origin/main). LP-01 ArticleCard regex covers all 6 locales (driven from i18n/config.ts), LP-02 Noto Sans CJK + Arabic Unicode fonts subset+lazy-loaded (125.6 KB + 31.0 KB), LP-03 zero hardcoded English in EN/FR/ES PDFs + 24hr axis labels, LP-04 TimePicker chips via formatTime(), LP-05 Breadcrumb aria-label translated, LP-06 author photos sourced (dr-di-wu + dr-steven-tijerina) + JSON-LD image. generatePdfBlob refactored to async with 5 caller-ripple sites updated. 504/505 vitest passing, tsc + eslint clean. gsd-verifier GOAL-ACHIEVED with 6/6 must-haves verified at codebase level. Phase 10/11/12 plans landed (commit 240f1c3) with all 5 plan-checker BLOCKERS pre-fixed and ready for execution. Vercel auto-deploy in flight; post-deploy human-verify items: ZH/AR PDF glyph rendering visual check + production /pt|zh|ar/learn 200."
+status: "Phase 10 SHIPPED 2026-05-18 (back-to-back same-day as Phase 9). Clinical-record-integrity bug class closed across all 5 CRI-* requirements in 4 commits (e0bbbbc..97840ed). CRI-01 autosave-on-unmount removed from Log{Void,Drink,Leak}Form (Discard truly discards now); CRI-02 NextStepBanner uses getHoursInTz; CRI-03 reminders.ts:anchorTimeLabel uses stored tz; CRI-04 removeWakeTime triggers reassignMorningVoid + no-wake branch clears stale FMV flags; CRI-05 observations.ts caffeine-pattern filters Day 1. 530/531 vitest passing (+26 from Phase 9 baseline). Phase 10-04 cross-locale Playwright spec (1008 lines, 9 tests across 5 CRI scenarios) committed but not run in CI (requires local serve). Phase 13 reshape landed simultaneously: original 'add FHIR button' framing replaced by 'Clinical Export Package (PDF + CSV + FHIR + README zip)' — single hero 'Send to healthcare team' CTA generating a zip the clinician unpacks; addresses the user's 'clinician shouldn't have to scramble between formats' insight; existing 3 buttons demote to More options. 8 requirements (PKG-01..05 + FHIR-EX-01..03); ready to plan after M3 closes. Three pre-existing React-19 lint warnings logged to deferred-items.md as out-of-scope (not blocking)."
 stopped_at: Phase 9 SHIPPED + Phase 10/11/12 planning complete. Phase 9 ran 4 waves over a single session — Wave 1 (09-01 + 09-02 parallel worktree-isolated) cherry-picked → Wave 2 (09-03 solo in worktree + 09-04 paused at checkpoint:decision for photo sourcing; user picked option-real-photos and dropped dr-di-wu.jpg + dr-steven-tijerina.jpg via Finder) → Wave 3 (09-05 ran in main without worktree due to runtime worktree-base flake from a prior attempt; subset-font + @fontsource scripts produced 156.6 KB total Noto subsets; async generatePdfBlob ripple updated 5 caller files; the resulting await-serialization actually FIXED 2 pre-existing flakes from 09-02/09-03 notes) → Wave 4 (09-06 cross-locale verification spec + human-verify checkpoint; 36 Playwright tests + 19 vitest PDF blob tests). Photo checkpoint:decision surfaced 3 options (real / SVG initials / defer); user picked real, tijerina.jpg compressed orchestrator-side via sips from 3.66 MB → 65 KB. Phase 10/11/12 plans parallel-planned during Phase 9 execution; plan-checker found 5 BLOCKERS (Phase 10 testid + Time-for-bed string; Phase 11 stale h1 audit count + missing OnboardingFlow h1 task; Phase 12 --test-match CLI flag + en-locale localePath in JSON-LD assertions) all pre-fixed in chore commit 240f1c3. Pushed to origin/main 2026-05-18; Vercel auto-deploy in flight. Post-push verify items remaining: open generated PDFs in viewer for ZH/AR glyph correctness (pdf-parse cannot reliably extract embedded-font CJK/Arabic; visual eyeball is the medical-grade gate), and curl /pt|zh|ar/learn/<topic>/<slug> on the deployed origin.
-last_updated: "2026-05-18T20:30:00.000Z"
-last_activity: 2026-05-18 — Phase 9 SHIPPED; Milestone 3 opened with Phase 10/11/12 plans landed.
+last_updated: "2026-05-19T00:30:00.000Z"
+last_activity: 2026-05-18/19 — Phase 10 SHIPPED back-to-back with Phase 9; CRI-01..05 closed; Phase 13 reshaped to Clinical Export Package.
 progress:
-  total_phases: 12
-  completed_phases: 9
-  total_plans: 35
-  completed_plans: 23
-  percent: 75
+  total_phases: 13
+  completed_phases: 10
+  total_plans: 43
+  completed_plans: 31
+  percent: 77
 ---
 
 # Project State
@@ -21,11 +21,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-14)
 
 **Core value:** Patient completes a clinically-accurate 3-day diary in their own timezone with their own routine and leaves with a clinician-ready export — no data loss, no UX friction, no privacy compromise.
-**Current focus:** Milestone 3 (Medical-Grade Closure) — Phase 9 SHIPPED; Phase 10 (clinical record integrity), Phase 11 (WCAG 2.1 AA baseline), Phase 12 (SEO config + technical fixes) planned + plan-checked, ready for execution.
+**Current focus:** Milestone 3 (Medical-Grade Closure) — Phases 9 + 10 SHIPPED back-to-back; Phase 11 (WCAG 2.1 AA baseline) + Phase 12 (SEO config + technical fixes) planned + plan-checked, ready for execution. Milestone 4 (Clinical Polish + Interop) opened with Phase 13 scaffolded (Clinical Export Package: PDF + CSV + FHIR + README zip).
 
 ## Current Position
 
-Phase: Phase 9 SHIPPED 2026-05-18. Milestone 3 (Medical-Grade Closure) opened — 1/4 phases complete, 3 remaining (Phase 10, 11, 12 all planned + plan-checked).
+Phase: Phase 10 SHIPPED 2026-05-18 (same-day chain after Phase 9). Milestone 3 — 2/4 phases complete, 2 remaining (Phase 11 + Phase 12 ready to execute).
 Plan: Phase 9 complete — 6/6 plans shipped (09-01 LP-01 ArticleCard regex; 09-02 LP-04 + LP-05 TimePicker + Breadcrumb; 09-03 LP-02 partial + LP-03 PDF strings/date-fns; 09-04 LP-06 author photos; 09-05 LP-02 PDF Unicode fonts ZH+AR; 09-06 cross-locale verification spec). Vitest 504/505 (+1 skipped), tsc + eslint clean, gsd-verifier reports GOAL-ACHIEVED with 6/6 must-haves verified at codebase level. Phase 10/11/12 plans landed at chore commit 240f1c3 with all 5 plan-checker BLOCKERS pre-fixed.
 Status: Phase 9 SHIPPED + pushed to origin/main 2026-05-18 closing the production-affecting locale-parity bug class surfaced by the comprehensive 2026-05-18 audit. PT/ZH/AR Learn-hub article cards no longer 404; clinician-facing PDF export renders correctly with embedded Unicode glyphs for CJK + Arabic; author profile pages have YMYL trust photos with locale-correct alt text. Phase 10/11/12 ready for /gsd-execute-phase 10 next. Post-deploy verify items remaining: open generated ZH/AR PDFs in a viewer to confirm glyph rendering (pdf-parse cannot reliably extract embedded-font CJK/Arabic); curl /pt|zh|ar/learn/<topic>/<slug> on the deployed origin to confirm 200 status.
 Last activity: 2026-05-17 — Phase 3 SHIPPED; entire roadmap COMPLETE.

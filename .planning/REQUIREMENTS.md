@@ -136,27 +136,27 @@ The 2026-05-18 comprehensive audit (`CODE-REVIEW.md` + `SEO-REVIEW.md` + `UI-REV
 
 #### Clinical Record Integrity (Phase 10)
 
-- [ ] **CRI-01** — `LogVoidForm` / `LogDrinkForm` / `LogLeakForm` Discard truly discards
+- [x] **CRI-01** — `LogVoidForm` / `LogDrinkForm` / `LogLeakForm` Discard truly discards (shipped 2026-05-18, commit e0bbbbc; 12 new regression tests)
   Each form has a cleanup `useEffect` that autosaves the dirty state on unmount. Phase 6 added an explicit "Discard" ConfirmDialog that says "Your changes won't be saved" — but the autosave fires anyway when the form unmounts after Discard, so the user-visible contract is violated. **The clinical record reflects state the patient explicitly chose to discard.** No test catches it.
   *Files:* `src/components/diary/LogVoidForm.tsx`, `LogDrinkForm.tsx`, `LogLeakForm.tsx`
   *Verify:* regression test per form — open in edit mode, change a value, simulate close-with-Discard, assert store state unchanged. Add to `src/__tests__/`.
 
-- [ ] **CRI-02** — `NextStepBanner` uses stored timezone, not browser-local
+- [x] **CRI-02** — `NextStepBanner` uses stored timezone, not browser-local (shipped 2026-05-18, commit d202ca1)
   `src/components/diary/NextStepBanner.tsx:79` uses `new Date().getHours()` (browser-local) instead of canonical timezone helpers. This regresses the exact anti-pattern Phases 1–2 spent months eliminating. A patient in stored-tz ≠ browser-tz sees a banner suggesting the wrong next step.
   *Files:* `src/components/diary/NextStepBanner.tsx`
   *Verify:* with stored tz `Asia/Singapore` from a browser reporting `America/New_York`, the banner's "next step" reasoning uses SGT local time, not EST.
 
-- [ ] **CRI-03** — `reminders.ts:anchorTimeLabel` uses stored timezone
+- [x] **CRI-03** — `reminders.ts:anchorTimeLabel` uses stored timezone (shipped 2026-05-18, commit d202ca1)
   Same browser-local-time leak in the displayed reminder time label. The patient sees a reminder time string computed in their browser tz, not their stored diary tz.
   *Files:* `src/lib/reminders.ts`
   *Verify:* same test as CRI-02 against the reminder UI surface.
 
-- [ ] **CRI-04** — `removeWakeTime` recomputes FMV anchor
+- [x] **CRI-04** — `removeWakeTime` recomputes FMV anchor (shipped 2026-05-18, commit 36d43f9; `reassignMorningVoid` no-wake branch now actively clears stale FMV flags)
   Adding/setting wake-time correctly triggers `reassignMorningVoid`; removing one does not. The FMV anchor can drift after wake-time deletion, producing wrong NPi computation in subtle cases.
   *Files:* `src/lib/store.ts` (`removeWakeTime` action)
   *Verify:* test — add 2 wake-times, set one void as FMV by proximity to wake-time A, remove wake-time A, assert FMV recomputes against wake-time B (or clears).
 
-- [ ] **CRI-05** — `observations.ts` caffeine-pattern detection filters Day 1
+- [x] **CRI-05** — `observations.ts` caffeine-pattern detection filters Day 1 (shipped 2026-05-18, commit 36d43f9; existing positive caffeine test still passes)
   IPC rule: Day 1 is excluded from 24HV / NPi / AVV (adaptation period). The caffeine-pattern detection in `observations.ts` doesn't apply this filter, producing observations that include adaptation-day caffeine bursts in pattern aggregates.
   *Files:* `src/lib/observations.ts`
   *Verify:* test — synth a diary where Day 1 has 4 caffeine events and Days 2–3 have 1 each; caffeine-pattern observation only counts events from Days 2–3.
@@ -199,6 +199,56 @@ The 2026-05-18 comprehensive audit (`CODE-REVIEW.md` + `SEO-REVIEW.md` + `UI-REV
   `/learn/for-men` and `/learn/for-women` intro copy was expanded by recent commit but is still under the 600-word spec target documented in `content/README.md`. Reduces thin-content signal further.
   *Files:* the MDX or component sources for the two audience landing pages (`src/app/[locale]/learn/for-men/`, `src/app/[locale]/learn/for-women/`); content files if applicable.
   *Verify:* `wc -w` on the rendered intro for each landing in each locale reports ≥ 600 words.
+
+### Clinical Polish + Interop (Milestone 4, added 2026-05-18)
+
+Tier-1 EHR interop and flagship-grade polish. Phase 13 (Clinical Export Package) opens the milestone — reshapes the export surface from 3 disconnected buttons into a single hero "Send to healthcare team" action that produces a zip containing PDF + CSV + FHIR + README so the clinician on the other end doesn't have to scramble between formats. Subsequent phases (TBD) cover the "flagship polish" axes the 2026-05-18 audit deferred (onboarding empathy beats, diary micro-interactions, summary celebration, motion system).
+
+#### Clinical Export Package (Phase 13)
+
+##### Package surface (PKG-*)
+
+- [ ] **PKG-01** — Hero "Send to healthcare team" action
+  `<ExportActions>` gets a primary hero CTA that generates a single zip. Existing individual CSV / PDF / Share buttons demote to a "More options" disclosure (collapsed by default; still accessible for power users and fallback paths).
+  *Files:* `src/components/export/ExportActions.tsx`, new `src/lib/exportPackage/index.ts`, new i18n key for the hero button label (TBD copy in plan — candidates: "Send to my healthcare team", "Export for clinician", "Share with my doctor").
+  *Verify:* hero CTA visible on `/summary` above a collapsed "More options" disclosure that contains the existing 3 buttons; clicking the hero triggers zip generation + system share sheet (mobile) or download (desktop).
+
+- [ ] **PKG-02** — Zip contents: 4 files, clinician-friendly sort order
+  Generated zip contains exactly: `01-clinical-report.pdf` (byte-identical to current standalone PDF export), `02-events.csv` (byte-identical), `03-emr-bundle.fhir.json` (new FHIR R4 Bundle per FHIR-EX-*), `README.txt` (new, locale-aware).
+  *Files:* `src/lib/exportPackage/index.ts` (uses `jszip` or `fflate` — planner decides), composes from existing `generatePdfBlob` + `generateCsv` + new `generateFhirBundle`.
+  *Verify:* unzip the generated zip; assert exactly 4 files in the order `01-…`, `02-…`, `03-…`, `README.txt`; PDF byte-identical to standalone PDF export; CSV byte-identical; FHIR JSON validates against R4 schema.
+
+- [ ] **PKG-03** — README.txt explains files + gives EHR-specific upload instructions
+  Plain text, 80-char wrapped, fax-friendly. Opens with what the package is + patient profile (age + timezone, no PHI). Lists 4 files with one-line descriptions. Gives EHR-specific upload guidance for Epic / Prompt / Cerner / Allscripts / athenahealth / "other or paper". Closes with a support link.
+  *Files:* new `src/lib/exportPackage/readme.ts`, new i18n keys for README copy (per-locale README composition — full text translated to all 6 locales).
+  *Verify:* the README in the zip matches the expected per-locale shape; EN canonical version verified against the draft in `13-CONTEXT.md`; FR/ES/PT/ZH/AR via `naturalize-prose` cycle, register-correct (no machine-translation calques); 80-char wrap respected.
+
+- [ ] **PKG-04** — Web Share API integration with graceful fallback
+  Hero CTA on mobile triggers the system share sheet via `navigator.share({files: [zipFile]})` — Mail / Messages / Doximity / AirDrop / WhatsApp all work as recipients. Desktop / browsers without share support: regular `.zip` download via the existing PDF/CSV download pattern.
+  *Files:* `src/components/export/ExportActions.tsx`, possibly a small `useShareFile` hook.
+  *Verify:* manual matrix — iOS Safari, Chrome Android, Edge desktop, Safari desktop, Firefox; each tested for either share-sheet appearance OR fallback download; documented in plan SUMMARY.
+
+- [ ] **PKG-05** — Backward compatibility: individual buttons still accessible
+  Existing CSV / PDF / Share buttons remain functional inside the "More options" disclosure. No behavioral regression for users who prefer file-at-a-time downloads. No code path duplication — the disclosed buttons call the same generators the package uses.
+  *Files:* `src/components/export/ExportActions.tsx` (the disclosure pattern).
+  *Verify:* with the hero CTA hidden (or "More options" expanded), each individual button still triggers the same standalone download it does today; vitest spec `e2e/phase13-export-package.spec.ts` covers both flows.
+
+##### FHIR Bundle component (FHIR-EX-*)
+
+- [ ] **FHIR-EX-01** — Events encoded as FHIR R4 `Observation` resources with LOINC + UCUM
+  Every `VoidEntry`, `DrinkEntry`, `LeakEntry` in the active diary state becomes one `Observation` resource with: `code` populated via LOINC (planner picks Epic-flowsheet-compatible codes at plan time — candidates: 19153-6 / 9192-6 for urine volume, 8657-8 for fluid intake, SNOMED 162172004 for incontinence), `valueQuantity` with UCUM unit code `mL` from `http://unitsofmeasure.org`, `effectiveDateTime` from `timestampIso`, `subject` referencing the contained `Patient` resource.
+  *Files:* new `src/lib/exportFhir/observations.ts`, new `src/lib/exportFhir/loinc.ts`.
+  *Verify:* a synthetic 3-day diary with 60 voids + 30 drinks + 10 leaks produces a Bundle with 100 `Observation` entries; spot-check 3 entries (one per event type) for LOINC + UCUM compliance via schema-aware vitest assertions.
+
+- [ ] **FHIR-EX-02** — Bundle wraps Patient + QuestionnaireResponse + Observations
+  Output is a single FHIR `Bundle` (`type: collection`, `timestamp` populated) containing: 1 skeletal `Patient` (zero PHI per FHIR-EX-03), 1 `QuestionnaireResponse` documenting the IPC 3-day diary structure with clinical-metrics references (24HV, NPi, AVV, MVV, NBC), and N `Observation` resources from FHIR-EX-01.
+  *Files:* new `src/lib/exportFhir/index.ts` (Bundle assembler), new `src/lib/exportFhir/questionnaireResponse.ts`, new `src/lib/exportFhir/patient.ts`.
+  *Verify:* generated Bundle has exactly one `Patient` entry and exactly one `QuestionnaireResponse` entry; `Bundle.entry[].resource.resourceType` set is exactly `{Patient, QuestionnaireResponse, Observation}`.
+
+- [ ] **FHIR-EX-03** — Schema validation + zero-PHI privacy audit
+  CI vitest suite runs each generated Bundle through `ajv` against the official FHIR R4 JSON schema (or a profiled subset covering the 4 resource types we emit). Validation catches missing required fields, wrong cardinalities, malformed LOINC codes, non-UCUM units. Same suite asserts the privacy invariant: `JSON.stringify(patient)` does NOT match `/"name":/`, `/"address":/`, `/"telecom":/`, `/"birthDate":\s*"\d{4}-\d{2}-\d{2}"/` (day-precision form). Year-only `"birthDate": "1970"` IS allowed.
+  *Files:* new `src/__tests__/export-fhir.test.ts`, new `src/lib/exportFhir/validate.ts`, dependency: `ajv` + bundled FHIR R4 schema.
+  *Verify:* `npx vitest run src/__tests__/export-fhir.test.ts` exits 0; valid Bundle passes; intentionally-malformed Bundle rejected; zero-PHI grep-assertions pass against the seed-state Patient.
 
 ## v2 Requirements
 
@@ -247,7 +297,13 @@ The 2026-05-18 comprehensive audit (`CODE-REVIEW.md` + `SEO-REVIEW.md` + `UI-REV
 | Phase 11: WCAG 2.1 AA baseline | A11Y-01, A11Y-02, A11Y-03, A11Y-04 |
 | Phase 12: SEO config + technical fixes | SEO-M3-01, SEO-M3-02, SEO-M3-03 |
 
-All 33 v1 requirements (9 STAB + 6 DTUX + 18 M3) mapped. Coverage: 100%.
+### Clinical Polish + Interop milestone (Phases 13–)
+
+| Phase | Requirements |
+|-------|--------------|
+| Phase 13: Clinical Export Package | PKG-01, PKG-02, PKG-03, PKG-04, PKG-05, FHIR-EX-01, FHIR-EX-02, FHIR-EX-03 |
+
+All 41 v1 requirements (9 STAB + 6 DTUX + 18 M3 + 5 PKG + 3 FHIR-EX) mapped. Coverage: 100%.
 
 ---
-*Requirements defined: 2026-05-14 (Stabilization). Desktop & Tablet UX milestone added 2026-05-14. Medical-Grade Closure milestone added 2026-05-18.*
+*Requirements defined: 2026-05-14 (Stabilization). Desktop & Tablet UX milestone added 2026-05-14. Medical-Grade Closure milestone added 2026-05-18. Clinical Polish + Interop milestone added 2026-05-18.*

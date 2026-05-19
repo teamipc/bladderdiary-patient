@@ -2,13 +2,15 @@
 
 ## Overview
 
-Three milestones tracked in this roadmap.
+Four milestones tracked in this roadmap.
 
 **Milestone 1 — Stabilization (Phases 1–4):** Closes silent-bug gaps surfaced by the codebase audit (`.planning/codebase/CONCERNS.md`, committed cd3de78). All work is correction of existing features that mis-behave for some subset of patients — no new user-visible features. Phases are grouped by failure class so each phase's fixes share verification surface and regression risk. All 4 phases complete (2026-05-14 through 2026-05-17).
 
 **Milestone 2 — Desktop & Tablet UX (Phases 5–8):** Brings the patient app to "Airbnb-grade browser experience" at desktop + tablet widths without losing the boomer-safe mobile UX it already has. Today the app is mobile-first and does not adapt for browsers wider than ~768px (forms span 100% viewport, BottomNav stays pinned at the bottom of a 1920px monitor, no keyboard navigation anywhere). Phases are ordered foundation → forms → per-page → polish so the lower phases lock in container patterns + chrome behavior the upper phases build on. All 4 phases complete (2026-05-15 through 2026-05-17).
 
 **Milestone 3 — Medical-Grade Closure (Phases 9–12):** Closes the gaps surfaced by the comprehensive 2026-05-18 between-milestones audit (`.planning/audits/2026-05-18-comprehensive-audit/FINDINGS.md`). Three Critical findings are live in production right now (PT/ZH/AR article-card 404, PDF English-only for non-EN/FR/ES locales, no `<h1>` on diary day pages); two more are clinical-record-integrity bugs (Discard actually saves in 3 log forms); one is an untracked-config landmine (now deleted). This milestone gets the app to medical-grade quality across all 6 locales with WCAG 2.1 AA accessibility and clinical-record-integrity guarantees. Phases are ordered production-impact-first: locale parity → record integrity → a11y baseline → SEO technical fixes.
+
+**Milestone 4 — Clinical Polish + Interop (Phases 13–):** Opens the ceiling features after M3 closes the floor. Phase 13 ships tier-1 EHR interop via a FHIR R4 `Bundle` export sidecar — clinician at an Epic site uploads one file into the patient's chart instead of retyping. Subsequent phases (TBD) will cover the "flagship polish" axes the 2026-05-18 audit deferred: onboarding empathy beats, diary micro-interactions, summary celebration, motion system. M4 is open-ended by design — phase count grows as priorities settle post-M3.
 
 ## Phases
 
@@ -34,9 +36,13 @@ Three milestones tracked in this roadmap.
 ### Medical-Grade Closure (Milestone 3)
 
 - [x] **Phase 9: Locale parity production-hotfix** — Fix article-card 404 in PT/ZH/AR (regex strips only en/fr/es), localize clinical PDF export for PT/ZH/AR including CJK + Arabic Unicode font registration, eliminate hardcoded English strings in EN/FR/ES PDFs, localize TimePicker bedtime preset chips, source + wire author profile photos (shipped 2026-05-18; 8 commits c46b5d5..9f09827)
-- [ ] **Phase 10: Clinical record integrity** — Remove autosave-on-unmount from Log{Void,Drink,Leak}Form so Discard actually discards, finish eliminating browser-local-time leaks (NextStepBanner, reminders.ts), fix `removeWakeTime` FMV recomputation, Day-1 filter in observations.ts caffeine pattern detection, regression-test the autosave class
+- [x] **Phase 10: Clinical record integrity** — Remove autosave-on-unmount from Log{Void,Drink,Leak}Form so Discard actually discards, finish eliminating browser-local-time leaks (NextStepBanner, reminders.ts), fix `removeWakeTime` FMV recomputation, Day-1 filter in observations.ts caffeine pattern detection, regression-test the autosave class (shipped 2026-05-18; 4 commits e0bbbbc..97840ed; 35 new tests)
 - [ ] **Phase 11: WCAG 2.1 AA baseline** — Add `<h1>` to every page, announce Toast via `role="status"` / `aria-live`, add skip-to-content link, reposition ConfirmDialog destructive button + autoFocus Cancel + Enter activates Cancel
 - [ ] **Phase 12: SEO config + technical fixes** — Fix BreadcrumbList JSON-LD (consistent URLs, Title-Case names), restore bare-root indexability (currently JS-only shell), expand audience landing intros to 600-word spec target. (Cluster authoring for bph/frequency/urgency pillars runs on a parallel SEO content workstream, NOT in this phase.)
+
+### Clinical Polish + Interop (Milestone 4)
+
+- [ ] **Phase 13: Clinical Export Package (PDF + CSV + FHIR + README)** — Replace the current 3-button export with a single hero "Send to healthcare team" action that generates `myflowcheck-<date>.zip` containing all formats: `01-clinical-report.pdf`, `02-events.csv`, `03-emr-bundle.fhir.json` (LOINC-coded FHIR R4 with skeletal Patient — no PHI), and `README.txt` (locale-aware, EHR-specific upload instructions for Epic / Prompt / Cerner / Allscripts). Existing individual buttons demote to "More options". Tier-1 EHR interop without scrambling — Epic clinicians grab the FHIR; Prompt/PT clinicians grab the PDF; Excel users grab the CSV; all from the same single download. (SMART on FHIR launch + direct EHR write-back are explicitly out of scope — App Orchard / OAuth-server territory; this app stays static-export.)
 
 ## Phase Details
 
@@ -279,10 +285,28 @@ Plans:
 Plans:
 - [ ] 12-NN: TBD (created by `/gsd-plan-phase 12`)
 
+### Phase 13: Clinical Export Package (PDF + CSV + FHIR + README)
+**Milestone**: Clinical Polish + Interop (Milestone 4)
+**Goal**: A patient completes a 3-day diary, taps "Send to healthcare team", and the share sheet offers a single zip (`myflowcheck-<date>.zip`) containing PDF + CSV + FHIR R4 Bundle + a README with EHR-specific upload instructions. The clinician on the other end opens the zip, picks the file that matches their EHR (PDF for Prompt / paper; CSV for Excel; FHIR for Epic / Cerner / Allscripts; README for "what do I do with this"), and finishes their workflow without scrambling. Tier-1 EHR interop with zero new infrastructure on our side.
+**Depends on**: Nothing (independent of M3; touches new modules `src/lib/exportPackage/` + `src/lib/exportFhir/` + UI reshape of `<ExportActions>`)
+**Requirements**: PKG-01, PKG-02, PKG-03, PKG-04, PKG-05, FHIR-EX-01, FHIR-EX-02, FHIR-EX-03
+**Success Criteria** (what must be TRUE):
+  1. `<ExportActions>` renders a primary "Send to healthcare team" hero CTA above a collapsed "More options" disclosure with the existing CSV / PDF / Share buttons. Clicking the hero generates `myflowcheck-<date>.zip` client-side (no server).
+  2. Zip contains exactly 4 files: `01-clinical-report.pdf` (byte-identical to current standalone PDF), `02-events.csv` (byte-identical), `03-emr-bundle.fhir.json` (new FHIR R4 Bundle), `README.txt` (locale-aware, EHR upload instructions).
+  3. Web Share API: on mobile, the system share sheet receives the zip — Mail, Messages, Doximity, AirDrop all work as recipients. Desktop: regular `.zip` download.
+  4. README.txt in each of 6 locales: opens with what the package is, lists 4 files with one-line descriptions, gives EHR-specific upload instructions for Epic / Prompt / Cerner / Allscripts / athenahealth / "other or paper", 80-char wrapped, fax-friendly.
+  5. FHIR Bundle inside validates against FHIR R4 schema via `ajv` in vitest CI; zero PHI in `Patient` resource (no name, MRN, day-precision birthDate, address, telecom); LOINC codes resolve; UCUM `mL` units.
+  6. Individual CSV / PDF / Share buttons still functional behind the "More options" disclosure — no regression on the current export paths.
+  7. (Manual checkpoint) Clinician test-uploads the FHIR file into an Epic sandbox + sees events in the patient's flowsheet without manual data entry. User responsibility; Epic sandbox access not provided by this app.
+**Plans**: TBD (planner produces; expected 5 plans — FHIR generator core (types, Bundle assembler, Patient + Observation builders, LOINC registry); FHIR generator (QuestionnaireResponse + clinical metrics encoding + ajv validation suite); Package zip generator + README authoring (EN canonical + 5-locale translations); `<ExportActions>` UI reshape (hero CTA + More options disclosure + Web Share API + responsive behavior); Verification (vitest + Playwright spec covering hero CTA flow / zip contents / share-sheet behavior + Epic-sandbox manual checkpoint))
+
+Plans:
+- [ ] 13-NN: TBD (created by `/gsd-plan-phase 13`)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12. Within Milestone 3, Phase 12 (SEO technical fixes) is fully independent and may run in parallel with Phases 9/10/11.
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13. Within Milestone 3, Phase 12 (SEO technical fixes) is fully independent and may run in parallel with Phases 9/10/11. Phase 13 (M4 Clinical Polish + Interop) is independent of M3 entirely and may overlap with M3's tail.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -294,8 +318,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Diary forms + keyboard navigation | Desktop & Tablet UX | 11/11 | Complete | 2026-05-16 |
 | 7. Onboarding + Summary surfaces | Desktop & Tablet UX | 4/4 | Complete | 2026-05-17 |
 | 8. Cross-locale visual QA + polish | Desktop & Tablet UX | 4/4 | Complete | 2026-05-17 |
-| 9. Locale parity production-hotfix | Medical-Grade Closure | 0/TBD | Not started | - |
-| 10. Clinical record integrity | Medical-Grade Closure | 0/4 | Planning complete (2026-05-18) | - |
+| 9. Locale parity production-hotfix | Medical-Grade Closure | 6/6 | Complete | 2026-05-18 (8 commits c46b5d5..9f09827, pushed) |
+| 10. Clinical record integrity | Medical-Grade Closure | 4/4 | Complete | 2026-05-18 (4 commits e0bbbbc..97840ed; 35 new tests; 530/531 vitest passing) |
 | 11. WCAG 2.1 AA baseline | Medical-Grade Closure | 0/4 | Planning complete (2026-05-18) | - |
-| 12. SEO config + technical fixes | Medical-Grade Closure | 0/TBD | Not started | - |
-</content>
+| 12. SEO config + technical fixes | Medical-Grade Closure | 0/4 | Planning complete (2026-05-18) | - |
+| 13. Clinical Export Package (PDF + CSV + FHIR + README) | Clinical Polish + Interop | 0/TBD | Scaffolded 2026-05-18 (reframed from "FHIR button" → "send-to-clinician package"); awaiting M3 close-out before planner runs | - |
