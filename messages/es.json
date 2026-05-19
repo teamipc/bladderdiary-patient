@@ -323,6 +323,13 @@
       "body": "Primero tómese un momento con esto. Después, cuando esté listo, comparta su reporte con su profesional de salud.",
       "dismiss": "Entendido"
     },
+    "ipcMetrics": {
+      "regionLabel": "Indicadores clínicos",
+      "twentyFourHV": "Volumen de 24 h",
+      "nPi": "Proporción nocturna",
+      "avv": "Micción promedio",
+      "mvv": "Micción mayor"
+    },
     "storyTitle": "Lo que entra, lo que sale",
     "storyBody": "Piense en su cuerpo como un lavabo. El agua entra, el agua sale. Este es el ritmo de sus tres días. Las gotitas de abajo son las visitas al baño. Las tazas de arriba son las bebidas.",
     "observationsTitle": "Lo que notamos",

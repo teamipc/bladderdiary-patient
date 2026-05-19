@@ -323,6 +323,13 @@
       "body": "Prenez d'abord un moment pour vous. Ensuite, quand vous serez prêt, partagez votre rapport avec votre professionnel de santé.",
       "dismiss": "J'ai compris"
     },
+    "ipcMetrics": {
+      "regionLabel": "Indicateurs cliniques",
+      "twentyFourHV": "Volume 24 h",
+      "nPi": "Part de la nuit",
+      "avv": "Miction moyenne",
+      "mvv": "Plus grande miction"
+    },
     "storyTitle": "Ce qui entre, ce qui sort",
     "storyBody": "Imaginez votre corps comme un évier. L'eau entre, l'eau sort. Voici le rythme de vos trois jours. Les petites gouttes en bas représentent les passages aux toilettes. Les tasses en haut, les boissons.",
     "observationsTitle": "Ce que nous avons remarqué",

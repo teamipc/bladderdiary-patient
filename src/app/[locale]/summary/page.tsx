@@ -9,6 +9,7 @@ import ExportActions from '@/components/export/ExportActions';
 import DrinkVoidTimeline from '@/components/summary/DrinkVoidTimeline';
 import SummaryObservations, { keyToCopy as observationToCopy } from '@/components/summary/SummaryObservations';
 import CompletionHero from '@/components/summary/CompletionHero';
+import IpcMetricsBlock from '@/components/summary/IpcMetricsBlock';
 import Button from '@/components/ui/Button';
 import { HelpCircle, Lock, AlertTriangle, ChevronLeft, CheckCircle2, Sparkles } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
@@ -226,6 +227,21 @@ export default function SummaryPage() {
         style={{ animationDelay: '220ms', animationFillMode: 'forwards' }}
       >
         <ExportActions pdfOnly shimmer />
+      </section>
+
+      {/* IPC CLINICAL METRICS - Phase 16 CEL-02. Four animated count-up tiles
+          (24HV / NPi / AVV / MVV) reveal sequentially after the top CTA. The
+          visual ordering hero CTA then metrics satisfies Phase 16 CEL-04
+          "Phase 13 hero CTA pinned above the fold" via vertical stacking,
+          not via CSS position:sticky. The fade-in delay of 260ms lands the
+          section 40ms after the top-CTA's 220ms so the metrics emerge just
+          after the CTA finishes appearing; the rAF count-up cascade inside
+          AnimatedMetric is independent of this CSS fade. */}
+      <section
+        className="animate-fade-slide-up opacity-0"
+        style={{ animationDelay: '260ms', animationFillMode: 'forwards' }}
+      >
+        <IpcMetricsBlock />
       </section>
 
       {/* Data warning if entries are missing */}

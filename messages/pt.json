@@ -323,6 +323,13 @@
       "body": "Fica primeiro um momento com isto. Depois, quando estiveres pronto, partilha o teu relatório com o teu profissional de saúde.",
       "dismiss": "Percebi"
     },
+    "ipcMetrics": {
+      "regionLabel": "Indicadores clínicos",
+      "twentyFourHV": "Volume de 24 h",
+      "nPi": "Proporção noturna",
+      "avv": "Micção média",
+      "mvv": "Maior micção"
+    },
     "storyTitle": "O que entra, o que sai",
     "storyBody": "Pensa no teu corpo como um lavatório. A água entra, a água sai. Em baixo está o ritmo dos teus três dias. As gotinhas em baixo mostram os chichis. As chávenas em cima mostram as bebidas.",
     "observationsTitle": "O que reparámos nas tuas notas",
