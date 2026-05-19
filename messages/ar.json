@@ -90,6 +90,14 @@
     "privacyGraphicLabel": "بياناتك تبقى على هذا الجهاز.",
     "privacyDisclosureLabel": "كيف تتم حماية بياناتي؟"
   },
+  "sampleExport": {
+    "docTitle": "يوميات المثانة لمدة 3 أيام",
+    "docSection": "ملخص يومي",
+    "docMetricLabel": "حجم البول خلال 24 ساعة",
+    "docMetricUnit": "مل / يوم",
+    "caption": "سيرى مختص الرعاية الصحية شيئاً مشابهاً لهذا عند انتهائك.",
+    "label": "معاينة لتقرير PDF الذي سيستلمه مختص الرعاية الصحية"
+  },
   "onboarding": {
     "ageTitle": "كم عمرك؟",
     "ageSubtitle": "هذه معلومة مفيدة لمختص الرعاية الصحية.",
@@ -101,7 +109,12 @@
     "trackingPeriodLabel": "فترة التتبع لمدة 3 أيام",
     "timezoneChange": "تغيير",
     "timezonePickerTitle": "اختر منطقتك الزمنية",
-    "confirmAndStart": "تأكيد والبدء"
+    "confirmAndStart": "تأكيد والبدء",
+    "timeEstimate": {
+      "step1": "حوالي 10 ثوانٍ",
+      "step2": "حوالي 10 ثوانٍ",
+      "step3": "حوالي 30 ثانية"
+    }
   },
   "timeline": {
     "goodEvening": "مساء الخير!",

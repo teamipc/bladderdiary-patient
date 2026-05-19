@@ -23,6 +23,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { track } from '@vercel/analytics';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 import WelcomePanel from '@/components/onboarding/WelcomePanel';
+import SampleExportPreview from '@/components/onboarding/SampleExportPreview';
 import Container from '@/components/layout/Container';
 import IpcInfoModal from '@/components/ui/IpcInfoModal';
 import { getCurrentDay } from '@/lib/utils';
@@ -184,8 +185,16 @@ function LandingContent() {
       />
 
       <Container variant="narrow" as="div" noPadding className="px-6 sm:px-6 pb-12 flex flex-col items-center">
+        {/* Phase 14 EM-03. Sample-export preview. Static SVG silhouette of the
+            clinician-ready PDF first page, plus a translated caption. Sits
+            between the welcome surface above and the PWA install prompt
+            below, so the patient sees the deliverable before they invest. */}
+        <div className="w-full md:max-w-md animate-fade-slide-up stagger-3">
+          <SampleExportPreview />
+        </div>
+
         {!isInstalled && (canPrompt || isIos) && (
-          <div className="w-full mt-2 animate-fade-slide-up stagger-4">
+          <div className="w-full mt-6 animate-fade-slide-up stagger-4">
             <div className="p-4 rounded-2xl bg-ipc-50 border border-ipc-100">
               {canPrompt ? (
                 <>

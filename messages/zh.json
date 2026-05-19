@@ -90,6 +90,14 @@
     "privacyGraphicLabel": "你的数据只留在这台设备上。",
     "privacyDisclosureLabel": "我的数据是怎么受到保护的?"
   },
+  "sampleExport": {
+    "docTitle": "3 天排尿日记",
+    "docSection": "每日摘要",
+    "docMetricLabel": "24 小时排尿量",
+    "docMetricUnit": "毫升 / 天",
+    "caption": "完成后,你的医疗专业人员大致会看到这样的内容。",
+    "label": "你的医疗专业人员将收到的 PDF 报告预览"
+  },
   "onboarding": {
     "ageTitle": "你多大了?",
     "ageSubtitle": "这对你的医生来说是有用的信息。",
@@ -101,7 +109,12 @@
     "trackingPeriodLabel": "你的 3 天追踪期",
     "timezoneChange": "更改",
     "timezonePickerTitle": "选择你的时区",
-    "confirmAndStart": "确认并开始"
+    "confirmAndStart": "确认并开始",
+    "timeEstimate": {
+      "step1": "约 10 秒",
+      "step2": "约 10 秒",
+      "step3": "约 30 秒"
+    }
   },
   "timeline": {
     "goodEvening": "晚上好!",

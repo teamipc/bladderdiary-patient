@@ -90,6 +90,14 @@
     "privacyGraphicLabel": "Os teus dados ficam neste dispositivo.",
     "privacyDisclosureLabel": "Como são protegidos os meus dados?"
   },
+  "sampleExport": {
+    "docTitle": "Diário miccional de 3 dias",
+    "docSection": "Resumo diário",
+    "docMetricLabel": "Volume nas 24 horas",
+    "docMetricUnit": "mL / dia",
+    "caption": "O teu profissional de saúde verá algo assim quando terminares.",
+    "label": "Pré-visualização do relatório PDF que o teu profissional de saúde irá receber"
+  },
   "onboarding": {
     "ageTitle": "Qual é a tua idade?",
     "ageSubtitle": "Esta informação será útil para o teu profissional de saúde.",
@@ -101,7 +109,12 @@
     "trackingPeriodLabel": "O teu período de registo de 3 dias",
     "timezoneChange": "Alterar",
     "timezonePickerTitle": "Seleciona o teu fuso horário",
-    "confirmAndStart": "Confirmar e começar"
+    "confirmAndStart": "Confirmar e começar",
+    "timeEstimate": {
+      "step1": "~10 segundos",
+      "step2": "~10 segundos",
+      "step3": "~30 segundos"
+    }
   },
   "timeline": {
     "goodEvening": "Boa noite!",

@@ -99,6 +99,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           <span className="text-[11px] font-semibold tracking-wide text-ipc-400 uppercase">
             {tc('stepOf', { current: step, total: 3 })}
           </span>
+          {/* Phase 14 EM-04. Per-step time estimate. Subtle, secondary signal
+              that sets the expectation. Not a feature; not a countdown. */}
+          <span className="text-xs text-ipc-500 mt-1">
+            {t(`timeEstimate.step${step}` as const)}
+          </span>
         </div>
 
         {/* Step 1: Age */}

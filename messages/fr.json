@@ -90,6 +90,14 @@
     "privacyGraphicLabel": "Vos données restent sur cet appareil.",
     "privacyDisclosureLabel": "Comment mes données sont-elles protégées ?"
   },
+  "sampleExport": {
+    "docTitle": "Journal mictionnel sur 3 jours",
+    "docSection": "Résumé quotidien",
+    "docMetricLabel": "Volume sur 24 heures",
+    "docMetricUnit": "mL / jour",
+    "caption": "Votre professionnel de santé verra quelque chose comme ceci une fois que vous aurez terminé.",
+    "label": "Aperçu du rapport PDF que recevra votre professionnel de santé"
+  },
   "onboarding": {
     "ageTitle": "Quel est votre âge ?",
     "ageSubtitle": "Cette information sera utile pour votre professionnel de santé.",
@@ -101,7 +109,12 @@
     "trackingPeriodLabel": "Votre période de suivi de 3 jours",
     "timezoneChange": "Modifier",
     "timezonePickerTitle": "Sélectionnez votre fuseau horaire",
-    "confirmAndStart": "Confirmer et commencer"
+    "confirmAndStart": "Confirmer et commencer",
+    "timeEstimate": {
+      "step1": "~10 secondes",
+      "step2": "~10 secondes",
+      "step3": "~30 secondes"
+    }
   },
   "timeline": {
     "goodEvening": "Bonsoir !",

@@ -90,6 +90,14 @@
     "privacyGraphicLabel": "Your data stays on this device.",
     "privacyDisclosureLabel": "How is my data protected?"
   },
+  "sampleExport": {
+    "docTitle": "3-Day Bladder Diary",
+    "docSection": "Daily Summary",
+    "docMetricLabel": "24-hour volume",
+    "docMetricUnit": "mL / day",
+    "caption": "Your clinician will see something like this when you're done.",
+    "label": "Preview of the PDF report your clinician receives"
+  },
   "onboarding": {
     "ageTitle": "What's your age?",
     "ageSubtitle": "This is useful information for your health professional.",
@@ -101,7 +109,12 @@
     "trackingPeriodLabel": "Your 3-day tracking period",
     "timezoneChange": "Change",
     "timezonePickerTitle": "Select your timezone",
-    "confirmAndStart": "Confirm & Start"
+    "confirmAndStart": "Confirm & Start",
+    "timeEstimate": {
+      "step1": "~10 seconds",
+      "step2": "~10 seconds",
+      "step3": "~30 seconds"
+    }
   },
   "timeline": {
     "goodEvening": "Good evening!",
