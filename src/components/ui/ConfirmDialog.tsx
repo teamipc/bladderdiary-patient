@@ -24,7 +24,7 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  const confirmBtnRef = useRef<HTMLButtonElement>(null);
+  const cancelBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -42,6 +42,18 @@ export default function ConfirmDialog({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onCancel]);
+
+  useEffect(() => {
+    if (!open) return;
+    // Programmatic backup focus on Cancel — autoFocus on the JSX element
+    // handles the common case; this useEffect catches edge cases where
+    // React skips autoFocus on conditional re-mounts (rare but observed
+    // in React 19 when the same component instance toggles open/closed).
+    const t = window.setTimeout(() => {
+      cancelBtnRef.current?.focus();
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [open]);
 
   if (!open) return null;
 
@@ -65,18 +77,19 @@ export default function ConfirmDialog({
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={onCancel}
-              className="flex-1 min-h-[48px] px-4 rounded-xl font-semibold text-base bg-ipc-50 text-ipc-800 border border-ipc-200 active:scale-[0.97] transition-all"
-            >
-              {cancelLabel}
-            </button>
-            <button
-              ref={confirmBtnRef}
-              type="button"
               onClick={onConfirm}
               className={`flex-1 min-h-[48px] px-4 rounded-xl font-semibold text-base transition-all ${confirmClass}`}
             >
               {confirmLabel}
+            </button>
+            <button
+              ref={cancelBtnRef}
+              type="button"
+              onClick={onCancel}
+              autoFocus
+              className="flex-1 min-h-[48px] px-4 rounded-xl font-semibold text-base bg-ipc-50 text-ipc-800 border border-ipc-200 active:scale-[0.97] transition-all"
+            >
+              {cancelLabel}
             </button>
           </div>
         </div>
