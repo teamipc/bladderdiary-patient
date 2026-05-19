@@ -254,11 +254,11 @@ Tier-1 EHR interop and flagship-grade polish. Phase 13 (Clinical Export Package)
 
 The first-time-patient onboarding flow gains a sequence of reassuring beats above the existing wizard. All boomer-safe (no confetti, no sound, 200ms motion cap, `prefers-reduced-motion` honored). See `.planning/phases/14-onboarding-empathy-beats/14-CONTEXT.md`.
 
-- [ ] **EM-01** — Welcome panel framing the value above the wizard (`/{locale}` first-paint).
-- [ ] **EM-02** — Animated privacy reassurance graphic (cloud-with-strike "stays on device") in a collapsible disclosure.
-- [ ] **EM-03** — Sample-export PDF thumbnail preview showing the clinician's deliverable upfront.
-- [ ] **EM-04** — Per-step time estimate ("~30 seconds") in each wizard step's copy; 6-locale parity.
-- [ ] **EM-05** — Step-completion micro-celebration (subtle checkmark glow + step-indicator advance with motion); NO confetti.
+- [x] **EM-01** — Welcome panel framing the value above the wizard (`/{locale}` first-paint). ✅ shipped Phase 14 (commit 4d05361, WelcomePanel + PrivacyGraphic)
+- [x] **EM-02** — Animated privacy reassurance graphic (cloud-with-strike "stays on device") in a collapsible disclosure. ✅ shipped Phase 14 (commit 4d05361, custom inline SVG with drawStrike keyframe)
+- [x] **EM-03** — Sample-export PDF thumbnail preview showing the clinician's deliverable upfront. ✅ shipped Phase 14 (commit 63aeb0d, locale-aware static SVG)
+- [x] **EM-04** — Per-step time estimate ("~30 seconds") in each wizard step's copy; 6-locale parity. ✅ shipped Phase 14 (commit 63aeb0d, ~10s/~10s/~30s × 6 locales)
+- [x] **EM-05** — Step-completion micro-celebration (subtle checkmark glow + step-indicator advance with motion); NO confetti. ✅ shipped Phase 14 (commit 140ece8, ring-halo + stepPulse keyframe)
 
 #### Diary Micro-Interactions (Phase 15)
 
