@@ -12,6 +12,7 @@ import { useDiaryStore } from '@/lib/store';
 import { generateObservations } from '@/lib/observations';
 import type { ObservationKey } from '@/lib/observations';
 import { Sparkles } from 'lucide-react';
+import ObservationCardReveal from './ObservationCardReveal';
 
 interface SummaryObservationsProps {
   /** Observation keys to skip (used when one is already shown as the top standout). */
@@ -34,9 +35,11 @@ export default function SummaryObservations({ omitKeys = [] }: SummaryObservatio
         <div className="flex-1">
           <p className="text-sm font-semibold text-ipc-800 mb-2">{t('observationsTitle')}</p>
           <ul className="space-y-2">
-            {observations.map((o) => (
+            {observations.map((o, i) => (
               <li key={o.key} className="text-sm text-ipc-700 leading-relaxed">
-                {keyToCopy(o, t)}
+                <ObservationCardReveal index={i}>
+                  {keyToCopy(o, t)}
+                </ObservationCardReveal>
               </li>
             ))}
           </ul>

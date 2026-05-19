@@ -278,7 +278,9 @@ export default function SummaryPage() {
 
       {/* OBSERVATIONS — gentle, plain-English. The top-standout already
           surfaced the strongest observation, so omit its key here to avoid
-          repeating the same line at the top and the middle of the page. */}
+          repeating the same line at the top and the middle of the page.
+          Phase 16 CEL-03 — observation cards reveal sequentially via
+          IntersectionObserver inside SummaryObservations. */}
       <section
         className="animate-fade-slide-up opacity-0"
         style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}
