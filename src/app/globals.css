@@ -175,6 +175,27 @@ input, select, textarea {
   to { opacity: 1; }
 }
 
+/* Phase 17 MOT-03 — page-to-page transition for the diary flow.
+   Cross-fade + 4px upward slide on every route change between
+   /diary/day/N pages and /summary. Triggered by PageTransitionWrapper
+   re-mounting its root div via `key={pathname}` on every pathname
+   change — CSS keyframes fire on element creation, so the new mount
+   re-fires the animation cleanly without imperative restart hacks.
+
+   Duration: var(--duration-normal) (180ms, Phase 17 token).
+   Easing: var(--ease-decelerated) (entrance — slows into rest).
+   Transform: translateY 4px → 0 (subtle physical continuity; no
+   horizontal slide that would feel like a swipe gesture; no scale
+   that would feel like a zoom). Opacity is the primary effect; slide
+   is the accent. RTL-safe (Y-axis is direction-neutral).
+
+   prefers-reduced-motion handled by the global rule at lines 141-150
+   (collapses animation-duration to 0.01ms). */
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes modalIn {
   from {
     opacity: 0;
@@ -200,6 +221,14 @@ input, select, textarea {
 
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out both;
+}
+
+/* Phase 17 MOT-03 — companion utility for the pageFadeIn keyframe.
+   Consumed by PageTransitionWrapper at the diary day-N layout and
+   the summary layout. Tokens are the Phase 17 canonical motion
+   vocabulary (var(--duration-normal), var(--ease-decelerated)). */
+.animate-page-fade-in {
+  animation: pageFadeIn var(--duration-normal) var(--ease-decelerated) both;
 }
 
 /* Desktop modal slide-in — used by BottomSheet at md+ via md:animate-modal-in.
