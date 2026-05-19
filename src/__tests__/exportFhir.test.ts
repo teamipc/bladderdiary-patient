@@ -396,7 +396,7 @@ describe('Task 5 (index.ts): generateFhirBundle', () => {
     expect(b.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
   });
 
-  it('orders entries: Patient first, then Observations', () => {
+  it('orders entries: Patient, QuestionnaireResponse, then Observations', () => {
     const state = baseState({
       voids: [voidEntry({ id: 'v-1' }), voidEntry({ id: 'v-2' })],
       drinks: [drinkEntry({ id: 'd-1' })],
@@ -405,22 +405,24 @@ describe('Task 5 (index.ts): generateFhirBundle', () => {
     const b = generateFhirBundle(state);
 
     expect(b.entry[0].resource.resourceType).toBe('Patient');
+    // 13-02 inserts QR at entry[1] between Patient and Observations.
+    expect(b.entry[1].resource.resourceType).toBe('QuestionnaireResponse');
     // Then observations in deterministic order: voids, drinks, leaks.
-    expect(b.entry[1].resource.resourceType).toBe('Observation');
-    expect((b.entry[1].resource as FhirObservation).id).toBe('void-v-1');
-    expect((b.entry[2].resource as FhirObservation).id).toBe('void-v-2');
-    expect((b.entry[3].resource as FhirObservation).id).toBe('drink-d-1');
-    expect((b.entry[4].resource as FhirObservation).id).toBe('leak-l-1');
+    expect(b.entry[2].resource.resourceType).toBe('Observation');
+    expect((b.entry[2].resource as FhirObservation).id).toBe('void-v-1');
+    expect((b.entry[3].resource as FhirObservation).id).toBe('void-v-2');
+    expect((b.entry[4].resource as FhirObservation).id).toBe('drink-d-1');
+    expect((b.entry[5].resource as FhirObservation).id).toBe('leak-l-1');
   });
 
-  it('entry count is 1 + N voids + M drinks + L leaks (13-01: no QR)', () => {
+  it('entry count is 2 + N voids + M drinks + L leaks (Patient + QR + Observations)', () => {
     const state = baseState({
       voids: [voidEntry({ id: 'v-1' }), voidEntry({ id: 'v-2' }), voidEntry({ id: 'v-3' })],
       drinks: [drinkEntry({ id: 'd-1' })],
       leaks: [leakEntry({ id: 'l-1' }), leakEntry({ id: 'l-2' })],
     });
     const b = generateFhirBundle(state);
-    expect(b.entry).toHaveLength(1 + 3 + 1 + 2);
+    expect(b.entry).toHaveLength(2 + 3 + 1 + 2);
   });
 
   it('every entry has a unique urn:uuid: fullUrl', () => {
@@ -447,7 +449,8 @@ describe('Task 5 (index.ts): generateFhirBundle', () => {
     const b = generateFhirBundle(state);
     const patient = b.entry[0].resource as FhirPatient;
     expect(patient.id).toBe('patient-1');
-    for (let i = 1; i < b.entry.length; i++) {
+    // Observations start at index 2 after 13-02 inserts the QR at index 1.
+    for (let i = 2; i < b.entry.length; i++) {
       const obs = b.entry[i].resource as FhirObservation;
       expect(obs.subject.reference).toBe(`Patient/${patient.id}`);
     }
@@ -473,10 +476,11 @@ describe('Task 5 (index.ts): generateFhirBundle', () => {
     }
   });
 
-  it('Bundle with empty state produces just a Patient entry', () => {
+  it('Bundle with empty state produces Patient + QR entries (13-02: QR always present)', () => {
     const b = generateFhirBundle(baseState());
-    expect(b.entry).toHaveLength(1);
+    expect(b.entry).toHaveLength(2);
     expect(b.entry[0].resource.resourceType).toBe('Patient');
+    expect(b.entry[1].resource.resourceType).toBe('QuestionnaireResponse');
   });
 
   it('JSON.stringify round-trips without loss', () => {
@@ -497,7 +501,8 @@ describe('Task 5 (index.ts): generateFhirBundle', () => {
     expect(patient.birthDate).toBe(String(new Date().getFullYear() - 55));
     expect(patient.identifier![0].value).toBe('IPC-2026');
 
-    const voidObs = roundTrip.entry[1].resource as FhirObservation;
+    // After 13-02 inserts QR at entry[1], voids start at entry[2].
+    const voidObs = roundTrip.entry[2].resource as FhirObservation;
     expect(voidObs.valueQuantity!.value).toBe(330);
   });
 });

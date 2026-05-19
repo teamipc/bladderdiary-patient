@@ -80,12 +80,39 @@ export interface FhirObservation {
   note?: { text: string }[];
 }
 
-/** Stub for 13-01. 13-02 fleshes this out with IPC clinical metrics + per-day
- *  diary structure. Kept as an open index signature so the BundleEntry union
- *  compiles in 13-01 without forcing 13-02's shape decisions now. */
+// QuestionnaireResponse. FHIR R4 narrative resource for "patient diary"
+// summary data (IPC clinical metrics + per-day bedtime/wake markers).
+//
+// Per RESEARCH 'Clinical metrics' (FHIR-canonical answer to CONTEXT
+// Open Question #1): computed values like 24HV/NPi/AVV/MVV/NBC are
+// assessment data, not direct measurements. They go here, not in
+// separate Observation resources.
+//
+// We ship the QR only. The corresponding Questionnaire (which would
+// define the linkId catalog) is out of scope. linkIds are self
+// describing kebab-case strings.
 export interface FhirQuestionnaireResponse {
   resourceType: 'QuestionnaireResponse';
-  [k: string]: unknown;
+  id: string;
+  status: 'completed';
+  subject: FhirReference;
+  authored: string; // ISO 8601 UTC
+  item: FhirQuestionnaireResponseItem[];
+}
+
+/** One question + its answer(s) inside a QuestionnaireResponse. */
+export interface FhirQuestionnaireResponseItem {
+  linkId: string;
+  text?: string;
+  answer?: FhirQuestionnaireResponseAnswer[];
+}
+
+/** One answer value. Discriminated by which value* field is present. */
+export interface FhirQuestionnaireResponseAnswer {
+  valueDecimal?: number;
+  valueDateTime?: string; // ISO 8601 UTC
+  valueString?: string;
+  valueInteger?: number;
 }
 
 /** One entry in the Bundle. fullUrl is `urn:uuid:<crypto.randomUUID()>`. */

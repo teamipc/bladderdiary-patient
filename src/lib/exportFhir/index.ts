@@ -17,7 +17,9 @@
 
 import type { DiaryState } from '../types';
 import type { FhirBundle, FhirBundleEntry } from './types';
+import { computeMetrics } from '../calculations';
 import { buildPatient } from './patient';
+import { buildQuestionnaireResponse } from './questionnaireResponse';
 import {
   buildVoidObservation,
   buildDrinkObservation,
@@ -31,6 +33,8 @@ export type {
   FhirPatient,
   FhirObservation,
   FhirQuestionnaireResponse,
+  FhirQuestionnaireResponseItem,
+  FhirQuestionnaireResponseAnswer,
   FhirCoding,
   FhirCodeableConcept,
   FhirReference,
@@ -40,6 +44,7 @@ export type {
 
 /** Re-export the builders so test code + future plans can import directly. */
 export { buildPatient } from './patient';
+export { buildQuestionnaireResponse } from './questionnaireResponse';
 export {
   buildVoidObservation,
   buildDrinkObservation,
@@ -54,12 +59,8 @@ export {
  */
 export function generateFhirBundle(state: DiaryState): FhirBundle {
   const patient = buildPatient(state);
-
-  // 13-02 will insert the QuestionnaireResponse entry here (between Patient
-  // and the Observations). The extension point is: build qrEntry above the
-  // observationEntries, then concat [patientEntry, qrEntry, ...observationEntries].
-  // 13-01 omits the QR entry. Bundle is still a valid collection with just
-  // Patient + Observations.
+  const metrics = computeMetrics(state);
+  const qr = buildQuestionnaireResponse(state, metrics, patient.id);
 
   const observations = [
     ...state.voids.map((v) => buildVoidObservation(v, patient.id)),
@@ -71,6 +72,10 @@ export function generateFhirBundle(state: DiaryState): FhirBundle {
     fullUrl: `urn:uuid:${crypto.randomUUID()}`,
     resource: patient,
   };
+  const qrEntry: FhirBundleEntry = {
+    fullUrl: `urn:uuid:${crypto.randomUUID()}`,
+    resource: qr,
+  };
   const observationEntries: FhirBundleEntry[] = observations.map((o) => ({
     fullUrl: `urn:uuid:${crypto.randomUUID()}`,
     resource: o,
@@ -80,6 +85,6 @@ export function generateFhirBundle(state: DiaryState): FhirBundle {
     resourceType: 'Bundle',
     type: 'collection',
     timestamp: new Date().toISOString(),
-    entry: [patientEntry, ...observationEntries],
+    entry: [patientEntry, qrEntry, ...observationEntries],
   };
 }
