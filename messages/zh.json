@@ -227,6 +227,21 @@
     "label": "保存时震动",
     "help": "记录排尿、喝水或漏尿时发出一次短促震动。如果觉得干扰可以关闭。"
   },
+  "dayTransition": {
+    "day1Done": {
+      "title": "第 1 天完成。",
+      "subtitle": "还剩 2 天。"
+    },
+    "day2Done": {
+      "title": "第 2 天完成。",
+      "subtitle": "还剩 1 天。"
+    }
+  },
+  "fmvTooltip": {
+    "title": "这是你今天早上的第一次排尿。",
+    "body": "我们把它标记出来,因为这是医生最看重的一项记录。它告诉医生你的膀胱整夜储存了多少尿液。",
+    "dismiss": "明白了"
+  },
   "validation": {
     "beforePrevBedtime": "这个时间早于第 {dayNumber} 天的就寝时间({time})。请选一个晚一点的时间。",
     "beforeWakeUp": "这个时间早于起床时间({time})。白天的记录必须在起床之后。",

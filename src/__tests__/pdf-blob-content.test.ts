@@ -95,6 +95,7 @@ function buildMinimalDiaryState(): DiaryState {
     timeZone: 'America/New_York',
     morningAnchor: null,
     day1CelebrationShown: false,
+    fmvTooltipShown: false,
     voids: [
       {
         id: 'v1',

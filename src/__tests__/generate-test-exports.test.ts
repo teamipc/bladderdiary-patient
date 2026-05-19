@@ -39,6 +39,7 @@ const earlyRiser: DiaryState = {
   timeZone: 'UTC',
     morningAnchor: null,
     day1CelebrationShown: false,
+    fmvTooltipShown: false,
   leaks: [
     // Standalone leak on Day 2
     {
@@ -120,6 +121,7 @@ const nightShift: DiaryState = {
   timeZone: 'UTC',
     morningAnchor: null,
     day1CelebrationShown: false,
+    fmvTooltipShown: false,
   leaks: [
     // Standalone leaks
     {
@@ -210,6 +212,7 @@ const normalFull: DiaryState = {
   timeZone: 'UTC',
     morningAnchor: null,
     day1CelebrationShown: false,
+    fmvTooltipShown: false,
   leaks: [
     {
       id: uid('l', 20),

@@ -37,6 +37,7 @@ const patientA: DiaryState = {
   timeZone: 'UTC',
   morningAnchor: null,
   day1CelebrationShown: true,
+  fmvTooltipShown: false,
   leaks: [],
   voids: [
     // Day 1, Jan 22

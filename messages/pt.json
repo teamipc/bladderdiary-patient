@@ -227,6 +227,21 @@
     "label": "Vibrar ao guardar",
     "help": "Um pulso curto quando registas um chichi, uma bebida ou uma perda. Desativa se te incomodar."
   },
+  "dayTransition": {
+    "day1Done": {
+      "title": "Dia 1 concluído.",
+      "subtitle": "Faltam 2."
+    },
+    "day2Done": {
+      "title": "Dia 2 concluído.",
+      "subtitle": "Falta 1."
+    }
+  },
+  "fmvTooltip": {
+    "title": "Este é o teu primeiro chichi da manhã.",
+    "body": "Marcamo-lo porque é a leitura mais importante para o teu clínico. Indica-lhe quanto a tua bexiga retém durante a noite.",
+    "dismiss": "Percebi"
+  },
   "validation": {
     "beforePrevBedtime": "Esta hora é antes do deitar do Dia {dayNumber} ({time}). Escolhe uma hora mais tardia.",
     "beforeWakeUp": "Esta hora é antes de acordares ({time}). As entradas de dia têm de ser depois do despertar.",

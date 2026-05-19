@@ -124,6 +124,9 @@ interface DiaryStore extends DiaryState {
   setMorningAnchor: (anchor: MorningAnchor | null) => void;
   markDay1CelebrationShown: () => void;
 
+  // FMV educational tooltip (one-pass)
+  markFmvTooltipShown: () => void;
+
   // Selectors
   getVoidsForDay: (dayNumber: number) => VoidEntry[];
   getDrinksForDay: (dayNumber: number) => DrinkEntry[];
@@ -169,6 +172,13 @@ export const migrateBladderDiaryState = (
   if (typeof obj.hapticEnabled !== 'boolean') {
     obj.hapticEnabled = true;
   }
+  // v4 -> v5: fmvTooltipShown added in Phase 15 MI-04. Default false (new
+  // users see the tooltip once; existing users with prior FMV-flagged data
+  // will also see it once on their next Day 2/3 morning, which is harmless).
+  // Guard is idempotent so re-running the migration is safe.
+  if (typeof obj.fmvTooltipShown !== 'boolean') {
+    obj.fmvTooltipShown = false;
+  }
   return obj as unknown as DiaryStore;
 };
 
@@ -187,6 +197,7 @@ const initialState: DiaryState = {
   timeZone: detectTimeZone(),
   morningAnchor: null,
   day1CelebrationShown: false,
+  fmvTooltipShown: false,
 };
 
 export const useDiaryStore = create<DiaryStore>()(
@@ -381,12 +392,15 @@ export const useDiaryStore = create<DiaryStore>()(
       setMorningAnchor: (anchor) => set({ morningAnchor: anchor }),
       markDay1CelebrationShown: () => set({ day1CelebrationShown: true }),
 
+      // ── FMV educational tooltip (one-pass) ──
+      markFmvTooltipShown: () => set({ fmvTooltipShown: true }),
+
       // ── Reset ──
       resetDiary: () => set({ ...initialState, startDate: format(new Date(), 'yyyy-MM-dd'), timeZone: detectTimeZone() }),
     }),
     {
       name: 'bladder-diary-patient',
-      version: 4,
+      version: 5,
       migrate: migrateBladderDiaryState,
       storage: createJSONStorage(() => createIndexedDbStorage()),
     },

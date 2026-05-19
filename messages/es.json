@@ -227,6 +227,21 @@
     "label": "Vibrar al guardar",
     "help": "Un pulso corto cuando registras una orina, una bebida o un escape. Desactívalo si te molesta."
   },
+  "dayTransition": {
+    "day1Done": {
+      "title": "Día 1 hecho.",
+      "subtitle": "Quedan 2."
+    },
+    "day2Done": {
+      "title": "Día 2 hecho.",
+      "subtitle": "Queda 1."
+    }
+  },
+  "fmvTooltip": {
+    "title": "Esta es tu primera orina de la mañana.",
+    "body": "La marcamos porque es el dato más importante para tu clínico. Le indica cuánto retiene tu vejiga durante la noche.",
+    "dismiss": "Entendido"
+  },
   "validation": {
     "beforePrevBedtime": "Esta hora es antes de acostarse del día {dayNumber} ({time}). Elija una hora más tarde.",
     "beforeWakeUp": "Esta hora es antes de despertar ({time}). Las entradas del día deben ser después de despertar.",

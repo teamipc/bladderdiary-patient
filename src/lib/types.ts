@@ -147,4 +147,6 @@ export interface DiaryState {
   morningAnchor: MorningAnchor | null;
   /** Whether the Day 1 peak-end celebration has been shown (one-shot). */
   day1CelebrationShown: boolean;
+  /** Whether the FMV educational tooltip has been shown + dismissed. One-pass. */
+  fmvTooltipShown: boolean;
 }

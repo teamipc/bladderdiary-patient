@@ -227,6 +227,21 @@
     "label": "Vibrer à l'enregistrement",
     "help": "Une courte impulsion quand vous enregistrez une miction, une boisson ou une fuite. Désactivez si cela vous dérange."
   },
+  "dayTransition": {
+    "day1Done": {
+      "title": "Jour 1 terminé.",
+      "subtitle": "Plus que 2."
+    },
+    "day2Done": {
+      "title": "Jour 2 terminé.",
+      "subtitle": "Plus qu'un."
+    }
+  },
+  "fmvTooltip": {
+    "title": "Voici votre première miction du matin.",
+    "body": "Nous la signalons parce que c'est la donnée la plus importante pour votre clinicien. Elle lui indique combien votre vessie retient pendant la nuit.",
+    "dismiss": "J'ai compris"
+  },
   "validation": {
     "beforePrevBedtime": "Cette heure est avant le coucher du jour {dayNumber} ({time}). Choisissez une heure plus tardive.",
     "beforeWakeUp": "Cette heure est avant le réveil ({time}). Les entrées de jour doivent être après le réveil.",

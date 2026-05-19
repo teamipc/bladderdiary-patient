@@ -35,6 +35,7 @@ function baseState(overrides: Partial<DiaryState> = {}): DiaryState {
     timeZone: TZ,
     morningAnchor: null,
     day1CelebrationShown: true,
+    fmvTooltipShown: false,
     ...overrides,
   };
 }

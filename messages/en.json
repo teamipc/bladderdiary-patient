@@ -227,6 +227,21 @@
     "label": "Vibrate on save",
     "help": "A short pulse when you log a pee, a drink, or a leak. Turn off if you find it distracting."
   },
+  "dayTransition": {
+    "day1Done": {
+      "title": "Day 1 done.",
+      "subtitle": "2 to go."
+    },
+    "day2Done": {
+      "title": "Day 2 done.",
+      "subtitle": "1 to go."
+    }
+  },
+  "fmvTooltip": {
+    "title": "This is your first morning void.",
+    "body": "We flag it because it's the most important reading for your clinician. It tells them how much your bladder holds overnight.",
+    "dismiss": "Got it"
+  },
   "validation": {
     "beforePrevBedtime": "This time is before Day {dayNumber}'s bedtime ({time}). Pick a later time.",
     "beforeWakeUp": "This time is before wake-up ({time}). Daytime events must be after you woke up.",

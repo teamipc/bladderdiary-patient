@@ -16,6 +16,8 @@ import LogLeakForm from '@/components/diary/LogLeakForm';
 import SetBedtimeForm from '@/components/diary/SetBedtimeForm';
 import SetWakeTimeForm from '@/components/diary/SetWakeTimeForm';
 import Day1Celebration from '@/components/diary/Day1Celebration';
+import DayTransitionOverlay from '@/components/diary/DayTransitionOverlay';
+import FmvTooltip from '@/components/diary/FmvTooltip';
 import Toast from '@/components/ui/Toast';
 import { useDiaryStore, useStoreHydrated } from '@/lib/store';
 import type { VoidEntry, DrinkEntry, LeakEntry, BedtimeEntry } from '@/lib/types';
@@ -47,6 +49,8 @@ export default function DayPageClient() {
     day1CelebrationShown,
     markDay1CelebrationShown,
     setMorningAnchor,
+    fmvTooltipShown,
+    markFmvTooltipShown,
   } = useDiaryStore();
   // Don't make any routing decision until persist has finished rehydrating from
   // localStorage — otherwise a deep-link to /diary/day/N fires the redirect
@@ -112,6 +116,12 @@ export default function DayPageClient() {
   const [day1CelebrationOpen, setDay1CelebrationOpen] = useState(false);
   const [day1EventCount, setDay1EventCount] = useState(0);
 
+  // Phase 15 MI-03 / MI-04 — day-transition overlay + FMV tooltip surfaces.
+  // overlayFinishedDay null = no overlay; 1 or 2 = overlay shown for the day
+  // the user JUST FINISHED. showFmvTooltip toggles the educational tooltip.
+  const [overlayFinishedDay, setOverlayFinishedDay] = useState<1 | 2 | null>(null);
+  const [showFmvTooltip, setShowFmvTooltip] = useState(false);
+
   // Reset scroll position whenever the dayNumber changes. Next.js preserves
   // scroll across same-route-pattern navigations (/diary/day/1 → /diary/day/2),
   // so the "Continue to day N+1" link at the bottom of Day N's timeline (and
@@ -123,6 +133,33 @@ export default function DayPageClient() {
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
   }, [dayNumber]);
+
+  // Phase 15 MI-03 — Day-transition acknowledgment overlay.
+  // Shows "Day N done. M to go." for 1.5s when the user advances from
+  // Day 1 to Day 2 or Day 2 to Day 3. Backward navigation does NOT
+  // trigger (e.g., 3 -> 2 via back button). prevDayRef starts at the
+  // current dayNumber so direct deep-links (e.g., /diary/day/2 from a
+  // shortcut) do NOT fire the overlay on first paint.
+  const prevDayRef = useRef<1 | 2 | 3>(dayNumber);
+  useEffect(() => {
+    const prev = prevDayRef.current;
+    if (dayNumber > prev && (prev === 1 || prev === 2)) {
+      setOverlayFinishedDay(prev);
+    }
+    prevDayRef.current = dayNumber;
+  }, [dayNumber]);
+
+  // Phase 15 MI-04 — FMV educational tooltip.
+  // Shows once when an FMV is first detected on Day 2 or Day 3 AND the
+  // persisted fmvTooltipShown flag is false. Day 1 FMVs don't trigger the
+  // tooltip because Day 1 is the IPC adaptation period (excluded from
+  // 24HV / NPi / AVV per CLAUDE.md memory ipc-calculations.md).
+  const hasMorningVoid = dayVoids.some((v) => v.isFirstMorningVoid);
+  useEffect(() => {
+    if (hasMorningVoid && dayNumber > 1 && !fmvTooltipShown) {
+      setShowFmvTooltip(true);
+    }
+  }, [hasMorningVoid, dayNumber, fmvTooltipShown]);
 
   // Auto-open void form when arriving with ?add=void (from "Log overnight pee" shortcut)
   const autoOpenConsumed = useRef(false);
@@ -331,6 +368,20 @@ export default function DayPageClient() {
     setSheetMode('leak');
   }, []);
 
+  // Phase 15 MI-03 — overlay parent owns the unmount; the overlay itself
+  // schedules the 1.5s hold + 200ms fade-out and then fires onDismissed.
+  const handleOverlayDismissed = useCallback(() => {
+    setOverlayFinishedDay(null);
+  }, []);
+
+  // Phase 15 MI-04 — FMV tooltip dismissal persists the one-pass flag via
+  // the store action, then unmounts. The persisted flag prevents the
+  // tooltip from re-firing across sessions.
+  const handleFmvTooltipDismiss = useCallback(() => {
+    markFmvTooltipShown();
+    setShowFmvTooltip(false);
+  }, [markFmvTooltipShown]);
+
   // Until hydration finishes, show a non-committal loading state. This avoids
   // a flash of either the redirect target or the page content while the Zustand
   // persist middleware is asynchronously rehydrating from localStorage.
@@ -441,6 +492,16 @@ export default function DayPageClient() {
         onDismiss={() => setShowToast(false)}
         duration={toastDuration}
       />
+
+      {overlayFinishedDay !== null && (
+        <DayTransitionOverlay
+          finishedDay={overlayFinishedDay}
+          onDismissed={handleOverlayDismissed}
+        />
+      )}
+      {showFmvTooltip && (
+        <FmvTooltip onDismiss={handleFmvTooltipDismiss} />
+      )}
 
       <Day1Celebration
         open={day1CelebrationOpen}
