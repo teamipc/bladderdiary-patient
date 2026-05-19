@@ -185,17 +185,17 @@ The 2026-05-18 comprehensive audit (`CODE-REVIEW.md` + `SEO-REVIEW.md` + `UI-REV
 
 #### SEO Config + Technical (Phase 12)
 
-- [ ] **SEO-M3-01** — BreadcrumbList JSON-LD uses consistent URLs + Title-Case names
+- [x] **SEO-M3-01** — BreadcrumbList JSON-LD uses consistent URLs + Title-Case names ✅ shipped Phase 12 (commit edd4887, +9 unit tests)
   `BreadcrumbList` JSON-LD on learn articles has inconsistent URLs across positions (positions 1–3 use bare paths that 404 live; position 4 uses `/en/`) and position 3 name renders the raw lowercase slug ("nocturia" instead of "Nocturia"). Either confuses crawlers or renders ugly breadcrumb pills in SERPs.
   *Files:* `src/components/seo/JsonLd.tsx` or wherever `BreadcrumbList` is assembled (`src/lib/seo/` candidate).
   *Verify:* render `/en/learn/voiding/<slug>` and `/fr/learn/voiding/<slug>`; each position's URL is internally consistent and renders 200; position 3 name is Title-Cased.
 
-- [ ] **SEO-M3-02** — Bare `/` route returns indexable HTML, not JS-only shell
+- [x] **SEO-M3-02** — Bare `/` route returns indexable HTML, not JS-only shell ✅ shipped Phase 12 (commit d37c118, post-build copy + 6 idempotency tests)
   Bare `/` (default-locale homepage) currently returns a ~8KB JS-only redirect shell with no `<title>` / no body. Googlebot sees soft content. The fix is to ensure the static-export of the en-locale root has the full landing HTML (likely a Next.js i18n-prefix gotcha — the en root needs explicit rendering, not just a redirect rewrite).
   *Files:* `next.config.ts` (next-intl plugin config), `src/app/page.tsx` or `src/app/[locale]/page.tsx`, `vercel.json` (now deleted) routing intent.
   *Verify:* `curl -s https://myflowcheck.com/ | grep '<title>'` returns the landing page title; body has meaningful content; Google's Search Console "URL inspection" shows the bare URL as indexable with content.
 
-- [ ] **SEO-M3-03** — Audience landing intros reach 600-word spec target
+- [x] **SEO-M3-03** — Audience landing intros reach 600-word spec target ✅ shipped Phase 12 (commit 479d809, +37KB editorial content across 6 locales)
   `/learn/for-men` and `/learn/for-women` intro copy was expanded by recent commit but is still under the 600-word spec target documented in `content/README.md`. Reduces thin-content signal further.
   *Files:* the MDX or component sources for the two audience landing pages (`src/app/[locale]/learn/for-men/`, `src/app/[locale]/learn/for-women/`); content files if applicable.
   *Verify:* `wc -w` on the rendered intro for each landing in each locale reports ≥ 600 words.
