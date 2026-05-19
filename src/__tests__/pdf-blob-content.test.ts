@@ -96,6 +96,7 @@ function buildMinimalDiaryState(): DiaryState {
     morningAnchor: null,
     day1CelebrationShown: false,
     fmvTooltipShown: false,
+    summaryCelebrationShown: false,
     voids: [
       {
         id: 'v1',

@@ -38,6 +38,7 @@ const patientA: DiaryState = {
   morningAnchor: null,
   day1CelebrationShown: true,
   fmvTooltipShown: false,
+  summaryCelebrationShown: false,
   leaks: [],
   voids: [
     // Day 1, Jan 22

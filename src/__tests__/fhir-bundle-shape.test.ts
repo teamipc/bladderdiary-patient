@@ -29,6 +29,7 @@ function buildMinimalDiaryState(overrides: Partial<DiaryState> = {}): DiaryState
     morningAnchor: null,
     day1CelebrationShown: false,
     fmvTooltipShown: false,
+    summaryCelebrationShown: false,
     voids: [
       {
         id: 'v1',

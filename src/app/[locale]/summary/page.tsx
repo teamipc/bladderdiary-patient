@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { track } from '@vercel/analytics';
 import { useDiaryStore, useStoreHydrated } from '@/lib/store';
@@ -8,6 +8,7 @@ import DaySummaryCard from '@/components/export/DaySummaryCard';
 import ExportActions from '@/components/export/ExportActions';
 import DrinkVoidTimeline from '@/components/summary/DrinkVoidTimeline';
 import SummaryObservations, { keyToCopy as observationToCopy } from '@/components/summary/SummaryObservations';
+import CompletionHero from '@/components/summary/CompletionHero';
 import Button from '@/components/ui/Button';
 import { HelpCircle, Lock, AlertTriangle, ChevronLeft, CheckCircle2, Sparkles } from 'lucide-react';
 import { Link, useRouter } from '@/i18n/navigation';
@@ -28,6 +29,32 @@ export default function SummaryPage() {
   // and bounces the patient even when localStorage holds a complete diary.
   const hydrated = useStoreHydrated();
   const isComplete = hydrated && diaryStarted && !!getBedtimeForDay(3);
+
+  // Phase 16 CEL-05: one-time completion hero gate.
+  // Latch the persisted summaryCelebrationShown flag ONCE at the moment of
+  // first complete-render, so mid-visit store updates (the hero itself marks
+  // the flag true on mount) do not unmount the hero during this visit. On the
+  // NEXT visit, the latch starts null, captures the now-true value, the gate
+  // evaluates false, and the hero does not mount. Net: hero shows exactly once.
+  // We mirror the captured value into useState (not a bare ref) so the value
+  // is readable during render without breaking the react-hooks/refs rule, and
+  // a useRef tracks whether the capture has already happened (so a re-render
+  // of the parent due to the latch-state update does not re-capture).
+  // The setState-inside-useEffect is intentional and falls under the rule's
+  // documented "synchronize React state with an external system (Zustand
+  // persisted store) once on first hydration" exception. We intentionally do
+  // not switch to useSyncExternalStore for this single one-shot latch.
+  const summaryCelebrationShown = useDiaryStore((s) => s.summaryCelebrationShown);
+  const [initialCelebrationShown, setInitialCelebrationShown] = useState<boolean | null>(null);
+  const celebrationCaptured = useRef(false);
+  useEffect(() => {
+    if (!hydrated || !isComplete) return;
+    if (celebrationCaptured.current) return;
+    celebrationCaptured.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setInitialCelebrationShown(summaryCelebrationShown);
+  }, [hydrated, isComplete, summaryCelebrationShown]);
+  const shouldShowCelebrationHero = isComplete && initialCelebrationShown === false;
 
   // Pavlovian rewards at the top: effort visualization + one-line standout.
   // Both computed only when the diary is complete (we never render this
@@ -93,6 +120,7 @@ export default function SummaryPage() {
 
   return (
     <Container variant="default" as="div" className="pt-4 pb-12 space-y-6">
+      {shouldShowCelebrationHero && <CompletionHero />}
       {/* Back link — when the diary is complete, return to Day 3 (the latest
           filled day) instead of getCurrentDay(). The latter is a real-world
           calendar diff and lands on Day 1 when a tester completes all three

@@ -318,6 +318,11 @@
     "helpAndFaq": "Help & FAQ",
     "heroTitle": "You did it. Three days, all noted.",
     "heroSubtitle": "Here is what your body told you.",
+    "completionHero": {
+      "title": "You did it. 3 days, complete.",
+      "body": "Take a moment with this first. Then, when you are ready, share your report with your healthcare professional.",
+      "dismiss": "Got it"
+    },
     "storyTitle": "Drinks in, pees out",
     "storyBody": "Think of your body like a sink. Water goes in, water comes out. Below is the rhythm of your three days. The little drops below show pees. The cups above show drinks.",
     "observationsTitle": "What we noticed in your notes",

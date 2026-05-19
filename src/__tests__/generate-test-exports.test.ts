@@ -40,6 +40,7 @@ const earlyRiser: DiaryState = {
     morningAnchor: null,
     day1CelebrationShown: false,
     fmvTooltipShown: false,
+    summaryCelebrationShown: false,
   leaks: [
     // Standalone leak on Day 2
     {
@@ -122,6 +123,7 @@ const nightShift: DiaryState = {
     morningAnchor: null,
     day1CelebrationShown: false,
     fmvTooltipShown: false,
+    summaryCelebrationShown: false,
   leaks: [
     // Standalone leaks
     {
@@ -213,6 +215,7 @@ const normalFull: DiaryState = {
     morningAnchor: null,
     day1CelebrationShown: false,
     fmvTooltipShown: false,
+    summaryCelebrationShown: false,
   leaks: [
     {
       id: uid('l', 20),

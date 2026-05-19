@@ -318,6 +318,11 @@
     "helpAndFaq": "Ajuda e FAQ",
     "heroTitle": "Conseguiste. Três dias, todos anotados.",
     "heroSubtitle": "Aqui está o que o teu corpo te mostrou.",
+    "completionHero": {
+      "title": "Conseguiste. 3 dias, completos.",
+      "body": "Fica primeiro um momento com isto. Depois, quando estiveres pronto, partilha o teu relatório com o teu profissional de saúde.",
+      "dismiss": "Percebi"
+    },
     "storyTitle": "O que entra, o que sai",
     "storyBody": "Pensa no teu corpo como um lavatório. A água entra, a água sai. Em baixo está o ritmo dos teus três dias. As gotinhas em baixo mostram os chichis. As chávenas em cima mostram as bebidas.",
     "observationsTitle": "O que reparámos nas tuas notas",

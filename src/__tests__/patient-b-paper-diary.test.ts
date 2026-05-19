@@ -44,6 +44,7 @@ const patientB: DiaryState = {
   morningAnchor: null,
   day1CelebrationShown: true,
   fmvTooltipShown: false,
+  summaryCelebrationShown: false,
   leaks: [],
   voids: [
     // Day 1, Apr 22 (leaks marked on paper at 07:00 FMV and 22:00 evening void)

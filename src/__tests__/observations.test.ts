@@ -36,6 +36,7 @@ function baseState(overrides: Partial<DiaryState> = {}): DiaryState {
     morningAnchor: null,
     day1CelebrationShown: true,
     fmvTooltipShown: false,
+    summaryCelebrationShown: false,
     ...overrides,
   };
 }

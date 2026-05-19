@@ -318,6 +318,11 @@
     "helpAndFaq": "Ayuda y preguntas frecuentes",
     "heroTitle": "Lo logró. Tres días, todos anotados.",
     "heroSubtitle": "Esto es lo que su cuerpo le mostró.",
+    "completionHero": {
+      "title": "Lo logró. 3 días, completos.",
+      "body": "Primero tómese un momento con esto. Después, cuando esté listo, comparta su reporte con su profesional de salud.",
+      "dismiss": "Entendido"
+    },
     "storyTitle": "Lo que entra, lo que sale",
     "storyBody": "Piense en su cuerpo como un lavabo. El agua entra, el agua sale. Este es el ritmo de sus tres días. Las gotitas de abajo son las visitas al baño. Las tazas de arriba son las bebidas.",
     "observationsTitle": "Lo que notamos",

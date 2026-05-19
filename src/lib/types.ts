@@ -149,4 +149,6 @@ export interface DiaryState {
   day1CelebrationShown: boolean;
   /** Whether the FMV educational tooltip has been shown + dismissed. One-pass. */
   fmvTooltipShown: boolean;
+  /** Whether the one-time /summary completion hero has been shown + dismissed. One-pass per device. */
+  summaryCelebrationShown: boolean;
 }

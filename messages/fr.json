@@ -318,6 +318,11 @@
     "helpAndFaq": "Aide et FAQ",
     "heroTitle": "C'est fait. Trois jours, tous notés.",
     "heroSubtitle": "Voici ce que votre corps vous a montré.",
+    "completionHero": {
+      "title": "Vous l'avez fait. 3 jours, terminés.",
+      "body": "Prenez d'abord un moment pour vous. Ensuite, quand vous serez prêt, partagez votre rapport avec votre professionnel de santé.",
+      "dismiss": "J'ai compris"
+    },
     "storyTitle": "Ce qui entre, ce qui sort",
     "storyBody": "Imaginez votre corps comme un évier. L'eau entre, l'eau sort. Voici le rythme de vos trois jours. Les petites gouttes en bas représentent les passages aux toilettes. Les tasses en haut, les boissons.",
     "observationsTitle": "Ce que nous avons remarqué",
