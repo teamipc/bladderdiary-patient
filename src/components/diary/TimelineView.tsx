@@ -503,9 +503,9 @@ export default function TimelineView({ dayNumber, onLogVoid, onLogDrink, onLogBe
         )}
 
         <div className="text-center">
-          <h2 className={`text-xl font-bold text-balance ${isNighttime ? 'text-indigo-100' : 'text-ipc-950'}`}>
+          <h1 className={`text-xl font-bold text-balance ${isNighttime ? 'text-indigo-100' : 'text-ipc-950'}`}>
             {isNighttime ? tc('night', { number: dayNumber - 1 }) : tc('day', { number: dayNumber })}
-          </h2>
+          </h1>
           <span className={`font-medium text-sm ${isNighttime ? 'text-indigo-300/80' : 'text-ipc-700'}`}>
             {dayLabel}
           </span>

@@ -104,9 +104,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 1: Age */}
         {step === 1 && (
           <div key="step1" className={`w-full text-center ${animClass}`} onKeyDown={(e) => { const target = e.target as HTMLElement; if (target.tagName === 'TEXTAREA') return; if (e.key !== 'Enter' || e.shiftKey) return; e.preventDefault(); if (isAgeValid) { track('onboarding_age', { age: ageNum }); goForward(2); } }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-2 text-balance">
+            <h1 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-2 text-balance">
               {t('ageTitle')}
-            </h2>
+            </h1>
             <p className="text-sm text-ipc-500 mb-8">
               {t('ageSubtitle')}
             </p>
@@ -146,9 +146,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 2: Unit selection */}
         {step === 2 && (
           <div key="step2" className={`w-full text-center ${animClass}`} onKeyDown={(e) => { const target = e.target as HTMLElement; if (target.tagName === 'TEXTAREA') return; if (e.key !== 'Enter' || e.shiftKey) return; e.preventDefault(); track('onboarding_unit', { unit: volumeUnit }); goForward(3); }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-2 text-balance">
+            <h1 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-2 text-balance">
               {t('unitTitle')}
-            </h2>
+            </h1>
             <p className="text-sm text-ipc-500 mb-8">
               {t('unitSubtitle')}
             </p>
@@ -208,9 +208,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Step 3: Date confirmation + Timezone */}
         {step === 3 && (
           <div key="step3" className={`w-full text-center ${animClass}`} onKeyDown={(e) => { const target = e.target as HTMLElement; if (target.tagName === 'TEXTAREA') return; if (e.key !== 'Enter' || e.shiftKey) return; e.preventDefault(); handleConfirm(); }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-1.5 text-balance">
+            <h1 className="text-2xl md:text-3xl font-bold text-ipc-950 mb-1.5 text-balance">
               {t('dateTitle')}
-            </h2>
+            </h1>
             <p className="text-sm text-ipc-500 mb-4 text-balance">
               {t('dateSubtitle')}
             </p>
