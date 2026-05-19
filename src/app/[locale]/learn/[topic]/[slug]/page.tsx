@@ -8,6 +8,7 @@ import {
   getArticle,
   getClusterArticles,
   getAuthor,
+  getPillar,
   getRelatedArticles,
   getArticleAlternates,
   buildAbsoluteUrl,
@@ -119,23 +120,38 @@ export default async function ArticlePage({
   const reviewer = fm.medicallyReviewedBy ? getAuthor(fm.medicallyReviewedBy) : null;
   const related = getRelatedArticles(article);
 
+  // SEO-M3-01: Topic display name source = pillar frontmatter title (locale-aware,
+  // matches the rest of the site). Fallback to Title-Cased slug if pillar is missing.
+  const pillar = getPillar(typedLocale, topic);
+  const displayTopicName =
+    pillar?.frontmatter.title ??
+    topic
+      .split('-')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+
   const breadcrumbs = [
     { label: tBreadcrumbs('home'), href: '/' },
     { label: tBreadcrumbs('learn'), href: '/learn' },
-    { label: topic.replace(/-/g, ' '), href: `/learn/${topic}` },
+    { label: displayTopicName, href: `/learn/${topic}` },
     { label: fm.title },
+  ];
+
+  // SEO-M3-01: The JSON-LD MUST use locale-prefixed URLs across all 4 positions
+  // so crawlers see internally-consistent URLs (positions 1-3 previously emitted
+  // bare paths that 404'd live). buildAbsoluteUrl() will prepend SITE_URL.
+  const jsonLdBreadcrumbItems = [
+    { name: tBreadcrumbs('home'), url: `/${locale}` },
+    { name: tBreadcrumbs('learn'), url: `/${locale}/learn` },
+    { name: displayTopicName, url: `/${locale}/learn/${topic}` },
+    { name: fm.title, url: article.urlPath },
   ];
 
   return (
     <div className="bg-surface min-h-screen">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
         <Breadcrumbs items={breadcrumbs} />
-        <BreadcrumbJsonLd
-          items={breadcrumbs.map((b) => ({
-            name: b.label,
-            url: b.href ?? article.urlPath,
-          }))}
-        />
+        <BreadcrumbJsonLd items={jsonLdBreadcrumbItems} />
         <ArticleJsonLd article={article} author={author} reviewer={reviewer} />
 
         <header className="mb-6 mt-2">
