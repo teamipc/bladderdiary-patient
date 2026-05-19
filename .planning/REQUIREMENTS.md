@@ -275,11 +275,11 @@ Each diary action acknowledges itself. See `.planning/phases/15-diary-micro-inte
 
 The summary page closes the diary arc with accomplishment + an unambiguous next step. See `.planning/phases/16-summary-celebration/16-CONTEXT.md`.
 
-- [ ] **CEL-01** — Hero celebration moment on first Day-3-completion `/summary` visit (subtle marker, NOT confetti).
-- [ ] **CEL-02** — Animated count-up reveal of 5 IPC clinical metrics (~800ms total, 150ms stagger).
-- [ ] **CEL-03** — Sequential observation card reveal via IntersectionObserver (~150ms stagger).
-- [ ] **CEL-04** — Phase 13's "Send to healthcare team" hero CTA pinned above the fold on `/summary`.
-- [ ] **CEL-05** — One-time hero state on 3-day completion; subsequent visits show normal layout (store-action flag).
+- [x] **CEL-01** — Hero celebration moment on first Day-3-completion `/summary` visit (subtle marker, NOT confetti). ✅ shipped Phase 16 (commit 62221dc, CompletionHero with CheckCircle2 + locale-aware copy)
+- [x] **CEL-02** — Animated count-up reveal of 4 IPC clinical metrics (~800ms total, 150ms stagger). NBC dropped per Phase 13 D-02. ✅ shipped Phase 16 (commit 1c35d88, AnimatedMetric rAF hook + IpcMetricsBlock with 24HV/NPi/AVV/MVV)
+- [x] **CEL-03** — Sequential observation card reveal via IntersectionObserver (~150ms stagger). ✅ shipped Phase 16 (commit 56ec1c0, ObservationCardReveal one-shot)
+- [x] **CEL-04** — Phase 13's "Send to healthcare team" hero CTA pinned above the fold on `/summary`. ✅ shipped Phase 16 (commit 1c35d88, vertical-stacking preserves ordering invariant)
+- [x] **CEL-05** — One-time hero state on 3-day completion; subsequent visits show normal layout (store-action flag). ✅ shipped Phase 16 (commit 62221dc, summaryCelebrationShown persist v6)
 
 #### Motion System + Page Transitions (Phase 17)
 
