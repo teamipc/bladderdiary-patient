@@ -58,7 +58,8 @@
     "track": "Track",
     "diary": "Diary",
     "learn": "Learn",
-    "primaryNavAriaLabel": "Primary navigation"
+    "primaryNavAriaLabel": "Primary navigation",
+    "skipToContent": "Skip to content"
   },
   "landing": {
     "welcomeBack": "Welcome back!",

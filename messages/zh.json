@@ -58,7 +58,8 @@
     "track": "追踪",
     "diary": "日记",
     "learn": "了解",
-    "primaryNavAriaLabel": "主导航"
+    "primaryNavAriaLabel": "主导航",
+    "skipToContent": "跳至内容"
   },
   "landing": {
     "welcomeBack": "欢迎回来!",

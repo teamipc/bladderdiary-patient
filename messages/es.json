@@ -58,7 +58,8 @@
     "track": "Registro",
     "diary": "Diario",
     "learn": "Aprender",
-    "primaryNavAriaLabel": "Navegación principal"
+    "primaryNavAriaLabel": "Navegación principal",
+    "skipToContent": "Saltar al contenido"
   },
   "landing": {
     "welcomeBack": "¡Bienvenido de nuevo!",

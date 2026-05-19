@@ -58,7 +58,8 @@
     "track": "Suivi",
     "diary": "Journal",
     "learn": "Apprendre",
-    "primaryNavAriaLabel": "Navigation principale"
+    "primaryNavAriaLabel": "Navigation principale",
+    "skipToContent": "Aller au contenu"
   },
   "landing": {
     "welcomeBack": "Content de vous revoir !",
