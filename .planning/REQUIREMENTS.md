@@ -208,44 +208,44 @@ Tier-1 EHR interop and flagship-grade polish. Phase 13 (Clinical Export Package)
 
 ##### Package surface (PKG-*)
 
-- [ ] **PKG-01** — Hero "Send to healthcare team" action
+- [x] **PKG-01** — Hero "Send to healthcare team" action ✅ shipped Phase 13 (commit f3f7a9d, ExportActions reshape)
   `<ExportActions>` gets a primary hero CTA that generates a single zip. Existing individual CSV / PDF / Share buttons demote to a "More options" disclosure (collapsed by default; still accessible for power users and fallback paths).
   *Files:* `src/components/export/ExportActions.tsx`, new `src/lib/exportPackage/index.ts`, new i18n key for the hero button label (TBD copy in plan — candidates: "Send to my healthcare team", "Export for clinician", "Share with my doctor").
   *Verify:* hero CTA visible on `/summary` above a collapsed "More options" disclosure that contains the existing 3 buttons; clicking the hero triggers zip generation + system share sheet (mobile) or download (desktop).
 
-- [ ] **PKG-02** — Zip contents: 4 files, clinician-friendly sort order
+- [x] **PKG-02** — Zip contents: 4 files, clinician-friendly sort order ✅ shipped Phase 13 (commit cbd0522, 18 export-package tests)
   Generated zip contains exactly: `01-clinical-report.pdf` (byte-identical to current standalone PDF export), `02-events.csv` (byte-identical), `03-emr-bundle.fhir.json` (new FHIR R4 Bundle per FHIR-EX-*), `README.txt` (new, locale-aware).
   *Files:* `src/lib/exportPackage/index.ts` (uses `jszip` or `fflate` — planner decides), composes from existing `generatePdfBlob` + `generateCsv` + new `generateFhirBundle`.
   *Verify:* unzip the generated zip; assert exactly 4 files in the order `01-…`, `02-…`, `03-…`, `README.txt`; PDF byte-identical to standalone PDF export; CSV byte-identical; FHIR JSON validates against R4 schema.
 
-- [ ] **PKG-03** — README.txt explains files + gives EHR-specific upload instructions
+- [x] **PKG-03** — README.txt explains files + gives EHR-specific upload instructions ✅ shipped Phase 13 (commit cbd0522, 8 README keys × 6 locales)
   Plain text, 80-char wrapped, fax-friendly. Opens with what the package is + patient profile (age + timezone, no PHI). Lists 4 files with one-line descriptions. Gives EHR-specific upload guidance for Epic / Prompt / Cerner / Allscripts / athenahealth / "other or paper". Closes with a support link.
   *Files:* new `src/lib/exportPackage/readme.ts`, new i18n keys for README copy (per-locale README composition — full text translated to all 6 locales).
   *Verify:* the README in the zip matches the expected per-locale shape; EN canonical version verified against the draft in `13-CONTEXT.md`; FR/ES/PT/ZH/AR via `naturalize-prose` cycle, register-correct (no machine-translation calques); 80-char wrap respected.
 
-- [ ] **PKG-04** — Web Share API integration with graceful fallback
+- [x] **PKG-04** — Web Share API integration with graceful fallback ✅ shipped Phase 13 (commit f3f7a9d, two-stage probe)
   Hero CTA on mobile triggers the system share sheet via `navigator.share({files: [zipFile]})` — Mail / Messages / Doximity / AirDrop / WhatsApp all work as recipients. Desktop / browsers without share support: regular `.zip` download via the existing PDF/CSV download pattern.
   *Files:* `src/components/export/ExportActions.tsx`, possibly a small `useShareFile` hook.
   *Verify:* manual matrix — iOS Safari, Chrome Android, Edge desktop, Safari desktop, Firefox; each tested for either share-sheet appearance OR fallback download; documented in plan SUMMARY.
 
-- [ ] **PKG-05** — Backward compatibility: individual buttons still accessible
+- [x] **PKG-05** — Backward compatibility: individual buttons still accessible ✅ shipped Phase 13 (commit f3f7a9d, More options disclosure preserves all 4 existing handlers)
   Existing CSV / PDF / Share buttons remain functional inside the "More options" disclosure. No behavioral regression for users who prefer file-at-a-time downloads. No code path duplication — the disclosed buttons call the same generators the package uses.
   *Files:* `src/components/export/ExportActions.tsx` (the disclosure pattern).
   *Verify:* with the hero CTA hidden (or "More options" expanded), each individual button still triggers the same standalone download it does today; vitest spec `e2e/phase13-export-package.spec.ts` covers both flows.
 
 ##### FHIR Bundle component (FHIR-EX-*)
 
-- [ ] **FHIR-EX-01** — Events encoded as FHIR R4 `Observation` resources with LOINC + UCUM
+- [x] **FHIR-EX-01** — Events encoded as FHIR R4 `Observation` resources with LOINC + UCUM ✅ shipped Phase 13 (commit 0dc0c59, LOINC 9187-6 urine + 8999-5 intake + SNOMED 162172004/LOINC 28232-7 incontinence)
   Every `VoidEntry`, `DrinkEntry`, `LeakEntry` in the active diary state becomes one `Observation` resource with: `code` populated via LOINC (planner picks Epic-flowsheet-compatible codes at plan time — candidates: 19153-6 / 9192-6 for urine volume, 8657-8 for fluid intake, SNOMED 162172004 for incontinence), `valueQuantity` with UCUM unit code `mL` from `http://unitsofmeasure.org`, `effectiveDateTime` from `timestampIso`, `subject` referencing the contained `Patient` resource.
   *Files:* new `src/lib/exportFhir/observations.ts`, new `src/lib/exportFhir/loinc.ts`.
   *Verify:* a synthetic 3-day diary with 60 voids + 30 drinks + 10 leaks produces a Bundle with 100 `Observation` entries; spot-check 3 entries (one per event type) for LOINC + UCUM compliance via schema-aware vitest assertions.
 
-- [ ] **FHIR-EX-02** — Bundle wraps Patient + QuestionnaireResponse + Observations
+- [x] **FHIR-EX-02** — Bundle wraps Patient + QuestionnaireResponse + Observations ✅ shipped Phase 13 (commit 9a572be, 16-item QR catalog with NBC dropped per locked D-02)
   Output is a single FHIR `Bundle` (`type: collection`, `timestamp` populated) containing: 1 skeletal `Patient` (zero PHI per FHIR-EX-03), 1 `QuestionnaireResponse` documenting the IPC 3-day diary structure with clinical-metrics references (24HV, NPi, AVV, MVV, NBC), and N `Observation` resources from FHIR-EX-01.
   *Files:* new `src/lib/exportFhir/index.ts` (Bundle assembler), new `src/lib/exportFhir/questionnaireResponse.ts`, new `src/lib/exportFhir/patient.ts`.
   *Verify:* generated Bundle has exactly one `Patient` entry and exactly one `QuestionnaireResponse` entry; `Bundle.entry[].resource.resourceType` set is exactly `{Patient, QuestionnaireResponse, Observation}`.
 
-- [ ] **FHIR-EX-03** — Schema validation + zero-PHI privacy audit
+- [x] **FHIR-EX-03** — Schema validation + zero-PHI privacy audit ✅ shipped Phase 13 (commit 9a572be, AJV devDep-only with static-grep guard against client bundling)
   CI vitest suite runs each generated Bundle through `ajv` against the official FHIR R4 JSON schema (or a profiled subset covering the 4 resource types we emit). Validation catches missing required fields, wrong cardinalities, malformed LOINC codes, non-UCUM units. Same suite asserts the privacy invariant: `JSON.stringify(patient)` does NOT match `/"name":/`, `/"address":/`, `/"telecom":/`, `/"birthDate":\s*"\d{4}-\d{2}-\d{2}"/` (day-precision form). Year-only `"birthDate": "1970"` IS allowed.
   *Files:* new `src/__tests__/export-fhir.test.ts`, new `src/lib/exportFhir/validate.ts`, dependency: `ajv` + bundled FHIR R4 schema.
   *Verify:* `npx vitest run src/__tests__/export-fhir.test.ts` exits 0; valid Bundle passes; intentionally-malformed Bundle rejected; zero-PHI grep-assertions pass against the seed-state Patient.
