@@ -157,34 +157,40 @@ describe('ExportActions — Download alternative when Web Share is supported', (
     delete (global.navigator as Navigator).canShare;
   });
 
-  it('renders both share PDF button + Download PDF text-link when shareSupported', () => {
+  it('renders hero CTA + demoted PDF share button + PDF download-alt text-link when shareSupported (post-13-04 reshape)', () => {
     render(wrapper(<ExportActions />));
-    // Primary "Send to your healthcare team" share button is the existing CTA.
-    expect(screen.getByRole('button', { name: /send to your healthcare team/i })).toBeTruthy();
-    // NEW: secondary "Save the PDF for me" download-alt as a text-link button.
+    // After 13-04 reshape: both the hero CTA and the disclosed PDF button reuse the
+    // "Send to your healthcare team" label per RESEARCH §Open Questions #2 (D-01).
+    // DOM hierarchy disambiguates: hero is top-level, demoted PDF is nested in <details>.
+    // getAllByRole returns both; we assert exactly 2 matches.
+    expect(screen.getAllByRole('button', { name: /send to your healthcare team/i })).toHaveLength(2);
+    // PDF download-alt rendered inside the disclosure body.
     expect(screen.getByTestId('export-pdf-download-alt')).toBeTruthy();
     expect(screen.getByText(/save the pdf for me/i)).toBeTruthy();
   });
 
-  it('renders both share CSV button + Download CSV text-link when shareSupported', () => {
+  it('renders disclosed CSV share button + CSV download-alt text-link when shareSupported', () => {
     render(wrapper(<ExportActions />));
     expect(screen.getByRole('button', { name: /send a spreadsheet/i })).toBeTruthy();
     expect(screen.getByTestId('export-csv-download-alt')).toBeTruthy();
     expect(screen.getByText(/save the spreadsheet/i)).toBeTruthy();
   });
 
-  it('omits both download-alt links when pdfOnly=true (top-of-page reward CTA)', () => {
+  it('hides the More options disclosure entirely when pdfOnly=true (top-of-page reward CTA, D-08)', () => {
     render(wrapper(<ExportActions pdfOnly />));
-    // PDF download-alt still shown (PDF is the only export in pdfOnly mode)
-    expect(screen.getByTestId('export-pdf-download-alt')).toBeTruthy();
-    // CSV download-alt + CSV share button BOTH suppressed
+    // Per 13-04 D-08: pdfOnly renders ONLY the hero CTA. The disclosure (and all its
+    // children: demoted PDF, PDF download-alt, demoted CSV, CSV download-alt) is suppressed.
+    expect(screen.queryByTestId('export-pdf-download-alt')).toBeNull();
     expect(screen.queryByTestId('export-csv-download-alt')).toBeNull();
     expect(screen.queryByRole('button', { name: /send a spreadsheet/i })).toBeNull();
+    // Hero CTA still present (exactly one "Send to your healthcare team" button).
+    expect(screen.getAllByRole('button', { name: /send to your healthcare team/i })).toHaveLength(1);
   });
 
-  it('omits download-alt links when there is no diary data', () => {
+  it('omits the entire disclosure (and its download-alt links) when there is no diary data', () => {
     useDiaryStore.getState().resetDiary(); // back to empty state
     render(wrapper(<ExportActions />));
+    // Per 13-04 D-10 + render gate `!pdfOnly && hasData`: disclosure suppressed without data.
     expect(screen.queryByTestId('export-pdf-download-alt')).toBeNull();
     expect(screen.queryByTestId('export-csv-download-alt')).toBeNull();
   });

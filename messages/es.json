@@ -297,6 +297,8 @@
     "exportSavePdf": "Guardar el PDF",
     "exportSendCsv": "Enviar una hoja de cálculo",
     "exportSaveCsv": "Guardar la hoja de cálculo",
+    "exportSavePackage": "Guardar su paquete para el equipo médico",
+    "exportMoreOptions": "Más opciones",
     "yoursFirst": "Léalo primero, luego comparta su reporte con su profesional de salud.",
     "identityFrame": "Llegó hasta el final. Es más difícil de lo que parece.",
     "statBathroomTrips": "Idas al baño",
@@ -316,6 +318,8 @@
     "downloadCsv": "Descargar CSV",
     "generating": "Generando...",
     "noDataYet": "Comience a agregar entradas para activar la exportación",
+    "packageError": "Error en el paquete: {msg}",
+    "packageGenerating": "Preparando su paquete...",
     "pdfError": "Error de PDF: {msg}",
     "csvError": "Hubo un problema al generar el CSV. Inténtalo de nuevo."
   },

@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import Toast from '@/components/ui/Toast';
 import { useDiaryStore } from '@/lib/store';
 import { downloadCsv, generateCsvBlob } from '@/lib/exportCsv';
-import { FileText, FileSpreadsheet, Share2 } from 'lucide-react';
+import { FileText, FileSpreadsheet, Share2, ChevronLeft } from 'lucide-react';
 import { track } from '@vercel/analytics';
 
 /** Check if the Web Share API supports sharing files. */
@@ -23,7 +23,7 @@ function canShareFiles(): boolean {
 }
 
 interface ExportActionsProps {
-  /** Show only the primary PDF button — used for the top-of-page reward CTA. */
+  /** Show only the primary hero CTA (no disclosure) -- used for the top-of-page reward CTA. */
   pdfOnly?: boolean;
   /** Run a one-pass Pavlovian shimmer across the PDF button on mount. */
   shimmer?: boolean;
@@ -33,6 +33,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
   const store = useDiaryStore();
   const t = useTranslations('export');
   const ts = useTranslations('summary');
+  const tReadme = useTranslations('exportPackage.readme');
   const locale = useLocale();
   const [exporting, setExporting] = useState<string | null>(null);
   const [errorToast, setErrorToast] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
         track('pdf_generated', { method: 'share' });
         const file = new File([blob], filename, { type: 'application/pdf' });
         await navigator.share({
-          title: 'My Flow Check — Bladder Diary',
+          title: 'My Flow Check: Bladder Diary',
           files: [file],
         });
         track('pdf_shared');
@@ -100,7 +101,7 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
         track('csv_generated', { method: 'share' });
         const file = new File([blob], filename, { type: 'text/csv' });
         await navigator.share({
-          title: 'My Flow Check — Bladder Diary',
+          title: 'My Flow Check: Bladder Diary',
           files: [file],
         });
         track('csv_shared');
@@ -131,6 +132,55 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
     }
   }, [store, t]);
 
+  // -- Hero package (PKG-01) --
+  // Composes the 4-file zip (PDF + CSV + FHIR + README) and triggers the
+  // OS share sheet on mobile, or falls back to direct download elsewhere.
+  // Two-stage Web Share probe per RESEARCH section Pitfall 5: stage 1 is
+  // the existing boot-time canShareFiles() probe (shareSupported); stage 2
+  // re-probes at click time with the real zip File.
+  const handleHeroPackage = useCallback(async () => {
+    setExporting('package');
+    try {
+      const { generatePackageBlob } = await import('@/lib/exportPackage');
+      const { blob, filename } = await generatePackageBlob(store, locale, tReadme);
+
+      if (shareSupported) {
+        const file = new File([blob], filename, { type: 'application/zip' });
+        // Stage 2: re-probe with the real zip File per RESEARCH section Pitfall 5.
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          track('package_generated', { method: 'share' });
+          await navigator.share({
+            title: 'My Flow Check: 3-Day Bladder Diary',
+            files: [file],
+          });
+          track('package_shared');
+          return;
+        }
+        // Stage 2 failed (iOS zip-MIME edge case). Fall through to download.
+      }
+
+      track('package_generated', { method: 'download' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 500);
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
+      console.error('Package export failed:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      setErrorToast(t('packageError', { msg }));
+    } finally {
+      setTimeout(() => setExporting(null), 1000);
+    }
+  }, [store, locale, shareSupported, t, tReadme]);
+
   const hasData = store.hasData();
   // Alliance framing on the summary page: "Send to your healthcare team"
   // (when sharing is supported) reads as collaboration, not data submission.
@@ -138,59 +188,90 @@ export default function ExportActions({ pdfOnly = false, shimmer = false }: Expo
   const csvLabel = shareSupported ? ts('exportSendCsv') : ts('exportSaveCsv');
   const Icon = shareSupported ? Share2 : FileText;
 
+  const heroLabel = shareSupported ? ts('exportSendPdf') : ts('exportSavePackage');
+
+  // shimmer animation migrates from old PDF button to new hero CTA; disclosed
+  // PDF button no longer shimmers (single Pavlovian draw on the most-impactful
+  // surface).
   return (
     <div className="space-y-3 md:max-w-2xl md:mx-auto">
+      {/* -- Hero CTA (PKG-01) -- */}
       <Button
-        onClick={handlePdf}
+        onClick={handleHeroPackage}
         fullWidth
         variant="primary"
-        disabled={!hasData || exporting === 'pdf'}
+        disabled={!hasData || exporting === 'package'}
         className={`${shimmer ? 'animate-cta-shimmer ' : ''}md:hover:-translate-y-px md:transition-all md:duration-150`}
       >
-        <Icon size={20} />
-        {exporting === 'pdf' ? t('generating') : pdfLabel}
+        <Share2 size={20} />
+        {exporting === 'package' ? t('packageGenerating') : heroLabel}
       </Button>
 
-      {/* Secondary "save to this device" affordance — rendered only when the
-          OS-level share sheet is the primary path (mobile / iPadOS). Lets the
-          patient keep a copy locally without going through share. Text-link
-          weight (not full Button) preserves visual hierarchy: share stays the
-          primary CTA, download is the quieter alternative. */}
-      {shareSupported && hasData && (
-        <button
-          type="button"
-          onClick={handlePdfDownload}
-          disabled={exporting === 'pdf'}
-          data-testid="export-pdf-download-alt"
-          className="block w-full text-center text-sm text-ipc-700 hover:text-ipc-950 underline underline-offset-4 decoration-ipc-300 hover:decoration-ipc-500 disabled:opacity-50 disabled:cursor-not-allowed py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded"
-        >
-          {ts('exportSavePdf')}
-        </button>
-      )}
+      {/* -- More options disclosure (PKG-05 backward compatibility) --
+          When pdfOnly is true, the summary's top-of-page reward CTA renders
+          only the hero (one action). The disclosure with the legacy
+          3-button flow is suppressed. */}
+      {!pdfOnly && hasData && (
+        <details className="group rounded-2xl bg-white border border-ipc-100 overflow-hidden">
+          <summary className="flex items-center justify-between px-5 py-4 cursor-pointer list-none text-base font-semibold text-ipc-950 [&::-webkit-details-marker]:hidden">
+            {ts('exportMoreOptions')}
+            <ChevronLeft
+              size={18}
+              className="text-ipc-400 transition-transform -rotate-90 group-open:rotate-[-270deg] shrink-0 ml-2 rtl:scale-x-[-1]"
+            />
+          </summary>
+          <div className="px-5 pb-4 space-y-3">
+            {/* Existing PDF button -- unchanged behavior, demoted visual weight */}
+            <Button
+              onClick={handlePdf}
+              fullWidth
+              variant="secondary"
+              disabled={!hasData || exporting === 'pdf'}
+              className="md:hover:-translate-y-px md:transition-all md:duration-150"
+            >
+              <Icon size={20} />
+              {exporting === 'pdf' ? t('generating') : pdfLabel}
+            </Button>
 
-      {!pdfOnly && (
-        <Button
-          onClick={handleCsv}
-          fullWidth
-          variant="secondary"
-          disabled={!hasData || exporting === 'csv'}
-          className="md:hover:-translate-y-px md:transition-all md:duration-150"
-        >
-          {shareSupported ? <Share2 size={20} /> : <FileSpreadsheet size={20} />}
-          {exporting === 'csv' ? t('generating') : csvLabel}
-        </Button>
-      )}
+            {/* PDF download-alt link -- unchanged */}
+            {shareSupported && (
+              <button
+                type="button"
+                onClick={handlePdfDownload}
+                disabled={exporting === 'pdf'}
+                data-testid="export-pdf-download-alt"
+                className="block w-full text-center text-sm text-ipc-700 hover:text-ipc-950 underline underline-offset-4 decoration-ipc-300 hover:decoration-ipc-500 disabled:opacity-50 disabled:cursor-not-allowed py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded"
+              >
+                {ts('exportSavePdf')}
+              </button>
+            )}
 
-      {!pdfOnly && shareSupported && hasData && (
-        <button
-          type="button"
-          onClick={handleCsvDownload}
-          disabled={exporting === 'csv'}
-          data-testid="export-csv-download-alt"
-          className="block w-full text-center text-sm text-ipc-700 hover:text-ipc-950 underline underline-offset-4 decoration-ipc-300 hover:decoration-ipc-500 disabled:opacity-50 disabled:cursor-not-allowed py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded"
-        >
-          {ts('exportSaveCsv')}
-        </button>
+            {/* Existing CSV button -- unchanged behavior */}
+            <Button
+              onClick={handleCsv}
+              fullWidth
+              variant="secondary"
+              disabled={!hasData || exporting === 'csv'}
+              className="md:hover:-translate-y-px md:transition-all md:duration-150"
+            >
+              {shareSupported ? <Share2 size={20} /> : <FileSpreadsheet size={20} />}
+              {exporting === 'csv' ? t('generating') : csvLabel}
+            </Button>
+
+            {/* CSV download-alt link -- unchanged */}
+            {shareSupported && (
+              <button
+                type="button"
+                onClick={handleCsvDownload}
+                disabled={exporting === 'csv'}
+                data-testid="export-csv-download-alt"
+                className="block w-full text-center text-sm text-ipc-700 hover:text-ipc-950 underline underline-offset-4 decoration-ipc-300 hover:decoration-ipc-500 disabled:opacity-50 disabled:cursor-not-allowed py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ipc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded"
+              >
+                {ts('exportSaveCsv')}
+              </button>
+            )}
+          </div>
+        </details>
       )}
 
       {!hasData && (

@@ -297,6 +297,8 @@
     "exportSavePdf": "Garder une copie du PDF",
     "exportSendCsv": "Envoyer un tableur",
     "exportSaveCsv": "Garder le tableur",
+    "exportSavePackage": "Enregistrer votre dossier pour l'équipe soignante",
+    "exportMoreOptions": "Plus d'options",
     "yoursFirst": "Lisez-le d'abord, puis partagez votre rapport avec votre professionnel de la santé.",
     "identityFrame": "Vous avez tenu jusqu'au bout. C'est plus difficile qu'il n'y paraît.",
     "statBathroomTrips": "Passages aux toilettes",
@@ -316,6 +318,8 @@
     "downloadCsv": "Télécharger le CSV",
     "generating": "Génération...",
     "noDataYet": "Commencez à ajouter des entrées pour activer l'export",
+    "packageError": "Erreur du dossier : {msg}",
+    "packageGenerating": "Préparation de votre dossier...",
     "pdfError": "Erreur PDF : {msg}",
     "csvError": "Une erreur est survenue lors de la génération du CSV. Veuillez réessayer."
   },

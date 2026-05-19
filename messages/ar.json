@@ -297,6 +297,8 @@
     "exportSavePdf": "احفظ ملف PDF لي",
     "exportSendCsv": "إرسال جدول بيانات",
     "exportSaveCsv": "حفظ جدول البيانات",
+    "exportSavePackage": "احفظ حزمتك للفريق الطبي",
+    "exportMoreOptions": "خيارات إضافية",
     "yoursFirst": "اقرأه أنت أولاً، ثم شارك تقريرك مع مختص الرعاية الصحية.",
     "identityFrame": "أكملت حتى النهاية. هذا أصعب مما يبدو.",
     "statBathroomTrips": "زيارات الحمام",
@@ -316,6 +318,8 @@
     "downloadCsv": "تنزيل CSV",
     "generating": "جارٍ الإنشاء...",
     "noDataYet": "ابدأ بإضافة إدخالات لتفعيل التصدير",
+    "packageError": "خطأ في الحزمة: {msg}",
+    "packageGenerating": "جارٍ إعداد حزمتك...",
     "pdfError": "خطأ في PDF: {msg}",
     "csvError": "حدث خطأ أثناء إنشاء ملف CSV. يرجى المحاولة مرة أخرى."
   },

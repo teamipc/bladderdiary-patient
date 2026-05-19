@@ -297,6 +297,8 @@
     "exportSavePdf": "把 PDF 留给我",
     "exportSendCsv": "发一份表格",
     "exportSaveCsv": "保存表格",
+    "exportSavePackage": "保存给医疗团队的资料包",
+    "exportMoreOptions": "更多选项",
     "yoursFirst": "先自己读一遍,再把报告分享给你的医生。",
     "identityFrame": "你坚持下来了。这比看起来要难。",
     "statBathroomTrips": "上厕所次数",
@@ -316,6 +318,8 @@
     "downloadCsv": "下载 CSV",
     "generating": "正在生成…",
     "noDataYet": "添加记录后才能导出",
+    "packageError": "资料包出错:{msg}",
+    "packageGenerating": "正在准备你的资料包…",
     "pdfError": "PDF 错误:{msg}",
     "csvError": "生成 CSV 时出错。请重试。"
   },

@@ -297,6 +297,8 @@
     "exportSavePdf": "Save the PDF for me",
     "exportSendCsv": "Send a spreadsheet",
     "exportSaveCsv": "Save the spreadsheet",
+    "exportSavePackage": "Save your healthcare team package",
+    "exportMoreOptions": "More options",
     "yoursFirst": "Read it first, then share your report with your healthcare professional.",
     "identityFrame": "You followed through. That's harder than it looks.",
     "statBathroomTrips": "Bathroom trips",
@@ -316,6 +318,8 @@
     "downloadCsv": "Download CSV",
     "generating": "Generating...",
     "noDataYet": "Start adding entries to enable export",
+    "packageError": "Package error: {msg}",
+    "packageGenerating": "Preparing your package...",
     "pdfError": "PDF error: {msg}",
     "csvError": "Something went wrong generating the CSV. Please try again."
   },
