@@ -59,9 +59,12 @@ export default function CompletionHero() {
           <CheckCircle2 size={20} className="text-success" aria-hidden="true" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-base font-semibold text-ipc-950 leading-tight">
+          {/* Promoted to h1 — when CompletionHero is showing, the parent
+              suppresses its own h1 to avoid duplicate-celebration redundancy.
+              Single h1 per page preserved (A11Y-01). */}
+          <h1 className="text-base font-semibold text-ipc-950 leading-tight">
             {t('title')}
-          </p>
+          </h1>
           <p className="text-sm text-ipc-600 leading-relaxed mt-1">
             {t('body')}
           </p>

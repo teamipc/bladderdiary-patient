@@ -1,18 +1,29 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
+import { useDiaryStore } from '@/lib/store';
 import { ShieldCheck, X } from 'lucide-react';
 
 const STORAGE_KEY = 'mfc-privacy-notice-seen';
 
 export default function PrivacyNotice() {
   const t = useTranslations('privacyNotice');
+  const pathname = usePathname();
+  const diaryStarted = useDiaryStore((s) => s.diaryStarted);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    // Phase 14 EM-02. When the patient is on the landing page and has not
+    // started a diary, the WelcomePanel's PrivacyGraphic + "How is my data
+    // protected?" disclosure already carry the privacy framing. Showing this
+    // analytics-consent toast on top of it produces redundant + visually
+    // conflicting privacy messaging on the first paint. Suppress here; the
+    // toast will surface later inside the diary flow if still unseen.
+    if (pathname === '/' && !diaryStarted) return;
     try {
       if (localStorage.getItem(STORAGE_KEY)) return;
     } catch {
@@ -20,7 +31,7 @@ export default function PrivacyNotice() {
     }
     const timer = setTimeout(() => setVisible(true), 600);
     return () => clearTimeout(timer);
-  }, []);
+  }, [pathname, diaryStarted]);
 
   const dismiss = () => {
     try {

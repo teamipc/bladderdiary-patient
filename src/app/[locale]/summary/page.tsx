@@ -138,7 +138,14 @@ export default function SummaryPage() {
 
       {/* HERO — warm, animated finish moment. The "yoursFirst" line restores
           agency: the patient is the first reader of their own story, not a
-          data delivery service for the clinic. */}
+          data delivery service for the clinic.
+
+          When the CompletionHero (Phase 16 CEL-01) is showing above, the
+          big h1 + identity/yoursFirst paragraphs are suppressed to avoid
+          duplicate "You did it" beats on the first-completion visit. The
+          CompletionHero promotes its title to h1 in that mode so the page
+          retains exactly one h1 (A11Y-01). The check icon + subtitle remain
+          as a hand-off to the metrics grid below. */}
       <section
         className="text-center pt-2 animate-fade-slide-up opacity-0"
         style={{ animationDelay: '50ms', animationFillMode: 'forwards' }}
@@ -146,21 +153,27 @@ export default function SummaryPage() {
         <div className="inline-flex w-14 h-14 rounded-full bg-success/15 items-center justify-center mb-3">
           <CheckCircle2 size={32} className="text-success" />
         </div>
-        <h1 className="text-2xl md:text-4xl font-bold text-ipc-950 text-balance leading-tight px-4 md:px-0">
-          {t('heroTitle')}
-        </h1>
-        <p className="text-base text-ipc-600 mt-2 text-balance px-4">
+        {!shouldShowCelebrationHero && (
+          <h1 className="text-2xl md:text-4xl font-bold text-ipc-950 text-balance leading-tight px-4 md:px-0">
+            {t('heroTitle')}
+          </h1>
+        )}
+        <p className={`text-base text-ipc-600 ${shouldShowCelebrationHero ? '' : 'mt-2'} text-balance px-4`}>
           {t('heroSubtitle')}
         </p>
-        {/* Identity-framed reinforcement, just under the achievement line.
-            Closes the loop "you finished" → "you're the kind of person who
-            finishes," which is the lever for the share action below. */}
-        <p className="text-sm font-medium text-ipc-700 mt-3 italic text-balance px-6">
-          {t('identityFrame')}
-        </p>
-        <p className="text-sm text-ipc-500 mt-3 text-balance px-6 italic">
-          {t('yoursFirst')}
-        </p>
+        {!shouldShowCelebrationHero && (
+          <>
+            {/* Identity-framed reinforcement, just under the achievement line.
+                Closes the loop "you finished" → "you're the kind of person who
+                finishes," which is the lever for the share action below. */}
+            <p className="text-sm font-medium text-ipc-700 mt-3 italic text-balance px-6">
+              {t('identityFrame')}
+            </p>
+            <p className="text-sm text-ipc-500 mt-3 text-balance px-6 italic">
+              {t('yoursFirst')}
+            </p>
+          </>
+        )}
       </section>
 
       {/* EFFORT STATS — three numbers under the hero making the work visible.

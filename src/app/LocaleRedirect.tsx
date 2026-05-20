@@ -27,15 +27,12 @@ export default function LocaleRedirect() {
   }, [router]);
 
   return (
-    <>
-      {/* Crawler / no-JS fallback: client useEffect above handles JS users
-          with locale preference; this kicks in for everyone else. */}
-      <noscript>
-        <meta httpEquiv="refresh" content="0;url=/en" />
-      </noscript>
-      <div className="flex items-center justify-center py-24 bg-surface">
-        <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
-      </div>
-    </>
+    // Crawlers + no-JS users get the full EN landing page from the
+    // post-build copy of out/en.html → out/index.html (Phase 12-02).
+    // This spinner is only seen by JS users during the client-side
+    // locale-detect + router.replace cycle (typically <100ms).
+    <div className="flex items-center justify-center py-24 bg-surface">
+      <div className="w-10 h-10 rounded-full border-3 border-ipc-200 border-t-ipc-500 animate-spin" />
+    </div>
   );
 }
