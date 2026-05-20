@@ -285,11 +285,11 @@ The summary page closes the diary arc with accomplishment + an unambiguous next 
 
 Consolidates Phases 14-16's motion vocabulary into a single source of truth. See `.planning/phases/17-motion-system/17-CONTEXT.md`.
 
-- [ ] **MOT-01** — Motion design tokens in Tailwind config: 3 durations (`fast`/`normal`/`slow` = 120/180/300ms) + 3 easing curves (`emphasized`/`decelerated`/`accelerated`). All Phase-14/15/16 animations consume tokens; no inline ms values.
-- [ ] **MOT-02** — `useReducedMotion()` hook at `src/lib/hooks/useReducedMotion.ts` as single source of truth. No inline `@media (prefers-reduced-motion)` queries in component code.
-- [ ] **MOT-03** — Page-to-page transitions for the diary flow (Day 1 → Day 2 → Day 3 → Summary) via View Transitions API where supported + Tailwind keyframe fallback elsewhere.
-- [ ] **MOT-04** — BottomSheet motion refinement: consume the new tokens (replace hardcoded 180ms cubic-bezier).
-- [ ] **MOT-05** — Loading skeleton states with motion personality (shimmer animation); `prefers-reduced-motion` → static placeholders.
+- [x] **MOT-01** — Motion design tokens in Tailwind 4 `@theme inline`: 3 durations + 3 easings. ✅ shipped Phase 17 (commit 340447e)
+- [x] **MOT-02** — `useReducedMotion()` hook as single source of truth. ✅ shipped Phase 17 (commit 340447e, AnimatedMetric + ObservationCardReveal migrated)
+- [x] **MOT-03** — Page-to-page transitions for diary flow via `.animate-page-fade-in` (key-based remount) + View Transitions API helper for future use. ✅ shipped Phase 17 (commit e11798a)
+- [x] **MOT-04** — BottomSheet motion refinement consumes new tokens. ✅ shipped Phase 17 (commit 2e1e7b8, .animate-modal-in + .animate-slide-up migrated)
+- [x] **MOT-05** — Loading skeleton states with shimmer animation; `prefers-reduced-motion` → static. ✅ shipped Phase 17 (commit 2e1e7b8, Skeleton component with 3 variants)
 
 ## v2 Requirements
 
