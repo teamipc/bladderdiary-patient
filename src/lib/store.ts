@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { format } from 'date-fns';
@@ -455,21 +455,16 @@ export default useDiaryStore;
  * tick.
  */
 export function useStoreHydrated(): boolean {
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    // Re-check synchronously: hydration may have already completed between
-    // the component's first render and this effect.
-    setHydrated(useDiaryStore.persist.hasHydrated());
-
-    const unsubHydrate = useDiaryStore.persist.onHydrate(() => setHydrated(false));
-    const unsubFinish = useDiaryStore.persist.onFinishHydration(() => setHydrated(true));
-
-    return () => {
-      unsubHydrate();
-      unsubFinish();
-    };
-  }, []);
-
-  return hydrated;
+  return useSyncExternalStore(
+    (notify) => {
+      const unsubHydrate = useDiaryStore.persist.onHydrate(notify);
+      const unsubFinish = useDiaryStore.persist.onFinishHydration(notify);
+      return () => {
+        unsubHydrate();
+        unsubFinish();
+      };
+    },
+    () => useDiaryStore.persist.hasHydrated(),
+    () => false,
+  );
 }
