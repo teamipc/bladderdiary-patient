@@ -165,7 +165,6 @@ export function pageCombinedDiary(doc: jsPDF, state: DiaryState, locale: string,
   });
 
   // Sensation code legend at bottom
-  // @ts-expect-error jspdf-autotable adds lastAutoTable
   const tableEndY: number = doc.lastAutoTable.finalY;
   const legendY = Math.min(tableEndY + 3, LH - 18);
   doc.setFontSize(5.5);

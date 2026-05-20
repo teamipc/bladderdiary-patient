@@ -133,7 +133,6 @@ export function pageDailyDiary(doc: jsPDF, state: DiaryState, dayNum: 1 | 2 | 3,
     },
   });
 
-  // @ts-expect-error jspdf-autotable adds lastAutoTable
   const tableEndY: number = doc.lastAutoTable.finalY;
 
   // Day totals summary box

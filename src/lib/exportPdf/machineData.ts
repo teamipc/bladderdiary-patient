@@ -65,7 +65,6 @@ export function pageMachineData(doc: jsPDF, state: DiaryState, metrics: DiaryMet
     columnStyles: { 0: { cellWidth: 55 }, 1: { cellWidth: 50 } },
   });
 
-  // @ts-expect-error jspdf-autotable adds lastAutoTable
   y = doc.lastAutoTable.finalY + 6;
 
   // ── Events table ──

@@ -79,7 +79,6 @@ export function pageResultsOverview(doc: jsPDF, state: DiaryState, metrics: Diar
       alternateRowStyles: { fillColor: C.goldLight },
     });
 
-    // @ts-expect-error jspdf-autotable adds lastAutoTable
     y = doc.lastAutoTable.finalY + 6;
   }
 
